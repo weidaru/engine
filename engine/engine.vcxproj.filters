@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\engine">
+      <UniqueIdentifier>{9dc9409a-20f0-4a61-a9dc-a33a3ef78d36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine">
+      <UniqueIdentifier>{dbe96414-3267-4899-b774-c64ff8f011b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\component">
+      <UniqueIdentifier>{8cd93d1f-e7d6-40a4-a71f-bb9c6cdf238b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\component">
+      <UniqueIdentifier>{d107db23-854f-4d31-b113-7ca72b7ac17f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\entity">
+      <UniqueIdentifier>{a5a63a7f-4547-4437-9d81-06334b8b6815}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\entity">
+      <UniqueIdentifier>{3410985c-c63d-4c76-a73a-6bc2bc6f1444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\d3d">
+      <UniqueIdentifier>{e535f974-23ad-4cd3-9088-5b28109e8003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\d3d">
+      <UniqueIdentifier>{8ed956e3-1d3d-481a-a998-712fcdf5982d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\input">
+      <UniqueIdentifier>{4df96c3f-99f1-49c6-a136-502c202ec2e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\engine\input">
+      <UniqueIdentifier>{75baa20c-8c40-43a5-b0e5-868688dda387}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\engine\utils">
+      <UniqueIdentifier>{433aec29-7731-4cae-b536-34aab4589089}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entity.cpp">
+      <Filter>Source Files\engine\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine.cpp">
+      <Filter>Source Files\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_graphics_pipe.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_resource_manager.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\input_system.cpp">
+      <Filter>Source Files\engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_depth_stencil_state_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_rasterizer_state_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_sampler_state_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_buffer_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_texture_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_viewport_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_vertex_shader.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d\d3d_input_layout_factory.cpp">
+      <Filter>Source Files\engine\d3d</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\component.h">
+      <Filter>Header Files\engine\component</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entity.h">
+      <Filter>Header Files\engine\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine.h">
+      <Filter>Header Files\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\input_system.h">
+      <Filter>Header Files\engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_buffer_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_depth_stencil_state_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_graphics_pipe.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_option.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_pixel_shader.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_rasterizer_state_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_resource_manager.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_resource_operation.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_sampler_state_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_texture_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_vertex_shader.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_viewport_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\factory.h">
+      <Filter>Header Files\engine\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\singleton.h">
+      <Filter>Header Files\engine\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_input_layout_factory.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d\d3d_shader_bind_info.h">
+      <Filter>Header Files\engine\d3d</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\utils\factory.inl">
+      <Filter>Header Files\engine\utils</Filter>
+    </None>
+  </ItemGroup>
+</Project>

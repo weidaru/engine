@@ -1,0 +1,8 @@
+/Debug
+/Release
+/ipch
+*.sdf
+/engine/Debug
+/engine/Release
+/engine/ipch
+*.obj

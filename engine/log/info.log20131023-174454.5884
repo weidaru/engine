@@ -1,0 +1,8 @@
+Log file created at: 2013/10/23 17:44:54
+Running on machine: SHEN-PC
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I1023 17:44:54.857612  4104 d3d_resource_manager.cpp:110] 
+Using video card AMD Radeon HD 6800 Series
+memory = 1011
+numerator = 56
+denominator = 1
