@@ -33,9 +33,30 @@ public:
 	virtual int							SetScissorEnable(bool enable) = 0;
 	
 	//Output
-	virtual int 						SetDepthBuffer(...) = 0;
-	virtual int							SetStencilBuffer(...) = 0;
-	virtual int 						BindRenderTarget(...) = 0;
+	//	Depth
+	virtual int 						SetDepthEnable(bool enable) = 0;
+	virtual int							SetDepthWritable(bool enable) = 0;
+	virtual int							SetDepthFunc() = 0;
+	//	Stencil
+	virtual int							SetStencilEnable(bool enable) = 0;
+	virtual int							SetStencilReadMask(...) = 0;
+	virtual int							SetStencilWriteMask(...) = 0;
+	virtual int							SetStencilFront(FailOp, PassOp, StencilPassDepthFailOp, CompareFunc) = 0;
+	virtual int							SetStencilBack(FailOp, PassOp, StencilPassDepthFailOp, CompareFunc) = 0;
+	//	Render Target and Blend
+	virtual int							SetBlendAlphaToCoverageEnable(bool enable) = 0;
+	virtual int							SetBlendFactor(...) = 0;
+	virtual int							SetBlendSampleMask(...) = 0;
+	virtual int							SetBlendEnable(int index, bool enable) = 0;
+	virtual int							SetBLendSrcFactor(int index, ...) = 0;
+	virtual int							SetBlendDestFactor(int index, ...) = 0;
+	virtual int							SetBLendOp(int index, ...) = 0;
+	virtual int							SetBlendSrcAlphaFactor(int index, ...) = 0;
+	virtual int							SetBLendDestALphaFactor(int index, ...) = 0;
+	virtual int							SetBlendAlphaOp(int index, ...) = 0;
+	virtual int							SetBlendLogicOp(int index, ...) = 0;
+	virtual int							SetBLendWriteMask(int index, ...) = 0;
+	virtual int 						BindRenderTargets(...) = 0;
 	
 	//Draw
 	virtual int 						Draw(...) = 0;
