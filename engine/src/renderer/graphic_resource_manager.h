@@ -1,0 +1,8 @@
+#ifndef GRAPHIC_RESOURCE_MANAGER_H_
+#define GRAPHIC_RESOURCE_MANAGER_H_
+
+class GraphicResourceManager {
+
+};
+
+#endif GRAPHIC_RESOURCE_MANAGER_H_
