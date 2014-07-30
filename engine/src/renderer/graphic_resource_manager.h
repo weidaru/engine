@@ -9,4 +9,4 @@ class GraphicResourceManager {
 
 }
 
-#endif GRAPHIC_RESOURCE_MANAGER_H_
+#endif		//GRAPHIC_RESOURCE_MANAGER_H_
