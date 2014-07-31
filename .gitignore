@@ -6,3 +6,4 @@
 /engine/Release
 /engine/ipch
 *.obj
+*.tlog
