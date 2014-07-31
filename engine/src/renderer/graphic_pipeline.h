@@ -2,6 +2,7 @@
 #define GRAPHIC_PIPELINE_H_
 
 #include <stdint.h>
+#include <vector>
 
 namespace s2 {
 
@@ -9,6 +10,10 @@ class GraphicResourceManger;
 class Buffer;
 class VertexShader;
 class PixelShader;
+class Texture2D;
+class DepthStencilBuffer;
+class VertexBuffer;
+class IndexBuffer;
 
 class GraphicPipeline {
 public:
@@ -94,24 +99,24 @@ public:
 	//Input
 	virtual void						SetPrimitiveType(PrimitiveTopology topology) = 0;
 	virtual PrimitiveTopology			GetPrimitiveType() = 0;
-	virtual void 						BindVertexBuffer(unsigned int slot, Buffer *buf, 
+	virtual void 						SetVertexBuffer(unsigned int slot, VertexBuffer *buf, 
 														 unsigned int stride, unsigned int offset) = 0;
-	virtual Buffer *					GetVertexBuffer(unsigned int slot) = 0;
-	virtual void 						BindIndexBuffer(unsigned int slot, Buffer *buf,
+	virtual VertexBuffer *				GetVertexBuffer(unsigned int slot) = 0;
+	virtual void 						SetIndexBuffer(unsigned int slot, IndexBuffer *buf,
 														unsigned int stride, unsigned int offset) = 0;
-	virtual Buffer *					GetIndexBuffer(unsigned int slot) = 0;
+	virtual IndexBuffer *				GetIndexBuffer(unsigned int slot) = 0;
 	
 	//Shaders
-	virtual void 						BindVertexShader(VertexShader *vs) = 0;
+	virtual void 						SetVertexShader(VertexShader *vs) = 0;
 	virtual VertexShader *				GetVertexShader() = 0;
-	virtual void						BindPixelShader(PixelShader *ps) = 0;
+	virtual void						SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader *				GetPixelShader() = 0;
 	
 	//Rasterization
-	virtual void 						SetViewports(int n, const Rectangle *rects) = 0;
-	virtual int 						GetViewports(Rectangle *rects);
-	virtual void						SetScissorRects(int n, const Rectangle *rects) = 0;
-	virtual int							GetScissorRects(Rectangle *rects);
+	virtual void 						SetViewports(const std::vector<Rectangle> &rects) = 0;
+	virtual void 						GetViewports(std::vector<Rectangle> *rects);
+	virtual void						SetScissorRects(const std::vector<Rectangle> &rects) = 0;
+	virtual void						GetScissorRects(std::vector<Rectangle> *rects);
 	virtual void						SetFillMode(FillMode mode) = 0;
 	virtual FillMode					GetFillMode() = 0;
 	virtual void						SetCullMode(CullMode mode) = 0;
@@ -177,8 +182,8 @@ public:
 	virtual BlendOp						GetBLendAlphaOp(int index) = 0;
 	virtual void						SetBLendWriteMask(int index, uint_8 mask) = 0;
 	virtual unit_8						GetBlendWriteMask(int index) = 0;
-	virtual void 						BindRenderTargets(int num, Texture2D *target) = 0;
-	virtual int							GetRenderTargets(Texture2D *target) = 0;
+	virtual void 						SetRenderDestination(const std::vector<Texture2D *> &targets, DepthStencilBuffer *depth_stencil) = 0;
+	virtual void						GetRenderDestination(std::vector<Texture2D *> *targets, DepthStencilBuffer **depth_stencil) = 0;
 	
 	//Draw
 	virtual void 						Draw(unsigned int vertex_count, unsigned int vertex_start_loc) = 0;
