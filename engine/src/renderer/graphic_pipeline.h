@@ -1,7 +1,12 @@
 #ifndef GRAPHIC_PIPELINE_H_
 #define GRAPHIC_PIPELINE_H_
 
+#include <stdint.h>
+
+namespace s2 {
+
 class GraphicResourceManger;
+class Buffer;
 
 class GraphicPipeline {
 public:
@@ -11,14 +16,49 @@ public:
 		float width;
 		float height;
 	};
+	
+	enum PrimitiveTopology {
+		POINT_LIST,
+		LINE_LIST,
+		LINE_STRIP,
+		TRIANGLE_LIST,
+		TRIANGLE_STRIP
+	};
+	
+	enum FillMode {
+		WIREFRAME,
+		SOLID
+	};
+	
+	enum CullMode {
+		NONE,
+		FRONT,
+		BACK
+	};
+	
+	enum FaceOrientation {
+		CLOCKWISE,
+		COUNTER_CLOCKWISE;
+	};
+	
+	enum ComparisonFunc {
+		NEVER,
+		ALWAYS,
+		EQUAL,
+		NOT_EQUAL,
+		LESS,
+		LESS_EQUAL,
+		GREATER,
+		GREATER_EQUAL
+	};
 
 public:
 	virtual GraphicResourceManger *  	GetResourceManager() = 0;
 	
 	//Input
-	virtual int							SetPrimitiveType(...) = 0;
-	virtual int 						BindVertexBuffer(...) = 0;
-	virtual int 						BindIndexBuffer(...) = 0;
+	virtual int							SetPrimitiveType(PrimitiveTopology topology) = 0;
+	virtual int 						BindVertexBuffer(Buffer *buf) = 0;
+	virtual int 						BindIndexBuffer(Buffer *buf) = 0;
 	
 	//Shaders
 	virtual int 						BindVertexShader(...) = 0;
@@ -27,20 +67,22 @@ public:
 	//Rasterization
 	virtual int 						SetViewports(int n, const Rectangle *rects) = 0;
 	virtual int							SetScissorRects(int n, const Rectangle *rects) = 0;
-	virtual int							SetFillMode(...) = 0;
-	virtual int							SetCullMode() = 0;
-	virtual int							SetFrontOrientation(...) = 0;
+	virtual int							SetFillMode(FillMode mode) = 0;
+	virtual int							SetCullMode(CullMode mode) = 0;
+	virtual int							SetFrontOrientation(FaceOrientation orientation) = 0;
 	virtual int							SetScissorEnable(bool enable) = 0;
 	
 	//Output
 	//	Depth
+	virtual int							ClearDepth(float depth) = 0;
 	virtual int 						SetDepthEnable(bool enable) = 0;
 	virtual int							SetDepthWritable(bool enable) = 0;
-	virtual int							SetDepthFunc() = 0;
+	virtual int							SetDepthFunc(ComparisonFunc func) = 0;
 	//	Stencil
+	virtual int 						ClearStencil(uint_8 stencil) = 0;
 	virtual int							SetStencilEnable(bool enable) = 0;
-	virtual int							SetStencilReadMask(...) = 0;
-	virtual int							SetStencilWriteMask(...) = 0;
+	virtual int							SetStencilReadMask(unit_8 mask) = 0;
+	virtual int							SetStencilWriteMask(unit_8 mask) = 0;
 	virtual int							SetStencilFront(FailOp, PassOp, StencilPassDepthFailOp, CompareFunc) = 0;
 	virtual int							SetStencilBack(FailOp, PassOp, StencilPassDepthFailOp, CompareFunc) = 0;
 	//	Render Target and Blend
@@ -65,6 +107,6 @@ public:
 	virtual int 						DrawIndexedInstanced(...) = 0;
 };
 
-
+}
 
 #endif				//GRAPHIC_PIPELINE_H_
