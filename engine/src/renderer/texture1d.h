@@ -3,7 +3,7 @@
 
 namespace s2 {
 
-class Texture1d {
+class Texture1D {
 
 };
 
