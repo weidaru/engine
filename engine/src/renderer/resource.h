@@ -10,8 +10,8 @@ public:
 	Resource ();
 	virtual ~Resource();
 	
-	unsigned int 			GetID();
-	std::string 			GetName();
+	unsigned int 			GetID() const;
+	std::string 			GetName() const;
 	Resource & 				SetName(const std::string &new_name);
 	
 private:

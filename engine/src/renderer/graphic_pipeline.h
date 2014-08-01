@@ -98,7 +98,7 @@ public:
 	
 	//Input
 	virtual void						SetPrimitiveType(PrimitiveTopology topology) = 0;
-	virtual PrimitiveTopology			GetPrimitiveType() = 0;
+	virtual PrimitiveTopology			GetPrimitiveType() const = 0;
 	virtual void 						SetVertexBuffer(unsigned int slot, VertexBuffer *buf, 
 														 unsigned int stride, unsigned int offset) = 0;
 	virtual VertexBuffer *				GetVertexBuffer(unsigned int slot) = 0;
@@ -108,41 +108,41 @@ public:
 	
 	//Shaders
 	virtual void 						SetVertexShader(VertexShader *vs) = 0;
-	virtual VertexShader *				GetVertexShader() = 0;
+	virtual VertexShader *				GetVertexShader() const = 0;
 	virtual void						SetPixelShader(PixelShader *ps) = 0;
-	virtual PixelShader *				GetPixelShader() = 0;
+	virtual PixelShader *				GetPixelShader() const = 0;
 	
 	//Rasterization
 	virtual void 						SetViewports(const std::vector<Rectangle> &rects) = 0;
-	virtual void 						GetViewports(std::vector<Rectangle> *rects);
+	virtual void 						GetViewports(std::vector<Rectangle> *rects) const = 0;
 	virtual void						SetScissorRects(const std::vector<Rectangle> &rects) = 0;
-	virtual void						GetScissorRects(std::vector<Rectangle> *rects);
+	virtual void						GetScissorRects(std::vector<Rectangle> *rects) const = 0;
 	virtual void						SetFillMode(FillMode mode) = 0;
-	virtual FillMode					GetFillMode() = 0;
+	virtual FillMode					GetFillMode() const = 0;
 	virtual void						SetCullMode(CullMode mode) = 0;
-	virtual CullMode					GetCullMode() = 0;
+	virtual CullMode					GetCullMode() const = 0;
 	virtual void						SetFrontOrientation(FaceOrientation orientation) = 0;
-	virtual FaceOrientation				GetFrontOrientation() = 0;
+	virtual FaceOrientation				GetFrontOrientation() const = 0;
 	virtual void						SetScissorEnable(bool enable) = 0;
-	virtual bool						GetScissorEnalbe() = 0;
+	virtual bool						GetScissorEnalbe() const = 0;
 	
 	//Output
 	//	Depth
 	virtual void						ClearDepth(float depth) = 0;
 	virtual void 						SetDepthEnable(bool enable) = 0;
-	virtual bool						GetDepthEnable() = 0;
+	virtual bool						GetDepthEnable() const = 0;
 	virtual void						SetDepthWritable(bool enable) = 0;
-	virtual bool						GetDepthWritable() = 0;
+	virtual bool						GetDepthWritable() const = 0;
 	virtual void						SetDepthFunc(ComparisonFunc func) = 0;
-	virtual ComparisonFunc				GetDepthFunc() = 0;
+	virtual ComparisonFunc				GetDepthFunc() const = 0;
 	//	Stencil
 	virtual void 						ClearStencil(uint_8 stencil) = 0;
 	virtual void						SetStencilEnable(bool enable) = 0;
-	virtual bool						GetStencilEnable() = 0;
+	virtual bool						GetStencilEnable() const = 0;
 	virtual void						SetStencilReadMask(unit_8 mask) = 0;
-	virtual unit_8						GetStencilReadMask() = 0;
+	virtual unit_8						GetStencilReadMask() const = 0;
 	virtual void						SetStencilWriteMask(unit_8 mask) = 0;
-	virtual unit_8						GetStencilWriteMask() = 0;
+	virtual unit_8						GetStencilWriteMask() const = 0;
 	virtual void						SetStencilFront(StencilOp fail_op, 
 														StencilOp pass_op, 
 														StencilOp stencil_pass_depth_fail_op, 
@@ -150,38 +150,38 @@ public:
 	virtual void						GetStencilFront(StencilOp *fail_op, 
 														StencilOp *pass_op, 
 														StencilOp *stencil_pass_depth_fail_op, 
-														ComparisonFunc *comp);
+														ComparisonFunc *comp) const = 0;
 	virtual void						SetStencilBack(StencilOp fail_op, 
 														StencilOp pass_op, 
 														StencilOp stencil_pass_depth_fail_op, 
 														ComparisonFunc comp) = 0;
-	virtual void						GetStencilBack(StencilOp fail_op, 
-														StencilOp pass_op, 
-														StencilOp stencil_pass_depth_fail_op, 
-														ComparisonFunc comp) = 0;
+	virtual void						GetStencilBack(StencilOp *fail_op, 
+														StencilOp *pass_op, 
+														StencilOp *stencil_pass_depth_fail_op, 
+														ComparisonFunc *comp) const = 0;
 	//	Render Target and Blend
 	virtual void						SetBlendAlphaToCoverageEnable(bool enable) = 0;
-	virtual bool						GetBlendAlphaToCoverageEnable() = 0;
+	virtual bool						GetBlendAlphaToCoverageEnable() const = 0;
 	virtual void						SetBlendFactor(const float color[4]) = 0;
-	virtual void						GetBlendFactor(float *color) = 0;
+	virtual void						GetBlendFactor(float *color) const = 0;
 	virtual void						SetBlendSampleMask(uint_8 mask) = 0;
-	virtual unit_8						GetBlendSampleMask() = 0;
+	virtual unit_8						GetBlendSampleMask() const = 0;
 	virtual void						SetBlendEnable(int index, bool enable) = 0;
-	virtual bool						GetBlendEnable() = 0;
+	virtual bool						GetBlendEnable() const = 0;
 	virtual void						SetBLendSrcFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBLendSrcFactor() = 0;
+	virtual BlendFactor					GetBLendSrcFactor() const = 0;
 	virtual void						SetBlendDestFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBlendDestFactor(int index) = 0;
+	virtual BlendFactor					GetBlendDestFactor(int index) const = 0;
 	virtual void						SetBlendOp(int index, BlendOp op) = 0;
-	virtual BlendOp						GetBlendOp(int index) = 0;
+	virtual BlendOp						GetBlendOp(int index) const = 0;
 	virtual void						SetBlendSrcAlphaFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBlendSrcAlphaFactor(int index) = 0;
+	virtual BlendFactor					GetBlendSrcAlphaFactor(int index) const = 0;
 	virtual void						SetBlendDestAlphaFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBlendDestAlphaFactor(int index) = 0;
+	virtual BlendFactor					GetBlendDestAlphaFactor(int index) const = 0;
 	virtual void						SetBlendAlphaOp(int index, BlendOp op) = 0;
-	virtual BlendOp						GetBLendAlphaOp(int index) = 0;
+	virtual BlendOp						GetBLendAlphaOp(int index) const = 0;
 	virtual void						SetBLendWriteMask(int index, uint_8 mask) = 0;
-	virtual unit_8						GetBlendWriteMask(int index) = 0;
+	virtual unit_8						GetBlendWriteMask(int index) const = 0;
 	virtual void 						SetRenderDestination(const std::vector<Texture2D *> &targets, DepthStencilBuffer *depth_stencil) = 0;
 	virtual void						GetRenderDestination(std::vector<Texture2D *> *targets, DepthStencilBuffer **depth_stencil) = 0;
 	

@@ -1,18 +1,16 @@
 #include "resource.h"
 
-namespace {
-
-unsigned int Resource::id = 0;
+namespace s2 {
 
 Resource::Resource () : id(++GetCurrentID()) {}
 
-virtual Resource::~Resource() {}
+Resource::~Resource() {}
 
-unsigned int Resource::GetID() {
+unsigned int Resource::GetID() const {
 	return id;
 }
 
-std::string Resource::GetName() {
+std::string Resource::GetName() const {
 	return name;
 }
 
