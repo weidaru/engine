@@ -10,43 +10,46 @@ struct enable_if;
 
 template <>
 struct enable_if<true> {
-typedef bool defined_onlyif_true;
+typedef bool you_are_using_the_wrong_writable_if_undefined;
 };
 
 }
 
 /**
- * Data should be some pure C struct. Data as void will be specialized see below.
- * Base is the MappedResource will inherit from and it must have default constructor.
- * Core is the most import type which should stick to the following conventions.
+ * This class serves as similar role as LockGuard to Locks. Use it to safely map and unmap resource.
+ * Error check will be processed in compile time.
+ *
+ * Data should be something the user want to manipulate, such as some C struct.
+ * Core is the most import type which should serves as the role of Data manager.
  *	1) Make sure it has default constructor.
  *  2) It must provide syntax compatibility with following signatures:
- *		void 	Initialize(unsigned int size, const void *data);
- *		void * 	Map();
- *		void 	UnMap();
+ *		void * 			Map();
+ *		void 			UnMap();
+ *		unsigned int 	GetSize();
  *	3) Destructor is required to avoid memory leak.
+ * writable determines whether the MappedResource is writable by cpu.
  */
-template <typename Data, typename Base, typename Core, bool writable>
-class MappedResource : public Base  {
+template <typename Data, typename Option, typename Core, bool readable, bool writable>
+class MappedResource  {
 public:
-	/**
-	 * Buffer with exact size of sizeof(T) 
-	 */
-	MappedResource(const Data *data) {
-		core.Initialize(sizeof(Data), data);
-	}
+	MappedResource(Core *new_core) : core(new_core) { }
 
 	const Data * Map() const {
-		return (const Data *)(core.Map());
+		internal::enable_if<readable>::you_are_using_the_wrong_writable_if_undefined dummy = false;
+		return (const Data *)(core->Map());
 	}
 	
 	Data * MapEditable() {
-		internal::enable_if<writable>::defined_onlyif_true dummy = false;
-		return (Data *)core.Map();
+		internal::enable_if<writable>::you_are_using_the_wrong_writable_if_undefined dummy = false;
+		return (Data *)core->Map();
 	}
 	
 	void UnMap() {
-		core.UnMap();
+		core->UnMap();
+	}
+	
+	unsigned int GetSize() {
+		return core->GetSize()/sizeof(Data);
 	}
 
 private:
@@ -54,41 +57,7 @@ private:
 	MappedResource & operator=(const MappedResource &);
 	
 private:
-	Core core;
-};
-
-/**
- * Template specialization for non-structured blob data, such as vertex buffer or texture.
- */
-template <typename Base, typename Core, bool writable>
-class MappedResource <void, Base, Core, writable> : public Base {
-public:
-
-	MappedResource(const void *data, unsigned int size) {
-		core.Initialize(size, data);
-	}
-
-	const void * Map() const {
-		return (const void *)core.Map();
-	}
-	
-	void * MapEditable() {
-		internal::enable_if<writable>::defined_onlyif_true dummy = false;
-		return core.Map();
-	}
-	
-	void UnMap() {
-		core.UnMap();
-	}
-	
-	bool GetWritable() { return writable; }
-
-private:
-	MappedResource(const MappedResource &);
-	MappedResource & operator=(const MappedResource &);
-	
-private:
-	Core core;
+	Core *core;
 };
 
 }
