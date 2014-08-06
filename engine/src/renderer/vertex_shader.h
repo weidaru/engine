@@ -5,7 +5,6 @@
 #include "utils/s2string.h"
 
 namespace s2 {
-class ShaderReflection;
 class ConstantBuffer;
 class Sampler;
 class VertexBuffer;

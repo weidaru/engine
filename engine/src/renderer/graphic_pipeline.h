@@ -118,6 +118,8 @@ public:
 	virtual bool						GetScissorEnalbe() const = 0;
 	
 	//Output
+	virtual void 						SetDepthStencilBuffer(DepthStencilBuffer *depth_stencil) = 0;
+	virtual DepthStencilBuffer *		GetDepthStencilBuffer() = 0;
 	//	Depth
 	virtual void						ClearDepth(float depth) = 0;
 	virtual void 						SetDepthEnable(bool enable) = 0;

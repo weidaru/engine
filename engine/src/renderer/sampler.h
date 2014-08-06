@@ -4,7 +4,6 @@
 #include "resource.h"
 
 namespace s2 {
-
 class Sampler : public Resource {
 public:
 	enum Filter {

@@ -5,7 +5,6 @@
 #include "utils/s2string.h"
 
 namespace s2 {
-class ShaderReflection;
 class ConstantBuffer;
 class Sampler;
 class DepthStencilBuffer;
@@ -22,8 +21,6 @@ public:
 	
 	virtual void 						SetRenderTarget(const s2string &name, Texture2D *target) = 0;
 	virtual Texture2D *					GetRenderTarget(const s2string &name) = 0;
-	virtual void 						SetDepthStencilBuffer(DepthStencilBuffer *depth_stencil) = 0;
-	virtual DepthStencilBuffer *		GetDepthStencilBuffer() = 0;
 };
 
 }

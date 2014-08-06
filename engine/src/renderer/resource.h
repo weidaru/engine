@@ -11,7 +11,10 @@ public:
 	virtual ~Resource();
 	
 	unsigned int 			GetID() const;
-	s2string 			GetName() const;
+	s2string 				GetName() const;
+	/**
+	 * Yes, name can change. Use it for debug.
+	 */
 	Resource & 				SetName(const s2string &new_name);
 	
 private:
