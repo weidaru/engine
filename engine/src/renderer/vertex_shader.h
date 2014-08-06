@@ -27,8 +27,8 @@ public:
 	virtual Resource * 					GetResource(const s2string &name) = 0;
 	
 	//Input for vertex shader.
-	virtual void 						SetVertexBuffer(const s2string &name, VertexBuffer *buf, VertexBufferUsage usage) = 0;
-	virtual VertexBuffer *				GetVertexBuffer(const s2string &name, VertexBufferUsage *usage) = 0;
+	virtual void 						SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage) = 0;
+	virtual VertexBuffer *				GetVertexBuffer(unsigned int index, VertexBufferUsage *usage) = 0;
 	virtual void 						SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer *				GetIndexBuffer() = 0;
 };

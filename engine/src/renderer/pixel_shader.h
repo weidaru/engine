@@ -19,8 +19,8 @@ public:
 	virtual void 						SetResource(const s2string &name, const Resource &resource) = 0;
 	virtual Resource * 					GetResource(const s2string &name) = 0;
 	
-	virtual void 						SetRenderTarget(const s2string &name, Texture2D *target) = 0;
-	virtual Texture2D *					GetRenderTarget(const s2string &name) = 0;
+	virtual void 						SetRenderTarget(unsigned int index, Texture2D *target) = 0;
+	virtual Texture2D *					GetRenderTarget(unsigned int index) = 0;
 };
 
 }
