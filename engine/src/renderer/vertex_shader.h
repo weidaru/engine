@@ -2,29 +2,36 @@
 #define VERTEX_SHADER_H_
 
 #include "resource.h"
-#include <string>
+#include "utils/s2string.h"
 
 namespace s2 {
 class ShaderReflection;
 class ConstantBuffer;
+class Sampler;
+class VertexBuffer;
+class IndexBuffer;
 
 class VertexShader : public Resource {
 public:
+	enum VertexBufferUsage {
+		PER_VERTEX,
+		PER_INSTANCE
+	};
+
+public:
 	virtual 							~VertexShader() {}
-	virtual void 						SetConstantBuffer(unsigned int index, const ConstantBuffer &cb) = 0;
-	virtual ConstantBuffer * 			GetConstantBuffer(unsigned int index) = 0;
-	virtual void 						SetConstantBuffer(const std::string &name, const ConstantBuffer &cb) = 0;
-	virtual ConstantBuffer * 			GetConstantBuffer(const std::string &name) = 0;
-	virtual void 						SetSampler(unsigned int index, const Sampler &sampler) = 0;
-	virtual Sampler * 					GetSampler(unsigned int index) = 0;
-	virtual void 						SetSampler(const std::string &name, const Sampler &sampler) = 0;
-	virtual Sampler * 					GetSampler(const std::string &name) = 0;
-	virtual void 						SetResource(unsigned int index, const Resource &resource) = 0;
-	virtual Resource * 					GetResource(unsigned int index) = 0;
-	virtual void 						SetResource(const std::string &name, const Resource &resource) = 0;
-	virtual Resource * 					GetResource(const std::string &name) = 0;
+	virtual void 						SetConstantBuffer(const s2string &name, const ConstantBuffer &cb) = 0;
+	virtual ConstantBuffer * 			GetConstantBuffer(const s2string &name) = 0;
+	virtual void 						SetSampler(const s2string &name, const Sampler &sampler) = 0;
+	virtual Sampler * 					GetSampler(const s2string &name) = 0;
+	virtual void 						SetResource(const s2string &name, const Resource &resource) = 0;
+	virtual Resource * 					GetResource(const s2string &name) = 0;
 	
-	virtual const ShaderReflection & 	GetReflection() = 0;
+	//Input for vertex shader.
+	virtual void 						SetVertexBuffer(const s2string &name, VertexBuffer *buf, VertexBufferUsage usage) = 0;
+	virtual VertexBuffer *				GetVertexBuffer(const s2string &name, VertexBufferUsage *usage) = 0;
+	virtual void 						SetIndexBuffer(IndexBuffer *buf) = 0;
+	virtual IndexBuffer *				GetIndexBuffer() = 0;
 };
 
 }

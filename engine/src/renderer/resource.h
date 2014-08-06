@@ -1,7 +1,7 @@
 #ifndef RESOURCE_H_
 #define RESOURCE_H_
 
-#include <string>
+#include "utils/s2string.h"
 
 namespace s2 {
 
@@ -11,8 +11,8 @@ public:
 	virtual ~Resource();
 	
 	unsigned int 			GetID() const;
-	std::string 			GetName() const;
-	Resource & 				SetName(const std::string &new_name);
+	s2string 			GetName() const;
+	Resource & 				SetName(const s2string &new_name);
 	
 private:
 	static unsigned int & 	GetCurrentID();
@@ -21,7 +21,7 @@ private:
 	
 private:
 	unsigned int 	id;
-	std::string 	name;
+	s2string 	name;
 };
 
 }

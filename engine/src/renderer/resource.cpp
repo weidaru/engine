@@ -10,11 +10,11 @@ unsigned int Resource::GetID() const {
 	return id;
 }
 
-std::string Resource::GetName() const {
+s2string Resource::GetName() const {
 	return name;
 }
 
-Resource & Resource::SetName(const std::string &new_name) {
+Resource & Resource::SetName(const s2string &new_name) {
 	name = new_name;
 	return *this;
 }

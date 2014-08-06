@@ -7,13 +7,10 @@
 namespace s2 {
 
 class GraphicResourceManger;
-class Buffer;
 class VertexShader;
 class PixelShader;
 class Texture2D;
 class DepthStencilBuffer;
-class VertexBuffer;
-class IndexBuffer;
 
 class GraphicPipeline {
 public:
@@ -99,12 +96,6 @@ public:
 	//Input
 	virtual void						SetPrimitiveType(PrimitiveTopology topology) = 0;
 	virtual PrimitiveTopology			GetPrimitiveType() const = 0;
-	virtual void 						SetVertexBuffer(unsigned int slot, VertexBuffer *buf, 
-														 unsigned int stride, unsigned int offset) = 0;
-	virtual VertexBuffer *				GetVertexBuffer(unsigned int slot) = 0;
-	virtual void 						SetIndexBuffer(unsigned int slot, IndexBuffer *buf,
-														unsigned int stride, unsigned int offset) = 0;
-	virtual IndexBuffer *				GetIndexBuffer(unsigned int slot) = 0;
 	
 	//Shaders
 	virtual void 						SetVertexShader(VertexShader *vs) = 0;
@@ -182,16 +173,9 @@ public:
 	virtual BlendOp						GetBLendAlphaOp(int index) const = 0;
 	virtual void						SetBLendWriteMask(int index, uint_8 mask) = 0;
 	virtual unit_8						GetBlendWriteMask(int index) const = 0;
-	virtual void 						SetRenderDestination(const std::vector<Texture2D *> &targets, DepthStencilBuffer *depth_stencil) = 0;
-	virtual void						GetRenderDestination(std::vector<Texture2D *> *targets, DepthStencilBuffer **depth_stencil) = 0;
 	
 	//Draw
-	virtual void 						Draw(unsigned int vertex_count, unsigned int vertex_start_loc) = 0;
-	virtual void						DrawIndexed(unsigned int vertex_count, unsigned int vertex_start_loc, int step) = 0;
-	virtual void						DrawInstanced(unsigned int vertex_count_per_instance, unsigned int instance_count,
-													  unsigned int vertex_start_loc, unsigned int instance_start_loc) = 0;
-	virtual void						DrawIndexedInstanced(unsigned int index_count_per_instance, unsigned int instance_count,
-															 unsigned int index_start_loc, int step, unsigned int instance_start_loc) = 0;
+	virtual void 						Draw() = 0;
 };
 
 }
