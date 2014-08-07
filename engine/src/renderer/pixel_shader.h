@@ -8,6 +8,7 @@ namespace s2 {
 class ShaderReflection;
 class ConstantBuffer;
 class Sampler;
+class DepthStencilBuffer;
 
 class PixelShader : public Resource {
 public:
