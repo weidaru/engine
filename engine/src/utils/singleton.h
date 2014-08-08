@@ -1,6 +1,8 @@
 #ifndef SINGLETON_H_
 #define SINGLETON_H_
 
+namespace s2 {
+
 template <typename T>
 class Singleton {
 public:
@@ -16,5 +18,7 @@ private:
 	Singleton(const Singleton &);
 	Singleton & operator=(const Singleton &);
 };
+
+}
 
 #endif		//SINGLETON_H_
