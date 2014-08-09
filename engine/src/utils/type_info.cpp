@@ -1,8 +1,7 @@
 #include "type_info.h"
 #include "type_info_helper.h"
 
-//#include <glog/logging.h>
-#include <assert.h>
+#include <glog/logging.h>
 
 namespace s2 {
 
@@ -22,8 +21,7 @@ const TypeInfo & TypeInfo::GetMember(const s2string &member_name) const {
 		if(it->first == member_name)
 			return TypeInfoManager::GetSingleton()->Get(it->second);
 	}
-	//LOG(ERROR)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
-	assert(false);
+	LOG(ERROR)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
 	return TypeInfoManager::GetSingleton()->Get(null_typename);
 }
 
@@ -32,8 +30,7 @@ unsigned int TypeInfo::GetMemberIndex(const s2string &member_name) const {
 		if(members[i].first == member_name)
 			return i;
 	}
-	//LOG(ERROR)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
-	assert(false);
+	LOG(ERROR)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
 	return 0;
 }
 
@@ -77,8 +74,7 @@ const bool TypeInfoManager::Has(const s2string &name) const {
 }
 
 const TypeInfo & TypeInfoManager::Create(const s2string &name, unsigned int size, const TypeInfo::Members &new_members) {
-	//CHECK(Has(name) == false)<<"Try to create a typeinfo ["<<name<<"] that exists.";
-	assert(Has(name) == false);
+	CHECK(Has(name) == false)<<"Try to create a typeinfo ["<<name<<"] that exists.";
 	TypeInfo *new_typeinfo = new TypeInfo(name, size, new_members);
 	data[name] = new_typeinfo;
 	return *new_typeinfo;	
