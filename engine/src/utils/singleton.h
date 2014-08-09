@@ -15,6 +15,7 @@ public:
 	virtual ~Singleton() {}
 
 private:
+	
 	Singleton(const Singleton &);
 	Singleton & operator=(const Singleton &);
 };

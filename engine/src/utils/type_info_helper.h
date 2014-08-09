@@ -14,14 +14,20 @@
 #define Stringify(Name) StringifyInternal(Name)
 
 #define DeclareTypeInfo(TypeName) \
-namespace typeinfo { \
-class TypeInfoRegistration##TypeName { \
+template <> \
+struct TypeInfoBind<TypeName> { \
+public: \
+	static s2::s2string GetName(); \
 private: \
-	TypeInfoRegistration(); \
-	static TypeInfoRegistration registration; \
-}; \
-} \
+	TypeInfoBind(); \
+	TypeInfoBind(const TypeInfoBind &); \
+	TypeInfoBind & operator=(const TypeInfoBind &); \
+	static TypeInfoBind registration; \
+};
 
 #define DefineTypeInfo(TypeName) \
-TypeInfoRegistration##TypeName::registration; \
-TypeInfoRegistration##TypeName::TypeInfoRegistration() \
+s2::s2string s2::TypeInfoBind<TypeName>::GetName() { \
+	return Stringify(TypeName); \
+} \
+s2::TypeInfoBind<TypeName> s2::TypeInfoBind<TypeName>::registration; \
+s2::TypeInfoBind<TypeName>::TypeInfoBind() 
