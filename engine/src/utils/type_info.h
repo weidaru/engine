@@ -26,6 +26,17 @@ namespace s2 {
  
 class TypeInfoManager;
  
+ /**
+  * In general case, TypeInfo initialization is handled by script through annotation tag, for example
+  * //[[TypeInfo]]//
+  * struct Foo {
+  * 	int a;
+  *		float b;
+  * }
+  * All the type name and member name will be exact the same as the struct/class declaration.
+  * The struct/class should have no virtual functions whose implementation varies from compiler to compiler. 
+  * This allows the script to generate type info for run-time. See more in the script/generate_type_info.lua
+  */
 class TypeInfo {
 public:
 	//member name and type name pair.
