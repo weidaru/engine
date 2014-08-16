@@ -33,9 +33,12 @@ class TypeInfoManager;
   * 	int a;
   *		float b;
   * }
-  * All the type name and member name will be exact the same as the struct/class declaration.
-  * The struct/class should have no virtual functions whose implementation varies from compiler to compiler. 
   * This allows the script to generate type info for run-time. See more in the script/generate_type_info.lua
+  * All the type name and member name will be exact the same as the struct declaration.
+  * Padding won't be a problem as all the information is told by the compiler, sizeof etc.
+  *
+  * Things won't work now:
+  * 	It won't work for struct having virtual functions as its implementation varies from compiler to compiler. 
   */
 class TypeInfo {
 public:

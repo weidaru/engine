@@ -23,40 +23,65 @@ local function scan(dir, func)
 	end
 end
 
-local source_dir
-local dest
+--[[
+Here is the rules for parsing.
+The struct should be plain old c style except that it allows function declaration.
+It should have no virtual things or any public private declaration.
+Actually implementation may just use pattern matching.
 
-local rule = option_parser.create_rule()
-rule[{"--source_dir", "-s", "Set the directory which needs scanning, all the .h .hpp .cpp .cc files will be scanned. Use absolute path!!"}] = 
-function(_, v) 
-	source_dir = v
-end
+<what-we-care> ::= <annotation-warp> <struct>
+<annotation-warp> ::= <SOL> <space-tab> "//[[" <annotation> "]]//" <space-tab> <EOL>
+<annotation> ::= "TypeInfo"
+<comment> ::= "//" <text> <EOL> | "/*" <text> "*/"
+<struct> ::= "struct" <blank> <word> <blank> "{" <members> "}" <blank> ";"
+<blank> ::= "\t" <blank> | " " <blank> | "\n" <blank> | <comment> <blank> | " " | "\t" | "\n"
+<spaces-tabs> ::= "\t" <spaces-tabs> | " " <spaces-tabs> | ""
+<members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
+<variable-dec> ::= <word> <blank> <word> ";"
+<function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
+]]--
 
-rule[{"--dest", "-d", "The file path that will be gnerated."}] = 
-function(_, v)
-	dest = v
-end
+--Execution block begins here
+do
+	local source_dir
+	local dest
 
-if not pcall(rule.parse, rule, ...) then
-	print(rule:to_string())
-end
-assert(source_dir~=nil, "Soruce Dir is nil!")
-assert(dest~=nil, "Dest Dir is nil!")
-
---Start scan
-local buffer = {}
-scan(source_dir, 
-function(filepath)
-	local f = assert(io.open(filepath, "r"))
-	--Read line by line
-	for line in f:lines() do
-		local annotation = line:match("[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//[%s\t\n]*")
-		if annotation == "TypeInfo" then
-			print(filepath)
-		end
+	local rule = option_parser.create_rule()
+	rule[{"--source_dir", "-s", "Set the directory which needs scanning, all the .h .hpp .cpp .cc files will be scanned. Use absolute path!!"}] = 
+	function(_, v) 
+		source_dir = v
 	end
-	f:close()
-end)
+
+	rule[{"--dest", "-d", "The file path that will be gnerated."}] = 
+	function(_, v)
+		dest = v
+	end
+
+	if not pcall(rule.parse, rule, ...) then
+		print(rule:to_string())
+	end
+	assert(source_dir~=nil, "Soruce Dir is nil!")
+	assert(dest~=nil, "Dest Dir is nil!")
+
+	--Start scan
+	local buffer = {}
+	scan(source_dir, 
+	function(filepath)
+		local f = assert(io.open(filepath, "r"))
+		--Cache the file
+		print("Start processing " .. filepath)
+		
+		local buffer = {}
+		for line in f:lines() do
+			table.insert(buffer, line)
+		end
+		
+		f:close()
+		
+		print("Complete processing " .. filepath)
+	end)
+end
+
 
 
 
