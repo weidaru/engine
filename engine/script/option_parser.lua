@@ -1,6 +1,6 @@
-local m = {}
+local m = {methods={}}
 
-function m.parse_option(rule, ...)
+function m.methods.parse(rule, ...)
 	local argc = select("#", ...)
 	assert(argc%2==0, "Invalid number of arguments. " .. argc)
 	for i=0,argc/2-1,1 do
@@ -12,7 +12,7 @@ function m.parse_option(rule, ...)
 	end
 end
 
-function m.dump_rule(rule)
+function m.methods.to_string(rule)
 	local buffer = {"Arguments:\n"}
 	local explored = {}
 	for _,v in pairs(rule) do
@@ -32,8 +32,9 @@ end
 
 function m.create_rule()
 	local r = {}
-	r.parse = m.parse_option
-	r.to_string = m.dump_rule
+	for k,v in pairs(m.methods) do
+		r[k] = v
+	end
 	
 	local meta = {
 	__newindex = function(t,k,v)

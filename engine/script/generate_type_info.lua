@@ -1,4 +1,5 @@
 local option_parser = require("option_parser")
+local lexer = require("lexer")
 
 local function get_os() 
 	if package.config:sub(1,1)=="/" then
@@ -41,6 +42,17 @@ Actually implementation may just use pattern matching.
 <function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
 ]]--
 
+local function 
+
+local function parse(context, lex) 
+	lex:next
+end
+
+local function link(context)
+
+end
+
+
 --Execution block begins here
 do
 	local source_dir
@@ -63,6 +75,20 @@ do
 	assert(source_dir~=nil, "Soruce Dir is nil!")
 	assert(dest~=nil, "Dest Dir is nil!")
 
+	local context = {}
+	--[[
+	Format
+		--metadata for struct
+		[
+			{
+				typename
+				members = [{typename, name}]
+				defined_file
+				defined_line
+			}
+		]
+	]]--
+	
 	--Start scan
 	local buffer = {}
 	scan(source_dir, 
@@ -70,14 +96,18 @@ do
 		local f = assert(io.open(filepath, "r"))
 		--Cache the file
 		print("Start processing " .. filepath)
-		
 		local buffer = {}
 		for line in f:lines() do
 			table.insert(buffer, line)
 		end
-		
 		f:close()
 		
+		local lex = lexer.create(table.concat(buffer))
+		print("Parsing...")
+		parse(context, lex)
+		print("Linking...")
+		link(context)
+
 		print("Complete processing " .. filepath)
 	end)
 end

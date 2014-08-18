@@ -1,110 +1,125 @@
-local lexer = {}
---Assume the input is small so store a string directly.
-function lexer.create(str)
-	local t = {data=str, pos=1, old_pos=-1}
-	return t
-end
+local lexer = {methods={}}
 
 --[[
-Returns the matched sub-string if any and all the captures if any.
+Returns the start and end indices if any and all the captures if any. If no match then return nil
 The result does not have to start at the current pos.
 ]]--
-function lexer.next(self, pattern)
-	local value = {self.str:find(pattern, pos)}
-	local result = self.str:sub(value[1],value[2])
-	self.pos = value[2]+1
-	local capture = {}
-	for i=3,select("#",value) do
-		table.insert(capture, value[i])
+function lexer.methods.next(self, pattern)
+	local value = {self.data:find(pattern, self.pos)}
+	if value[2] ~= nil then
+		self.pos = value[2]+1
 	end
-	return result, table.unpack(capture) 
+
+	return table.unpack(value) 
 end
 
 --[[
 The expect semantic is essentially the same as next expect that 
 it requires the match to start at the current pos.
 ]]--
-function lexer.expect(self, pattern)
-	if pattern:sub(1,1) != "^" then
+function lexer.methods.expect(self, pattern)
+	if pattern:sub(1,1) ~= "^" then
 		pattern = "^" .. pattern
 	end
 	assert(pattern:sub(1,1) == "^", "Pattern must begin with ^")
-	return self:next(self, pattern)
+	return self:next(pattern)
 end
 
-
-function lexer.expect_annotaion(self)
-	return lexer:expect("^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//.*\n")
-end
-
-function lexer.expect_line(self)
-	return self:expect("^.-\n")
-end
-
-function lexer.expect_word(self)
-	return self:expect("^%a%w*")
-end
-
-function loop_decorator(self, func) 
-	local old_pos = self.pos
-	
-	func(self)
-	
-	local result = nil
-	if self.pos > old_pos then
-		result = self.str:sub(old_pos, self.pos-1)
-	end
-	return result, self.pos
-end
-
-function lexer.expect_comment(_self)
-	return loop_decorator(_self, 
-	function(self)
-		while self.pos <= self.str.len() do
-			local continue = nil
-			continue = self:expect("^//.-\n") or self:expect("/%*.-%*/")
-			if not continue then
-				break
-			end
-		end
-	end)
-end
-
-function lexer.expect_blank(_self)
-	return loop_decorator(_self, 
-	function(self)
-		while self.pos <= self.str.len() do
-			_, self.pos = self:expect("^[ \t\n]+")
-			local comment
-			comment = self:expect_comment()
-			if comment == nil then
-				break
-			end
-		end
-	end)
-end
-
-function lexer.expect_ignore_blank(self, pattern)
+function lexer.methods.ignore(self, pattern)
 	while true do
-		if lexer.expect_blank(self, pattern) == nil then
+		if self:expect(pattern) == nil then
 			break
 		end
 	end
-	return lexer.expect(self, pattern)
 end
 
 --Use checkpoint and rollback to perform lookahead
-function lexer.checkpoint(self)
+function lexer.methods.checkpoint(self)
 	assert(self.old_pos == -1, 	[[checkpoint and rollback should always come into pairs. 
 								Use either of them consecutively will raise an error.]])
 	self.old_pos = self.pos
 end
 
-function
+function lexer.methods.rollback(self)
 	assert(self.old_pos ~= -1,	[[checkpoint and rollback should always come into pairs. 
 								Use either of them consecutively will raise an error.]])
 	self.pos = self.old_pos
 	self.old_pos = -1
+end
+
+local function check_method(l, name)
+	assert(lexer.methods[name]==nil, string.format("Try to define a function %s which exists.", name))
+	return name
+end
+
+--Just do some forwarding, lexer itself will be part of the closure
+function lexer.define_pattern(name, pattern)
+	local next_name = "next_" .. name
+	check_method(next_name)
+	local expect_name = "expect_" .. name
+	check_method(expect_name)
+	local ignore_name = "ignore_" .. name
+	check_method(ignore_name)
+	
+	if type(pattern) == "string" then
+		lexer.methods[next_name] = function(self) return self:next(pattern) end
+		lexer.methods[expect_name] = function(self) return self:expect(pattern) end
+	elseif type(pattern) == "table" then
+		local chain_decorator = 
+			function(func) 
+				return 
+					function(self)
+						local result = {}
+						for k, v in ipairs(pattern) do
+							result = {func(self,v)}
+							
+							if #result ~= 0 then
+								break
+							end
+						end
+						return table.unpack(result)
+					end
+			end
+			
+		lexer.methods[next_name] = chain_decorator(
+		function(self, p)
+			return self:next(p)
+		end)
+		
+		lexer.methods[expect_name] = chain_decorator(
+		function(self, p)
+			return self:expect(p)
+		end)
+		
+		lexer.methods[ignore_name] = chain_decorator(
+		function(self, p)
+			return self:ignore(p)
+		end)
+	end
+end
+
+local patterns = {
+	annotation = "^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//",
+	line = {".-\n", "(.+)$"},
+	word = "%a%w*",
+	line_comment = {"//.-\n", "//.-$"},
+	block_comment = "/%*.-%*/"
+}
+do
+	--Generate all the pattern functions.
+	for k,v in pairs(patterns) do
+		lexer.define_pattern(k, v)
+	end
+end
+
+--Assume the input is small so store a string directly.
+function lexer.create(str)
+	local t = {data=str, pos=1, old_pos=-1}
+	for k,v in pairs(lexer.methods) do
+		t[k] = v
+	end
+	
+	return t
 end
 
 return lexer
