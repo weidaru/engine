@@ -1,53 +1,82 @@
 local lexer = {}
 --Assume the input is small so store a string directly.
 function lexer.create(str)
-	local t = {data=str, pos=1}
+	local t = {data=str, pos=1, old_pos=-1}
 	return t
 end
 
---"^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//.*\n"		For annoation
+--[[
+Returns the matched sub-string if any and all the captures if any.
+The result does not have to start at the current pos.
+]]--
+function lexer.next(self, pattern)
+	local value = {self.str:find(pattern, pos)}
+	local result = self.str:sub(value[1],value[2])
+	self.pos = value[2]+1
+	local capture = {}
+	for i=3,select("#",value) do
+		table.insert(capture, value[i])
+	end
+	return result, table.unpack(capture) 
+end
+
+--[[
+The expect semantic is essentially the same as next expect that 
+it requires the match to start at the current pos.
+]]--
+function lexer.expect(self, pattern)
+	if pattern:sub(1,1) != "^" then
+		pattern = "^" .. pattern
+	end
+	assert(pattern:sub(1,1) == "^", "Pattern must begin with ^")
+	return self:next(self, pattern)
+end
 
 
+function lexer.expect_annotaion(self)
+	return lexer:expect("^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//.*\n")
+end
 
-local function lookforward_decorator(self, lookforward, func) 
+function lexer.expect_line(self)
+	return self:expect("^.-\n")
+end
+
+function lexer.expect_word(self)
+	return self:expect("^%a%w*")
+end
+
+function loop_decorator(self, func) 
 	local old_pos = self.pos
 	
 	func(self)
 	
-	local new_pos = self.pos
-	if lookforward then
-		self.pos = old_pos
-	end
-	
 	local result = nil
-	if new_pos > old_pos then
-		result = self.str:sub(old_pos, new_pos-1)
+	if self.pos > old_pos then
+		result = self.str:sub(old_pos, self.pos-1)
 	end
-	return result, new_pos
+	return result, self.pos
 end
 
-function lexer.next(_self, pattern, lookforward)
-	return lookforward_decorator(_self, lookforward, 
-	function(self)
-		self.pos = self.pos + self.str:match(pattern, pos)
-	end) 
-end
-
-function lexer.next_line(self, lookforward)
-	return self:next_line("^.-\n", lookforward)
-end
-
-function lexer.next_word(self, lookforward)
-	return self:next_line("^%a%w*", lookforward)
-end
-
-function lexer.next_blank(_self, lookforward)
-	return lookforward_decorator(_self, lookforward, 
+function lexer.expect_comment(_self)
+	return loop_decorator(_self, 
 	function(self)
 		while self.pos <= self.str.len() do
-			_, self.pos = self:next("^[ \t\n]+")
+			local continue = nil
+			continue = self:expect("^//.-\n") or self:expect("/%*.-%*/")
+			if not continue then
+				break
+			end
+		end
+	end)
+end
+
+function lexer.expect_blank(_self)
+	return loop_decorator(_self, 
+	function(self)
+		while self.pos <= self.str.len() do
+			_, self.pos = self:expect("^[ \t\n]+")
 			local comment
-			comment = self:next_comment()
+			comment = self:expect_comment()
 			if comment == nil then
 				break
 			end
@@ -55,17 +84,43 @@ function lexer.next_blank(_self, lookforward)
 	end)
 end
 
-function lexer.next_comment(_self, lookforward)
-	return lookforward_decorator(_self, lookforward, 
-	function(self)
-		while self.pos <= self.str.len() do
-			local continue = nil
-			continue = self:next("^//.-\n") or self:next("/%*.-%*/")
-			if not continue then
-				break
-			end
+function lexer.expect_ignore_blank(self, pattern)
+	while true do
+		if lexer.expect_blank(self, pattern) == nil then
+			break
 		end
 	end
+	return lexer.expect(self, pattern)
+end
+
+--Use checkpoint and rollback to perform lookahead
+function lexer.checkpoint(self)
+	assert(self.old_pos == -1, 	[[checkpoint and rollback should always come into pairs. 
+								Use either of them consecutively will raise an error.]])
+	self.old_pos = self.pos
+end
+
+function
+	assert(self.old_pos ~= -1,	[[checkpoint and rollback should always come into pairs. 
+								Use either of them consecutively will raise an error.]])
+	self.pos = self.old_pos
+	self.old_pos = -1
 end
 
 return lexer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
