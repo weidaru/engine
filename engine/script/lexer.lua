@@ -4,30 +4,40 @@ local lexer = {methods={}}
 Returns the start and end indices if any and all the captures if any. If no match then return nil
 The result does not have to start at the current pos.
 ]]--
-function lexer.methods.next(self, pattern)
-	local value = {self.data:find(pattern, self.pos)}
-	if value[2] ~= nil then
-		self.pos = value[2]+1
+function lexer.methods.next(self, ...)
+	for i=1,select("#",...) do
+		local pattern = select(i, ...)
+		local value = {self.data:find(pattern, self.pos)}
+		if value[2] ~= nil then
+			self.pos = value[2]+1
+			return table.unpack(value) 
+		end
 	end
 
-	return table.unpack(value) 
+	return nil
 end
 
 --[[
 The expect semantic is essentially the same as next expect that 
 it requires the match to start at the current pos.
 ]]--
-function lexer.methods.expect(self, pattern)
-	if pattern:sub(1,1) ~= "^" then
-		pattern = "^" .. pattern
+function lexer.methods.expect(self, ...)
+	local patterns = {...}
+	for i=1,select("#",...) do
+		local pattern = patterns[i]
+		if pattern:sub(1,1) ~= "^" then
+			pattern = "^" .. pattern
+		end
+		assert(pattern:sub(1,1) == "^")
+		patterns[i] = pattern
 	end
-	assert(pattern:sub(1,1) == "^", "Pattern must begin with ^")
-	return self:next(pattern)
+	
+	return self:next(table.unpack(patterns))
 end
 
-function lexer.methods.ignore(self, pattern)
+function lexer.methods.ignore(self, ...)
 	while true do
-		if self:expect(pattern) == nil then
+		if self:expect(...) == nil then
 			break
 		end
 	end
@@ -45,6 +55,17 @@ function lexer.methods.rollback(self)
 								Use either of them consecutively will raise an error.]])
 	self.pos = self.old_pos
 	self.old_pos = -1
+end
+
+--Do some cache if possible in the future. This function should not be used frequently.
+function lexer.methods.linenumber(self)
+	local count = 1
+	for i=1,self.pos do
+		if self.str.sub(i,i) == "\n" then
+			count = count+1
+		end
+	end
+	return count
 end
 
 local function check_method(l, name)
@@ -65,49 +86,41 @@ function lexer.define_pattern(name, pattern)
 		lexer.methods[next_name] = function(self) return self:next(pattern) end
 		lexer.methods[expect_name] = function(self) return self:expect(pattern) end
 	elseif type(pattern) == "table" then
-		local chain_decorator = 
-			function(func) 
-				return 
-					function(self)
-						local result = {}
-						for k, v in ipairs(pattern) do
-							result = {func(self,v)}
-							
-							if #result ~= 0 then
-								break
-							end
-						end
-						return table.unpack(result)
-					end
-			end
-			
-		lexer.methods[next_name] = chain_decorator(
-		function(self, p)
-			return self:next(p)
-		end)
+		lexer.methods[next_name] = function(self) return self:next(table.unpack(pattern)) end
 		
-		lexer.methods[expect_name] = chain_decorator(
-		function(self, p)
-			return self:expect(p)
-		end)
+		lexer.methods[expect_name] = function(self) return self:expect(table.unpack(pattern)) end
 		
-		lexer.methods[ignore_name] = chain_decorator(
-		function(self, p)
-			return self:ignore(p)
-		end)
+		lexer.methods[ignore_name] = function(self) return self:ignore(table.unpack(pattern)) end
 	end
 end
 
-local patterns = {
+lexer.patterns = {
 	annotation = "^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//",
 	line = {".-\n", "(.+)$"},
 	word = "%a%w*",
 	line_comment = {"//.-\n", "//.-$"},
 	block_comment = "/%*.-%*/"
+	blank = {"[%s\n\t]", block_coment, table.unpack(line_coment)}
 }
+setmetatable(lexer.patterns,{
+	__index = function(t,k)
+		local temp = rawget(t,k)
+		if type(temp) == "string" then
+			return temp
+		elseif type(temp) == "table" then
+			return table.unpack(temp)
+		else
+			return nil
+		end
+	end,
+	__newindex = function(t,k)
+		assert(false, "Write to the table is not allowed.")
+	end
+})
+
 do
 	--Generate all the pattern functions.
-	for k,v in pairs(patterns) do
+	for k,v in pairs(lexer.patterns) do
 		lexer.define_pattern(k, v)
 	end
 end
@@ -115,11 +128,18 @@ end
 --Assume the input is small so store a string directly.
 function lexer.create(str)
 	local t = {data=str, pos=1, old_pos=-1}
-	for k,v in pairs(lexer.methods) do
-		t[k] = v
+	local meta = {
+	__index = function(t,k)
+		local temp = rawget(t, k)
+		if temp then
+			return temp
+		else
+			return lexer.methods[k]
+		end
 	end
+	}
 	
-	return t
+	return setmetatable(t, meta)
 end
 
 return lexer

@@ -51,9 +51,32 @@ function m.create_rule()
 		rawset(t, k[1], value)
 		rawset(t, k[2], value)
 	end,
+	__index = function(t,k)
+		local temp = rawget(t, k)
+		if temp then
+			return temp
+		else
+			return m.methods[k]
+		end
+	end
 	}
 	return setmetatable(r, meta)
 end
 
 
 return m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

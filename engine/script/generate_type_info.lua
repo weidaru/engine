@@ -24,6 +24,15 @@ local function scan(dir, func)
 	end
 end
 
+local function make_static(t) 
+	local meta = {
+		__newindex = function(t,k,v)
+			assert("New member is not allowed for static table.")
+		end
+	}
+	return setmetatable(t, meta)
+end
+
 --[[
 Here is the rules for parsing.
 The struct should be plain old c style except that it allows function declaration.
@@ -38,20 +47,114 @@ Actually implementation may just use pattern matching.
 <blank> ::= "\t" <blank> | " " <blank> | "\n" <blank> | <comment> <blank> | " " | "\t" | "\n"
 <spaces-tabs> ::= "\t" <spaces-tabs> | " " <spaces-tabs> | ""
 <members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
-<variable-dec> ::= <word> <blank> <word> ";"
+<variable-dec> ::= <word> <blank> <word> <blank> ";"
 <function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
 ]]--
+
+local function assert_help(expression, message, lex)
+	if not expression then
+		local buffer = {}
+		table.insert(buffer, lex.filename)
+		table.insert(buffer, " line: ")
+		table.insert(buffer, lex.linenumber())
+		table.insert(buffer, "\n")
+		table.insert(buffer, message)
+	end
+end
+
+local function parse_functoin_dec
+	
+end
+
+local function parse_variable_dec(context, lex)
+	assert_help(lex:expect_word(), "Expect a typename ")
+	lex:ignore_blank()
+	assert_help(lex:expect_word(), "Expect a name ")
+	lex:ignore_blank()
+	assert_help(lex:expect(";"), "Expect a ;")
+end
+
+local function parse_member(context, lex)
+	--Lookahead for }
+	lex:checkpoint()
+		local should_end = (lex:expect("}")!=nil)
+	lex:rollback()
+	
+	if should_end then
+		return
+	end
+	
+	--Lookahead to determine variable-dec oor function-dec
+	lex:checkpoint()
+		assert_help(lex:expect_word(), "Expect a typename ")
+		lex:ignore_blank()
+		assert_help(lex:expect_word(), "Expect a name ")
+		lex:ignore_blank()
+		local is_variable = (lex:expect(";") != nil)
+	lex:rollback()
+	if is_variable then
+		parse_variable_dec(context, lex)
+	else
+		parse_function_dec(context, lex)
+	end
+end
+
+local function parse_struct(context, lex)
+	assert_help(lex:expect("struct"), "Expect struct declaration ", lex)
+	lex:ignore_blank()
+	local typename = lex:str:sub(lex:expect_word())
+	assert_help(typename, "Expect a typename", lex)
+	context.__head.typename = typename
+	lex:ignore_blank()
+	assert_help(lex:expect("{"), "Expect { ", lex)
+	lex.ignore_blank()
+	
+	while lex.expect("}")==nil and lex.expect("$")==nil  do
+		lex:ignore_blank()
+		parse_member(context, lex)
+	end
+	
+	lex:ignore_blank()
+	assert_help(lex:expect(";"), "Expect ; ", lex)
+end
+
+local function parse_annotation(context, lex)
+	local _,_,annotation = lex.expect_annotation()
+	if annotation == "TypeInfo"
+		lex:ignore_blank()
+		parse_struct(context, lex)
+	else
+		assert(false, "Unknown annotation " .. annotation)
+	end
+end
 
 local function 
 
 local function parse(context, lex) 
-	lex:next
+	while not lex.expect("$") do
+		lex:ignore("[%s\t\n]", lexer.patterns.block_comment)
+		--Lookahead for annotation.
+		lex:checkpoint()
+		_,_,annotation = lex.expect_annotation()
+		lex:rollback()
+		
+		if annotation then
+			parse_annotation(context, lex)
+		end
+		if(parse_annotation())
+		lex:next_line()
+	end
 end
 
 local function link(context)
 
 end
 
+
+local function make_struct_info()
+	local t = {typename="", members={}, file="", line=-1}
+	return make_static(t)
+end
 
 --Execution block begins here
 do
@@ -75,7 +178,7 @@ do
 	assert(source_dir~=nil, "Soruce Dir is nil!")
 	assert(dest~=nil, "Dest Dir is nil!")
 
-	local context = {}
+	local context = {__head={}}		--Head is used to store current parsing unit.
 	--[[
 	Format
 		--metadata for struct
@@ -83,8 +186,8 @@ do
 			{
 				typename
 				members = [{typename, name}]
-				defined_file
-				defined_line
+				file
+				line
 			}
 		]
 	]]--

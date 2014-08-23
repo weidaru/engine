@@ -14,9 +14,13 @@ word]=]
 
 print("Data length = ", lex.data:len())
 
+lex:checkpoint()
 print_and_check(lex.data:sub(lex:next_block_comment()), "/*abcasdfasdfsd*/")
 lex:ignore("[\n%s\t]")
 print_and_check(lex.data:sub(lex:expect_block_comment()), "/*dfc*/")
 print_and_check(select(3, lex:expect_annotation()), "Info")
 lex:ignore("[\n%s\t]")
 print_and_check(lex.data:sub(lex:expect_word()), "word")
+lex:rollback()
+
+
