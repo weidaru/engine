@@ -182,14 +182,14 @@ do
 	--[[
 	Format
 		--metadata for struct
-		[
-			{
-				typename
-				members = [{typename, name}]
-				file
-				line
+		{
+			@typename:={
+				"typename" :=""
+				"members" := [{"typename":="", "name":=""}]
+				"file" := ""
+				"line" := ""
 			}
-		]
+		}
 	]]--
 	
 	--Start scan
