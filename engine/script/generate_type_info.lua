@@ -62,8 +62,16 @@ local function assert_help(expression, message, lex)
 	end
 end
 
-local function parse_functoin_dec
-	
+local function parse_function_dec
+	assert_help(lex:expect_word(), "Expect a typename ")
+	lex:ignore_blank()
+	assert_help(lex:expect_word(), "Expect a name ")
+	lex:ignore_blank()
+	--I am being lazy here. As in c/c++ parameter declaration will contain no parenthesis, I simply try to find the pair of "(" ")"
+	assert_help(lex:expect("("), "Expect a ( ")
+	assert_help(lex:next(")", "Cannot find matching )"))
+	lex:ignore_blank()
+	assert_help(lex:expect(";"), "Expect a ;")
 end
 
 local function parse_variable_dec(context, lex)
