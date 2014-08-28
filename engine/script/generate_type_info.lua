@@ -51,35 +51,52 @@ Actually implementation may just use pattern matching.
 <function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
 ]]--
 
-local function assert_help(expression, message, lex)
-	if not expression then
+local function assert_help(lex, message, func, ...)
+	local temp = {func(lex, ...)}
+	if temp[0] == nil then
 		local buffer = {}
 		table.insert(buffer, lex.filename)
 		table.insert(buffer, " line: ")
 		table.insert(buffer, lex.linenumber())
 		table.insert(buffer, "\n")
 		table.insert(buffer, message)
+		assert(false, table.concat(buffer))
 	end
+	local result = {lex.data:sub(temp[1], temp[2])}
+	for i=3, #result do
+		table.insert(result, temp[i])
+	end
+	
+	return table.unpack(result)
 end
 
+local function make_struct_info()
+	local t = {typename="", members={}, file="", line=-1}
+	return make_static(t)
+end
+
+--We do not care about function dec so just do syntax match, no sub-program here.
 local function parse_function_dec
-	assert_help(lex:expect_word(), "Expect a typename ")
+	assert_help(lex, "Expect a typename ", lex.expect_word)
 	lex:ignore_blank()
-	assert_help(lex:expect_word(), "Expect a name ")
+	assert_help(lex, "Expect a name ", lex.expect_word)
 	lex:ignore_blank()
 	--I am being lazy here. As in c/c++ parameter declaration will contain no parenthesis, I simply try to find the pair of "(" ")"
-	assert_help(lex:expect("("), "Expect a ( ")
-	assert_help(lex:next(")", "Cannot find matching )"))
+	assert_help(lex, "Expect a ( ", lex.expect, "(")
+	assert_help(lex, "Cannot find matching )", lex.next, ")")
 	lex:ignore_blank()
-	assert_help(lex:expect(";"), "Expect a ;")
+	assert_help(lex, "Expect a ;", lex.expect, ";")
 end
 
 local function parse_variable_dec(context, lex)
-	assert_help(lex:expect_word(), "Expect a typename ")
+	local typename = assert_help(lex, "Expect a typename ", lex.expect_word)
 	lex:ignore_blank()
-	assert_help(lex:expect_word(), "Expect a name ")
+	local name = assert_help(lex, "Expect a name ", lex.expect_word)
 	lex:ignore_blank()
 	assert_help(lex:expect(";"), "Expect a ;")
+	
+	--Sub-program for variable declaration
+	
 end
 
 local function parse_member(context, lex)
@@ -94,9 +111,9 @@ local function parse_member(context, lex)
 	
 	--Lookahead to determine variable-dec oor function-dec
 	lex:checkpoint()
-		assert_help(lex:expect_word(), "Expect a typename ")
+		assert_help(lex, "Expect a typename ", lex.expect_word)
 		lex:ignore_blank()
-		assert_help(lex:expect_word(), "Expect a name ")
+		assert_help(lex,, "Expect a name ", lex.expect_word)
 		lex:ignore_blank()
 		local is_variable = (lex:expect(";") != nil)
 	lex:rollback()
@@ -108,13 +125,13 @@ local function parse_member(context, lex)
 end
 
 local function parse_struct(context, lex)
-	assert_help(lex:expect("struct"), "Expect struct declaration ", lex)
+	assert_help(lex, "Expect struct declaration ", lex.expect, "struct")
 	lex:ignore_blank()
-	local typename = lex:str:sub(lex:expect_word())
-	assert_help(typename, "Expect a typename", lex)
+	local typename = assert_help(lex, "Expect a typename", lex.expect_word)
+	context.__head = make_struct_info()							--__ead is used to store current parsing unit.
 	context.__head.typename = typename
 	lex:ignore_blank()
-	assert_help(lex:expect("{"), "Expect { ", lex)
+	assert_help(lex, "Expect { ", lex.expect, "}")
 	lex.ignore_blank()
 	
 	while lex.expect("}")==nil and lex.expect("$")==nil  do
@@ -123,7 +140,7 @@ local function parse_struct(context, lex)
 	end
 	
 	lex:ignore_blank()
-	assert_help(lex:expect(";"), "Expect ; ", lex)
+	assert_help(lex, "Expect ; ", lex.expect, ";")
 end
 
 local function parse_annotation(context, lex)
@@ -158,12 +175,6 @@ local function link(context)
 
 end
 
-
-local function make_struct_info()
-	local t = {typename="", members={}, file="", line=-1}
-	return make_static(t)
-end
-
 --Execution block begins here
 do
 	local source_dir
@@ -186,7 +197,7 @@ do
 	assert(source_dir~=nil, "Soruce Dir is nil!")
 	assert(dest~=nil, "Dest Dir is nil!")
 
-	local context = {__head={}}		--Head is used to store current parsing unit.
+	local context = {}		
 	--[[
 	Format
 		--metadata for struct
