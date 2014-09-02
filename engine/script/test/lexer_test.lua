@@ -1,4 +1,3 @@
-package.path = './../?.lua;' .. package.path 
 local lexer = require("lexer")
 
 local function print_and_check(expect, source)

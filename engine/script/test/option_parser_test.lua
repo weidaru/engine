@@ -1,5 +1,5 @@
-package.path = './../?.lua;' .. package.path 
 local option_parser = require("option_parser")
+
 
 local rule = option_parser.new()
 rule[{"--print", "-p", "print the string"}] = print

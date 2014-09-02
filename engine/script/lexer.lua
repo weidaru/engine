@@ -101,9 +101,11 @@ lexer.patterns = {
 	line = {".-\n", "(.+)$"},
 	word = "%a%w*",
 	line_comment = {"//.-\n", "//.-$"},
-	block_comment = "/%*.-%*/"
-	blank = {"[%s\n\t]", block_coment, table.unpack(line_coment)}
+	block_comment = "/%*.-%*/" 
 }
+	
+lexer.patterns.blank = {"[%s\n\t]", lexer.patterns.block_comment, table.unpack(lexer.patterns.line_comment)}
+
 setmetatable(lexer.patterns,{
 	__index = function(t,k)
 		local temp = rawget(t,k)
