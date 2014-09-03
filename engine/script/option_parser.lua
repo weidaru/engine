@@ -1,4 +1,6 @@
-local m = {methods={}}
+local class = require("class")
+
+local m = class.create()
 
 function m.methods.parse(rule, ...)
 	local argc = select("#", ...)
@@ -30,14 +32,9 @@ function m.methods.to_string(rule)
 	return table.concat(buffer)
 end
 
-function m.create_rule()
-	local r = {}
-	for k,v in pairs(m.methods) do
-		r[k] = v
-	end
-	
-	local meta = {
-	__newindex = function(t,k,v)
+function m.methods.init(self)
+	local meta = getmetatable(self)
+	meta.__newindex = function(t,k,v)
 		assert(type(v)=="function", "Value must be a function.")
 		assert(string.match(k[1], "--[%w]+")~=nil, "Bad first key " .. k[1] .. "\t It should be '--[%w]+'")
 		assert(string.match(k[2], "-[%w]+")~=nil, "Bad second key " .. k[2] .. "\t It should be '-[%w]+'")
@@ -50,17 +47,8 @@ function m.create_rule()
 		local value = {k1=k[1], k2=k[2], doc=_doc, func=v}
 		rawset(t, k[1], value)
 		rawset(t, k[2], value)
-	end,
-	__index = function(t,k)
-		local temp = rawget(t, k)
-		if temp then
-			return temp
-		else
-			return m.methods[k]
-		end
 	end
-	}
-	return setmetatable(r, meta)
+	return self
 end
 
 

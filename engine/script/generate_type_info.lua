@@ -1,5 +1,6 @@
 local option_parser = require("option_parser")
 local lexer = require("lexer")
+local context_class = require("context")
 
 local function get_os() 
 	if package.config:sub(1,1)=="/" then
@@ -22,15 +23,6 @@ local function scan(dir, func)
 	for line in f:lines() do
 		func(line)
 	end
-end
-
-local function make_static(t) 
-	local meta = {
-		__newindex = function(t,k,v)
-			assert("New member is not allowed for static table.")
-		end
-	}
-	return setmetatable(t, meta)
 end
 
 --[[
@@ -70,13 +62,8 @@ local function assert_help(lex, message, func, ...)
 	return table.unpack(result)
 end
 
-local function make_struct_info()
-	local t = {typename="", members={}, file="", line=-1}
-	return make_static(t)
-end
-
 --We do not care about function dec so just do syntax match, no sub-program here.
-local function parse_function_dec
+local function parse_function_dec(context, lex)
 	assert_help(lex, "Expect a typename ", lex.expect_word)
 	lex:ignore_blank()
 	assert_help(lex, "Expect a name ", lex.expect_word)
@@ -128,7 +115,7 @@ local function parse_struct(context, lex)
 	assert_help(lex, "Expect struct declaration ", lex.expect, "struct")
 	lex:ignore_blank()
 	local typename = assert_help(lex, "Expect a typename", lex.expect_word)
-	context.__head = make_struct_info()							--__ead is used to store current parsing unit.
+	context.__head = context_class.create_struct_info()							--__head is used to store current parsing unit.
 	context.__head.typename = typename
 	lex:ignore_blank()
 	assert_help(lex, "Expect { ", lex.expect, "}")
@@ -141,6 +128,8 @@ local function parse_struct(context, lex)
 	
 	lex:ignore_blank()
 	assert_help(lex, "Expect ; ", lex.expect, ";")
+	context[context.__head.typename] = context.__head
+	context.__head = nil
 end
 
 local function parse_annotation(context, lex)
@@ -152,8 +141,6 @@ local function parse_annotation(context, lex)
 		assert(false, "Unknown annotation " .. annotation)
 	end
 end
-
-local function 
 
 local function parse(context, lex) 
 	while not lex.expect("$") do
@@ -197,7 +184,7 @@ do
 	assert(source_dir~=nil, "Soruce Dir is nil!")
 	assert(dest~=nil, "Dest Dir is nil!")
 
-	local context = {}		
+	local context = context_class.new()
 	--[[
 	Format
 		--metadata for struct
@@ -224,7 +211,7 @@ do
 		end
 		f:close()
 		
-		local lex = lexer.create(table.concat(buffer))
+		local lex = lexer.new(table.concat(buffer))
 		print("Parsing...")
 		parse(context, lex)
 		print("Linking...")

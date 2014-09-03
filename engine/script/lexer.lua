@@ -1,4 +1,6 @@
-local lexer = {methods={}}
+local class = require("class")
+
+local lexer = class.create()
 
 --[[
 Returns the start and end indices if any and all the captures if any. If no match then return nil
@@ -126,20 +128,12 @@ do
 end
 
 --Assume the input is small so store a string directly.
-function lexer.create(str)
-	local t = {data=str, pos=1, old_pos=-1}
-	local meta = {
-	__index = function(t,k)
-		local temp = rawget(t, k)
-		if temp then
-			return temp
-		else
-			return lexer.methods[k]
-		end
-	end
-	}
+function lexer.methods.init(self, str)
+	self.data = str
+	self.pos = 1
+	self.old_pos = -1
 	
-	return setmetatable(t, meta)
+	return self
 end
 
 return lexer

@@ -6,7 +6,7 @@ local function print_and_check(expect, source)
 	assert(expect == source)
 end
 
-local lex = lexer.create(
+local lex = lexer.new(
 [=[		/*abcasdfasdfsd*/
 /*dfc*///[[Info]]//
 word]=]
