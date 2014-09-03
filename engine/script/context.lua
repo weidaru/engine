@@ -22,7 +22,7 @@ local function make_no_override(_t)
 			if t[k] == nil then
 				rawset(t,k,v)
 			else
-				assert("Override is not allowed for this table.")
+				assert(false, "Override is not allowed for this table.")
 			end
 		end
 	return setmetatable(_t, meta)
@@ -99,13 +99,13 @@ local function dump_entry_internal(entry, buffer, level)
 		dump_help('"members":=[', 1)
 			for i=1,#entry.members-1 do
 				local v = entry.members[i]
-				dump_help(string.format('{"typename":="%s", "name":="%s},"', v.typename, v.name), 2)
+				dump_help(string.format('{"typename":="%s", "name":="%s"},', v.typename, v.name), 2)
 			end
 			local v = entry.members[#entry.members]
-			dump_help(string.format('{"typename":="%s", "name":="%s}"', v.typename, v.name), 2)
+			dump_help(string.format('{"typename":="%s", "name":="%s"}', v.typename, v.name), 2)
 		dump_help('],', 1)
 		dump_help(string.format('"file":="%s",', entry.file), 1)
-		dump_help(string.format('"line:="%d""', entry.line), 1)
+		dump_help(string.format('"line":="%d"', entry.line), 1)
 	dump_help("}",0, true)
 end
 
@@ -113,6 +113,7 @@ function context.dump_entry(entry, level)
 	level = level or 1
 	local buffer = {}
 	local dump_help = function(data,l)
+		l = l or 0
 		for i=2,level+l do
 			table.insert(buffer, "\t")
 		end
@@ -120,9 +121,9 @@ function context.dump_entry(entry, level)
 		table.insert(buffer, "\n")
 	end
 	
-	dump_help("{", level)
+	dump_help("{")
 	dump_entry_internal(entry, buffer, level+1)
-	dump_help("}", level)
+	dump_help("}")
 	table.remove(buffer)
 	
 	return table.concat(buffer)
@@ -148,6 +149,7 @@ function context.methods.dump(self, level)
 	level = level or 1
 	local buffer = {}
 	local dump_help = function(data,l)
+		l = l or 0
 		for i=2,level+l do
 			table.insert(buffer, "\t")
 		end
@@ -155,18 +157,20 @@ function context.methods.dump(self, level)
 		table.insert(buffer, "\n")
 	end
 	
-	dump_help("{", level)
+	dump_help("{")
 	for k,v in pairs(self) do
 		if k ~= "__head" then
 			dump_entry_internal(v, buffer, level+1)
 			--We know there is a \n at the rear, bypass it
-			buffer[-1] = ",\n"
+			buffer[#buffer] = ",\n"
 		end	
 	end
 	--Bypass again as , is not needed for the last entry.
-	buffer[-1]="\n"
-	dump_help("}",level)
+	buffer[#buffer]="\n"
+	dump_help("}")
 	table.remove(buffer)
+	
+	return table.concat(buffer)
 end
 
 return context

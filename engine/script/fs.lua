@@ -55,6 +55,16 @@ function m.scan_dir(dir, patterns, func)
 	end
 end
 
+function m.get_last_entry(path)
+	local sep = package.config:sub(1,1)
+	for i=path:len(),1,-1 do
+		if path:sub(i,i) == sep then
+			return path:sub(i+1)
+		end
+	end
+	return nil
+end
+
 return m
 
 

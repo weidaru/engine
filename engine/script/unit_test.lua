@@ -15,7 +15,7 @@ assert(dir~=nil, "Soruce Dir is nil!")
 
 fs.scan_dir(dir, {"*.lua"}, 
 function(filepath)
-	print(string.format([[======Unit test for %s ======]], filepath))
+	print(string.format([[======Unit test for %s ======]], fs.get_last_entry(filepath)))
 	local result = {pcall(dofile, filepath)}
 	if result[1] then
 		print([[======Unit test Succeed ======]])
@@ -23,5 +23,5 @@ function(filepath)
 		print([[======Unit test Failed ======]])
 		assert(select(1, table.unpack(result)))
 	end
-	print("\n\n\n")
+	print("\n\n")
 end)
