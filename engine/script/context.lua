@@ -2,13 +2,18 @@ local class = require("class")
 
 local context = class.create()
 
-local function make_static(_t) 
-	local meta = {
-		__newindex = function(t,k,v)
-			assert("New member is not allowed for static table.")
+local function make_no_more_element(_t) 
+	local newindex = function(t,k,v)
+		if t[k] == nil then
+			assert("New member is not allowed for this table.")
+		else
+			rawset(t,k,v)
 		end
-	}
-	return setmetatable(_t, meta)
+	end
+	local meta = getmetatable(_t) or {}
+	meta.__newindex = newindex
+	
+	return _t
 end
 
 local function make_no_override(_t)
@@ -25,20 +30,41 @@ end
 
 function context.create_struct_info()
 	local t = {typename="", members={}, file="", line=-1}
-	return make_static(t)
+	t.location = function(self)
+		return string.format("File:%s\tLine:%d, t.file, t.line)
+	end
+	
+	t.dump = context.dump_entry
+	
+	t.members.append = function(self, t, n)
+		local member = context.create_member()
+		member.typename = t
+		member.name = n
+		table.insert(self, member)
+	end
+	
+	local meta = {
+		__eq= function(lhs, rhs)
+			return context.is_typeinfo_equal(lhs, rhs)
+		end
+	}
+	return make_no_more_element(t)
+end
+
+function context.create_member()
+	local t = {typename="", name=""}
+	return make_no_more_element(t)
 end
 
 function context.is_typeinfo_equal(lhs, rhs)
-	if lhs.file == rhs.file and lhs.line == rhs.line then
-		return true
-	end
-	
 	if lhs.typename ~= rhs.typename then
-		return false, string.format("Matching typename %s and %s... Failed.", lhs.typename, rhs.typename)
+		return false, string.format("Matching typename %s and %s... Failed. Lhs loc:%s\tRhs loc:%s", 
+												lhs.typename, rhs.typename, lhs.location(), rhs.location())
 	end	
 	
 	if #lhs.members ~= #rhs.members then
-		return false, string.format("Matching member size %d and %d... Failed.", #lhs.members, #rhs.members)
+		return false, string.format("Matching member size %d and %d... Failed. Lhs loc:%s\tRhs loc:%s", 
+												#lhs.members, #rhs.members, lhs.location(), rhs.location())
 	end
 	
 	for i=1,#lhs.members do
@@ -46,10 +72,12 @@ function context.is_typeinfo_equal(lhs, rhs)
 		local rhs_mem = rhs.members[i]
 		
 		if lhs_mem.typename ~= rhs_mem.typename then
-			return false, string.format("Matching member type #%d %s and %s... Failed.", i-1, lhs_mem.typename, rhs_mem.typename)
+			return false, string.format("Matching member type #%d %s and %s... Failed. Lhs loc:%s\tRhs loc:%s", 
+													i-1, lhs_mem.typename, rhs_mem.typename, lhs.location(), rhs.location())
 		end
 		if lhs_mem.name ~= rhs_mem.name then
-			return false, string.format("Matching member name #%d %s and %s... Failed.", i-1, lhs_mem.name, rhs_mem.name)
+			return false, string.format("Matching member name #%d %s and %s... Failed. Lhs loc:%s\tRhs loc:%s", 
+													i-1, lhs_mem.name, rhs_mem.name, lhs.location(), rhs.location())
 		end
 	end
 	
@@ -68,16 +96,16 @@ local function dump_entry_internal(entry, buffer, level)
 	end
 
 	dump_help(string.format('"%s":={', entry.typename), 0)
-		dump_help(string.format('"typename":="%s"', entry.typename), 1)
+		dump_help(string.format('"typename":="%s",', entry.typename), 1)
 		dump_help('"members":=[', 1)
 			for i=1,#entry.members-1 do
 				local v = entry.members[i]
 				dump_help(string.format('{"typename":="%s", "name":="%s},"', v.typename, v.name), 2)
 			end
 			dump_help(string.format('{"typename":="%s", "name":="%s}"', v.typename, v.name), 2)
-		dump_help(']', 1)
-		dump_help(string.format('"file":="%s"', entry.file), 1)
-		dump_help(string.format('"line:="%s""'), 1)
+		dump_help('],', 1)
+		dump_help(string.format('"file":="%s",', entry.file), 1)
+		dump_help(string.format('"line:="%d""', entry.line), 1)
 	dump_help("}",0, true)
 end
 
@@ -95,6 +123,7 @@ local context.dump_entry(entry, level)
 	dump_help("{", level)
 	dump_entry_internal(entry, buffer, level+1)
 	dump_help("}", level)
+	table.remove(buffer)
 	
 	return table.concat(buffer)
 end
@@ -112,9 +141,6 @@ end
 		}
 ]]--
 function context.methods.init(self)
-	self.typename = ""
-	self.members={}
-	self.line = -1
 	return make_no_override(self)
 end
 
@@ -140,6 +166,7 @@ function context.methods.dump(self, level)
 	--Bypass again as , is not needed for the last entry.
 	buffer[-1]="\n"
 	dump_help("}",level)
+	table.remove(buffer)
 end
 
 

@@ -61,10 +61,7 @@ local function parse_variable_dec(context, lex)
 	assert_help(lex:expect(";"), "Expect a ;")
 	
 	--Sub-program for variable declaration
-	local member = {}
-	member.typename = typename
-	member.name = name
-	table.insert(context.__head.members, member)
+	context.__head.member.append(typename, name)
 end
 
 local function parse_member(context, lex)
@@ -149,7 +146,7 @@ function m.parse(context, lex)
 end
 
 function m.link(context)
-
+--STUB
 end
 
 return m
