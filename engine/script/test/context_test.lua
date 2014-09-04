@@ -53,7 +53,7 @@ do
 			"entry1":={
 				"typename" :="entry1",
 				"members" := [
-					{"typename":="foo", "name":="foo_same_name"},
+					{"typename":="foo", "name":="foo_diff_name"},
 					{"typename":="bar", "name":="bar_name"}
 				],
 				"file" := "entry1.h",
@@ -68,7 +68,7 @@ do
 	entry.members:append("foo", "foo_diff_name")
 	entry.members:append("bar", "bar_name")
 	
-	assert(not entry==con[entry.typename])
+	assert(entry~=con[entry.typename])
 end
 do
 	--[[
@@ -77,7 +77,7 @@ do
 			"entry1":={
 				"typename" :="entry1",
 				"members" := [
-					{"typename":="foo", "name":="foo_same_name"},
+					{"typename":="foo", "name":="foo_name"},
 					{"typename":="bar", "name":="bar_name"}
 				],
 				"file" := "entry1.h",
@@ -101,7 +101,7 @@ do
 			"entry1":={
 				"typename" :="entry1",
 				"members" := [
-					{"typename":="foo", "name":="foo_same_name"},
+					{"typename":="foo", "name":="foo_name"},
 					{"typename":="bar", "name":="bar_name"}
 				],
 				"file" := "entry1.h",
@@ -116,7 +116,7 @@ do
 	entry.members:append("foo", "foo_name")
 	entry.members:append("bar", "bar_name")
 	
-	assert(not pcall(getmetatable(con).__index, con, entry.typename, entry))
+	getmetatable(con).__index(con, entry.typename, entry)
 end
 
 do

@@ -17,7 +17,7 @@ local function make_no_more_element(_t)
 end
 
 local function make_no_override(_t)
-	local meta = getmetatable(_t)
+	local meta = getmetatable(_t) or {}
 	meta.__newindex = function(t,k,v)
 			if t[k] == nil then
 				rawset(t,k,v)
@@ -25,13 +25,13 @@ local function make_no_override(_t)
 				assert("Override is not allowed for this table.")
 			end
 		end
-	return _t
+	return setmetatable(_t, meta)
 end
 
 function context.create_struct_info()
 	local t = {typename="", members={}, file="", line=-1}
 	t.location = function(self)
-		return string.format("File:%s\tLine:%d, t.file, t.line)
+		return string.format("File:%s\tLine:%d", t.file, t.line)
 	end
 	
 	t.dump = context.dump_entry
@@ -44,10 +44,9 @@ function context.create_struct_info()
 	end
 	
 	local meta = {
-		__eq= function(lhs, rhs)
-			return context.is_typeinfo_equal(lhs, rhs)
-		end
+		__eq= context.is_typeinfo_equal
 	}
+	t = setmetatable(t, meta)
 	return make_no_more_element(t)
 end
 
@@ -102,6 +101,7 @@ local function dump_entry_internal(entry, buffer, level)
 				local v = entry.members[i]
 				dump_help(string.format('{"typename":="%s", "name":="%s},"', v.typename, v.name), 2)
 			end
+			local v = entry.members[#entry.members]
 			dump_help(string.format('{"typename":="%s", "name":="%s}"', v.typename, v.name), 2)
 		dump_help('],', 1)
 		dump_help(string.format('"file":="%s",', entry.file), 1)
@@ -109,7 +109,7 @@ local function dump_entry_internal(entry, buffer, level)
 	dump_help("}",0, true)
 end
 
-local context.dump_entry(entry, level) 
+function context.dump_entry(entry, level) 
 	level = level or 1
 	local buffer = {}
 	local dump_help = function(data,l)
@@ -169,8 +169,7 @@ function context.methods.dump(self, level)
 	table.remove(buffer)
 end
 
-
-
+return context
 
 
 

@@ -7,7 +7,7 @@ local fs = require("fs")
 local source_dir
 local dest
 
-local rule = option_parser.create_rule()
+local rule = option_parser.new()
 rule[{"--source_dir", "-s", "Set the directory which needs scanning, all the .h .hpp .cpp .cc files will be scanned. Use absolute path!!"}] = 
 function(_, v) 
 	source_dir = v

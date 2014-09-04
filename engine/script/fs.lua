@@ -40,7 +40,7 @@ local function exec_dir_command(dir, patterns)
 		return exec_dir_command_windows(dir, patterns)
 	elseif m.get_os()=="unix" then
 		return exec_dir_command_unix(dir, patterns)
-	else then
+	else
 		return nil 
 	end
 end
@@ -56,3 +56,18 @@ function m.scan_dir(dir, patterns, func)
 end
 
 return m
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
