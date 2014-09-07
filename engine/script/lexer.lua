@@ -63,7 +63,7 @@ end
 function lexer.methods.linenumber(self)
 	local count = 1
 	for i=1,self.pos do
-		if self.str.sub(i,i) == "\n" then
+		if self.data:sub(i,i) == "\n" then
 			count = count+1
 		end
 	end
@@ -99,7 +99,7 @@ end
 lexer.patterns = {
 	annotation = "^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//",
 	line = {".-\n", "(.+)$"},
-	word = "%a%w*",
+	word = "[%a_][%w_]*",
 	line_comment = {"//.-\n", "//.-$"},
 	block_comment = "/%*.-%*/" 
 }
@@ -130,10 +130,11 @@ do
 end
 
 --Assume the input is small so store a string directly.
-function lexer.methods.init(self, str)
+function lexer.methods.init(self, str, file)
 	self.data = str
 	self.pos = 1
 	self.old_pos = -1
+	self.file = file or ""
 	
 	return self
 end

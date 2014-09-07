@@ -37,7 +37,7 @@ function(filepath)
 	end
 	f:close()
 	
-	local lex = lexer.new(table.concat(buffer))
+	local lex = lexer.new(table.concat(buffer), filepath)
 	print("===========Parsing " .. filepath)
 	parser.parse(context, lex)
 	print("===========Parsing complete")
