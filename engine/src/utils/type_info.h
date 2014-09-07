@@ -48,10 +48,10 @@ public:
 public:
 	const TypeInfo &		GetMember(unsigned int index) const;
 	const s2string &		GetMemberName(unsigned int index) const;
-	const TypeInfo & 		GetMember(const s2string &member_name) const;
+	const TypeInfo & 	GetMember(const s2string &member_name) const;
 	unsigned int 			GetMemberIndex(const s2string &member_name) const;
 	unsigned int 			GetMemberSize() const;
-	bool					HasMember(const s2string &member_name) const;
+	bool						HasMember(const s2string &member_name) const;
 
 	s2string 				GetName() const;
 	unsigned int 			GetSize() const;

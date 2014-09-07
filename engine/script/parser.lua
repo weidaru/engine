@@ -3,25 +3,6 @@ local m = {}
 local lexer = require("lexer")
 local context_class = require("context")
 
---[=[
-Here is the rules for parsing.
-The struct should be plain old c style except that it allows function declaration.
-It should have no virtual things or any public private declaration.
-Actually implementation may just use pattern matching.]
-
-<what-we-care> ::= <annotation-warp> <struct>
-<annotation-warp> ::= <SOL> <space-tab> "//[[" <annotation> "]]//" <space-tab> <EOL>
-<annotation-warp> ::= <SOL> <space-tab> "//[[" <annotation> "]]//" <space-tab> <EOL>
-<annotation> ::= "TypeInfo"
-<comment> ::= "//" <text> <EOL> | "/*" <text> "*/"
-<struct> ::= "struct" <blank> <word> <blank> "{" <members> "}" <blank> ";"
-<blank> ::= "\t" <blank> | " " <blank> | "\n" <blank> | <comment> <blank> | " " | "\t" | "\n"
-<spaces-tabs> ::= "\t" <spaces-tabs> | " " <spaces-tabs> | ""
-<members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
-<variable-dec> ::= <word> <blank> <word> <blank> ";"
-<function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
-]=]
-
 local function assert_help(lex, message, func, ...)
 	local temp = {func(lex, ...)}
 
@@ -134,6 +115,29 @@ local function parse_annotation(context, lex)
 	end
 end
 
+
+--[=[
+parse looks for certain "annotation" which is defined below. Right now only "TypeInfo" is supported.
+It does a partial C/C++ syntax analysis. In addition, it does part of the work for linking, different compiled
+struct will be required to have identical typeinfo metadata. See context.lua for the definition of identical typeinfo.
+
+Here is the rules for parsing.
+The struct should be plain old c style except that it allows function declaration.
+It should have no virtual things or any public private declaration.
+Actually implementation may just use pattern matching.]
+
+<what-we-care> ::= <annotation-warp> <struct>
+<annotation-warp> ::= <SOL> <space-tab> "//[[" <annotation> "]]//" <space-tab> <EOL>
+<annotation-warp> ::= <SOL> <space-tab> "//[[" <annotation> "]]//" <space-tab> <EOL>
+<annotation> ::= "TypeInfo"
+<comment> ::= "//" <text> <EOL> | "/*" <text> "*/"
+<struct> ::= "struct" <blank> <word> <blank> "{" <members> "}" <blank> ";"
+<blank> ::= "\t" <blank> | " " <blank> | "\n" <blank> | <comment> <blank> | " " | "\t" | "\n"
+<spaces-tabs> ::= "\t" <spaces-tabs> | " " <spaces-tabs> | ""
+<members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
+<variable-dec> ::= <word> <blank> <word> <blank> ";"
+<function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
+]=]
 function m.parse(context, lex) 
 	while not lex:expect("$") do
 		lex:ignore("[%s\t\n]", lexer.patterns.block_comment)
@@ -151,11 +155,29 @@ function m.parse(context, lex)
 	end
 end
 
+--[[
+Parts of the link is done in parse.
+Here we only check whether each type has a place to reference.
+]]
 function m.link(context)
---STUB
+	for _,typeinfo in pairs(context) do
+		for _, v in ipairs(typeinfo.members) do
+			 if context[v.typename] == nil then
+				assert(false, string.format("Cannot find typeinfo %s as a member of %s. Dump context: %s", v.typename, typeinfo.typename, context:dump()))
+			 end
+		end
+	end
 end
 
 return m
+
+
+
+
+
+
+
+
 
 
 

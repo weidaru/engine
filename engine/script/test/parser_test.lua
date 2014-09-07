@@ -2,8 +2,7 @@ local parser = require("parser")
 local lexer = require("lexer")
 local context = require("context")
 
-do
-	local lex = lexer.new(
+local inmemory_data = 
 [=[This line will be ignored.
 Ignored.
 
@@ -23,7 +22,12 @@ Messed up with indentation.
 		int GetFoo(arbitrary things in between);  //This will be ignored 
 	};
 	
-asdfsdf]=], "inmemory")
+asdfsdf]=]
+
+
+do
+	--Test parsing.
+	local lex = lexer.new(inmemory_data, "inmemory")
 	
 	print(lex.data)
 	print()
@@ -62,8 +66,11 @@ asdfsdf]=], "inmemory")
 	print(string.format("Bar:\n%s\n%s\n\n", target_bar, source_bar))
 	print(string.format("Foo:\n%s\n%s\n\n", target_foo, source_foo))
 	assert(source_bar == target_bar and source_foo == target_foo)
+	
+	
+	--Test linking
+	parser.link(cont)
 end
-
 
 
 

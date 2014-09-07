@@ -55,6 +55,9 @@ function context.create_member()
 	return make_no_more_element(t)
 end
 
+--[[
+Two typeinfo is equal only if  their name and members are identical.
+]]
 function context.is_typeinfo_equal(lhs, rhs)
 	if lhs.typename ~= rhs.typename then
 		return false, string.format("Matching typename %s and %s... Failed. Lhs loc:%s\tRhs loc:%s", 
@@ -102,7 +105,9 @@ local function dump_entry_internal(entry, buffer, level)
 				dump_help(string.format('{"typename":="%s", "name":="%s"},', v.typename, v.name), 2)
 			end
 			local v = entry.members[#entry.members]
-			dump_help(string.format('{"typename":="%s", "name":="%s"}', v.typename, v.name), 2)
+			if v then 
+				dump_help(string.format('{"typename":="%s", "name":="%s"}', v.typename, v.name), 2)
+			end
 		dump_help('],', 1)
 		dump_help(string.format('"file":="%s",', entry.file), 1)
 		dump_help(string.format('"line":="%d"', entry.line), 1)
@@ -129,6 +134,13 @@ function context.dump_entry(entry, level)
 	return table.concat(buffer)
 end
 
+context.primitive = {"int", "unsigned int", "char", "unsigned char", "float", "double", "bool"}
+setmetatable(context.primitive, {
+__newindex = function(t,k,v)
+	assert("Try to manipulate a static table.")
+end
+})
+
 --[[
 	Format
 		--metadata for struct
@@ -140,9 +152,20 @@ end
 				"line" := ""
 			}
 		}
-]]--
+]]
 function context.methods.init(self)
-	return make_no_override(self)
+	make_no_override(self)
+	
+	--Add some primitive type here.
+	for _,v in ipairs(context.primitive) do
+		local e = context.create_struct_info()
+		e.typename = v
+		e.file = "primitive"
+		e.line = -1
+		self[e.typename] = e
+	end
+	
+	return self
 end
 
 function context.methods.dump(self, level)
