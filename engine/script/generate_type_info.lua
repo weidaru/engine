@@ -81,6 +81,37 @@ local function generate(context, file)
 		append_help('}')
 	end
 	
+	--This is not fully tested. TODO: Test it more.
+	local function resolve_dependency(c)
+		local explored = {}
+		local result = {}
+		local function _resolve(e, path)
+			if explored[e.typename] ~=nil then
+				return
+			end
+			path[e.typename] = true;
+			for _,m in ipairs(e.members) do
+				local k = m.typename
+				local v = c[k]
+				
+				if context_class.primitive[k] == nil and explored[k] == nil  then
+					assert(path[k] == nil, string.format("%s and %s have cyclic dependency. Dump:\n%s\n%s", e.typename, v.typename, e:dump(), v:dump()))
+					_resolve(v, path)
+				end
+			end
+			explored[e.typename] = true;
+			table.insert(result, e)
+		end
+		
+		for k,v in pairs(c) do
+			if k:sub(1,2) ~= "__" and context_class.primitive[k] == nil then
+				path = {}
+				_resolve(v, path)
+			end
+		end
+		return result
+	end
+	
 	append_help('#include <utility>')
 	append_help('#include "utils/type_info.h"')
 	append_help('#include "utils/type_info_helper.h"')
@@ -89,13 +120,17 @@ local function generate(context, file)
 	--We need to declare all the struct first.
 	append_help([[//All the necessary struct declaration]])
 	for k,v in pairs(context) do
-		if k:sub(1,2) ~= "__" then
-			if context_class.primitive[k] == nil then
-				append_help(v.text)
-				append_help("")
-			end
+		if k:sub(1,2) ~= "__" and context_class.primitive[k] == nil then
+			append_help(string.format('struct %s;', k))
 		end
 	end
+	append_help("")
+		--Try to resolve the dependency.
+	local seq = resolve_dependency(context)
+	for k,v in ipairs(seq) do
+		append_help(v.text)
+	end
+	append_help("")
 	
 	append_help('namespace s2 {')
 	--Do for primitive
@@ -166,7 +201,9 @@ print("===========Linking...")
 parser.link(context)
 print("===========Linking complete.\n\n")
 
+print("Dump context: ")
 print(context:dump())
+print("\n\n")
 
 print("===========Generating...")
 generate(context, outputfile)

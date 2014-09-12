@@ -185,7 +185,7 @@ function m.link(context)
 			 if context[v.typename] == nil then
 				assert(false, string.format(
 [[
-Cannot find typeinfo %s as a member of %s found at 
+Cannot find typeinfo %s as a member of %s at 
 %s line %d
 Dump context: %s
 ]], 
