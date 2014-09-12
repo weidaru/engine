@@ -37,6 +37,6 @@ DefineTypeInfo(Name) { \
 			TypeInfo::Members()); \
 }
 
-#define offset(type,member) &((type *)(0))->member
+#define offset(type,member) &(((type *)(0))->member)
 
 #endif 			//TYPE_INFO_HELPER_H_

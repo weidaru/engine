@@ -143,7 +143,6 @@ context.primitive = {
 	["double"]="double", 
 	["bool"]="bool", 
 	["pointer"]="pointer", 
-	["reference"]="reference"
 }
 setmetatable(context.primitive, {
 __newindex = function(t,k,v)

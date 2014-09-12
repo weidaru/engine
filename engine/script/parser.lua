@@ -29,8 +29,6 @@ local function parse_type(context, lex)
 	lex:ignore_blank()
 	if lex:expect("*") then 
 		typename = "pointer"
-	elseif lex:expect("&") then
-		typename = "reference"
 	end
 	
 	return typename
@@ -158,7 +156,7 @@ Actually implementation may just use pattern matching.]
 <members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
 <variable-dec> ::= <type> <blank> <word> <blank> ";"
 <function-dec> ::= <type> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
-<type> ::= <word> <blank> "*" | <word> "*" | <word> <blank> "&" | <word> "&"
+<type> ::= <word> <blank> "*" | <word> "*"
 ]=]
 function m.parse(context, lex) 
 	while not lex:expect("$") do
