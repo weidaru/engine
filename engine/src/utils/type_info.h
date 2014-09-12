@@ -42,8 +42,15 @@ class TypeInfoManager;
   */
 class TypeInfo {
 public:
+	struct Member {
+		s2string 		type_name;
+		s2string 		name;
+		unsigned int 	offset;
+	};
+
+public:
 	//member name and type name pair.
-	typedef std::vector<std::pair<s2string, s2string> > Members;
+	typedef std::vector<Member> Members;
 
 public:
 	const TypeInfo &		GetMember(unsigned int index) const;
