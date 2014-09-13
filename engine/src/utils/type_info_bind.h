@@ -2,8 +2,7 @@
 #define TYPE_INFO_BIND_H_
 
 namespace s2 {
-//They are small, same to get included.
-static const char *null_typename = "null";
+//They are small, simple to get included.
 static const char *pointer_typename = "pointer";
 static const char *reference_typename = "reference";
 

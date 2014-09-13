@@ -24,11 +24,23 @@ local function assert_help(lex, message, func, ...)
 	return table.unpack(result)
 end
 
+local function parse_type(context, lex)
+	local typename = assert_help(lex, "Expect a word", lex.expect_word)
+	lex:ignore_blank()
+	if lex:expect("*") then 
+		typename = "pointer"
+	elseif lex:expect("&") then
+		typename = "reference"
+	end
+	
+	return typename
+end
+
 --We do not care about function dec so just do syntax match, no sub-program here.
 local function parse_function_dec(context, lex)
-	assert_help(lex, "Expect a typename ", lex.expect_word)
+	parse_type(context, lex)
 	lex:ignore_blank()
-	assert_help(lex, "Expect a name ", lex.expect_word)
+	assert_help(lex, "Expect a word ", lex.expect_word)
 	lex:ignore_blank()
 	--I am being lazy here. As in c/c++ parameter declaration will contain no parenthesis, I simply try to find the pair of "(" ")"
 	assert_help(lex, "Expect a ( ", lex.expect, "%(")
@@ -38,9 +50,9 @@ local function parse_function_dec(context, lex)
 end
 
 local function parse_variable_dec(context, lex)
-	local typename = assert_help(lex, "Expect a typename ", lex.expect_word)
+	local typename = parse_type(context, lex)
 	lex:ignore_blank()
-	local name = assert_help(lex, "Expect a name ", lex.expect_word)
+	local name = assert_help(lex, "Expect a word ", lex.expect_word)
 	lex:ignore_blank()
 	assert_help(lex, "Expect a ;", lex.expect, ";")
 	
@@ -60,7 +72,7 @@ local function parse_member(context, lex)
 	
 	--Lookahead to determine variable-dec oor function-dec
 	lex:checkpoint()
-		assert_help(lex, "Expect a typename ", lex.expect_word)
+		parse_type(context, lex)
 		lex:ignore_blank()
 		assert_help(lex, "Expect a name ", lex.expect_word)
 		lex:ignore_blank()
@@ -77,6 +89,7 @@ local function parse_struct(context, lex)
 	context.__head = context_class.create_struct_info()							--__head is used to store current parsing unit.
 	context.__head.file = lex.file
 	context.__head.line = lex:linenumber()
+	local text_start = lex.pos
 	assert_help(lex, "Expect struct declaration ", lex.expect, "struct")
 	lex:ignore_blank()	
 	local typename = assert_help(lex, "Expect a typename", lex.expect_word)
@@ -92,16 +105,23 @@ local function parse_struct(context, lex)
 	
 	lex:ignore_blank()
 	assert_help(lex, "Expect ; ", lex.expect, ";")
+	local text_end = lex.pos-1
+	
+	context.__head.text = lex.data:sub(text_start, text_end)
+	
 	if context[context.__head.typename] ~= nil then
 		local lhs = context[context.__head.typename]
 		local rhs = context.__head
-		assert(context_class.is_type_equal(lhs, rhs), string.format(
-				"Try to declared a different type with same typename %s. Dumping:\n%s\n%s", 
-				context.__head.typename,
-				context.dump_entry(lhs)),
-				context.dump_entry(rhs))
+		assert(context_class.is_typeinfo_equal(lhs, rhs), 
+				string.format(
+					"Try to declared a different type with same typename %s. Dumping:\n%s\n%s", 
+					context.__head.typename,
+					lhs:dump(),
+					rhs:dump()))
+		print("Duplicated. Ignore")
+	else
+		context[context.__head.typename] = context.__head
 	end
-	context[context.__head.typename] = context.__head
 end
 
 local function parse_annotation(context, lex)
@@ -120,6 +140,7 @@ end
 parse looks for certain "annotation" which is defined below. Right now only "TypeInfo" is supported.
 It does a partial C/C++ syntax analysis. In addition, it does part of the work for linking, different compiled
 struct will be required to have identical typeinfo metadata. See context.lua for the definition of identical typeinfo.
+And it does not work with namespace!!
 
 Here is the rules for parsing.
 The struct should be plain old c style except that it allows function declaration.
@@ -135,8 +156,9 @@ Actually implementation may just use pattern matching.]
 <blank> ::= "\t" <blank> | " " <blank> | "\n" <blank> | <comment> <blank> | " " | "\t" | "\n"
 <spaces-tabs> ::= "\t" <spaces-tabs> | " " <spaces-tabs> | ""
 <members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
-<variable-dec> ::= <word> <blank> <word> <blank> ";"
-<function-dec> ::= <word> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
+<variable-dec> ::= <type> <blank> <word> <blank> ";"
+<function-dec> ::= <type> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
+<type> ::= <word> <blank> "*" | <word> "*" | <word> <blank> "&" | <word> "&"
 ]=]
 function m.parse(context, lex) 
 	while not lex:expect("$") do
@@ -163,7 +185,13 @@ function m.link(context)
 	for _,typeinfo in pairs(context) do
 		for _, v in ipairs(typeinfo.members) do
 			 if context[v.typename] == nil then
-				assert(false, string.format("Cannot find typeinfo %s as a member of %s. Dump context: %s", v.typename, typeinfo.typename, context:dump()))
+				assert(false, string.format(
+[[
+Cannot find typeinfo %s as a member of %s found at 
+%s line %d
+Dump context: %s
+]], 
+						v.typename, typeinfo.typename, typeinfo.file, typeinfo.line, context:dump()))
 			 end
 		end
 	end

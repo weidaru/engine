@@ -11,7 +11,7 @@ Messed up with indentation.
 			//[[TypeInfo]]//
   struct Bar		
   {
-	  float bar_a;		
+	  float* bar_a; int & bar_ref; 	char *bar_ptr;
 	  //This will be ignored.
 			double bar_b;};
 
@@ -20,6 +20,7 @@ Messed up with indentation.
 		int foo_a;
 		Bar foo_b;
 		int GetFoo(arbitrary things in between);  //This will be ignored 
+		char * Get(asfoasdfwenfocjnv sdfsdf  ,, &#$5oiserfewfnaoscvnioiwev);
 	};
 	
 asdfsdf]=]
@@ -39,7 +40,9 @@ do
 	"Bar":={
 		"typename":="Bar",
 		"members":=[
-			{"typename":="float", "name":="bar_a"},
+			{"typename":="pointer", "name":="bar_a"},
+			{"typename":="reference", "name":="bar_ref"},
+			{"typename":="pointer", "name":="bar_ptr"},
 			{"typename":="double", "name":="bar_b"}
 		],
 		"file":="inmemory",

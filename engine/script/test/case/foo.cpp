@@ -2,7 +2,7 @@
 
 //[[TypeInfo]]//
 struct Bar {
-	long a;
+	double a;
 	Foo * foo_ptr;
 	Foo &foo_ref;
 };

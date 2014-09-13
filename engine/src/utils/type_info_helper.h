@@ -28,6 +28,15 @@ s2::s2string s2::TypeInfoBind<TypeName>::GetName() { \
 s2::TypeInfoBind<TypeName> s2::TypeInfoBind<TypeName>::registration; \
 s2::TypeInfoBind<TypeName>::TypeInfoBind() 
 
+#define DefinePrimitive(Name) \
+DeclareTypeInfo(Name) \
+DefineTypeInfo(Name) { \
+	TypeInfoManager::GetSingleton()->Create( \
+			TypeInfoBind<Name>::GetName(), \
+			sizeof(Name), \
+			TypeInfo::Members()); \
+}
+
 #define offset(type,member) &((type *)(0))->member
 
 #endif 			//TYPE_INFO_HELPER_H_

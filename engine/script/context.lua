@@ -5,7 +5,7 @@ local context = class.create()
 local function make_no_more_element(_t) 
 	local newindex = function(t,k,v)
 		if t[k] == nil then
-			assert("New member is not allowed for this table.")
+			assert(false, "New member is not allowed for this table.")
 		else
 			rawset(t,k,v)
 		end
@@ -29,7 +29,7 @@ local function make_no_override(_t)
 end
 
 function context.create_struct_info()
-	local t = {typename="", members={}, file="", line=-1}
+	local t = {typename="", members={}, file="", line=-1, text=""}
 	t.location = function(self)
 		return string.format("File:%s\tLine:%d", t.file, t.line)
 	end
@@ -134,7 +134,17 @@ function context.dump_entry(entry, level)
 	return table.concat(buffer)
 end
 
-context.primitive = {"int", "unsigned int", "char", "unsigned char", "float", "double", "bool"}
+context.primitive = {
+	["int"]="int", 
+	["unsigned int"]="unsigned int", 
+	["char"]="char", 
+	["unsigned char"]="unsigned char", 
+	["float"]="float", 
+	["double"]="double", 
+	["bool"]="bool", 
+	["pointer"]="pointer", 
+	["reference"]="reference"
+}
 setmetatable(context.primitive, {
 __newindex = function(t,k,v)
 	assert("Try to manipulate a static table.")
@@ -157,11 +167,13 @@ function context.methods.init(self)
 	make_no_override(self)
 	
 	--Add some primitive type here.
-	for _,v in ipairs(context.primitive) do
+	for k,v in pairs(context.primitive) do
+		assert(k==v)
 		local e = context.create_struct_info()
 		e.typename = v
 		e.file = "primitive"
 		e.line = -1
+		e.text = ""
 		self[e.typename] = e
 	end
 	

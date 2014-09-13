@@ -18,11 +18,11 @@ const TypeInfo & TypeInfo::GetMember(unsigned int index) const {
  */
 const TypeInfo & TypeInfo::GetMember(const s2string &member_name) const {
 	for(Members::const_iterator it=members.begin(); it != members.end(); it++) {
-		if(it->first == member_name)
+		if(it->name == member_name)
 			return TypeInfoManager::GetSingleton()->Get(it->second);
 	}
-	LOG(ERROR)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
-	return TypeInfoManager::GetSingleton()->Get(null_typename);
+	LOG(FATAL)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
+	return TypeInfoManager::GetSingleton()->Get("something_will_never_get_reached");
 }
 
 unsigned int TypeInfo::GetMemberIndex(const s2string &member_name) const {
@@ -30,7 +30,7 @@ unsigned int TypeInfo::GetMemberIndex(const s2string &member_name) const {
 		if(members[i].first == member_name)
 			return i;
 	}
-	LOG(ERROR)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
+	LOG(FATAL)<<"Cannot find the member ["<<member_name<<"] in side type ["<<name<<"]";
 	return 0;
 }
 
@@ -78,61 +78,6 @@ const TypeInfo & TypeInfoManager::Create(const s2string &name, unsigned int size
 	TypeInfo *new_typeinfo = new TypeInfo(name, size, new_members);
 	data[name] = new_typeinfo;
 	return *new_typeinfo;	
-}
-
-#define DefinePrimitive(Name) \
-DeclareTypeInfo(Name) \
-DefineTypeInfo(Name) { \
-	TypeInfoManager::GetSingleton()->Create( \
-			TypeInfoBind<Name>::GetName(), \
-			sizeof(Name), \
-			TypeInfo::Members()); \
-}
-
-/**
- * Define all the primitive type here. These are the things get supported now.
- */
-DefinePrimitive(int)
-DefinePrimitive(unsigned int)
-DefinePrimitive(char)
-DefinePrimitive(unsigned char)
-DefinePrimitive(float)
-DefinePrimitive(double)
-DefinePrimitive(bool)
- 
-#undef DefinePrimitive
-
-namespace internal {
-struct PointerRegistration {
-	static PointerRegistration registration;
-
-	PointerRegistration() {
-		TypeInfoManager::GetSingleton()->Create( 
-			pointer_typename, 
-			sizeof(char *), 
-			TypeInfo::Members()); 
-	}
-};
-PointerRegistration PointerRegistration::registration;
-
-struct Dummy {
-	int &a;
-
-	Dummy(int new_a) : a(new_a) {}
-};
-
-struct ReferenceRegistration {
-	static ReferenceRegistration registration;
-
-	ReferenceRegistration() {
-		TypeInfoManager::GetSingleton()->Create( 
-			reference_typename, 
-			sizeof(Dummy), 
-			TypeInfo::Members()); 
-	}
-};
-ReferenceRegistration ReferenceRegistration::registration;
-
 }
 
 }
