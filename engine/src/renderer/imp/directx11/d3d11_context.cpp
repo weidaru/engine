@@ -1,4 +1,12 @@
+#pragma comment(lib, "dxgi.lib")
+
+#define WIN32_LEAN_AND_MEAN
+#include <dxgi.h>
+#undef ERROR
+
 #include "d3d11_context.h"
+
+#include <glog/logging.h>
 
 namespace s2 {
 
@@ -31,6 +39,11 @@ void D3D11Context::GetLastError(s2string *str) {
 }
 
 void D3D11Context::PropagateSetting() {
+}
+
+void D3D11Context::SwapBuffer() {
+	CHECK(resource_manager)<<"Need to initialize first.";
+	resource_manager->GetSwapChain()->Present(0, 0);
 }
 
 }

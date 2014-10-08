@@ -22,6 +22,7 @@ public:
 	virtual void GetSetting(RendererSetting *_setting);
 	virtual void GetLastError(s2string *str);
 	virtual void PropagateSetting();
+	virtual void SwapBuffer();
 	
 private:
 	D3D11GraphicResourceManager *resource_manager;

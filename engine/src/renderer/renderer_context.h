@@ -30,6 +30,7 @@ public:
 	virtual void GetSetting(RendererSetting *_setting) = 0;
 	virtual void GetLastError(s2string *error) = 0;
 	virtual void PropagateSetting() = 0;
+	virtual void SwapBuffer() = 0;
 };
 
 }

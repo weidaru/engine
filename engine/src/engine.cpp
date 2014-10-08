@@ -33,21 +33,17 @@ static const char * PISSED_STR = "If someone name it like this, I will be pissed
 namespace s2 {
 
 Engine::Engine() 
-	: hinstance(0), hwnd(0), renderer_context(0), input_system(0), window_name(PISSED_STR) {
+	: hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR) {
 
 }
 
 Engine::~Engine() {
 	if(window_name == PISSED_STR)
 		return;
-	delete input_system;
 
 	RendererSetting renderer_setting;
 	renderer_context->GetSetting(&renderer_setting);
 	delete renderer_context;
-
-	// Show the mouse cursor.
-	ShowCursor(true);
 
 	// Fix the display settings if leaving full screen mode.
 	if(renderer_setting.full_screen) 
@@ -64,7 +60,7 @@ Engine::~Engine() {
 
 void Engine::Run() {
 	MSG msg;
-	bool done, result;
+	bool done;
 
 	ZeroMemory(&msg, sizeof(MSG));
 
@@ -75,25 +71,21 @@ void Engine::Run() {
 			DispatchMessage(&msg);
 		}
 
-		if(msg.message == WM_QUIT) {
+		if(msg.message == WM_QUIT || stop == true) 
 			done = true;
-		} else {
-			result = OneFrame(0.1f);
-			if(!result) {
-				done = true;
-			}
-		}
-
+		else
+			OneFrame(0.1f);
 	}
-
-	return;
 }
 
-bool Engine::OneFrame(float delta) {
-	
-	return true;
+void Engine::OneFrame(float delta) {
+	renderer_context->SwapBuffer();
 }
 
+
+void Engine::Stop() {
+	stop = true;
+}
 
 void Engine::Initialize(const s2string &window_name, const RendererSetting &renderer_setting) {
 	InitWindow(window_name, renderer_setting.window_width, renderer_setting.window_height, renderer_setting.full_screen);
@@ -101,8 +93,6 @@ void Engine::Initialize(const s2string &window_name, const RendererSetting &rend
 	renderer_context = context;
 
 	context->Initialize(hwnd);
-	input_system = new InputSystem();
-	input_system->Initialize();
 }
 
 void Engine::InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen) {
@@ -159,8 +149,6 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
 	
-	// Hide the mouse cursor.
-	ShowCursor(false);
 }
 
 }

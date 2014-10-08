@@ -10,6 +10,13 @@ struct _DIMOUSESTATE;
 namespace s2 {
 
 class InputSystem {
+	enum MouseEnum {
+		LEFT,
+		RIGHT,
+	};
+
+
+
 public:
 	InputSystem();
 	~InputSystem();

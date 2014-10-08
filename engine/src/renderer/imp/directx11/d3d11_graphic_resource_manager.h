@@ -76,6 +76,7 @@ public:
 public:
 	ID3D11Device * GetDevice() { return device; }
 	ID3D11DeviceContext * GetDeviceContext() { return context; }
+	IDXGISwapChain * GetSwapChain() { return swap_chain; }
 	
 private:
 	/*	The assumption is that we are only using one monitor thus only one swapchain is needed.

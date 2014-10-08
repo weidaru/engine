@@ -10,8 +10,6 @@
 
 namespace s2 {
 
-class InputSystem;
-
 class Engine : public Singleton<Engine>  {
 public:
 	Engine();
@@ -20,10 +18,10 @@ public:
 	void Initialize(const s2string &window_name, const RendererSetting &renderer_setting);
 
 	void Run();
-	bool OneFrame(float delta);
+	void Stop();
+	void OneFrame(float delta);
 	
 	RendererContext * GetRendererContext() { return renderer_context; }
-	InputSystem * GetInputSystem() { return input_system; }
 	
 	HINSTANCE GetInstanceHandle() { return hinstance; }
 	HWND GetWindowHandle() { return hwnd; }
@@ -35,8 +33,10 @@ private:
 	HINSTANCE hinstance;
 	HWND hwnd;
 	RendererContext *renderer_context;
-	InputSystem *input_system;
 	s2string window_name;
+
+	//Need to be thread safe?
+	bool stop;
 };
 
 }
