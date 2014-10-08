@@ -20,13 +20,12 @@ typedef bool you_are_using_the_wrong_writable_if_undefined;
  * Error check will be processed in compile time.
  *
  * Data should be something the user want to manipulate, such as some C struct.
- * Core is the most import type which should serves as the role of Data manager.
+ * Core is the most important type which should serves as the role of Data manager.
  *	1) Make sure it has default constructor.
  *  2) It must provide syntax compatibility with following signatures:
  *		void * 			Map();
  *		void 			UnMap();
  *		unsigned int 	GetSize();
- *	3) Destructor is required to avoid memory leak.
  * writable determines whether the MappedResource is writable by cpu.
  */
 template <typename Data, typename Option, typename Core, bool readable, bool writable>

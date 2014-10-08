@@ -3,6 +3,7 @@
 
 #include "resource.h"
 #include "texture_enum.h"
+#include "utils/s2string.h"
 
 namespace s2 {
 
@@ -11,31 +12,39 @@ public:
 	struct Option {
 		unsigned int 	width;
 		unsigned int 	height;
-		unsigned int 	mips_level;
+		unsigned int 	mip_level;				//0 is full mipmap.
 		unsigned int 	array_size;
-		TextureFormat 	format;
-		TextureBindFlag bind_flag;
+		TextureEnum::TextureFormat 	format;
 		unsigned int 	sample_size;
-		bool 			is_dynamic;
+		bool is_dynamic;
+		bool as_rendertarget;
+		bool as_depthstencil;
+		bool as_shaderresource;
+		void *data;
 		
-		Option(unsigned int w, unsigned int h){
-			width = w;
-			height = h;
-			mips_level = 1;
+		Option(){
+			width = 0;
+			height = 0;
+			mip_level = 1;
 			array_size = 1;
-			format = TextureFormat::R8G8B8A8_UNORM;
-			bind_flag = TextureBindFlag::Shader;
+			format = TextureEnum::R8G8B8A8_UNORM;
+			as_rendertarget = false;
+			as_depthstencil = false;
+			as_shaderresource = true;
 			sample_size = 1;
 			is_dynamic = false;
+			data = 0;
 		}
 	};
 
 public:
 	virtual				~Texture2D() {}
-	virtual void 		Initialize(const Option &option) = 0;
+	virtual bool 		Initialize(const Option &option) = 0;
 	virtual void * 		Map() = 0;
 	virtual void 		UnMap() = 0;
 	virtual void 		GetOption(Option *option) = 0;		
+	
+	virtual void 		GetLastError(s2string *str) = 0;
 };
 
 }

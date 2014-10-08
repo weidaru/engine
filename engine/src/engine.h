@@ -5,46 +5,40 @@
 #include <Windows.h>
 #undef ERROR
 
-#include <string>
-
 #include "utils/singleton.h"
-#include "d3d/d3d_option.h"
+#include "renderer/renderer_context.h"
 
-struct WindowOption {
-	int screen_width;
-	int screen_height;
-	bool full_screen;
-	std::string window_name;
-};
+namespace s2 {
 
-struct EngineOption {
-	WindowOption window_option;
-	D3DOption d3d_option;
-};
+class InputSystem;
 
 class Engine : public Singleton<Engine>  {
 public:
 	Engine();
+	~Engine();
 	
-	void Init(const EngineOption &option);
-	void Release();
+	void Initialize(const s2string &window_name, const RendererSetting &renderer_setting);
 
 	void Run();
-
 	bool OneFrame(float delta);
-
-	HINSTANCE GetInstanceHandle() { return hinstance_; }
-	HWND GetWindowHandle() { return hwnd_; }
-	EngineOption * GetOption() { return &option_; }
-
-private:
-	void InitWindow(const WindowOption &option);
-	void ReleaseWindow();
+	
+	RendererContext * GetRendererContext() { return renderer_context; }
+	InputSystem * GetInputSystem() { return input_system; }
+	
+	HINSTANCE GetInstanceHandle() { return hinstance; }
+	HWND GetWindowHandle() { return hwnd; }
 
 private:
-	HINSTANCE hinstance_;
-	HWND hwnd_;
-	EngineOption option_;
+	void InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen);
+
+private:
+	HINSTANCE hinstance;
+	HWND hwnd;
+	RendererContext *renderer_context;
+	InputSystem *input_system;
+	s2string window_name;
 };
+
+}
 
 #endif		//ENGINE_H_

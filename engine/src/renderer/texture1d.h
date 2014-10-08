@@ -2,6 +2,7 @@
 #define	TEXTURE1D_H_
 
 #include "resource.h"
+#include "utils/s2string.h"
 #include "texture_enum.h"
 
 namespace s2 {
@@ -9,29 +10,36 @@ namespace s2 {
 class Texture1D : public Resource {
 public:
 	struct Option {
-		unsigned int 	width;
-		unsigned int 	mips_level;
-		unsigned int 	array_size;
-		TextureFormat 	format;
-		TextureBindFlag bind_flag;
-		bool 			is_dynamic;
+		unsigned int width;
+		unsigned int mip_level;			//0 is full mipmap.
+		unsigned int array_size;
+		TextureEnum::TextureFormat format;
+		bool as_rendertarget;
+		bool as_depthstencil;
+		bool as_shaderresource;
+		bool is_dynamic;
+		void *data;
 		
-		Option(unsigned int w){
-			width = w;
-			mips_level = 1;
+		Option(){
+			width = 0;
+			mip_level = 1;
 			array_size = 1;
-			format = TextureFormat::R8G8B8A8_UNORM;
-			bind_flag = TextureBindFlag::Shader;
+			format = TextureEnum::R8G8B8A8_UNORM;
+			as_rendertarget = false;
+			as_depthstencil = false;
+			as_shaderresource = true;
 			is_dynamic = false;
 		}
 	};
 
 public:
 	virtual				~Texture1D() {}
-	virtual void 		Initialize(const Option &option) = 0;
+	virtual bool 		Initialize(const Option &option) = 0;
 	virtual void * 		Map() = 0;
 	virtual void 		UnMap() = 0;
 	virtual void 		GetOption(Option *option) = 0;		
+	
+	virtual void			GetLastError(s2string *str) = 0;
 };
 
 }

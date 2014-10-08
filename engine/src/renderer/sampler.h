@@ -3,6 +3,8 @@
 
 #include "resource.h"
 
+#include "utils/s2string.h"
+
 namespace s2 {
 class Sampler : public Resource {
 public:
@@ -36,8 +38,10 @@ public:
 
 public:
 	virtual ~Sampler() {}
-	virtual void Initialize(const Option &option) = 0;
+	virtual bool Initialize(const Option &option) = 0;
 	virtual void GetOption(Option *option) = 0;
+	
+	virtual void GetLastError(s2string *str) = 0;
 };
 
 }

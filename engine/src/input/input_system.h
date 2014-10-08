@@ -7,12 +7,15 @@ struct IDirectInput8;
 struct IDirectInputDevice8;
 struct _DIMOUSESTATE;
 
-class InputSystem : public Singleton<InputSystem> {
+namespace s2 {
+
+class InputSystem {
 public:
 	InputSystem();
+	~InputSystem();
 
-	bool Init();
-	void Release();
+	void Initialize();
+
 	bool OneFrame();
 	
 	bool IsKeyDown(int key_enum);
@@ -31,5 +34,7 @@ private:
 	int mousex_, mousey_;
 	int resolution_x_, resolution_y_;
 };
+
+}
 
 #endif		//INPUT_H_

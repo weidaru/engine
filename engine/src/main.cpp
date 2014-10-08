@@ -14,15 +14,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	google::SetLogDestination(google::ERROR, ".\\log\\error.log");
 	google::SetLogDestination(google::FATAL, ".\\log\\fatal.log");
 
-	Engine *loop = Engine::GetSingleton();
-	EngineOption option;
-	option.window_option.full_screen = false;
-	option.window_option.screen_width = 800;
-	option.window_option.screen_height = 600;
-	option.window_option.window_name = "engine";
-	loop->Init(option);
-	loop->Run();
-	loop->Release();
+	s2::Engine *engine = s2::Engine::GetSingleton();
+	s2::RendererSetting renderer_setting;
+	
+	engine->Initialize("Hello World", renderer_setting);
+	engine->Run();
 
 	return 0;
 }

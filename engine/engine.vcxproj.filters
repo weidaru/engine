@@ -13,42 +13,195 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\engine">
-      <UniqueIdentifier>{9dc9409a-20f0-4a61-a9dc-a33a3ef78d36}</UniqueIdentifier>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{cb1418c6-3adb-47d9-bba0-2f71cd850439}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\engine">
-      <UniqueIdentifier>{dbe96414-3267-4899-b774-c64ff8f011b5}</UniqueIdentifier>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{f89f6dc6-4705-4589-9373-ffe541bf7ce6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\engine\input">
-      <UniqueIdentifier>{4df96c3f-99f1-49c6-a136-502c202ec2e3}</UniqueIdentifier>
+    <Filter Include="Header Files\renderer">
+      <UniqueIdentifier>{a6b20eac-87f7-479d-9e54-60659c00f28a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\engine\input">
-      <UniqueIdentifier>{75baa20c-8c40-43a5-b0e5-868688dda387}</UniqueIdentifier>
+    <Filter Include="Source Files\renderer">
+      <UniqueIdentifier>{1c112c8d-5223-46b5-abe9-57f506a5d438}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\engine\utils">
-      <UniqueIdentifier>{433aec29-7731-4cae-b536-34aab4589089}</UniqueIdentifier>
+    <Filter Include="Header Files\renderer\imp">
+      <UniqueIdentifier>{b68a0baf-c82a-4e00-8eb1-66624297649d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\renderer\imp\directx11">
+      <UniqueIdentifier>{89403dcb-4ef9-408f-80ac-8ad5656a7811}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\imp">
+      <UniqueIdentifier>{a33bbf8d-1137-4c4e-9964-c51a0976fb65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer\imp\directx11">
+      <UniqueIdentifier>{1677b365-0542-41ab-ad7b-f4adbdf5ff72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\input">
+      <UniqueIdentifier>{6fb4490d-0459-49f0-957a-8ec8ef818623}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\input">
+      <UniqueIdentifier>{f3789f60-7786-408c-a68b-8a2ffcdbb6ff}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\utils\s2string.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\singleton.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\type_info.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\type_info_bind.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\type_info_helper.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\blend_option.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\constant_buffer.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\depth_stencil_option.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\graphic_pipeline.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\graphic_resource_manager.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\index_buffer.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\mapped_resource.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\pixel_shader.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\rasterization_option.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\renderer_context.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\resource.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\sampler.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\texture_enum.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\texture1d.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\texture2d.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\texture3d.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\vertex_buffer.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\vertex_shader.h">
+      <Filter>Header Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_constant_buffer.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_context.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_enum_converter.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_graphic_pipeline.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_graphic_resource_manager.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_index_buffer.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_pixel_shader.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_texture2d.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_vertex_buffer.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_vertex_shader.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\video_card_info.h">
+      <Filter>Header Files\renderer\imp\directx11</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\input_system.h">
+      <Filter>Header Files\input</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\utils\type_info.cpp">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\resource.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_constant_buffer.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_context.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_enum_converter.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_graphic_pipeline.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_graphic_resource_manager.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_index_buffer.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_pixel_shader.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_texture2d.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_buffer.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\video_card_info.cpp">
+      <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine.cpp">
-      <Filter>Source Files\engine</Filter>
-    </ClCompile>
     <ClCompile Include="src\input\input_system.cpp">
-      <Filter>Source Files\engine\input</Filter>
+      <Filter>Source Files\input</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\engine.h">
-      <Filter>Header Files\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\input\input_system.h">
-      <Filter>Header Files\engine\input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\singleton.h">
-      <Filter>Header Files\engine\utils</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

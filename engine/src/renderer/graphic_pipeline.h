@@ -4,180 +4,57 @@
 #include <stdint.h>
 #include <vector>
 
+#include "utils/s2string.h"
+
 namespace s2 {
 
 class GraphicResourceManger;
 class VertexShader;
 class PixelShader;
-class Texture2D;
-class DepthStencilBuffer;
+struct RasterizationOption;
+struct DepthStencilOption;
+struct BlendOption; 
 
+/**
+ * The core part of renderer is modelled as stateful pipeline.
+ * We can modify multiple things, such as shaders, rasterization, depth, stencil, blend and so on.
+ * The intention is to switch to new state easily but still be able to maintain old states. At the same time,
+ * we will able to easily serialize the state for debug use.
+ * This is essentially the same idea as OpenGL. In addition we get better validation and concept grouping.
+ * Validation is made before the command/state really get pushed/set in GPU. 
+ * Options for the same stage are grouped together in class for consistent access.
+ */
 class GraphicPipeline {
 public:
-	struct Rectangle {
-		float top_left_x;
-		float top_left_y;
-		float width;
-		float height;
-	};
-	
-	enum PrimitiveTopology {
-		POINT_LIST,
-		LINE_LIST,
-		LINE_STRIP,
-		TRIANGLE_LIST,
-		TRIANGLE_STRIP
-	};
-	
-	enum FillMode {
-		WIREFRAME,
-		SOLID
-	};
-	
-	enum CullMode {
-		NONE,
-		FRONT,
-		BACK
-	};
-	
-	enum FaceOrientation {
-		CLOCKWISE,
-		COUNTER_CLOCKWISE;
-	};
-	
-	enum ComparisonFunc {
-		NEVER,
-		ALWAYS,
-		EQUAL,
-		NOT_EQUAL,
-		LESS,
-		LESS_EQUAL,
-		GREATER,
-		GREATER_EQUAL
-	};
-	
-	enum StencilOp {
-		KEEP,
-		ZERO,
-		REPLACE,
-		INC_SAT,
-		DEC_SAT,
-		INVERT,
-		INC,
-		DEC
-	};
-	
-	enum BlendFactor {
-		ZERO,
-		ONE,
-		SRC_COLOR,
-		INV_SRC_COLOR,
-		SRC_ALPHA,
-		INV_SRC_ALPHA,
-		DEST_COLOR,
-		INV_DEST_COLOR,
-		DEST_ALPHA,
-		INV_DEST_ALPHA,
-		BLEND_FACTOR,
-		INV_BLEND_FACTOR,
-	};
-	
-	enum BlendOp {
-		ADD,
-		SUBTRACT,
-		REV_SUBTRACT,
-		MIN,
-		MAX
-	};
-
-public:
-	virtual GraphicResourceManger *  	GetResourceManager() = 0;
-	
-	//Input
-	virtual void						SetPrimitiveType(PrimitiveTopology topology) = 0;
-	virtual PrimitiveTopology			GetPrimitiveType() const = 0;
-	
 	//Shaders
-	virtual void 						SetVertexShader(VertexShader *vs) = 0;
-	virtual VertexShader *				GetVertexShader() const = 0;
-	virtual void						SetPixelShader(PixelShader *ps) = 0;
-	virtual PixelShader *				GetPixelShader() const = 0;
+	/**
+	 * The whole shader concept is the program itself and its data, which is stateful. 
+	 * The concern is data validation. We can catch the error early in the setting up stage.
+	 * And we can easily switch between different ways of drawing stuffs.
+	 *
+	 * Shaders passed in as pointers which means any change to shaders will affect the pipeline.
+	 */
+	virtual bool 					SetVertexShader(VertexShader *vs) = 0;
+	virtual VertexShader *		GetVertexShader() = 0;
+	virtual bool						SetPixelShader(PixelShader *ps) = 0;
+	virtual PixelShader *		GetPixelShader() = 0;
 	
 	//Rasterization
-	virtual void 						SetViewports(const std::vector<Rectangle> &rects) = 0;
-	virtual void 						GetViewports(std::vector<Rectangle> *rects) const = 0;
-	virtual void						SetScissorRects(const std::vector<Rectangle> &rects) = 0;
-	virtual void						GetScissorRects(std::vector<Rectangle> *rects) const = 0;
-	virtual void						SetFillMode(FillMode mode) = 0;
-	virtual FillMode					GetFillMode() const = 0;
-	virtual void						SetCullMode(CullMode mode) = 0;
-	virtual CullMode					GetCullMode() const = 0;
-	virtual void						SetFrontOrientation(FaceOrientation orientation) = 0;
-	virtual FaceOrientation				GetFrontOrientation() const = 0;
-	virtual void						SetScissorEnable(bool enable) = 0;
-	virtual bool						GetScissorEnalbe() const = 0;
+	virtual bool 					SetRasterizationOption(const RasterizationOption &option) = 0;
+	virtual void						GetRasterizationOption(RasterizationOption *option) = 0;
+
+	//DepthStencil
+	virtual bool 					SetDepthStencilOption(const DepthStencilOption &option) = 0;
+	virtual void 					GetDepthStencilOption(DepthStencilOption *option) = 0;
 	
-	//Output
-	virtual void 						SetDepthStencilBuffer(DepthStencilBuffer *depth_stencil) = 0;
-	virtual DepthStencilBuffer *		GetDepthStencilBuffer() = 0;
-	//	Depth
-	virtual void						ClearDepth(float depth) = 0;
-	virtual void 						SetDepthEnable(bool enable) = 0;
-	virtual bool						GetDepthEnable() const = 0;
-	virtual void						SetDepthWritable(bool enable) = 0;
-	virtual bool						GetDepthWritable() const = 0;
-	virtual void						SetDepthFunc(ComparisonFunc func) = 0;
-	virtual ComparisonFunc				GetDepthFunc() const = 0;
-	//	Stencil
-	virtual void 						ClearStencil(uint_8 stencil) = 0;
-	virtual void						SetStencilEnable(bool enable) = 0;
-	virtual bool						GetStencilEnable() const = 0;
-	virtual void						SetStencilReadMask(unit_8 mask) = 0;
-	virtual unit_8						GetStencilReadMask() const = 0;
-	virtual void						SetStencilWriteMask(unit_8 mask) = 0;
-	virtual unit_8						GetStencilWriteMask() const = 0;
-	virtual void						SetStencilFront(StencilOp fail_op, 
-														StencilOp pass_op, 
-														StencilOp stencil_pass_depth_fail_op, 
-														ComparisonFunc comp) = 0;
-	virtual void						GetStencilFront(StencilOp *fail_op, 
-														StencilOp *pass_op, 
-														StencilOp *stencil_pass_depth_fail_op, 
-														ComparisonFunc *comp) const = 0;
-	virtual void						SetStencilBack(StencilOp fail_op, 
-														StencilOp pass_op, 
-														StencilOp stencil_pass_depth_fail_op, 
-														ComparisonFunc comp) = 0;
-	virtual void						GetStencilBack(StencilOp *fail_op, 
-														StencilOp *pass_op, 
-														StencilOp *stencil_pass_depth_fail_op, 
-														ComparisonFunc *comp) const = 0;
-	//	Render Target and Blend
-	virtual void						SetBlendAlphaToCoverageEnable(bool enable) = 0;
-	virtual bool						GetBlendAlphaToCoverageEnable() const = 0;
-	virtual void						SetBlendFactor(const float color[4]) = 0;
-	virtual void						GetBlendFactor(float *color) const = 0;
-	virtual void						SetBlendSampleMask(uint_8 mask) = 0;
-	virtual unit_8						GetBlendSampleMask() const = 0;
-	virtual void						SetBlendEnable(int index, bool enable) = 0;
-	virtual bool						GetBlendEnable() const = 0;
-	virtual void						SetBLendSrcFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBLendSrcFactor() const = 0;
-	virtual void						SetBlendDestFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBlendDestFactor(int index) const = 0;
-	virtual void						SetBlendOp(int index, BlendOp op) = 0;
-	virtual BlendOp						GetBlendOp(int index) const = 0;
-	virtual void						SetBlendSrcAlphaFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBlendSrcAlphaFactor(int index) const = 0;
-	virtual void						SetBlendDestAlphaFactor(int index, BlendFactor factor) = 0;
-	virtual BlendFactor					GetBlendDestAlphaFactor(int index) const = 0;
-	virtual void						SetBlendAlphaOp(int index, BlendOp op) = 0;
-	virtual BlendOp						GetBLendAlphaOp(int index) const = 0;
-	virtual void						SetBLendWriteMask(int index, uint_8 mask) = 0;
-	virtual unit_8						GetBlendWriteMask(int index) const = 0;
+	//Blend
+	virtual bool 					SetBlendOption(const BlendOption &option) = 0;
+	virtual void 					GetBlendOption(BlendOption *option) = 0;
 	
-	//Draw
-	virtual void 						Draw() = 0;
+	//This is only function which really does something to the pipeline.
+	virtual void 					Draw() = 0;
+	
+	virtual void 					GetLastError(s2string *str) = 0;
 };
 
 }

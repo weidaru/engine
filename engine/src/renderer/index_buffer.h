@@ -2,17 +2,20 @@
 #define INDEX_BUFFER_H_
 
 #include "resource.h"
+#include "utils/s2string.h"
 
 namespace s2 {
 
 class IndexBuffer : public Resource {
 public:
 	virtual 				~IndexBuffer() {}
-	virtual void 			Initialize(unsigned int size, const void *data, bool is_dynamic) = 0;
+	virtual bool 			Initialize(unsigned int size, const unsigned int *data, bool is_dynamic) = 0;
 	virtual bool 			IsDynamic() = 0;
-	virtual unsigned int 	GetSize() = 0;
+	virtual unsigned int GetSize() = 0;
 	virtual void * 			Map() = 0;
 	virtual void 			UnMap() = 0;
+	
+	virtual void 			GetLastError(s2string *str) = 0;
 };
 
 }

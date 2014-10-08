@@ -12,20 +12,23 @@
 
 #include <glog/logging.h>
 
+namespace s2 {
+
 InputSystem::InputSystem() : 
 		directinput_(0), mouse_device_(0), keyboard_device_(0), 
 		mousex_(0), mousey_(0), resolution_x_(0), resolution_y_(0) {
 	mouse_state_ = new DIMOUSESTATE;
 }
 
-bool InputSystem::Init() {
+void InputSystem::Initialize() {
 	HINSTANCE hinst = Engine::GetSingleton()->GetInstanceHandle();
 	HWND hwnd = Engine::GetSingleton()->GetWindowHandle();
 	HRESULT result;
 
-	EngineOption *engine_option = Engine::GetSingleton()->GetOption();
-	this->resolution_x_ = engine_option->window_option.screen_width;
-	this->resolution_y_ = engine_option->window_option.screen_height;
+	RendererSetting setting;
+	Engine::GetSingleton()->GetRendererContext()->GetSetting(&setting);
+	this->resolution_x_ = setting.window_width;
+	this->resolution_y_ = setting.window_height;
 
 	//Direct Input
 	result = DirectInput8Create(hinst, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&directinput_, NULL);
@@ -50,11 +53,9 @@ bool InputSystem::Init() {
 	CHECK(!FAILED(result))<<"Cannot set cooperative level for mouse. Error " << GetLastError();
 	result = mouse_device_->Acquire();
 	CHECK(!FAILED(result))<<"Cannot acquire mouse. Error " << GetLastError();
-
-	return true;
 }
 
-void InputSystem::Release() {
+InputSystem::~InputSystem() {
 	if(keyboard_device_) {
 		keyboard_device_->Unacquire();
 		keyboard_device_->Release();
@@ -73,8 +74,8 @@ void InputSystem::Release() {
 	delete mouse_state_;
 }
 
-/*!
-  *  Get input state each frame.
+/**
+ * Get input state each frame.
  */
 bool InputSystem::OneFrame() {
 	HRESULT result;
@@ -125,4 +126,6 @@ int InputSystem::GetMouseY() {
 
 bool InputSystem::GetIsMouseDown(int button_num) {
 	return (mouse_state_->rgbButtons[button_num] & 0x80) != 0;
+}
+
 }
