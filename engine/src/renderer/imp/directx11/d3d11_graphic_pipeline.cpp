@@ -23,7 +23,13 @@
 namespace s2 {
 
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager)
-	: manager(_manager), vs(0), ps(0), rast_state(0), ds_state(0), blend_state(0) {
+	: 	manager(_manager), 
+		new_input(true), ib(0), vbs(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT), topology(),
+		vs(0), ps(0), 
+		new_rast(true), rast_state(0), 
+		new_ds(true), ds_state(0), 
+		new_blend(true), blend_state(0),
+		new_output(true), rts(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT) {
 
 }
 
@@ -34,6 +40,44 @@ D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 		ds_state->Release();
 	if(blend_state)
 		blend_state->Release();
+}
+
+
+bool D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
+	new_input = true;
+	topology = newvalue;
+	return true;
+}
+
+D3D11GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() {
+	return topology;
+}
+
+bool D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, VertexBuffer *_buf, VertexBufferUsage usage, const s2string &type_name) {
+	new_input = true;
+	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
+	//Skip typecheck for now.
+	int i = 0;
+	vbs[i].vb = buf;
+	vbs[i].usage = usage;
+	vbs[i].type_name = type_name;
+	return true;
+}
+
+D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) {
+	CHECK(false)<<"Disable for now";
+	return 0;
+}
+
+bool D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
+	new_input = true;
+	D3D11IndexBuffer *buf = NiceCast(D3D11IndexBuffer *, _buf);
+	ib = buf;
+	return true;
+}
+
+D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
+	return ib;
 }
 
 bool D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
@@ -225,7 +269,55 @@ void D3D11GraphicPipeline::GetBlendOption(BlendOption *option) {
 	*option = blend_opt;
 }
 
-void D3D11GraphicPipeline::FlushRasterizationOption() {
+bool D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
+	rts[index].tex = NiceCast(D3D11Texture2D *, target);
+	return true;
+}
+
+Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
+	return rts[index].tex;
+}
+
+bool D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
+	ds.tex = NiceCast(D3D11Texture2D *, buffer);
+	return true;
+}
+
+Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
+	return ds.tex;
+}
+
+bool D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
+	rts[index].enable_clear = enable;
+	rts[index].rgba[0] = rgba[0];
+	rts[index].rgba[1] = rgba[1];
+	rts[index].rgba[2] = rgba[2];
+	rts[index].rgba[3] = rgba[3];
+	return true;
+}
+
+bool D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
+	*enable = rts[index].enable_clear;
+	rgba[0] = rts[index].rgba[0];
+	rgba[1] = rts[index].rgba[1];
+	rgba[2] = rts[index].rgba[2];
+	rgba[3] = rts[index].rgba[3];
+	return true;
+}
+
+void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable,  float depth, uint8_t stencil) {
+	ds.enable_clear = enable;
+	ds.depth = depth;
+	ds.stencil = stencil;
+}
+
+void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable,  float *depth, uint8_t *stencil) {
+	*enable = ds.enable_clear;
+	*depth = ds.depth;
+	*stencil = ds.stencil;
+}
+
+void D3D11GraphicPipeline::SetRasterizationOption() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	RasterizationOption &option = rast_opt;
 	
@@ -258,17 +350,75 @@ void D3D11GraphicPipeline::FlushRasterizationOption() {
 	context->RSSetState(rast_state);
 }
 
-void D3D11GraphicPipeline::FlushDepthStencilOption() {
+void D3D11GraphicPipeline::SetDepthStencilOption() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetDepthStencilState(ds_state, ds_opt.stencil_replace_value);
 }
 
-void D3D11GraphicPipeline::FlushBlendOption() {
+void D3D11GraphicPipeline::SetBlendOption() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetBlendState(blend_state , blend_opt.factor, 0);
 }
 
+void D3D11GraphicPipeline::SetInput() {
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	//Set primitive topology
+	context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
+	
+	//Set vertex buffer.
+	{
+		int last_index = -1;
+		for(int i=vbs.size()-1; i>=0; i--) {
+			if(vbs[i].vb) {
+				last_index = i;
+				break;
+			}
+		}
+		if(last_index != -1) {
+			ID3D11Buffer **buf_array = new ID3D11Buffer *[last_index+1];
+			unsigned int *stride_array = new unsigned int[last_index+1];
+			unsigned int *offset_array = new unsigned int[last_index+1];
+			for(int i=0; i<=last_index; i++) {
+				buf_array[i] = vbs[i].vb->GetInternal();
+				stride_array[i] = 4;			//This information needs to retrive from type_name, use 4 for now.
+				offset_array[i] = 0;
+			}
+			context->IASetVertexBuffers(0, last_index+1, buf_array, stride_array, offset_array);
+			delete[] stride_array;
+			delete[] offset_array;
+		}
+	}
+	
+	//Set index buffer
+	if(ib) {
+		context->IASetIndexBuffer(ib->GetInternal(), DXGI_FORMAT_R32_UINT, 0);
+	}
+}
+
+void D3D11GraphicPipeline::FlushOutput() {
+	//Set render target.
+	{
+		int last_index = -1;
+		for(int i=rts.size()-1; i>=0; i--) {
+			if(rts[i].tex) {
+				last_index = i;
+				break;
+			}
+		}
+		if(last_index != -1) {
+			ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
+			for(int i=0; i<=last_index; i++) {
+				array[i] = rts[i].tex->GetRenderTargetView();
+			}
+			context->OMSetRenderTargets(last_index+1, array, ds.tex?ds.tex->GetDepthStencilView():0);
+			delete[] array;
+		}
+	}
+}
+
 void D3D11GraphicPipeline::Draw() {
+	FlushInput();
+
 	if(vs)
 		vs->Flush();
 	if(ps)
@@ -292,6 +442,14 @@ void D3D11GraphicPipeline::Draw() {
 		FlushBlendOption();
 		new_blend = false;
 	}
+	
+	FlushOutput();
+	
+	//Do clear.
+	
+	
+	//Start drawing.
+	
 }
 
 void D3D11GraphicPipeline::GetLastError(s2string *str) {

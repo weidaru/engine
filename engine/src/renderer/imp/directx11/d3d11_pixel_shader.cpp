@@ -31,7 +31,6 @@ namespace s2 {
 D3D11PixelShader::D3D11PixelShader(D3D11GraphicResourceManager *_manager)
 			: manager(_manager), shader(0){
 	cbs.resize(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, 0);
-	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 }
 
 D3D11PixelShader::~D3D11PixelShader() {
@@ -137,62 +136,6 @@ Resource * D3D11PixelShader::GetResource(const s2string &name) {
 	CHECK(false)<<"Disable for now";
 	return 0;
 }
-
-bool D3D11PixelShader::SetRenderTarget(unsigned int index, Texture2D *target) {
-	Check();
-	rts[index].tex = NiceCast(D3D11Texture2D *, target);
-	return true;
-}
-
-Resource * D3D11PixelShader::GetRenderTarget(unsigned int index) {
-	Check();
-	return rts[index].tex;
-}
-
-bool D3D11PixelShader::SetDepthStencilBuffer(Texture2D *buffer) {
-	Check();
-	ds.tex = NiceCast(D3D11Texture2D *, buffer);
-	return true;
-}
-
-Resource* D3D11PixelShader::GetDepthStencilBuffer() {
-	Check();
-	return ds.tex;
-}
-
-bool D3D11PixelShader::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
-	Check();
-	rts[index].enable_clear = enable;
-	rts[index].rgba[0] = rgba[0];
-	rts[index].rgba[1] = rgba[1];
-	rts[index].rgba[2] = rgba[2];
-	rts[index].rgba[3] = rgba[3];
-	return true;
-}
-
-bool D3D11PixelShader::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
-	Check();
-	*enable = rts[index].enable_clear;
-	rgba[0] = rts[index].rgba[0];
-	rgba[1] = rts[index].rgba[1];
-	rgba[2] = rts[index].rgba[2];
-	rgba[3] = rts[index].rgba[3];
-	return true;
-}
-
-void D3D11PixelShader::SetDepthStencilBufferClearOption(bool enable,  float depth, uint8_t stencil) {
-	Check();
-	ds.enable_clear = enable;
-	ds.depth = depth;
-	ds.stencil = stencil;
-}
-
-void D3D11PixelShader::GetDepthStencilBufferClearOption(bool *enable,  float *depth, uint8_t *stencil) {
-	Check();
-	*enable = ds.enable_clear;
-	*depth = ds.depth;
-	*stencil = ds.stencil;
-}
 	
 void D3D11PixelShader::GetLastError(s2string *str) {
 	*str = error;
@@ -220,25 +163,6 @@ void D3D11PixelShader::Flush() {
 					array[i] = cbs[i]->GetInternal();
 				}
 				context->PSSetConstantBuffers(0, last_index+1, array);
-				delete[] array;
-			}
-		}
-		
-		//Set render target.
-		{
-			int last_index = -1;
-			for(int i=rts.size()-1; i>=0; i--) {
-				if(rts[i].tex) {
-					last_index = i;
-					break;
-				}
-			}
-			if(last_index != -1) {
-				ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
-				for(int i=0; i<=last_index; i++) {
-					array[i] = rts[i].tex->GetRenderTargetView();
-				}
-				context->OMSetRenderTargets(last_index+1, array, ds.tex?ds.tex->GetDepthStencilView():0);
 				delete[] array;
 			}
 		}

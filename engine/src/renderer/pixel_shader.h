@@ -27,34 +27,6 @@ public:
 	virtual bool 						SetResource(const s2string &name, Texture3D *resource) = 0;
 	virtual Resource * 				GetResource(const s2string &name) = 0;
 	
-	virtual bool 						SetRenderTarget(unsigned int index, Texture2D *target) = 0;
-	virtual Resource *				GetRenderTarget(unsigned int index) = 0;
-	template <typename T>
-	T * GetRenderTargetCast(unsigned int index) {
-		Resource * res = GetRenderTarget(index);
-	#ifdef NDEBUG
-		return static_cast<T *>(res);
-	#else
-		return dynamic_cast<T *>(res);
-	#endif
-	}
-	virtual bool 						SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) = 0;
-	virtual bool 						GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) = 0;
-	
-	virtual bool 						SetDepthStencilBuffer(Texture2D *buffer) = 0;
-	virtual Resource*				GetDepthStencilBuffer() = 0;
-	template <typename T>
-	T * GetDepthStencilBufferCast(unsigned int index) {
-		Resource * res = GetDepthStencilBuffer(index);
-	#ifdef NDEBUG
-		return static_cast<T *>(res);
-	#else
-		return dynamic_cast<T *>(res);
-	#endif
-	}
-	virtual void 						SetDepthStencilBufferClearOption(bool enable,  float depth, uint8_t stencil) = 0;
-	virtual void 						GetDepthStencilBufferClearOption(bool *enable,  float *depth, uint8_t *stencil) = 0;
-	
 	virtual void 						GetLastError(s2string *str) = 0;
 };
 

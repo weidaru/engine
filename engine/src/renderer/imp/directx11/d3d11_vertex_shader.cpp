@@ -35,8 +35,7 @@
 namespace s2 {
 
 D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
-		manager(_manager), ib(0), shader(0), topology(TRIANGLE_LIST){
-	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
+		manager(_manager), shader(0){
 	cbs.resize(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, 0);
 }
 
@@ -87,15 +86,6 @@ D3D11VertexShader::~D3D11VertexShader() {
 		shader->Release();
 		shader = 0;
 	}
-}
-
-bool D3D11VertexShader::SetPrimitiveTopology(PrimitiveTopology newvalue) {
-	topology = newvalue;
-	return true;
-}
-
-VertexShader::PrimitiveTopology D3D11VertexShader::GetPrimitiveTopology() {
-	return topology;
 }
 
 void D3D11VertexShader::Check() {
@@ -151,67 +141,12 @@ Resource * D3D11VertexShader::GetResource(const s2string &name) {
 	return 0;
 }
 
-bool D3D11VertexShader::SetVertexBuffer(unsigned int index, VertexBuffer *_buf, VertexBufferUsage usage, const s2string &type_name) {
-	Check();
-	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
-	//Skip typecheck for now.
-	int i = 0;
-	vbs[i].vb = buf;
-	vbs[i].usage = usage;
-	vbs[i].type_name = type_name;
-	return true;
-}
-
-VertexBuffer * D3D11VertexShader::GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) {
-	Check();
-	CHECK(false)<<"Disable for now";
-	return 0;
-}
-
-bool D3D11VertexShader::SetIndexBuffer(IndexBuffer *_buf) {
-	Check();
-	D3D11IndexBuffer *buf = NiceCast(D3D11IndexBuffer *, _buf);
-	ib = buf;
-	return true;
-}
-
-IndexBuffer * D3D11VertexShader::GetIndexBuffer() {
-	return ib;
-}
-
 void D3D11VertexShader::Flush() {
 	
 	if(shader) {
 		HRESULT result = 1;
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->VSSetShader(shader, 0, 0);
-		
-		//Set primitive topology
-		context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
-		
-		//Set vertex buffer.
-		{
-			int last_index = -1;
-			for(int i=vbs.size()-1; i>=0; i--) {
-				if(vbs[i].vb) {
-					last_index = i;
-					break;
-				}
-			}
-			if(last_index != -1) {
-				ID3D11Buffer **buf_array = new ID3D11Buffer *[last_index+1];
-				unsigned int *stride_array = new unsigned int[last_index+1];
-				unsigned int *offset_array = new unsigned int[last_index+1];
-				for(int i=0; i<=last_index; i++) {
-					buf_array[i] = vbs[i].vb->GetInternal();
-					stride_array[i] = 4;			//This information needs to retrive from type_name, use 4 for now.
-					offset_array[i] = 0;
-				}
-				context->IASetVertexBuffers(0, last_index+1, buf_array, stride_array, offset_array);
-				delete[] stride_array;
-				delete[] offset_array;
-			}
-		}
 		
 		//Set constant buffer.
 		{
@@ -233,11 +168,6 @@ void D3D11VertexShader::Flush() {
 			}
 		}
 		
-		
-		//Set index buffer
-		if(ib) {
-			context->IASetIndexBuffer(ib->GetInternal(), DXGI_FORMAT_R32_UINT, 0);
-		}
 	}
 }
 
