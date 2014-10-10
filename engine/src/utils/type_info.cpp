@@ -41,7 +41,7 @@ unsigned int TypeInfo::GetMemberSize() const {
 	return members.size();
 }
 
-s2string TypeInfo::GetName() const {
+const s2string & TypeInfo::GetName() const {
 	return name;
 }
 

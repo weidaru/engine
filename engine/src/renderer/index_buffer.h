@@ -8,8 +8,11 @@ namespace s2 {
 
 class IndexBuffer : public Resource {
 public:
+	typedef unsigned int InputType;
+
+public:
 	virtual 				~IndexBuffer() {}
-	virtual bool 			Initialize(unsigned int size, const unsigned int *data, bool is_dynamic) = 0;
+	virtual bool 			Initialize(unsigned int size, const InputType *data, bool is_dynamic) = 0;
 	virtual bool 			IsDynamic() = 0;
 	virtual unsigned int GetSize() = 0;
 	virtual void * 			Map() = 0;

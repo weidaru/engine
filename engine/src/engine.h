@@ -10,6 +10,8 @@
 
 namespace s2 {
 
+class EngineProgramManager;
+
 class Engine : public Singleton<Engine>  {
 public:
 	Engine();
@@ -25,6 +27,8 @@ public:
 	
 	HINSTANCE GetInstanceHandle() { return hinstance; }
 	HWND GetWindowHandle() { return hwnd; }
+	
+	EngineProgramManager * GetEngineProgramManager() { return program_manager; }
 
 private:
 	void InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen);
@@ -34,6 +38,8 @@ private:
 	HWND hwnd;
 	RendererContext *renderer_context;
 	s2string window_name;
+	
+	EngineProgramManager *program_manager;
 
 	//Need to be thread safe?
 	bool stop;

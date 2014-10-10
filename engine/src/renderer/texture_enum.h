@@ -18,6 +18,7 @@ struct TextureEnum {
 			return 4;
 		default:
 			assert(false);
+			return 0;
 			break;
 		}
 	}

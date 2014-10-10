@@ -311,14 +311,16 @@ bool D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *
 	return true;
 }
 
-void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable,  float depth, uint8_t stencil) {
-	ds.enable_clear = enable;
+void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) {
+	ds.enable_depth_clear = enable_depth_clear;
+	ds.enable_stencil_clear = enable_stencil_clear;
 	ds.depth = depth;
 	ds.stencil = stencil;
 }
 
-void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable,  float *depth, uint8_t *stencil) {
-	*enable = ds.enable_clear;
+void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) {
+	*enable_depth_clear = ds.enable_depth_clear;
+	*enable_stencil_clear = ds.enable_stencil_clear;
 	*depth = ds.depth;
 	*stencil = ds.stencil;
 }
@@ -386,7 +388,7 @@ void D3D11GraphicPipeline::SetInput() {
 			unsigned int *offset_array = new unsigned int[last_index+1];
 			for(int i=0; i<=last_index; i++) {
 				buf_array[i] = vbs[i].vb->GetInternal();
-				stride_array[i] = 4;			//This information needs to retrive from type_name, use 4 for now.
+				stride_array[i] = 4;			//TODO: This information needs to retrive from type_name, use 4 for now.
 				offset_array[i] = 0;
 			}
 			context->IASetVertexBuffers(0, last_index+1, buf_array, stride_array, offset_array);
@@ -459,10 +461,32 @@ void D3D11GraphicPipeline::Draw() {
 	}
 	
 	//Do clear.
-	
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	for(unsigned int i=0; i<rts.size(); i++) {
+		if(rts[i].enable_clear)
+			context->ClearRenderTargetView(rts[i].tex->GetRenderTargetView(), rts[i].rgba);
+	}
+	if(ds.enable_depth_clear || ds.enable_stencil_clear) {
+		unsigned int flag = ds.enable_depth_clear ? D3D11_CLEAR_DEPTH:0;
+		flag |= ds.enable_stencil_clear ? D3D11_CLEAR_STENCIL:0;
+		
+		context->ClearDepthStencilView(ds.tex->GetDepthStencilView(), flag, ds.depth, ds.stencil);
+	}
 	
 	//Start drawing.
-	
+	if(ib)
+		context->DrawIndexed(ib->GetSize()/sizeof(IndexBuffer::InputType), 0, 0);
+	else {
+		unsigned int index = -1;
+		for(unsigned int i=0; i<vbs.size(); i++) {
+			if(vbs[i].vb) {
+				index = i;
+				break;
+			}
+		}
+		if(index != -1)
+			context->Draw(vbs[index].vb->GetSize()/4, 0);			//Per vertex size is 4 for now, see line 391
+	}
 }
 
 void D3D11GraphicPipeline::GetLastError(s2string *str) {

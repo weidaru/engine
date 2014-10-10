@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "utils/s2string.h"
+#include "utils/type_info.h"
 
 namespace s2 {
 
@@ -48,6 +49,12 @@ public:
 	virtual bool SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
 	virtual bool SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name) = 0;
+	template <typename T>
+	bool SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage) {
+		 const s2string &type_name = TypeInfoManager::GetSingleton()->Get<T>().GetName();
+		 return SetVertexBuffer(index, buf, usage, type_name);
+	}
+	
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) = 0;
 	virtual bool SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
@@ -103,8 +110,8 @@ public:
 		return dynamic_cast<T *>(res);
 	#endif
 	}
-	virtual void SetDepthStencilBufferClearOption(bool enable,  float depth, uint8_t stencil) = 0;
-	virtual void GetDepthStencilBufferClearOption(bool *enable,  float *depth, uint8_t *stencil) = 0;
+	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) = 0;
+	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) = 0;
 	
 	//This is only function which really does something to the pipeline.
 	virtual void Draw() = 0;

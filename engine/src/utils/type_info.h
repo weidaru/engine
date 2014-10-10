@@ -60,7 +60,7 @@ public:
 	unsigned int 			GetMemberSize() const;
 	bool						HasMember(const s2string &member_name) const;
 
-	s2string 				GetName() const;
+	const s2string &		GetName() const;
 	unsigned int 			GetSize() const;
 	
 private:

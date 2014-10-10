@@ -1,6 +1,7 @@
 #include "engine.h"
 
 #include "renderer/imp/directx11/d3d11_context.h"
+#include "engine_program.h"
 
 #include <glog/logging.h>
 
@@ -32,13 +33,15 @@ static const char * PISSED_STR = "If someone name it like this, I will be pissed
 namespace s2 {
 
 Engine::Engine() 
-	: hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR) {
+	: hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), program_manager(new EngineProgramManager){
 
 }
 
 Engine::~Engine() {
 	if(window_name == PISSED_STR)
 		return;
+		
+	delete program_manager;
 
 	RendererSetting renderer_setting;
 	renderer_context->GetSetting(&renderer_setting);
@@ -78,6 +81,9 @@ void Engine::Run() {
 }
 
 void Engine::OneFrame(float delta) {
+	//Only run test program for now.
+	program_manager->Get("test")->OneFrame(delta);
+	
 	renderer_context->SwapBuffer();
 }
 
@@ -90,8 +96,13 @@ void Engine::Initialize(const s2string &window_name, const RendererSetting &rend
 	InitWindow(window_name, renderer_setting.window_width, renderer_setting.window_height, renderer_setting.full_screen);
 	D3D11Context * context = new D3D11Context();
 	renderer_context = context;
-
 	context->Initialize(hwnd);
+	
+	std::vector<EngineProgram *> programs;
+	program_manager->GetAll(&programs);
+	for(unsigned int i=0; i<programs.size(); i++) {
+		programs[i]->Initialize();
+	}
 }
 
 void Engine::InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen) {

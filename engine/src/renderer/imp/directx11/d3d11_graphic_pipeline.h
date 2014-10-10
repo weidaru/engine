@@ -34,13 +34,15 @@ private:
 	
 	struct DepthStencil {
 		D3D11Texture2D *tex;		//Only allow Texture2D for now.
-		bool enable_clear;
+		bool enable_depth_clear;
+		bool enable_stencil_clear;
 		float depth;
 		uint8_t stencil;
 		
 		DepthStencil(){
 			tex=0;
-			enable_clear=false;
+			enable_depth_clear = false;
+			enable_stencil_clear = false;
 		}
 	};
 	
@@ -93,8 +95,8 @@ public:
 	virtual bool GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba);
 	virtual bool SetDepthStencilBuffer(Texture2D *buffer);
 	virtual Resource * GetDepthStencilBuffer();
-	virtual void SetDepthStencilBufferClearOption(bool enable,  float depth, uint8_t stencil);
-	virtual void GetDepthStencilBufferClearOption(bool *enable,  float *depth, uint8_t *stencil);
+	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
+	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil);
 	
 	//This is only function which really does something to the pipeline.
 	virtual void Draw();

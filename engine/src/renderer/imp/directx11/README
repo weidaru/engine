@@ -4,7 +4,11 @@ Notes:
 2. CPU should only write to resources if access is designed. Read access may be useful for debugging. Consider adding it later if desired.
 
 TODO:
-Figure out a way to handle multisampling render target and blending properly.
-	Facts:
-		- Multisampling in directx 11 is a loose feature which is hardware dependent.
-		- Number of patterns for multisampling is fixed as well as number of samples. See here http://msdn.microsoft.com/en-us/library/windows/desktop/ff476218(v=vs.85).aspx
+- Figure out a way to handle multisampling render target and blending properly.
+	*Facts:
+		-- Multisampling in directx 11 is a loose feature which is hardware dependent.
+		-- Number of patterns for multisampling is fixed as well as number of samples. See here http://msdn.microsoft.com/en-us/library/windows/desktop/ff476218(v=vs.85).aspx
+
+- Use reflection to validate input, output and shaders.
+	-- Figure out of input layout and strides dynamically.
+	-- Validate in and out of different pipeline stages.

@@ -30,7 +30,7 @@ void D3D11IndexBuffer::Clear() {
 	}
 }
 
-bool D3D11IndexBuffer::Initialize(unsigned int size, const uint32_t *data, bool is_dynamic) {
+bool D3D11IndexBuffer::Initialize(unsigned int size, const InputType *data, bool is_dynamic) {
 	Clear();
 	D3D11_BUFFER_DESC desc;
 	desc.ByteWidth = sizeof(uint32_t)*size;

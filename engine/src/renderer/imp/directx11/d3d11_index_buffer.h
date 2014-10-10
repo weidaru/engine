@@ -15,7 +15,7 @@ class D3D11IndexBuffer : public IndexBuffer {
 public:
 	D3D11IndexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11IndexBuffer();
-	virtual bool Initialize(unsigned int size, const uint32_t *data, bool is_dynamic);
+	virtual bool Initialize(unsigned int size, const InputType *data, bool is_dynamic);
 	virtual bool IsDynamic();
 	virtual unsigned int GetSize();
 	virtual void * Map();
