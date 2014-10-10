@@ -131,17 +131,17 @@ D3D11_BLEND_OP D3D11EnumConverter::BlendOpToD3D11BlendOp(BlendOption::BlendOp in
 	}
 }
 
-D3D_PRIMITIVE_TOPOLOGY D3D11EnumConverter::TopologyToD3D11Topology(VertexShader::PrimitiveTopology input) {
+D3D_PRIMITIVE_TOPOLOGY D3D11EnumConverter::TopologyToD3D11Topology(GraphicPipeline::PrimitiveTopology input) {
 	switch(input) {
-	case VertexShader::POINT_LIST:
+	case GraphicPipeline::POINT_LIST:
 		return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
-	case VertexShader::LINE_LIST:
+	case GraphicPipeline::LINE_LIST:
 		return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
-	case VertexShader::LINE_STRIP:
+	case GraphicPipeline::LINE_STRIP:
 		return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
-	case VertexShader::TRIANGLE_LIST:
+	case GraphicPipeline::TRIANGLE_LIST:
 		return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	case VertexShader::TRIANGLE_STRIP:
+	case GraphicPipeline::TRIANGLE_STRIP:
 		return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 	default:
 		CHECK(false)<<"Invalid input"<<input;

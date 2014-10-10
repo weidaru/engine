@@ -55,7 +55,7 @@ public:
 	virtual void 					RemoveSampler(unsigned int id) = 0;
 	
 	//VertexShader
-	virtual VertexShader * 		CreateVertexShader(const s2string &path, VertexShader::PrimitiveTopology topology) = 0;
+	virtual VertexShader * 		CreateVertexShader(const s2string &path) = 0;
 	virtual VertexShader *		GetVertexShader(unsigned int id) = 0;
 	virtual void 					RemoveVertexShader(unsigned int id) = 0;
 	

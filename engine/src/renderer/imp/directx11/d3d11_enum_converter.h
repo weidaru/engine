@@ -4,7 +4,7 @@
 #include "renderer/texture_enum.h"
 #include "renderer/depth_stencil_option.h"
 #include "renderer/blend_option.h"
-#include "renderer/vertex_shader.h"
+#include "renderer/graphic_pipeline.h"
 
 enum DXGI_FORMAT;
 enum D3D11_COMPARISON_FUNC;
@@ -26,7 +26,7 @@ public:
 	static D3D11_BLEND BlendFactorToD3D11Blend(BlendOption::BlendFactor input);
 	static D3D11_BLEND_OP BlendOpToD3D11BlendOp(BlendOption::BlendOp input);
 
-	static D3D_PRIMITIVE_TOPOLOGY TopologyToD3D11Topology(VertexShader::PrimitiveTopology input);
+	static D3D_PRIMITIVE_TOPOLOGY TopologyToD3D11Topology(GraphicPipeline::PrimitiveTopology input);
 };
 
 }

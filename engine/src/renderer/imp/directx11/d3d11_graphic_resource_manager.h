@@ -59,7 +59,7 @@ public:
 	virtual void RemoveSampler(unsigned int id);
  
 	//VertexShader
-	virtual D3D11VertexShader * CreateVertexShader(const s2string &path, VertexShader::PrimitiveTopology topology);
+	virtual D3D11VertexShader * CreateVertexShader(const s2string &path);
 	virtual D3D11VertexShader * GetVertexShader(unsigned int id);
 	virtual void RemoveVertexShader(unsigned int id);
 	

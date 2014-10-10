@@ -16,7 +16,7 @@ class Texture3D;
 class VertexShader : public Resource {
 public:
 	virtual 							~VertexShader() {}
-	virtual bool 					Initialize(const s2string &path, PrimitiveTopology topology) = 0;
+	virtual bool 					Initialize(const s2string &path) = 0;
 
 	virtual bool 					SetConstantBuffer(const s2string &name, ConstantBuffer *cb) = 0;
 	virtual ConstantBuffer * 	GetConstantBuffer(const s2string &name) = 0;

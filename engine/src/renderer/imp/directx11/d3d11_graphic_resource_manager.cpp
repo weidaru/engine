@@ -224,9 +224,9 @@ void D3D11GraphicResourceManager::RemoveSampler(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
 
-D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader(const s2string &path, VertexShader::PrimitiveTopology topology) {
+D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader(const s2string &path) {
 	D3D11VertexShader *shader = new D3D11VertexShader(this);
-	if(shader->Initialize(path, topology) == false) {
+	if(shader->Initialize(path) == false) {
 		shader->GetLastError(&error);
 		delete shader;
 		return 0;

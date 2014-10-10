@@ -5,6 +5,8 @@
 #include <d3d11.h>
 #undef ERROR
 
+#include <glog/logging.h>
+
 #include "d3d11_graphic_pipeline.h"
 
 #include <stdio.h>
@@ -49,7 +51,7 @@ bool D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
 	return true;
 }
 
-D3D11GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() {
+GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() {
 	return topology;
 }
 
@@ -81,6 +83,7 @@ D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
 }
 
 bool D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
+	new_vs = true;
 	vs = NiceCast(D3D11VertexShader *, shader);
 	return true;
 }
@@ -90,6 +93,7 @@ VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 }
 
 bool D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
+	new_ps = true;
 	ps = NiceCast(D3D11PixelShader *, shader);
 	return true;
 }
@@ -270,6 +274,7 @@ void D3D11GraphicPipeline::GetBlendOption(BlendOption *option) {
 }
 
 bool D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
+	new_output = true;
 	rts[index].tex = NiceCast(D3D11Texture2D *, target);
 	return true;
 }
@@ -279,6 +284,7 @@ Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
 }
 
 bool D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
+	new_output = true;
 	ds.tex = NiceCast(D3D11Texture2D *, buffer);
 	return true;
 }
@@ -395,7 +401,8 @@ void D3D11GraphicPipeline::SetInput() {
 	}
 }
 
-void D3D11GraphicPipeline::FlushOutput() {
+void D3D11GraphicPipeline::SetOutput() {
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	//Set render target.
 	{
 		int last_index = -1;
@@ -417,33 +424,39 @@ void D3D11GraphicPipeline::FlushOutput() {
 }
 
 void D3D11GraphicPipeline::Draw() {
-	FlushInput();
+	SetInput();
 
-	if(vs)
+	if(vs && new_vs) {
 		vs->Flush();
-	if(ps)
+		new_vs = false;
+	}
+	if(ps && new_ps) {
 		ps->Flush();
+		new_ps = false;
+	}
 	
 	//Flush rasterization option.
 	if(new_rast) {
-		FlushRasterizationOption();
+		SetRasterizationOption();
 		new_rast = false;
 	}
 	
 	
 	//Flush depth stencil option.
 	if(new_ds) {
-		FlushDepthStencilOption();
+		SetDepthStencilOption();
 		new_ds = false;
 	}
 	
 	//Flush blend option.
 	if(new_blend) {
-		FlushBlendOption();
+		SetBlendOption();
 		new_blend = false;
 	}
-	
-	FlushOutput();
+	if(new_output) {
+		SetOutput();
+		new_output = false;
+	}
 	
 	//Do clear.
 	

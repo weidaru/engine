@@ -1,6 +1,5 @@
 #include "engine.h"
 
-#include "input/input_system.h"
 #include "renderer/imp/directx11/d3d11_context.h"
 
 #include <glog/logging.h>

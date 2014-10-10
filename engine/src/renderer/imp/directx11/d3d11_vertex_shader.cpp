@@ -42,8 +42,7 @@ D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
 /*TODO: Find a way to cache the program as it will need to be compiled every time a 
  *shader is initialized which is inefficient.
  */
-bool D3D11VertexShader::Initialize(const s2string &path, PrimitiveTopology _topology) {
-	topology = _topology;
+bool D3D11VertexShader::Initialize(const s2string &path) {
 
 	//Just compile from file for now.
 	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS;

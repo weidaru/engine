@@ -11,6 +11,10 @@ namespace s2 {
 class GraphicResourceManger;
 class VertexShader;
 class PixelShader;
+class VertexBuffer;
+class IndexBuffer;
+class Texture2D;
+class Resource;
 struct RasterizationOption;
 struct DepthStencilOption;
 struct BlendOption; 

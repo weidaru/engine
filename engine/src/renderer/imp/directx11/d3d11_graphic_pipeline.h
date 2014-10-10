@@ -17,22 +17,9 @@ namespace s2 {
 class D3D11VertexShader;
 class D3D11PixelShader;
 class D3D11GraphicResourceManager;
+class D3D11Texture2D;
 
 class D3D11GraphicPipeline : public GraphicPipeline {
-public:
-	enum PrimitiveTopology {
-		POINT_LIST,
-		LINE_LIST,
-		LINE_STRIP,
-		TRIANGLE_LIST,
-		TRIANGLE_STRIP
-	};
-
-	enum VertexBufferUsage {
-		PER_VERTEX,
-		PER_INSTANCE
-	};
-
 private:
 	struct RenderTarget {
 		D3D11Texture2D *tex;		//Only allow Texture2D for now.
@@ -75,7 +62,7 @@ public:
 	
 	//Input
 	virtual bool SetPrimitiveTopology(PrimitiveTopology newvalue);
-	virtual PrimitiveTopology GetPrimitiveTopology();
+	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	virtual bool SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name);
 	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name);
 	virtual bool SetIndexBuffer(IndexBuffer *buf);

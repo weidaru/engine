@@ -17,7 +17,7 @@ class D3D11IndexBuffer;
 class D3D11VertexShader : public VertexShader {
 public:
 	D3D11VertexShader(D3D11GraphicResourceManager *_manager);
-	virtual bool Initialize(const s2string &path, PrimitiveTopology _topology);
+	virtual bool Initialize(const s2string &path);
 	virtual ~D3D11VertexShader();
 
 	virtual bool SetConstantBuffer(const s2string &name, ConstantBuffer *cb);
