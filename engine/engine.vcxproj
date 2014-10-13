@@ -65,6 +65,10 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\video_card_info.cpp" />
     <ClCompile Include="src\renderer\resource.cpp" />
+    <ClCompile Include="src\renderer\texture1d.cpp" />
+    <ClCompile Include="src\renderer\texture2d.cpp" />
+    <ClCompile Include="src\renderer\texture3d.cpp" />
+    <ClCompile Include="src\renderer\texture_enum.cpp" />
     <ClCompile Include="src\utils\type_info.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

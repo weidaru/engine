@@ -177,16 +177,23 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	if(_option.is_dynamic) {
 		desc.Usage =  D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	} else {
+		desc.Usage = D3D11_USAGE_DEFAULT;
 	}
 	
 	desc.MiscFlags = 0;
 	
 	HRESULT result=1;
 	{
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = _option.data;
-		data.SysMemPitch = _option.width*TextureEnum::GetFormatSize(_option.format);
-		result = manager->GetDevice()->CreateTexture2D(&desc, &data, &tex);
+		if(_option.data) {
+			D3D11_SUBRESOURCE_DATA data;
+			data.pSysMem = _option.data;
+			data.SysMemPitch = _option.width*TextureEnum::GetFormatSize(_option.format);
+			result = manager->GetDevice()->CreateTexture2D(&desc, &data, &tex);
+		} else {
+			result = manager->GetDevice()->CreateTexture2D(&desc, 0, &tex);
+		}
+		
 		CHECK(!FAILED(result))<<"Cannot create texture 2d. Error " << ::GetLastError();
 	}
 	

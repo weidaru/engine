@@ -209,5 +209,17 @@
     <ClCompile Include="src\engine_program_imp\test_program.cpp">
       <Filter>Source Files\engine_program_imp</Filter>
     </ClCompile>
+    <ClCompile Include="src\renderer\texture_enum.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\texture1d.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\texture2d.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\texture3d.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
