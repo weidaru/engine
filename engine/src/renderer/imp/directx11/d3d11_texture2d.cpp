@@ -16,26 +16,6 @@
 
 namespace s2 {
 
-namespace {
-
-bool VerifyOption(const Texture2D::Option &option, s2string *error) {
-	if(option.as_rendertarget &&  option.as_depthstencil) {
-		*error = "Cannot bind as both RenderTarget and DepthStencil.";
-		return false;
-	}
-	if(option.width<=0 || option.height<=0) {
-		*error = "width and height must be greater than 0";
-		return false;
-	}
-	if(option.sample_size<=0 || option.array_size<=0) {
-		*error = "sample_size and array_size must be greater than 0";
-		return false;
-	}
-	return true;
-} 
-
-}
-
 
 D3D11Texture2D::D3D11Texture2D(D3D11GraphicResourceManager *_manager) 
 		: manager(_manager), tex(0), ds_view(0), rt_view(0), sr_view(0) {
@@ -67,7 +47,7 @@ void D3D11Texture2D::Clear() {
 
 void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetView *_rt_view,const Option &_option) {
 	CHECK(_tex && _rt_view)<<"Parameters must not be NULL";
-	VerifyOption(_option, &error);
+
 	Clear();
 	
 	tex = _tex;
@@ -75,10 +55,7 @@ void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetV
 	
 }
 
-bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
-	if(!VerifyOption(_option, &error)) {
-		return false;
-	}
+void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	Clear();
 
 	tex = 0;
@@ -97,7 +74,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	D3D11_RENDER_TARGET_VIEW_DESC *rtv_desc=0;
 	D3D11_DEPTH_STENCIL_VIEW_DESC *dsv_desc=0;
 	D3D11_SHADER_RESOURCE_VIEW_DESC *srv_desc = 0;
-	if(_option.as_rendertarget) {
+	if(_option.output_bind == TextureEnum::RENDER_TARGET) {
 		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 		rtv_desc = new D3D11_RENDER_TARGET_VIEW_DESC;
 		
@@ -122,7 +99,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 		
 	}
-	else if(_option.as_depthstencil) {
+	else if(_option.output_bind == TextureEnum::DEPTH_STENCIL) {
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		dsv_desc = new D3D11_DEPTH_STENCIL_VIEW_DESC;
 		dsv_desc->Format = desc.Format;
@@ -147,7 +124,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 	}
 		
-	if(_option.as_shaderresource) {
+	if(_option.input_bind == TextureEnum::SHADER_RESOURCE) {
 		desc.BindFlags = desc.BindFlags | D3D11_BIND_SHADER_RESOURCE;
 		srv_desc = new D3D11_SHADER_RESOURCE_VIEW_DESC;
 		srv_desc->Format = desc.Format;
@@ -212,7 +189,6 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		CHECK(!FAILED(result))<<"Cannot create shader resource view. Error " << ::GetLastError();
 		delete srv_desc;
 	}
-	return true;
 }
 
 void * D3D11Texture2D::Map() {
@@ -241,15 +217,17 @@ void D3D11Texture2D::GetOption(Texture2D::Option *option) {
 	option->format = D3D11EnumConverter::DXGIFormatToTextureFormat(desc.Format);
 	option->sample_size = desc.SampleDesc.Count;
 	option->is_dynamic = (desc.Usage == D3D11_USAGE_DYNAMIC);
-	option->as_rendertarget = (rt_view!=0);
-	option->as_depthstencil = (ds_view!=0);
-	option->as_shaderresource = (sr_view!=0);
+	if(desc.BindFlags & D3D11_BIND_DEPTH_STENCIL)
+		option->output_bind = TextureEnum::DEPTH_STENCIL;
+	else if(desc.BindFlags & D3D11_BIND_RENDER_TARGET)
+		option->output_bind = TextureEnum::RENDER_TARGET;
+	else
+		option->output_bind = TextureEnum::NOT_OUTPUT;
+	if(desc.BindFlags & D3D11_BIND_SHADER_RESOURCE)
+		option->input_bind = TextureEnum::SHADER_RESOURCE;
+	else
+		option->input_bind = TextureEnum::NOT_INPUT;
 }
-
-void D3D11Texture2D::GetLastError(s2string *str) {
-	*str = error;
-}
-
 }
 
 

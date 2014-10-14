@@ -13,11 +13,10 @@ class D3D11ConstantBuffer : public ConstantBuffer {
 public:
 	D3D11ConstantBuffer(D3D11GraphicResourceManager * _manager);
 	virtual ~D3D11ConstantBuffer();
-	virtual bool Initialize(unsigned int size, const void *data);
+	virtual void Initialize(unsigned int size, const void *data);
 	virtual unsigned int GetSize();
  	virtual void * Map();
  	virtual void UnMap();
-	virtual void GetLastError(s2string *str);
 	
 	/*******************D3D11 exclusive*******************/
 	ID3D11Buffer * GetInternal() { return cb; }
@@ -28,7 +27,6 @@ private:
 private:
 	D3D11GraphicResourceManager *manager;
 	ID3D11Buffer  *cb;
-	s2string error;
 };
 
 

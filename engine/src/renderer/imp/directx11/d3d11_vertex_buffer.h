@@ -13,13 +13,11 @@ class D3D11VertexBuffer : public VertexBuffer {
 public:
 	D3D11VertexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11VertexBuffer();
-	virtual bool Initialize(unsigned int size, const void *data, bool is_dynamic);
+	virtual void Initialize(unsigned int size, const void *data, bool is_dynamic);
 	virtual bool IsDynamic();
 	virtual unsigned int GetSize();
 	virtual void * Map();
 	virtual void UnMap();
-	
-	virtual void GetLastError(s2string *str);
 
 	/**************D3D11 exclusive************/
 	ID3D11Buffer * GetInternal() { return vb; }
@@ -30,8 +28,6 @@ private:
 private:
 	D3D11GraphicResourceManager *manager;
 	ID3D11Buffer *vb;
-	
-	s2string error;
 };
 
 }

@@ -11,6 +11,17 @@ struct TextureEnum {
 		//Add more later.
 	};
 	
+	enum OutputBind {
+		NOT_OUTPUT,
+		RENDER_TARGET,
+		DEPTH_STENCIL
+	};
+	
+	enum InputBind {
+		NOT_INPUT,
+		SHADER_RESOURCE
+	};
+	
 	static unsigned int GetFormatSize(TextureFormat flag);
 };
 }

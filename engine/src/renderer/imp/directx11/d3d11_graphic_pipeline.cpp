@@ -45,25 +45,22 @@ D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 }
 
 
-bool D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
+void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
 	new_input = true;
 	topology = newvalue;
-	return true;
 }
 
 GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() {
 	return topology;
 }
 
-bool D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, VertexBuffer *_buf, VertexBufferUsage usage, const s2string &type_name) {
+void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, VertexBuffer *_buf, VertexBufferUsage usage, const s2string &type_name) {
 	new_input = true;
 	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
-	//Skip typecheck for now.
 	int i = 0;
 	vbs[i].vb = buf;
 	vbs[i].usage = usage;
 	vbs[i].type_name = type_name;
-	return true;
 }
 
 D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) {
@@ -71,31 +68,28 @@ D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, Ve
 	return 0;
 }
 
-bool D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
+void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
 	new_input = true;
 	D3D11IndexBuffer *buf = NiceCast(D3D11IndexBuffer *, _buf);
 	ib = buf;
-	return true;
 }
 
 D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
 	return ib;
 }
 
-bool D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
+void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
 	new_vs = true;
 	vs = NiceCast(D3D11VertexShader *, shader);
-	return true;
 }
 
 VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 	return vs;
 }
 
-bool D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
+void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 	new_ps = true;
 	ps = NiceCast(D3D11PixelShader *, shader);
-	return true;
 }
 
 PixelShader * D3D11GraphicPipeline::GetPixelShader() {
@@ -104,7 +98,7 @@ PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 
 namespace {
 
-ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const RasterizationOption &option, s2string *error) {
+ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const RasterizationOption &option) {
 	D3D11_RASTERIZER_DESC desc;
 	switch(option.fill_mode) {
 	case RasterizationOption::WIREFRAME:
@@ -143,16 +137,12 @@ ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const Ras
 	ID3D11RasterizerState *state = 0;
 	HRESULT result = 1;
 	result = device->CreateRasterizerState(&desc, &state);
-	if(FAILED(result)) {
-		char buf[256];
-		sprintf(buf, "Fail to create rasterization state. Error code %d.", ::GetLastError());
-		*error = buf;
-	}
+	CHECK(!FAILED(result))<<"Fail to create rasterization state. Error code "<< ::GetLastError();
 	
 	return state;
 }
 
-ID3D11DepthStencilState * ParseDepthStencilOption(ID3D11Device *device,const DepthStencilOption &option, s2string *error) {
+ID3D11DepthStencilState * ParseDepthStencilOption(ID3D11Device *device,const DepthStencilOption &option) {
 	D3D11_DEPTH_STENCIL_DESC desc;
 	//Depth
 	desc.DepthEnable = option.enable_depth;
@@ -175,24 +165,14 @@ ID3D11DepthStencilState * ParseDepthStencilOption(ID3D11Device *device,const Dep
 	HRESULT result = 1;
 	ID3D11DepthStencilState *state=0;
 	result = device->CreateDepthStencilState(&desc, &state);
-	if(FAILED(result)) {
-		char buf[256];
-		sprintf(buf, "Fail to create depth stencil state. Error code %d.", ::GetLastError());
-		*error = buf;
-	}
+	CHECK(!FAILED(result))<<"Fail to create depth stencil state. Error code "<< ::GetLastError();
 	return state;
 }
 
-ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &option, s2string *error) {
+ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &option) {
 	D3D11_BLEND_DESC desc;
 	desc.AlphaToCoverageEnable = false;		//Disabled for now, see class BlendOption.
 	desc.IndependentBlendEnable= option.rt_options.size()>1;
-	if(option.rt_options.size()>8) {
-		char buf[256];
-		sprintf(buf, "Can only handle 8 render targets. The current number is %d", option.rt_options.size());
-		*error = buf;
-		return 0;
-	}
 	
 	for(unsigned int i=0; i<option.rt_options.size(); i++) {
 		const BlendOption::RenderTargetBlendOption &opt = option.rt_options[i];
@@ -209,106 +189,80 @@ ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &opt
 	HRESULT result = 1;
 	ID3D11BlendState *state = 0;
 	result = device->CreateBlendState(&desc, &state);
-	if(FAILED(result)) {
-		char buf[256];
-		sprintf(buf, "Fail to create blend state. Error code %d.", ::GetLastError());
-		*error = buf;
-	}
+	CHECK(!FAILED(result))<<"Fail to create blend state. Error code "<< ::GetLastError();
 	return state;
 }
 	
 }
 
-bool D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &option) {
+void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &option) {
 	rast_opt = option;
-	ID3D11RasterizerState *old_state = rast_state;
-	rast_state = ParseRasterizationOption(manager->GetDevice(), rast_opt, &error);
-	if(rast_state == 0) {
-		rast_state = old_state;
-		return false;
-	} else {
-		new_rast = true;
-		old_state->Release();
-		return true;
-	}
+	if(rast_state)
+		rast_state->Release();
+	rast_state = ParseRasterizationOption(manager->GetDevice(), rast_opt);
+	new_rast = true;
 }
 
 void D3D11GraphicPipeline::GetRasterizationOption(RasterizationOption *option) {
 	*option = rast_opt;
 }
 
-bool D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &option) {
+void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &option) {
 	ds_opt = option;
-	ID3D11DepthStencilState *old_state = ds_state;
-	ds_state = ParseDepthStencilOption(manager->GetDevice(), ds_opt, &error);
-	if(ds_state == 0) {
-		ds_state = old_state;
-		return false;
-	} else {
-		new_ds = true;
-		old_state->Release();
-		return true;
-	}
+	if(ds_state)
+		ds_state->Release();
+	ds_state = ParseDepthStencilOption(manager->GetDevice(), ds_opt);
+	new_ds = true;
 }
 
 void D3D11GraphicPipeline::GetDepthStencilOption(DepthStencilOption *option) {
 	*option = ds_opt;
 }
 
-bool D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
+void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
 	blend_opt = option;
-	ID3D11BlendState *old_state = blend_state;
-	blend_state = ParseBlendOption(manager->GetDevice(), blend_opt, &error);
-	if(blend_state == 0) {
-		blend_state = old_state;
-		return false;
-	} else {
-		new_blend = true;
-		old_state->Release();
-		return true;
-	}
+	if(blend_state)
+		blend_state->Release();
+	blend_state = ParseBlendOption(manager->GetDevice(), blend_opt);
+	new_blend = true;
 }
 
 void D3D11GraphicPipeline::GetBlendOption(BlendOption *option) {
 	*option = blend_opt;
 }
 
-bool D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
+void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
 	new_output = true;
 	rts[index].tex = NiceCast(D3D11Texture2D *, target);
-	return true;
 }
 
 Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
 	return rts[index].tex;
 }
 
-bool D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
+void D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
 	new_output = true;
 	ds.tex = NiceCast(D3D11Texture2D *, buffer);
-	return true;
 }
 
 Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
 	return ds.tex;
 }
 
-bool D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
+void D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
 	rts[index].enable_clear = enable;
 	rts[index].rgba[0] = rgba[0];
 	rts[index].rgba[1] = rgba[1];
 	rts[index].rgba[2] = rgba[2];
 	rts[index].rgba[3] = rgba[3];
-	return true;
 }
 
-bool D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
+void D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
 	*enable = rts[index].enable_clear;
 	rgba[0] = rts[index].rgba[0];
 	rgba[1] = rts[index].rgba[1];
 	rgba[2] = rts[index].rgba[2];
 	rgba[3] = rts[index].rgba[3];
-	return true;
 }
 
 void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) {
@@ -425,6 +379,10 @@ void D3D11GraphicPipeline::SetOutput() {
 	}
 }
 
+int D3D11GraphicPipeline::Validate(s2string *error) {
+	return 0;
+}
+
 void D3D11GraphicPipeline::Draw() {
 	SetInput();
 
@@ -489,9 +447,6 @@ void D3D11GraphicPipeline::Draw() {
 	}
 }
 
-void D3D11GraphicPipeline::GetLastError(s2string *str) {
-	*str = error;
-}
 
 }
 

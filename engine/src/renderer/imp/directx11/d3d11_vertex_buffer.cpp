@@ -29,7 +29,7 @@ void D3D11VertexBuffer::Clear() {
 	}
 }
 
-bool D3D11VertexBuffer::Initialize(unsigned int size, const void *data, bool is_dynamic) {
+void D3D11VertexBuffer::Initialize(unsigned int size, const void *data, bool is_dynamic) {
 	Clear();
 
 	D3D11_BUFFER_DESC desc;
@@ -49,7 +49,6 @@ bool D3D11VertexBuffer::Initialize(unsigned int size, const void *data, bool is_
 	HRESULT result = 1;
 	result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &vb);
 	CHECK(!FAILED(result))<<"Cannot create vertex buffer. Error code: " <<::GetLastError();
-	return true;
 }
 
 bool D3D11VertexBuffer::IsDynamic() {
@@ -83,10 +82,6 @@ void D3D11VertexBuffer::UnMap() {
 	CHECK(IsDynamic())<<"Vertex buffer mut be dynamic in order to unmap.";
 	HRESULT result = 1;
 	manager->GetDeviceContext()->Unmap(vb, 0);
-}
-
-void D3D11VertexBuffer::GetLastError(s2string *str) {
-	*str = error;
 }
 
 }

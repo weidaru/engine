@@ -19,7 +19,7 @@ public:
 	D3D11Texture2D(D3D11GraphicResourceManager *_manager);
 
 	virtual ~D3D11Texture2D();
-	virtual bool Initialize(const Option &_option);
+	virtual void Initialize(const Option &_option);
 	virtual void * Map();
 	virtual void UnMap();
 	virtual void GetOption(Option *option);
@@ -31,8 +31,6 @@ public:
 	ID3D11DepthStencilView * GetDepthStencilView() { return ds_view; }
 	ID3D11ShaderResourceView * GetShaderResourceView() { return sr_view; }
 	
-	virtual void GetLastError(s2string *str);
-	
 private:
 	void Clear();
 	
@@ -43,8 +41,6 @@ private:
 	ID3D11DepthStencilView *ds_view;
 	ID3D11RenderTargetView *rt_view;
 	ID3D11ShaderResourceView  *sr_view;
-	
-	s2string error;
 };
 
 }

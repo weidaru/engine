@@ -110,9 +110,8 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	bf_desc.format = TextureEnum::R8G8B8A8_UNORM;
 	bf_desc.sample_size = 1;
 	bf_desc.is_dynamic = false;
-	bf_desc.as_rendertarget = true;
-	bf_desc.as_depthstencil = false;
-	bf_desc.as_shaderresource = false;
+	bf_desc.output_bind = TextureEnum::RENDER_TARGET;
+	bf_desc.input_bind = TextureEnum::NOT_INPUT;
 	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);
 }
 
@@ -136,11 +135,7 @@ void D3D11GraphicResourceManager::RemoveVertexBuffer(unsigned int id) {
 	
 D3D11IndexBuffer * D3D11GraphicResourceManager::CreateIndexBuffer(unsigned int size, const uint32_t* data, bool is_dynamic) {
 	D3D11IndexBuffer *buffer = new D3D11IndexBuffer(this);
-	if(buffer->Initialize(size, data, is_dynamic) == false) {
-		buffer->GetLastError(&error);
-		delete buffer;
-		return 0;
-	}
+	buffer->Initialize(size, data, is_dynamic);
 	ib_map[buffer->GetID()] = buffer;
 	return buffer;
 }
@@ -172,11 +167,7 @@ void D3D11GraphicResourceManager::RemoveTexture1D(unsigned int id) {
 	
 D3D11Texture2D * D3D11GraphicResourceManager::CreateTexture2D(const Texture2D::Option &option) {
 	D3D11Texture2D *texture = new D3D11Texture2D(this);
-	if(texture->Initialize(option) == false) {
-		texture->GetLastError(&error);
-		delete texture;
-		return 0;
-	}
+	texture->Initialize(option);
 	tex2d_map[texture->GetID()] = texture;
 	return texture;
 }

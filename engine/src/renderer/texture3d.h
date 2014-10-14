@@ -18,9 +18,8 @@ public:
 		TextureEnum::TextureFormat 	format;
 		unsigned int 	sample_size;
 		bool is_dynamic;
-		bool as_rendertarget;
-		bool as_depthstencil;
-		bool as_shaderresource;
+		TextureEnum::OutputBind output_bind;
+		TextureEnum::InputBind input_bind;
 		void *data;
 		
 		Option();
@@ -28,12 +27,10 @@ public:
 
 public:
 	virtual				~Texture3D() {}
-	virtual bool 		Initialize(const Option &option) = 0;
+	virtual void 		Initialize(const Option &option) = 0;
 	virtual void * 		Map() = 0;
 	virtual void 		UnMap() = 0;
 	virtual void 		GetOption(Option *option) = 0;		
-	
-	virtual void 		GetLastError(s2string *str) = 0;
 };
 
 }

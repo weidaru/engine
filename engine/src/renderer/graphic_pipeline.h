@@ -46,17 +46,17 @@ public:
 
 public:
 	//Input
-	virtual bool SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
+	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
-	virtual bool SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name) = 0;
+	virtual void SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name) = 0;
 	template <typename T>
-	bool SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage) {
+	void SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage) {
 		 const s2string &type_name = TypeInfoManager::GetSingleton()->Get<T>().GetName();
-		 return SetVertexBuffer(index, buf, usage, type_name);
+		 SetVertexBuffer(index, buf, usage, type_name);
 	}
 	
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) = 0;
-	virtual bool SetIndexBuffer(IndexBuffer *buf) = 0;
+	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
 
 	//Shaders
@@ -67,25 +67,25 @@ public:
 	 *
 	 * Shaders passed in as pointers which means any change to shaders will affect the pipeline.
 	 */
-	virtual bool SetVertexShader(VertexShader *vs) = 0;
+	virtual void SetVertexShader(VertexShader *vs) = 0;
 	virtual VertexShader * GetVertexShader() = 0;
-	virtual bool SetPixelShader(PixelShader *ps) = 0;
+	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() = 0;
 	
 	//Rasterization
-	virtual bool SetRasterizationOption(const RasterizationOption &option) = 0;
+	virtual void SetRasterizationOption(const RasterizationOption &option) = 0;
 	virtual void GetRasterizationOption(RasterizationOption *option) = 0;
 
 	//DepthStencil
-	virtual bool SetDepthStencilOption(const DepthStencilOption &option) = 0;
+	virtual void SetDepthStencilOption(const DepthStencilOption &option) = 0;
 	virtual void GetDepthStencilOption(DepthStencilOption *option) = 0;
 	
 	//Blend
-	virtual bool SetBlendOption(const BlendOption &option) = 0;
+	virtual void SetBlendOption(const BlendOption &option) = 0;
 	virtual void GetBlendOption(BlendOption *option) = 0;
 	
 	//Output
-	virtual bool SetRenderTarget(unsigned int index, Texture2D *target) = 0;
+	virtual void SetRenderTarget(unsigned int index, Texture2D *target) = 0;
 	virtual Resource * GetRenderTarget(unsigned int index) = 0;
 	template <typename T>
 	T * GetRenderTargetCast(unsigned int index) {
@@ -96,10 +96,10 @@ public:
 		return dynamic_cast<T *>(res);
 	#endif
 	}
-	virtual bool SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) = 0;
-	virtual bool GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) = 0;
+	virtual void SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) = 0;
+	virtual void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) = 0;
 	
-	virtual bool SetDepthStencilBuffer(Texture2D *buffer) = 0;
+	virtual void SetDepthStencilBuffer(Texture2D *buffer) = 0;
 	virtual Resource* GetDepthStencilBuffer() = 0;
 	template <typename T>
 	T * GetDepthStencilBufferCast(unsigned int index) {
@@ -113,10 +113,11 @@ public:
 	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) = 0;
 	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) = 0;
 	
+	//Validate whether each stage is settled properly. Return 0 means success.
+	virtual int Validate(s2string *error) = 0;
+	
 	//This is only function which really does something to the pipeline.
 	virtual void Draw() = 0;
-	
-	virtual void GetLastError(s2string *str) = 0;
 };
 
 }

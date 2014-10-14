@@ -30,7 +30,7 @@ void D3D11IndexBuffer::Clear() {
 	}
 }
 
-bool D3D11IndexBuffer::Initialize(unsigned int size, const InputType *data, bool is_dynamic) {
+void D3D11IndexBuffer::Initialize(unsigned int size, const InputType *data, bool is_dynamic) {
 	Clear();
 	D3D11_BUFFER_DESC desc;
 	desc.ByteWidth = sizeof(uint32_t)*size;
@@ -49,7 +49,6 @@ bool D3D11IndexBuffer::Initialize(unsigned int size, const InputType *data, bool
 	HRESULT result = 1;
 	result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &ib);
 	CHECK(!FAILED(result)) <<"Cannot create index buffer. Error code: " << ::GetLastError();
-	return true;
 }
 
 bool D3D11IndexBuffer::IsDynamic() {
@@ -83,10 +82,6 @@ void D3D11IndexBuffer::UnMap() {
 	CHECK(IsDynamic())<<"Index buffer mut be dynamic in order to unmap.";
 	HRESULT result = 1;
 	manager->GetDeviceContext()->Unmap(ib,0);
-}
-
-void D3D11IndexBuffer::GetLastError(s2string *str) {
-	*str = error;
 }
 
 }

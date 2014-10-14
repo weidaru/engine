@@ -14,8 +14,8 @@ public:
 		unsigned int mip_level;			//0 is full mipmap.
 		unsigned int array_size;
 		TextureEnum::TextureFormat format;
-		bool as_rendertarget;
-		bool as_depthstencil;
+		TextureEnum::OutputBind output_bind;
+		TextureEnum::InputBind input_bind;
 		bool as_shaderresource;
 		bool is_dynamic;
 		void *data;
@@ -25,12 +25,10 @@ public:
 
 public:
 	virtual				~Texture1D() {}
-	virtual bool 		Initialize(const Option &option) = 0;
+	virtual void 		Initialize(const Option &option) = 0;
 	virtual void * 		Map() = 0;
 	virtual void 		UnMap() = 0;
 	virtual void 		GetOption(Option *option) = 0;		
-	
-	virtual void			GetLastError(s2string *str) = 0;
 };
 
 }

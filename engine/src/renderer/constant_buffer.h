@@ -9,11 +9,10 @@ namespace s2 {
 class ConstantBuffer : public Resource {
 public:
 	virtual					~ConstantBuffer() {}
-	virtual bool 			Initialize(unsigned int size, const void *data) = 0;
+	virtual void 			Initialize(unsigned int size, const void *data) = 0;
 	virtual unsigned int GetSize() = 0;
  	virtual void * 			Map() = 0;
  	virtual void 			UnMap() = 0;
-	virtual void 			GetLastError(s2string *str) = 0;
 };
 
 }

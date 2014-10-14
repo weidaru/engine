@@ -63,45 +63,45 @@ public:
 	virtual ~D3D11GraphicPipeline();
 	
 	//Input
-	virtual bool SetPrimitiveTopology(PrimitiveTopology newvalue);
+	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue);
 	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
-	virtual bool SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name);
+	virtual void SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name);
 	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name);
-	virtual bool SetIndexBuffer(IndexBuffer *buf);
+	virtual void SetIndexBuffer(IndexBuffer *buf);
 	virtual D3D11IndexBuffer * GetIndexBuffer();
 	
 	//Shaders
-	virtual bool SetVertexShader(VertexShader *shader);
+	virtual void SetVertexShader(VertexShader *shader);
 	virtual VertexShader * GetVertexShader();
-	virtual bool SetPixelShader(PixelShader *shader);
+	virtual void SetPixelShader(PixelShader *shader);
 	virtual PixelShader * GetPixelShader();
 	
 	//Rasterization
-	virtual bool SetRasterizationOption(const RasterizationOption &option);
+	virtual void SetRasterizationOption(const RasterizationOption &option);
 	virtual void GetRasterizationOption(RasterizationOption *option);
 
 	//DepthStencil
-	virtual bool SetDepthStencilOption(const DepthStencilOption &option);
+	virtual void SetDepthStencilOption(const DepthStencilOption &option);
 	virtual void GetDepthStencilOption(DepthStencilOption *option);
 	
 	//Blend
-	virtual bool SetBlendOption(const BlendOption &option);
+	virtual void SetBlendOption(const BlendOption &option);
 	virtual void GetBlendOption(BlendOption *option);
 	
 	//Output
-	virtual bool SetRenderTarget(unsigned int index, Texture2D *target);
+	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
 	virtual Resource * GetRenderTarget(unsigned int index);
-	virtual bool SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]);
-	virtual bool GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba);
-	virtual bool SetDepthStencilBuffer(Texture2D *buffer);
+	virtual void SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]);
+	virtual void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba);
+	virtual void SetDepthStencilBuffer(Texture2D *buffer);
 	virtual Resource * GetDepthStencilBuffer();
 	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
 	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil);
 	
+	virtual int Validate(s2string *_error);
+	
 	//This is only function which really does something to the pipeline.
 	virtual void Draw();
-	
-	virtual void GetLastError(s2string *str);
 	
 private:
 	void SetInput();
@@ -138,8 +138,6 @@ private:
 	bool new_output;
 	std::vector<RenderTarget> rts;
 	DepthStencil ds;
-	
-	s2string error;
 };
 
 

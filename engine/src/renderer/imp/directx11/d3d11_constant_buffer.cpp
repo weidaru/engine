@@ -31,7 +31,7 @@ void D3D11ConstantBuffer::Clear() {
 	}
 }
 
-bool D3D11ConstantBuffer::Initialize(unsigned int size, const void *data) {
+void D3D11ConstantBuffer::Initialize(unsigned int size, const void *data) {
 	D3D11_BUFFER_DESC desc;
 	desc.ByteWidth = size;
 	desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -44,7 +44,6 @@ bool D3D11ConstantBuffer::Initialize(unsigned int size, const void *data) {
 	HRESULT result = 1;
 	result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &cb);
 	CHECK(!FAILED(result))<<"Cannot create constant buffer. Error code: " << ::GetLastError();
-	return true;
 }
 
 unsigned int D3D11ConstantBuffer::GetSize() {
@@ -70,11 +69,6 @@ void D3D11ConstantBuffer::UnMap() {
 	HRESULT result = 1;
 	manager->GetDeviceContext()->Unmap(cb, 0);
 }
-
-void D3D11ConstantBuffer::GetLastError(s2string *str) {
-	*str = error;
-}
-
 
 }
 

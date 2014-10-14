@@ -38,10 +38,8 @@ public:
 
 public:
 	virtual ~Sampler() {}
-	virtual bool Initialize(const Option &option) = 0;
+	virtual void Initialize(const Option &option) = 0;
 	virtual void GetOption(Option *option) = 0;
-	
-	virtual void GetLastError(s2string *str) = 0;
 };
 
 }

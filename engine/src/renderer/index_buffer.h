@@ -12,13 +12,11 @@ public:
 
 public:
 	virtual 				~IndexBuffer() {}
-	virtual bool 			Initialize(unsigned int size, const InputType *data, bool is_dynamic) = 0;
+	virtual void 			Initialize(unsigned int size, const InputType *data, bool is_dynamic) = 0;
 	virtual bool 			IsDynamic() = 0;
 	virtual unsigned int GetSize() = 0;
 	virtual void * 			Map() = 0;
 	virtual void 			UnMap() = 0;
-	
-	virtual void 			GetLastError(s2string *str) = 0;
 };
 
 }
