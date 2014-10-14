@@ -379,8 +379,8 @@ void D3D11GraphicPipeline::SetOutput() {
 	}
 }
 
-int D3D11GraphicPipeline::Validate(s2string *error) {
-	return 0;
+bool D3D11GraphicPipeline::Validate(s2string *error) {
+	return true;
 }
 
 void D3D11GraphicPipeline::Draw() {

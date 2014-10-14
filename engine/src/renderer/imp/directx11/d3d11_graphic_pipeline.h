@@ -98,7 +98,7 @@ public:
 	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
 	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil);
 	
-	virtual int Validate(s2string *_error);
+	virtual bool Validate(s2string *_error);
 	
 	//This is only function which really does something to the pipeline.
 	virtual void Draw();
