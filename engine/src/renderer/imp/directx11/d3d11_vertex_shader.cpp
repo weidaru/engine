@@ -54,9 +54,16 @@ bool D3D11VertexShader::Initialize(const s2string &path) {
 	HRESULT result = 1;
 	
 	{
-		FILE* file = fopen(path.c_str(), "r");
+		FILE* file = fopen(path.c_str(), "rb");
+		if(!file) {
+			char buffer[1024*5];
+			sprintf(buffer, "Cannot open file %s", path.c_str());
+			error = buffer;
+			return false;
+		}
 		fseek(file, 0, SEEK_END);
 		long size = ftell(file);
+		fseek(file, 0, SEEK_SET);
 		char *buffer = new char[size];
 		fread(buffer, size, size, file);
 		result = D3DCompile(buffer, size, path.c_str(), 0, 0, "main", "vs_5_0", flag, 0, &shader_blob, &error_blob);

@@ -1,3 +1,17 @@
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3dx11.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxguid.lib")
+
+
+#define WIN32_LEAN_AND_MEAN
+#include <dxgi.h>
+#include <d3d11.h>
+#include <d3d11shader.h>
+#include <d3dcompiler.h>
+#undef ERROR
+
 #include "engine_program.h"
 #include "engine.h"
 
@@ -31,6 +45,54 @@ public:
 		Texture2D::Option::SetAsDepthStencilBuffer(&ds_option, renderer_setting.window_width, renderer_setting.window_height);
 		Texture2D *ds_buffer = manager->CreateTexture2D(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
+
+
+		//Just compile from file for now.
+		unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS;
+		flag |= D3DCOMPILE_DEBUG;
+		ID3DBlob* shader_blob = 0;
+		ID3DBlob* error_blob = 0;
+		HRESULT result = 1;
+		s2string path("d:\\temp\\color.vs");
+
+		{
+			FILE* file = fopen(path.c_str(), "rb");
+			fseek(file, 0, SEEK_END);
+			long size = ftell(file);
+			fseek(file, 0, SEEK_SET);
+			char *buffer = new char[size];
+			fread(buffer, 1, size, file);
+			printf(buffer);
+			result = D3DCompile(buffer, size, path.c_str(), 0, 0, "PerVertex", "vs_5_0", flag, 0, &shader_blob, &error_blob);
+			delete[] buffer;
+		}
+
+		if(FAILED(result)) {
+			s2string error  =(char *)(error_blob ? error_blob->GetBufferPointer() : "Fail to retrive error message.");
+			if(shader_blob)
+				shader_blob->Release();
+			if(error_blob)
+				error_blob->Release();
+		}
+
+		/*For fun
+		ID3D11ShaderReflection *reflect = 0;
+		D3DReflect( shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 
+            IID_ID3D11ShaderReflection, (void**) &reflect);
+		D3D11_SHADER_DESC desc;
+		reflect->GetDesc(&desc);
+
+		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("worldViewProj2");
+		 D3D11_SHADER_VARIABLE_DESC  var_desc;
+		 var->GetDesc(&var_desc);
+
+		 ID3D11ShaderReflectionConstantBuffer* cb =  reflect->GetConstantBufferByIndex(0);
+		 D3D11_SHADER_BUFFER_DESC  cb_desc;
+		 cb->GetDesc(&cb_desc);
+
+		 D3D11_SHADER_INPUT_BIND_DESC input_bind;
+		 reflect->GetResourceBindingDesc(2, &input_bind);
+		 */
 		
 		return true;
 	}
