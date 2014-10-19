@@ -68,7 +68,7 @@ public:
 	virtual D3D11PixelShader * GetPixelShader(unsigned int id);
 	virtual void RemovePixelShader(unsigned int id);
 	
-	virtual void GetLastError(s2string *str);
+	virtual const s2string & GetLastError() { return error; } 
 
 	
 	/****************D3D11 exclusive*****************/

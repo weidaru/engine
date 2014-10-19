@@ -33,6 +33,15 @@ void D3D11ConstantBuffer::Clear() {
 	delete[] data_buffer;
 }
 
+bool SetData(unsigned int offset, void *data, unsigned int _size) {
+	if(offset+_size > size) {
+		error = "Data overflow."
+		return false;
+	}
+	memcpy(data_buffer, data, _size);
+	return true;
+}
+
 void D3D11ConstantBuffer::Initialize(unsigned int _size, const void *data) {
 	Clear();
 	size = _size;

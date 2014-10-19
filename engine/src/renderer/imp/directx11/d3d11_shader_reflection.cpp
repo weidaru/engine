@@ -13,6 +13,7 @@
 
 #include <glog/logging.h>
 #include <stdio.h>
+#include <algorithm>
 
 #include "d3d11_shader_reflection.h"
 
@@ -37,7 +38,8 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 			D3D11_SHADER_VARIABLE_DESC v_desc;
 			v_reflect->GetDesc(&v_desc);
 			D3D11_SHADER_TYPE_DESC type_desc;
-			v_reflect->GetType()->GetDesc(&type_desc);
+			ID3D11ShaderReflectionType *type = v_reflect->GetType();
+			type->GetDesc(&type_desc);
 			Uniform &u = uniforms[v_desc.Name];
 			u.cb_index = cb.index;
 			u.cb_name = cb.name;
@@ -45,6 +47,8 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 			u.type_name = type_desc.Name;
 			u.offset = v_desc.StartOffset;
 			u.size = v_desc.Size;
+			
+			ParseShaderType(*type);
 		}
 	}
 }
@@ -122,6 +126,14 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 	//STUB
 }
 
+void D3D11ShaderReflection::PopulateTypeAndCompatibleMap() {
+
+}
+
+void D3D11ShaderReflection::ParseShaderType(const ID3D11ShaderReflectionType &type) {
+
+}
+
 D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob)
 	: filepath(_filepath), reflect(0) {
 	HRESULT result = 1;
@@ -132,7 +144,15 @@ D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob
 	D3D11_SHADER_DESC desc;
 	result = reflect->GetDesc(&desc);
 	CHECK(!FAILED(result))<<"Cannot get shader reflection desc for "<<_filepath;	
+	
+	PopulateTypeAndCompatibleMap();
+	PopulateCBAndUniforms(desc);
+	PopulateInputs(desc);
+	PopulateOutputs(desc);
+	PopulateResources(desc);
+	PopulateSamplers(desc);
 }
+
 
 D3D11ShaderReflection::~D3D11ShaderReflection() {
 
@@ -195,6 +215,10 @@ bool D3D11ShaderReflection::HasResource(const s2string &name) {
 	CHECK(false)<<"Disabled";
 	return false;
 }
+
+
+
+
 
 }
 

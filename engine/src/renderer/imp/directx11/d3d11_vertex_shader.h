@@ -29,7 +29,7 @@ public:
 	virtual bool SetResource(const s2string &name, Texture3D *resource);
 	virtual Resource * GetResource(const s2string &name);
 	
-	virtual void GetLastError(s2string *str);
+	virtual const s2string & GetLastError() { return error; } 
 	
 	/*****************D3D11 exclusive.******************/
 	void Flush();
@@ -48,8 +48,6 @@ private:
 	std::vector<D3D11ConstantBuffer *> cbs;
 	ID3D11VertexShader *shader;
 	D3D11ShaderReflection *reflect;
-
-	s2string error;
 };
 	
 }

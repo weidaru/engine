@@ -259,10 +259,6 @@ void D3D11GraphicResourceManager::RemovePixelShader(unsigned int id) {
 	}
 }
 
-void D3D11GraphicResourceManager::GetLastError(s2string *str) {
-	*str = error;
-}
-
 }
 
 

@@ -2,18 +2,17 @@
 #define D3D11_SHADER_REFLECTION_H_
 
 #include "utils/s2string.h"
+#include "utils/type_info.h"
 
 #include <vector>
 #include <map>
-
-
-
 
 struct ID3D11ShaderReflection;
 struct ID3D10Blob;
 typedef ID3D10Blob ID3DBlob;
 struct _D3D11_SHADER_DESC;
 typedef struct _D3D11_SHADER_DESC D3D11_SHADER_DESC;
+struct ID3D11ShaderReflectionType;
 
 namespace s2 {
 
@@ -55,9 +54,26 @@ public:
 	};
 	
 private:
+	struct ShaderTypeInfo {
+		struct Member {
+			s2string name;
+			s2string type_name;
+			unsigned int offset;
+		};
+
+		s2string name;
+		unsigned int size;
+		std::vector<Member>;
+	};
+	
+private:
 	typedef std::vector<Parameter> ParameterVector;
 	typedef std::vector<ConstantBuffer> CBVector;
 	typedef std::map<s2string, Uniform> UniformMap;
+	
+	typedef std::map<s2string, ShaderTypeInfo> TypeMap;
+	typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
+	
 
 public:
 	D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob);
@@ -79,12 +95,18 @@ public:
 	const D3D11ShaderReflection::Resource & GetResource(const s2string &name);
 	bool HasResource(const s2string &name);
 	
+	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type);
+	
+	const s2string & GetLastError() { return error; }
+	
 private:
+	void PopulateTypeAndCompatibleMap();
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
 	void PopulateInputs(const D3D11_SHADER_DESC &desc);
 	void PopulateOutputs(const D3D11_SHADER_DESC &desc);
 	void PopulateSamplers(const D3D11_SHADER_DESC &desc);
 	void PopulateResources(const D3D11_SHADER_DESC &desc);
+	void ParseShaderType(const ID3D11ShaderReflectionType &type);
 	
 private:
 	s2string filepath;
@@ -93,8 +115,14 @@ private:
 	
 	CBVector cbs;
 	UniformMap uniforms;
+	
+	TypeMap types;
+	CompatibleMap compatibles;
+	
 	ParameterVector inputs;
 	ParameterVector outputs;
+	
+	s2string error;
 };
 
 }

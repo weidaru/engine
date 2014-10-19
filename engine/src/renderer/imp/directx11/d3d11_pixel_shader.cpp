@@ -133,10 +133,6 @@ Resource * D3D11PixelShader::GetResource(const s2string &name) {
 	return 0;
 }
 	
-void D3D11PixelShader::GetLastError(s2string *str) {
-	*str = error;
-}
-
 void D3D11PixelShader::Flush() {
 	if(shader) {
 		HRESULT result = 1;

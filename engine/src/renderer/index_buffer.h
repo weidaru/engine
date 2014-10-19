@@ -11,7 +11,7 @@ public:
 	typedef unsigned int InputType;
 
 public:
-	virtual 				~IndexBuffer() {}
+	virtual 					~IndexBuffer() {}
 	virtual void 			Initialize(unsigned int size, const InputType *data, bool is_dynamic) = 0;
 	virtual bool 			IsDynamic() = 0;
 	virtual unsigned int GetSize() = 0;

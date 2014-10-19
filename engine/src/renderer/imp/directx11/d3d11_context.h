@@ -20,7 +20,7 @@ public:
 	virtual D3D11GraphicResourceManager * GetResourceManager() { return resource_manager; }
 	virtual bool SetSetting(const RendererSetting &_setting);
 	virtual void GetSetting(RendererSetting *_setting);
-	virtual void GetLastError(s2string *str);
+	virtual const s2string & GetLastError(s2string *str) { return error; }
 	virtual void PropagateSetting();
 	virtual void SwapBuffer();
 	

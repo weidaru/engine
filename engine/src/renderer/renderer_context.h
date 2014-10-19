@@ -28,7 +28,7 @@ public:
 	virtual GraphicResourceManager * GetResourceManager() = 0;
 	virtual bool SetSetting(const RendererSetting &_setting) = 0;
 	virtual void GetSetting(RendererSetting *_setting) = 0;
-	virtual void GetLastError(s2string *error) = 0;
+	virtual const s2string & GetLastError() = 0;
 	virtual void PropagateSetting() = 0;
 	virtual void SwapBuffer() = 0;
 };

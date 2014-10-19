@@ -34,10 +34,6 @@ void D3D11Context::GetSetting(RendererSetting *_setting) {
 	*_setting = setting;
 }
 
-void D3D11Context::GetLastError(s2string *str) {
-	*str = error;
-}
-
 void D3D11Context::PropagateSetting() {
 }
 

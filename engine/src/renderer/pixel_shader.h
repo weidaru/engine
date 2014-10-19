@@ -31,7 +31,7 @@ public:
 	virtual bool 						SetResource(const s2string &name, Texture3D *resource) = 0;
 	virtual Resource * 				GetResource(const s2string &name) = 0;
 	
-	virtual void 						GetLastError(s2string *str) = 0;
+	virtual const s2string &		GetLastError() = 0;
 	
 protected:
 	virtual bool 						SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) = 0;

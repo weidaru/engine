@@ -115,13 +115,31 @@ void D3D11VertexShader::Check() {
 }
 
 bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
-	
+	Check();
+	if(!reflect->HasUniform(name)) {
+		char buf[256];
+		sprintf(buf, "Cannot find uniform %s", name.c_str());
+		error = buf;
+		return false;
+	}
+	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
+	ConstantBuffer &cb = cbs[uniform.cb_index];
+	CHECK(cb.SetData(uniform.offset, value ,size))<<cb.GetLastError();
+	return true;
 }
 
 bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
+	if(!reflect->HasUniform(name)) {
+		char buf[256];
+		sprintf(buf, "Cannot find uniform %s", name.c_str());
+		error = buf;
+		return false;
+	}
+	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
+	ConstantBuffer &cb = cbs[uniform.cb_index];
+	CHECK(cb.SetData(uniform.offset, value ,size))<<cb.GetLastError();
+	return true;
 }
 
 bool D3D11VertexShader::SetSampler(const s2string &name, Sampler *sampler) {
@@ -161,37 +179,19 @@ Resource * D3D11VertexShader::GetResource(const s2string &name) {
 }
 
 void D3D11VertexShader::Flush() {
-	
 	if(shader) {
-		HRESULT result = 1;
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->VSSetShader(shader, 0, 0);
 		
 		//Set constant buffer.
-		{
-			int last_index = -1;
-			for(int i=cbs.size()-1; i>=0; i--) {
-				if(cbs[i]) {
-					last_index = i;
-					break;
-				}
-			}
-			
-			if(last_index != -1) {
-				ID3D11Buffer **array = new ID3D11Buffer *[last_index+1];
-				for(int i=0; i<=last_index; i++) {
-					array[i] = cbs[i]->GetInternal();
-				}
-				context->PSSetConstantBuffers(0, last_index+1, array);
-				delete[] array;
-			}
+		ID3D11Buffer **array = new ID3D11Buffer *[cbs.size()];
+		for(int i=0; i<=cbs.size(); i++) {
+			cbs[i]->Flush();
+			array[i] = cbs[i]->GetInternal();
 		}
-		
+		context->PSSetConstantBuffers(0, last_index+1, array);
+		delete[] array;
 	}
-}
-
-void D3D11VertexShader::GetLastError(s2string *str) {
-	*str = error;
 }
 
 }

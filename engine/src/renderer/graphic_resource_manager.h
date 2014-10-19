@@ -64,7 +64,7 @@ public:
 	virtual PixelShader *		GetPixelShader(unsigned int id) = 0;
 	virtual void 					RemovePixelShader(unsigned int id) = 0;
 	
-	virtual void 					GetLastError(s2string *str) = 0;
+	virtual const s2string&		GetLastError() = 0;
 };
 
 }
