@@ -55,12 +55,12 @@ public:
 	virtual void 					RemoveSampler(unsigned int id) = 0;
 	
 	//VertexShader
-	virtual VertexShader * 		CreateVertexShader(const s2string &path) = 0;
+	virtual VertexShader * 		CreateVertexShader(const s2string &path, const s2string &entry_point) = 0;
 	virtual VertexShader *		GetVertexShader(unsigned int id) = 0;
 	virtual void 					RemoveVertexShader(unsigned int id) = 0;
 	
 	//PixelShader
-	virtual PixelShader * 		CreatePixelShader(const s2string &path) = 0;
+	virtual PixelShader * 		CreatePixelShader(const s2string &path, const s2string &entry_point) = 0;
 	virtual PixelShader *		GetPixelShader(unsigned int id) = 0;
 	virtual void 					RemovePixelShader(unsigned int id) = 0;
 	

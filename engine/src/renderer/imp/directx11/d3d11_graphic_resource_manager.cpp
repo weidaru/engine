@@ -215,9 +215,9 @@ void D3D11GraphicResourceManager::RemoveSampler(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
 
-D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader(const s2string &path) {
+D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader(const s2string &path, const s2string &entry_point) {
 	D3D11VertexShader *shader = new D3D11VertexShader(this);
-	if(shader->Initialize(path) == false) {
+	if(shader->Initialize(path, entry_point) == false) {
 		shader->GetLastError(&error);
 		delete shader;
 		return 0;
@@ -237,9 +237,9 @@ void D3D11GraphicResourceManager::RemoveVertexShader(unsigned int id) {
 	}
 }
 
-D3D11PixelShader * D3D11GraphicResourceManager::CreatePixelShader(const s2string &path) {
+D3D11PixelShader * D3D11GraphicResourceManager::CreatePixelShader(const s2string &path, const s2string &entry_point) {
 	D3D11PixelShader *shader = new D3D11PixelShader(this);
-	if(shader->Initialize(path) == false) {
+	if(shader->Initialize(path, entry_point) == false) {
 		shader->GetLastError(&error);
 		delete shader;
 		return 0;

@@ -51,7 +51,7 @@ void D3D11PixelShader::Clear() {
 /**
  * 
  */
-bool D3D11PixelShader::Initialize(const s2string &path) {
+bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_point) {
 	Clear();
 
 	//Just compile from file for now.
@@ -69,7 +69,7 @@ bool D3D11PixelShader::Initialize(const s2string &path) {
 		long size = ftell(file);
 		char *buffer = new char[size];
 		fread(buffer, size, size, file);
-		result = D3DCompile(buffer, size, path.c_str(), 0, 0, "main", "ps_5_0", flag, 0, &shader_blob, &error_blob);
+		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "ps_5_0", flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}
 	if(FAILED(result)) {
@@ -81,6 +81,8 @@ bool D3D11PixelShader::Initialize(const s2string &path) {
 		return false;
 	} else {
 		manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
+		//Setup reflection and constant buffer.
+		
 		if(shader_blob)
 			shader_blob->Release();
 		if(error_blob)
@@ -89,16 +91,10 @@ bool D3D11PixelShader::Initialize(const s2string &path) {
 	}
 }
 
-bool D3D11PixelShader::SetConstantBuffer(const s2string &name, ConstantBuffer *cb) {
+bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
 	Check();
 	CHECK(false)<<"Disable for now";
 	return false;
-}
-
-ConstantBuffer * D3D11PixelShader::GetConstantBuffer(const s2string &name) {
-	Check();
-	CHECK(false)<<"Disable for now";
-	return 0;
 }
 
 bool D3D11PixelShader::SetSampler(const s2string &name, Sampler *sampler) {

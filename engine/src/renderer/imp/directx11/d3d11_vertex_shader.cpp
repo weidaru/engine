@@ -19,6 +19,7 @@
 #include "d3d11_index_buffer.h"
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_enum_converter.h"
+#include "d3d11_shader_reflection.h"
 
 
 #ifdef NDEBUG
@@ -35,14 +36,13 @@
 namespace s2 {
 
 D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
-		manager(_manager), shader(0){
-	cbs.resize(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, 0);
+		manager(_manager), shader(0), reflect(0){
 }
 
 /*TODO: Find a way to cache the program as it will need to be compiled every time a 
  *shader is initialized which is inefficient.
  */
-bool D3D11VertexShader::Initialize(const s2string &path) {
+bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_point) {
 
 	//Just compile from file for now.
 	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -66,7 +66,7 @@ bool D3D11VertexShader::Initialize(const s2string &path) {
 		fseek(file, 0, SEEK_SET);
 		char *buffer = new char[size];
 		fread(buffer, size, size, file);
-		result = D3DCompile(buffer, size, path.c_str(), 0, 0, "main", "vs_5_0", flag, 0, &shader_blob, &error_blob);
+		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "vs_5_0", flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}
 
@@ -79,6 +79,18 @@ bool D3D11VertexShader::Initialize(const s2string &path) {
 		return false;
 	} else {
 		manager->GetDevice()->CreateVertexShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
+		
+		//Setup reflection and constant buffer.
+		reflect = new D3D11ShaderReflection(path, shader_blob);
+		CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+					<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
+		cbs.resize(reflect->GetConstantBufferSize());
+		for(unsigned int i=0; i<cbs.size(); i++) {
+			const D3D11ShaderReflection::ConstantBuffer &cb_reflect = refkect->GetConstantBuffer(i);
+			cbs[i] = new D3D11ConstantBuffer(manager);
+			cbs[i]->Initialize(cb_reflect.size, 0);
+		}
+		
 		if(shader_blob)
 			shader_blob->Release();
 		if(error_blob)
@@ -92,23 +104,24 @@ D3D11VertexShader::~D3D11VertexShader() {
 		shader->Release();
 		shader = 0;
 	}
+	delete reflect;
+	for(unsigned int i=0; i<cbs.size(); i++) {
+		delete cbs[i];
+	}
 }
 
 void D3D11VertexShader::Check() {
 	CHECK(shader) << "VertexShader is not initialized.";
 }
 
-bool D3D11VertexShader::SetConstantBuffer(const s2string &name, ConstantBuffer *_cb) {
-	Check();
-	D3D11ConstantBuffer *cb = NiceCast(D3D11ConstantBuffer *, _cb);
-	cbs[0] = cb;
-	return true;
+bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
+	
 }
 
-ConstantBuffer * D3D11VertexShader::GetConstantBuffer(const s2string &name) {
+bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
 	Check();
 	CHECK(false)<<"Disable for now";
-	return 0;
+	return false;
 }
 
 bool D3D11VertexShader::SetSampler(const s2string &name, Sampler *sampler) {

@@ -59,12 +59,12 @@ public:
 	virtual void RemoveSampler(unsigned int id);
  
 	//VertexShader
-	virtual D3D11VertexShader * CreateVertexShader(const s2string &path);
+	virtual D3D11VertexShader * CreateVertexShader(const s2string &path, const s2string &entry_point);
 	virtual D3D11VertexShader * GetVertexShader(unsigned int id);
 	virtual void RemoveVertexShader(unsigned int id);
 	
 	//PixelShader
-	virtual D3D11PixelShader * CreatePixelShader(const s2string &path);
+	virtual D3D11PixelShader * CreatePixelShader(const s2string &path, const s2string &entry_point);
 	virtual D3D11PixelShader * GetPixelShader(unsigned int id);
 	virtual void RemovePixelShader(unsigned int id);
 	

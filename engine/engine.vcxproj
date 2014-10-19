@@ -25,6 +25,7 @@
     <ClInclude Include="src\renderer\imp\directx11\d3d11_graphic_resource_manager.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_index_buffer.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_pixel_shader.h" />
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_shader_reflection.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_texture2d.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_vertex_buffer.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_vertex_shader.h" />
@@ -60,6 +61,7 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_graphic_resource_manager.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_index_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_pixel_shader.cpp" />
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_shader_reflection.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_texture2d.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp" />

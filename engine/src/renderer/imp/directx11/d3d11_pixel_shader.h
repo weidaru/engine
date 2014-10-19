@@ -17,9 +17,9 @@ class D3D11PixelShader : public PixelShader {
 public:
 	D3D11PixelShader(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11PixelShader();
-	virtual bool Initialize(const s2string &path);
-	virtual bool SetConstantBuffer(const s2string &name, ConstantBuffer *cb);
-	virtual ConstantBuffer * GetConstantBuffer(const s2string &name);
+	virtual bool Initialize(const s2string &path, const s2string &entry_point);
+	
+	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size);
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
 	virtual Sampler * GetSampler(const s2string &name);
 	virtual bool SetResource(const s2string &name, Texture1D *resource);
@@ -31,6 +31,10 @@ public:
 	
 	/*****************D3D11 exclusive.******************/
 	void Flush();
+	
+protected:
+	//That is everything in constant buffer, in the sense of Directx 11.
+	virtual bool SetUniform(const s2string &name, const TypeInfo &type_info, const void *value);
 	
 private:
 	void Check();

@@ -12,6 +12,8 @@
 #include <d3dcompiler.h>
 #undef ERROR
 
+#include <glog/logging.h>
+
 #include "engine_program.h"
 #include "engine.h"
 
@@ -75,24 +77,27 @@ public:
 				error_blob->Release();
 		}
 
-		/*For fun
 		ID3D11ShaderReflection *reflect = 0;
 		D3DReflect( shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 
             IID_ID3D11ShaderReflection, (void**) &reflect);
 		D3D11_SHADER_DESC desc;
 		reflect->GetDesc(&desc);
 
+		D3D11_SIGNATURE_PARAMETER_DESC in_desc;
+		reflect->GetInputParameterDesc(1, &in_desc);
+
 		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("worldViewProj2");
-		 D3D11_SHADER_VARIABLE_DESC  var_desc;
-		 var->GetDesc(&var_desc);
+		D3D11_SHADER_VARIABLE_DESC  var_desc;
+		var->GetDesc(&var_desc);
+		D3D11_SHADER_TYPE_DESC type_desc;
+		var->GetType()->GetDesc(&type_desc);
 
-		 ID3D11ShaderReflectionConstantBuffer* cb =  reflect->GetConstantBufferByIndex(0);
-		 D3D11_SHADER_BUFFER_DESC  cb_desc;
-		 cb->GetDesc(&cb_desc);
+		ID3D11ShaderReflectionConstantBuffer* cb =  reflect->GetConstantBufferByIndex(1);
+		D3D11_SHADER_BUFFER_DESC  cb_desc;
+		cb->GetDesc(&cb_desc);
 
-		 D3D11_SHADER_INPUT_BIND_DESC input_bind;
-		 reflect->GetResourceBindingDesc(2, &input_bind);
-		 */
+		D3D11_SHADER_INPUT_BIND_DESC input_bind;
+		reflect->GetResourceBindingDesc(2, &input_bind);
 		
 		return true;
 	}
