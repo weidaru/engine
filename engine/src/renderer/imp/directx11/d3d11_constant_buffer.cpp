@@ -33,9 +33,9 @@ void D3D11ConstantBuffer::Clear() {
 	delete[] data_buffer;
 }
 
-bool SetData(unsigned int offset, void *data, unsigned int _size) {
+bool D3D11ConstantBuffer::SetData(unsigned int offset, const void *data, unsigned int _size) {
 	if(offset+_size > size) {
-		error = "Data overflow."
+		error = "Data overflow.";
 		return false;
 	}
 	memcpy(data_buffer, data, _size);
@@ -46,7 +46,7 @@ void D3D11ConstantBuffer::Initialize(unsigned int _size, const void *data) {
 	Clear();
 	size = _size;
 	data_buffer = new char[size];
-	memcpy((void *)data_buffer, data, size)
+	memcpy((void *)data_buffer, data, size);
 	
 	D3D11_BUFFER_DESC desc;
 	desc.ByteWidth = size;
@@ -66,15 +66,7 @@ void D3D11ConstantBuffer::Initialize(unsigned int _size, const void *data) {
 	CHECK(!FAILED(result))<<"Cannot create constant buffer. Error code: " << ::GetLastError();
 }
 
-unsigned int D3D11ConstantBuffer::GetSize() {
-	CHECK(cb)<<"Constant buffer is not initialized.";
-	D3D11_BUFFER_DESC desc;
-	cb->GetDesc(&desc);
-	
-	return desc.ByteWidth;
-}
-
-void D3D11ConstantBuffer::FLush() {
+void D3D11ConstantBuffer::Flush() {
 	CHECK(cb)<<"Constant buffer is not initialized.";
 	D3D11_MAPPED_SUBRESOURCE subresource;
 	HRESULT result=1;

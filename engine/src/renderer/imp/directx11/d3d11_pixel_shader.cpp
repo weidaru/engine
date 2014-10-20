@@ -91,6 +91,12 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	}
 }
 
+bool D3D11PixelShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
+	Check();
+	CHECK(false)<<"Disable for now";
+	return false;
+}
+
 bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
 	Check();
 	CHECK(false)<<"Disable for now";

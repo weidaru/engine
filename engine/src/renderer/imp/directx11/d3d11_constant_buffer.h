@@ -1,7 +1,7 @@
 #ifndef D3D11_CONSTANT_BUFFER_H_
 #define D3D11_CONSTANT_BUFFER_H_
 
-#include ""utils/s2string.h"
+#include "utils/s2string.h"
 
 struct ID3D11Buffer;
 
@@ -14,13 +14,13 @@ public:
 	D3D11ConstantBuffer(D3D11GraphicResourceManager * _manager);
 	~D3D11ConstantBuffer();
 	void Initialize(unsigned int size, const void *data);
- 	void FLush();
+ 	void Flush();
 	
-	bool SetData(unsigned int offset, void *data, unsigned int size);
+	bool SetData(unsigned int offset, const void *data, unsigned int size);
 	unsigned int GetSize() { return size;}
 	
 	/*******************D3D11 exclusive*******************/
-	ID3D11Buffer * GetInternal() { return cb; 
+	ID3D11Buffer * GetInternal() { return cb; }
 	
 	const s2string & GetLastError() { return error; }
 

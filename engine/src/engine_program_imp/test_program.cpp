@@ -86,13 +86,22 @@ public:
 		D3D11_SIGNATURE_PARAMETER_DESC in_desc;
 		reflect->GetInputParameterDesc(1, &in_desc);
 
-		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("worldViewProj2");
+		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("myStruct->b");
 		D3D11_SHADER_VARIABLE_DESC  var_desc;
 		var->GetDesc(&var_desc);
-		D3D11_SHADER_TYPE_DESC type_desc;
-		var->GetType()->GetDesc(&type_desc);
+		{
+			D3D11_SHADER_TYPE_DESC type_desc;
+			var->GetType()->GetDesc(&type_desc);
+			int a = 0;
+		}
+		
+		{
+			D3D11_SHADER_TYPE_DESC type_desc;
+			var->GetType()->GetMemberTypeByName("b")->GetDesc(&type_desc);
+			int a = 0;
+		}
 
-		ID3D11ShaderReflectionConstantBuffer* cb =  reflect->GetConstantBufferByIndex(1);
+		ID3D11ShaderReflectionConstantBuffer* cb =  reflect->GetConstantBufferByIndex(0);
 		D3D11_SHADER_BUFFER_DESC  cb_desc;
 		cb->GetDesc(&cb_desc);
 

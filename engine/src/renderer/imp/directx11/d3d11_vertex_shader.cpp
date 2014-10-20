@@ -86,7 +86,7 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 					<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
 		cbs.resize(reflect->GetConstantBufferSize());
 		for(unsigned int i=0; i<cbs.size(); i++) {
-			const D3D11ShaderReflection::ConstantBuffer &cb_reflect = refkect->GetConstantBuffer(i);
+			const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
 			cbs[i] = new D3D11ConstantBuffer(manager);
 			cbs[i]->Initialize(cb_reflect.size, 0);
 		}
@@ -123,7 +123,7 @@ bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, uns
 		return false;
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
-	ConstantBuffer &cb = cbs[uniform.cb_index];
+	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
 	CHECK(cb.SetData(uniform.offset, value ,size))<<cb.GetLastError();
 	return true;
 }
@@ -137,8 +137,8 @@ bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &type_in
 		return false;
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
-	ConstantBuffer &cb = cbs[uniform.cb_index];
-	CHECK(cb.SetData(uniform.offset, value ,size))<<cb.GetLastError();
+	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
+	CHECK(cb.SetData(uniform.offset, value, type_info.GetSize()))<<cb.GetLastError();
 	return true;
 }
 
@@ -185,11 +185,11 @@ void D3D11VertexShader::Flush() {
 		
 		//Set constant buffer.
 		ID3D11Buffer **array = new ID3D11Buffer *[cbs.size()];
-		for(int i=0; i<=cbs.size(); i++) {
+		for(unsigned int i=0; i<=cbs.size(); i++) {
 			cbs[i]->Flush();
 			array[i] = cbs[i]->GetInternal();
 		}
-		context->PSSetConstantBuffers(0, last_index+1, array);
+		context->PSSetConstantBuffers(0, cbs.size(), array);
 		delete[] array;
 	}
 }

@@ -70,18 +70,10 @@ s2string ComponentToTypeName(D3D_REGISTER_COMPONENT_TYPE input) {
 }
 
 unsigned int GetUsedComponentSize(char mask) {
-	if(mask == 15) 				//1111
-		return 4;
-	else if(mask == 7) 			//111
-		return 3;
-	else if(mask == 3) 			//11
-		return 2;
-	else if(mask == 1)  		//1
-		return 1;
-	else {
-		CHECK(false)<<"Unexpected mask. "<<mask;
-		return 0;
-	}
+	unsigned int c;
+	for (c = 0; mask; c++) 
+		mask &= mask - 1;
+	return c*4;
 }
 
 }
@@ -96,7 +88,7 @@ void D3D11ShaderReflection::PopulateInputs(const D3D11_SHADER_DESC &desc) {
 		CHECK(!FAILED(result))<<"Cannot get input description for"<<filepath;
 		p.index = i;
 		p.type_name = ComponentToTypeName(in_desc.ComponentType);
-		p.used_size = GetUsedComponentSize(in_desc.Mask);
+		p.size = GetUsedComponentSize(in_desc.Mask);
 		p.semantic = in_desc.SemanticName;
 		p.semantic_index = in_desc.SemanticIndex;
 	}
@@ -112,7 +104,7 @@ void D3D11ShaderReflection::PopulateOutputs(const D3D11_SHADER_DESC &desc) {
 		CHECK(!FAILED(result))<<"Cannot get output description for"<<filepath;
 		p.index = i;
 		p.type_name = ComponentToTypeName(out_desc.ComponentType);
-		p.used_size = GetUsedComponentSize(out_desc.Mask);
+		p.size = GetUsedComponentSize(out_desc.Mask);
 		p.semantic = out_desc.SemanticName;
 		p.semantic_index = out_desc.SemanticIndex;
 	}
@@ -126,12 +118,44 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 	//STUB
 }
 
-void D3D11ShaderReflection::PopulateTypeAndCompatibleMap() {
-
+D3D11ShaderReflection::TypeMap * D3D11ShaderReflection::GetPrimitiveTypeMap() {
+	static TypeMap map;
+	return &map;
 }
 
-void D3D11ShaderReflection::ParseShaderType(const ID3D11ShaderReflectionType &type) {
+D3D11ShaderReflection::CompatibleMap * D3D11ShaderReflection::GetCompatibleMap() {
+	static CompatibleMap map;
+	return &map;
+}
 
+void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
+	D3D11_SHADER_TYPE_DESC desc;
+	HRESULT result = type.GetDesc(&desc);
+	CHECK(!FAILED(result))<<"Fail to get shader variable type info.";
+	
+	TypeMap &primitive_types = *GetPrimitiveTypeMap();
+	if(types.find(desc.Name) != types.end() || primitive_types.find(desc.Name) != primitive_types.end())
+		return;
+	ShaderTypeInfo info = types[desc.Name];
+	info.name = desc.Name;
+	/* HLSL Packing things. Consider that.
+	info.size = desc.Rows * desc.Columns * 4;
+	if(desc.Elements > 0)
+		info.size *= desc.Elements;
+	*/
+	info.members.clear();
+	for(unsigned int i=0; i<desc.Elements; i++) {
+		ShaderTypeInfo::Member m;
+		ID3D11ShaderReflectionType *member_type = type.GetMemberTypeByIndex(i);
+		D3D11_SHADER_TYPE_DESC member_desc;
+		member_type->GetDesc(&member_desc);
+		m.name = type.GetMemberTypeName(i);
+		m.type_name = member_desc.Name;
+		m.offset = member_desc.Offset;
+		info.members.push_back(m);
+		
+		ParseShaderType(*member_type);
+	}
 }
 
 D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob)
@@ -145,7 +169,6 @@ D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob
 	result = reflect->GetDesc(&desc);
 	CHECK(!FAILED(result))<<"Cannot get shader reflection desc for "<<_filepath;	
 	
-	PopulateTypeAndCompatibleMap();
 	PopulateCBAndUniforms(desc);
 	PopulateInputs(desc);
 	PopulateOutputs(desc);

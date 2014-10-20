@@ -16,6 +16,13 @@ struct ID3D11ShaderReflectionType;
 
 namespace s2 {
 
+/**
+ * You know what, Directx assumes binary compatible in c++. Aha!
+ * Guess all the microsoft stuffs only play with themselves, this does make sense.
+ * On the hlsl side things(constants) are always packed in 16 bytes. On c++ side, things vary.
+ * Anyway, as long as we know the alignment and do not use virtual functions or multiple inheritance, things should play safe.
+ * We need to enforce the 16 bytes packing rule on c++ side.
+ */
 class D3D11ShaderReflection {
 public:
 	struct ConstantBuffer {
@@ -40,7 +47,7 @@ public:
 	struct Parameter {
 		unsigned int index;
 		s2string type_name;			//Be either float, int or unsigned int
-		unsigned int used_size;		//Used  component size, up to 4
+		unsigned int size;		
 		s2string semantic;
 		unsigned int semantic_index;
 	};
@@ -53,7 +60,7 @@ public:
 		//Stub
 	};
 	
-private:
+public:
 	struct ShaderTypeInfo {
 		struct Member {
 			s2string name;
@@ -63,18 +70,17 @@ private:
 
 		s2string name;
 		unsigned int size;
-		std::vector<Member>;
+		std::vector<Member> members;
 	};
+	typedef std::map<s2string, ShaderTypeInfo> TypeMap;
+	typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
 	
 private:
 	typedef std::vector<Parameter> ParameterVector;
 	typedef std::vector<ConstantBuffer> CBVector;
 	typedef std::map<s2string, Uniform> UniformMap;
-	
-	typedef std::map<s2string, ShaderTypeInfo> TypeMap;
-	typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
-	
 
+	
 public:
 	D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob);
 	~D3D11ShaderReflection();
@@ -99,14 +105,17 @@ public:
 	
 	const s2string & GetLastError() { return error; }
 	
+	static D3D11ShaderReflection::TypeMap * GetPrimitiveTypeMap();
+	static D3D11ShaderReflection::CompatibleMap * GetCompatibleMap();
+	
 private:
-	void PopulateTypeAndCompatibleMap();
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
 	void PopulateInputs(const D3D11_SHADER_DESC &desc);
 	void PopulateOutputs(const D3D11_SHADER_DESC &desc);
 	void PopulateSamplers(const D3D11_SHADER_DESC &desc);
 	void PopulateResources(const D3D11_SHADER_DESC &desc);
-	void ParseShaderType(const ID3D11ShaderReflectionType &type);
+	//Only uniforms are parsed for now.
+	void ParseShaderType(ID3D11ShaderReflectionType &type);
 	
 private:
 	s2string filepath;

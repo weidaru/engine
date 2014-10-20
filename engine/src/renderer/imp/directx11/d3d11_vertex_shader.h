@@ -48,6 +48,7 @@ private:
 	std::vector<D3D11ConstantBuffer *> cbs;
 	ID3D11VertexShader *shader;
 	D3D11ShaderReflection *reflect;
+	s2string error;
 };
 	
 }
