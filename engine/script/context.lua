@@ -134,21 +134,18 @@ function context.dump_entry(entry, level)
 	return table.concat(buffer)
 end
 
-context.primitive = {
-	["int"]="int", 
-	["unsigned int"]="unsigned int", 
-	["char"]="char", 
-	["unsigned char"]="unsigned char", 
-	["float"]="float", 
-	["double"]="double", 
-	["bool"]="bool", 
-	["pointer"]="pointer", 
-}
-setmetatable(context.primitive, {
-__newindex = function(t,k,v)
-	assert("Try to manipulate a static table.")
+do 
+	local primitives = require("primitives")
+	for _,v in ipairs(primitives) do
+		context.primitive["v"] = v
+	end
+
+	setmetatable(context.primitive, {
+	__newindex = function(t,k,v)
+		assert("Try to manipulate a static table.")
+	end
+	})
 end
-})
 
 --[[
 	Format

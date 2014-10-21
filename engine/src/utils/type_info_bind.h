@@ -3,8 +3,7 @@
 
 namespace s2 {
 //They are small, simple to get included.
-static const char *pointer_typename = "pointer";
-static const char *reference_typename = "reference";
+static const char *kPointerTypename= "pointer";
 
 template <typename T>
 struct TypeInfoBind {
@@ -16,13 +15,6 @@ template <typename T>
 struct TypeInfoBind<T *> {
 	static s2string GetName() {
 		return pointer_typename;
-	}
-};
-
-template <typename T>
-struct TypeInfoBind<T &> {
-	static s2string GetName() {
-		return reference_typename;
 	}
 };
 

@@ -11,31 +11,12 @@ struct PointerRegistration {
 
 	PointerRegistration() {
 		TypeInfoManager::GetSingleton()->Create( 
-			pointer_typename, 
+			kPointerTypename, 
 			sizeof(char *), 
 			TypeInfo::Members()); 
 	}
 };
 PointerRegistration PointerRegistration::registration;
-
-struct Dummy {
-	int &a;
-
-	Dummy(int new_a) : a(new_a) {}
-};
-
-struct ReferenceRegistration {
-	static ReferenceRegistration registration;
-
-	ReferenceRegistration() {
-		TypeInfoManager::GetSingleton()->Create( 
-			reference_typename, 
-			sizeof(Dummy), 
-			TypeInfo::Members()); 
-	}
-};
-ReferenceRegistration ReferenceRegistration::registration;
-
 }
 ]]
 
@@ -113,6 +94,7 @@ local function generate(context, file)
 	end
 	
 	append_help('#include <utility>')
+	append_help('#include <stdint.h>')
 	append_help('#include "utils/type_info.h"')
 	append_help('#include "utils/type_info_helper.h"')
 	append_help('')
