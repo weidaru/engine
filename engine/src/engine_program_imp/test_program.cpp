@@ -19,7 +19,7 @@
 
 #include "renderer/graphic_pipeline.h"
 #include "renderer/graphic_resource_manager.h"
-
+#include "renderer/imp/directx11/d3d11_shader_reflection.h"
 #include "renderer/texture2d.h"
 
 #include <stdio.h>
@@ -86,7 +86,7 @@ public:
 		D3D11_SIGNATURE_PARAMETER_DESC in_desc;
 		reflect->GetInputParameterDesc(1, &in_desc);
 
-		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("myStruct->b");
+		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("worldViewProj2");
 		D3D11_SHADER_VARIABLE_DESC  var_desc;
 		var->GetDesc(&var_desc);
 		{
@@ -97,7 +97,7 @@ public:
 		
 		{
 			D3D11_SHADER_TYPE_DESC type_desc;
-			var->GetType()->GetMemberTypeByName("b")->GetDesc(&type_desc);
+			var->GetType()->GetMemberTypeByName("c")->GetDesc(&type_desc);
 			int a = 0;
 		}
 
@@ -107,6 +107,8 @@ public:
 
 		D3D11_SHADER_INPUT_BIND_DESC input_bind;
 		reflect->GetResourceBindingDesc(2, &input_bind);
+
+		D3D11ShaderReflection ref(path, shader_blob);
 		
 		return true;
 	}
