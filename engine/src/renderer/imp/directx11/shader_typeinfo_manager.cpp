@@ -170,7 +170,8 @@ public:
 	}
 	
 	virtual unsigned int GetSize() const {
-		return e_count * Pack16Byte(GetMemberType(0).GetSize());
+		unsigned int member_size = GetMemberType(0).GetSize();
+		return member_size + Pack16Byte(member_size)*(e_count-1);
 	}
 	
 private:

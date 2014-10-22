@@ -86,7 +86,7 @@ public:
 		D3D11_SIGNATURE_PARAMETER_DESC in_desc;
 		reflect->GetInputParameterDesc(1, &in_desc);
 
-		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("myStruct");
+		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("array");
 		D3D11_SHADER_VARIABLE_DESC  var_desc;
 		var->GetDesc(&var_desc);
 		{
@@ -114,7 +114,7 @@ public:
 		D3D11ShaderReflection ref(path, shader_blob);
 
 		{
-			const TypeInfo & info = ref.GetTypeInfo("MyStruct");
+			const TypeInfo & info = ref.GetTypeInfo("float[5]");
 			unsigned int size = info.GetSize();
 			unsigned int member_count = info.GetMemberSize();
 			for(unsigned int i=0; i<member_count; i++) {
