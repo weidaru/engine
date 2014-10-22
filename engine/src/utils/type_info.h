@@ -27,6 +27,8 @@ namespace s2 {
 class TypeInfoManager;
  
  /**
+  * Interface for supporting runtime typeinfo. 
+  *
   * In general case, TypeInfo initialization is handled by script through annotation tag, for example
   * //[[TypeInfo]]//
   * struct Foo {
@@ -40,45 +42,17 @@ class TypeInfoManager;
   * Things won't work now:
   * 	It won't work for struct having virtual functions as its implementation varies from compiler to compiler. 
   */
-class TypeInfo {
+class TypeInfo  {
 public:
-	struct Member {
-		s2string 		type_name;
-		s2string 		name;
-		unsigned int 	offset;
-	};
+	virtual const TypeInfo & GetMemberType(unsigned int index) const = 0;
+	virtual unsigned int GetMemberOffset(unsigned int index) const = 0;
+	virtual const s2string & GetMemberName(unsigned int index) const = 0;
+	virtual unsigned int GetMemberIndex(const s2string &member_name) const = 0;
+	virtual unsigned int GetMemberSize() const = 0;
+	virtual bool HasMember(const s2string &member_name) const = 0;
 
-public:
-	//member name and type name pair.
-	typedef std::vector<Member> Members;
-
-public:
-	const TypeInfo &		GetMemberType(unsigned int index) const;
-	unsigned int				GetMemberOffset(unsigned int index) const;
-	const s2string &		GetMemberName(unsigned int index) const;
-	unsigned int 			GetMemberIndex(const s2string &member_name) const;
-	unsigned int 			GetMemberSize() const;
-	bool						HasMember(const s2string &member_name) const;
-
-	const s2string &		GetName() const;
-	unsigned int 			GetSize() const;
-	
-private:
-	TypeInfo(const s2string &new_name, unsigned int size, const Members &new_members);
-	TypeInfo(const TypeInfo &);
-	TypeInfo & operator=(const TypeInfo &);
-
-	friend class TypeInfoManager;
-	
-private:
-	/**
-	 * Assume members size will be small, so use a vector should be fine.
-	 * As makeing assumption about initialization order(register with TypeInfoManager) is 
-	 * usually a bad practice so just store member name and type name.
-	 */
-	Members members;
-	s2string name;
-	unsigned int size;
+	virtual const s2string & GetName() const = 0;
+	virtual unsigned int GetSize() const = 0;
 };
 
 class TypeInfoManager : public Singleton<TypeInfoManager>{
@@ -96,12 +70,13 @@ public:
 	const bool			Has(const s2string &name) const;
 	
 	/**
-	 * Don't call this unless you know what you are doing.
+	 * Don't call the following unless you know what you are doing.
 	 */
-	const TypeInfo &	Create(const s2string &name, unsigned int size, const TypeInfo::Members &new_members);
+	const TypeInfo & CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members);
+	const TypeInfo & CreatePrimitive(const s2string &name, unsigned int size);
 	
 private:
-	Data data;
+	mutable Data data;
 };
 
 

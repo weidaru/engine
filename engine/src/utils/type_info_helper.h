@@ -31,10 +31,9 @@ s2::TypeInfoBind<TypeName>::TypeInfoBind()
 #define DefinePrimitive(Name) \
 DeclareTypeInfo(Name) \
 DefineTypeInfo(Name) { \
-	TypeInfoManager::GetSingleton()->Create( \
+	TypeInfoManager::GetSingleton()->CreatePrimitive( \
 			TypeInfoBind<Name>::GetName(), \
-			sizeof(Name), \
-			TypeInfo::Members()); \
+			sizeof(Name)); \
 }
 
 #define offset(type,member) &(((type *)(0))->member)

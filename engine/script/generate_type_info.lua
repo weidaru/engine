@@ -57,7 +57,7 @@ local function generate(context, file)
 				end_scope()
 				append_help("}")
 			end
-			append_help(string.format('TypeInfoManager::GetSingleton()->Create(TypeInfoBind<%s>::GetName(), sizeof(%s), members);', e.typename, e.typename))
+			append_help(string.format('TypeInfoManager::GetSingleton()->CreateStruct(TypeInfoBind<%s>::GetName(), sizeof(%s), members);', e.typename, e.typename))
 		end_scope()
 		append_help('}')
 	end
