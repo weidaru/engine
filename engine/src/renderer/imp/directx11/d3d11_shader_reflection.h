@@ -16,6 +16,38 @@ struct ID3D11ShaderReflectionType;
 
 namespace s2 {
 
+struct ShaderTypeInfo {
+	struct Member {
+		s2string name;
+		s2string type_name;
+		unsigned int offset;
+	};
+
+	s2string name;
+	unsigned int size;
+	std::vector<Member> members;
+};
+
+class ShaderTypeInfoStore {
+private:
+	typedef std::map<s2string, ShaderTypeInfo> TypeMap;
+	typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
+
+public:
+	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const;
+	void MakeCompatible(const s2string &shader_typename, const TypeInfo &cpp_type);
+	const ShaderTypeInfo & GetTypeInfo(const s2string &shader_typename) const;
+	bool HasTypeInfo(const s2string &shader_typename) const;
+	ShaderTypeInfo * CreateTypeInfo(const s2string &shader_typename);
+
+private:
+	void AddTypeInfo(const s2string &shader_typename, );
+	
+private:
+	TypeMap types;
+	CompatibleMap compatibles;
+};
+
 /**
  * You know what, Directx assumes binary compatible in c++. Aha!
  * Guess all the microsoft stuffs only play with themselves, this does make sense.
@@ -59,54 +91,40 @@ public:
 	struct Resource {
 		//Stub
 	};
-	
-public:
-	struct ShaderTypeInfo {
-		struct Member {
-			s2string name;
-			s2string type_name;
-			unsigned int offset;
-		};
 
-		s2string name;
-		unsigned int size;
-		std::vector<Member> members;
-	};
-	typedef std::map<s2string, ShaderTypeInfo> TypeMap;
-	typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
-	
 private:
 	typedef std::vector<Parameter> ParameterVector;
 	typedef std::vector<ConstantBuffer> CBVector;
 	typedef std::map<s2string, Uniform> UniformMap;
-
+	
 	
 public:
 	D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob);
 	~D3D11ShaderReflection();
 	
-	const D3D11ShaderReflection::ConstantBuffer & GetConstantBuffer(unsigned int index);
-	unsigned int GetConstantBufferSize();
+	const D3D11ShaderReflection::ConstantBuffer & GetConstantBuffer(unsigned int index) const;
+	unsigned int GetConstantBufferSize() const;
 	//All the thing in constant buffer(cbuffer or tbuffer)
-	const D3D11ShaderReflection::Uniform & GetUniform(const s2string &name);
-	bool HasUniform(const s2string &name);
+	const D3D11ShaderReflection::Uniform & GetUniform(const s2string &name) const;
+	bool HasUniform(const s2string &name) const;
 	
-	const D3D11ShaderReflection::Parameter & GetInput(unsigned int index);
-	unsigned int GetInputSize();
-	const D3D11ShaderReflection::Parameter & GetOutput(unsigned int index);
-	unsigned int GetOutputSize();
+	const D3D11ShaderReflection::Parameter & GetInput(unsigned int index) const;
+	unsigned int GetInputSize() const;
+	const D3D11ShaderReflection::Parameter & GetOutput(unsigned int index) const;
+	unsigned int GetOutputSize() const;
 	
-	const D3D11ShaderReflection::Sampler & GetSampler(const s2string &name);
-	bool HasSampler(const s2string &name);
-	const D3D11ShaderReflection::Resource & GetResource(const s2string &name);
-	bool HasResource(const s2string &name);
+	const D3D11ShaderReflection::Sampler & GetSampler(const s2string &name) const;
+	bool HasSampler(const s2string &name) const;
+	const D3D11ShaderReflection::Resource & GetResource(const s2string &name) const;
+	bool HasResource(const s2string &name) const;
 	
-	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type);
+	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const;
+	const ShaderTypeInfo & GetTypeInfo(const s2string &shader_typename) const;
+	bool HasTypeInfo(const s2string &shader_typename) const;
 	
-	const s2string & GetLastError() { return error; }
+	const s2string & GetLastError() const { return error; }
 	
-	static D3D11ShaderReflection::TypeMap * GetPrimitiveTypeMap();
-	static D3D11ShaderReflection::CompatibleMap * GetCompatibleMap();
+	static ShaderTypeInfoStore * GetPrimitiveTypeInfoStore();
 	
 private:
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
@@ -116,6 +134,7 @@ private:
 	void PopulateResources(const D3D11_SHADER_DESC &desc);
 	//Only uniforms are parsed for now.
 	void ParseShaderType(ID3D11ShaderReflectionType &type);
+	void _ParseShaderType(ID3D11ShaderReflectionType &type, const D3D11_SHADER_TYPE_DESC &desc, D3D11ShaderReflection::ShaderTypeInfo *_info);
 	
 private:
 	s2string filepath;
@@ -125,8 +144,7 @@ private:
 	CBVector cbs;
 	UniformMap uniforms;
 	
-	TypeMap types;
-	CompatibleMap compatibles;
+	ShaderTypeInfoStore type_store;
 	
 	ParameterVector inputs;
 	ParameterVector outputs;

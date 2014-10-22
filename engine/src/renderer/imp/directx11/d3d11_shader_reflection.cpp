@@ -118,33 +118,30 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 	//STUB
 }
 
-D3D11ShaderReflection::TypeMap * D3D11ShaderReflection::GetPrimitiveTypeMap() {
-	static TypeMap map;
-	return &map;
+namespace {
+
+s2string ParseArrayTypeName(const s2string &type_name, unsigned int length) {
+	char buf[512];
+	CHECK(sprintf(buf, "%s[%d]", type_name.c_str(), length)>=0)<<"sprintf catches fire.";
+	return buf;
 }
 
-D3D11ShaderReflection::CompatibleMap * D3D11ShaderReflection::GetCompatibleMap() {
-	static CompatibleMap map;
-	return &map;
+unsigned int Pack4Byte(unsigned int size) {
+	return size%4==0 ? size : (size/4+1)*4;
 }
 
-void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
-	D3D11_SHADER_TYPE_DESC desc;
-	HRESULT result = type.GetDesc(&desc);
-	CHECK(!FAILED(result))<<"Fail to get shader variable type info.";
+}
+
+//This handles not array type (scalar, vector, matrix ) regardlessly.
+void D3D11ShaderReflection::_ParseShaderType(
+				ID3D11ShaderReflectionType &type, 
+				const D3D11_SHADER_TYPE_DESC &desc, 
+				D3D11ShaderReflection::ShaderTypeInfo *_info) {
+	D3D11ShaderReflection::ShaderTypeInfo &info = *_info;
 	
-	TypeMap &primitive_types = *GetPrimitiveTypeMap();
-	if(types.find(desc.Name) != types.end() || primitive_types.find(desc.Name) != primitive_types.end())
-		return;
-	ShaderTypeInfo info = types[desc.Name];
 	info.name = desc.Name;
-	/* HLSL Packing things. Consider that.
-	info.size = desc.Rows * desc.Columns * 4;
-	if(desc.Elements > 0)
-		info.size *= desc.Elements;
-	*/
 	info.members.clear();
-	for(unsigned int i=0; i<desc.Elements; i++) {
+	for(unsigned int i=0; i<desc.Members; i++) {
 		ShaderTypeInfo::Member m;
 		ID3D11ShaderReflectionType *member_type = type.GetMemberTypeByIndex(i);
 		D3D11_SHADER_TYPE_DESC member_desc;
@@ -156,6 +153,41 @@ void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
 		
 		ParseShaderType(*member_type);
 	}
+	
+	const ShaderTypeInfo &last_member = GetTypeInfo(info.members.back());
+	info.size = Pack4Byte(info.members.back().offset + last_member.size);
+}
+
+
+void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
+	D3D11_SHADER_TYPE_DESC desc;
+	HRESULT result = type.GetDesc(&desc);
+	CHECK(!FAILED(result))<<"Fail to get shader variable type info.";
+	
+	if(!HasTypeInfo(desc.Name)) {
+		ShaderTypeInfo &info = types[desc.Name];
+		_ParseShaderType(type, desc, &info);
+	}
+	
+	if(desc.Elements > 0 ) {									//Add array type too
+		s2string array_typename(ParseArrayTypeName(desc.Name, desc.Elements));
+		if(!HasTypeInfo(array_name)) {
+			ShaderTypeInfo &array_typeinfo = types[array_typename];
+			array_typeinfo.name = array_typename;
+			array_typeinfo.size = Pack4Byte(info.size) * desc.Elements;
+			char buf[512];
+			array_typeinfo.members.clear();
+			for(unsigned int i=0; i<desc.Elements; i++) {
+				ShaderTypeInfo::Member m;
+				sprintf(buf,"%d", i);
+				m.name = buf;
+				m.type_name = info.type_name;
+				m.offset = Pack4Byte(info.size) * i;
+				array_typeinfo.members.push_back(m);
+			}
+		}
+	}
+	
 }
 
 D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob)
@@ -178,70 +210,117 @@ D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob
 
 
 D3D11ShaderReflection::~D3D11ShaderReflection() {
-
+	reflect->Release();
 }
 
-const D3D11ShaderReflection::ConstantBuffer & D3D11ShaderReflection::GetConstantBuffer(unsigned int index) {
+const D3D11ShaderReflection::ConstantBuffer & D3D11ShaderReflection::GetConstantBuffer(unsigned int index) const {
 	return cbs[index];
 }
 
-unsigned int D3D11ShaderReflection::GetConstantBufferSize() {
+unsigned int D3D11ShaderReflection::GetConstantBufferSize() const {
 	return cbs.size();
 }
 
 //All the thing in constant buffer(cbuffer or tbuffer)
-const D3D11ShaderReflection::Uniform & D3D11ShaderReflection::GetUniform(const s2string &name) {
+const D3D11ShaderReflection::Uniform & D3D11ShaderReflection::GetUniform(const s2string &name) const {
 	return uniforms[name];
 }
 
-bool D3D11ShaderReflection::HasUniform(const s2string &name) {
+bool D3D11ShaderReflection::HasUniform(const s2string &name) const {
 	return uniforms.find(name) != uniforms.end();
 }
 
-const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetInput(unsigned int index) {
+const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetInput(unsigned int index) const {
 	return inputs[index];
 }
 
-unsigned int D3D11ShaderReflection::GetInputSize() {
+unsigned int D3D11ShaderReflection::GetInputSize() const {
 	return inputs.size();
 }
 
-const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetOutput(unsigned int index) {
+const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetOutput(unsigned int index) const {
 	return outputs[index];
 }
 
-unsigned int D3D11ShaderReflection::GetOutputSize() {
+unsigned int D3D11ShaderReflection::GetOutputSize() const {
 	return outputs.size();
 }
 
-const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(const s2string &name) {
+const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(const s2string &name) const {
 	//STUB
 	CHECK(false)<<"Disabled";
 	return Sampler();
 }
 
-bool D3D11ShaderReflection::HasSampler(const s2string &name) {
+bool D3D11ShaderReflection::HasSampler(const s2string &name) const {
 	//STUB
 	CHECK(false)<<"Disabled";
 	return false;
 }
 
 
-const D3D11ShaderReflection::Resource & D3D11ShaderReflection::GetResource(const s2string &name) {
+const D3D11ShaderReflection::Resource & D3D11ShaderReflection::GetResource(const s2string &name) const {
 	//STUB
 	CHECK(false)<<"Disabled";
 	return Resource();
 }
 
-bool D3D11ShaderReflection::HasResource(const s2string &name) {
+bool D3D11ShaderReflection::HasResource(const s2string &name) const {
 	//STUB
 	CHECK(false)<<"Disabled";
 	return false;
 }
 
+bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const {
+	return 	type_store.CheckCompatible(shader_typename, cpp_type) || 
+				GetPrimitiveTypeInfoStore()->CheckCompatible(shader_typename, cpp_type) ;
+}
+
+const ShaderTypeInfo & D3D11ShaderReflection::GetTypeInfo(const s2string &shader_typename) const {
+	if(type_store.HasTypeInfo(shader_typename))
+		return type_store.GetTypeInfo(shader_typename);
+	else
+		return GetPrimitiveTypeInfoStore()->GetTypeInfo(shader_typename);
+}
+
+bool D3D11ShaderReflection::HasTypeInfo(const s2string &shader_typename) const {
+	return 	type_store.HasTypeInfo(shader_typename) || 
+				GetPrimitiveTypeInfoStore()->HasTypeInfo(shader_typename) ;
+}
 
 
+ShaderTypeInfoStore * D3D11ShaderReflection::GetPrimitiveTypeInfoStore() {
+	static ShaderTypeInfo store;
+	return &store;
+}
 
+
+bool ShaderTypeInfoStore::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const {
+	if(compatibles.find(shader_typename)!=compatibles.end()) {
+		CompatibleMap::value_type &vec = compatibles[shader_typename];
+		return std::find(vec.begin(), vec.end(), cpp_type) != vec.end(); 
+	}
+	return false;
+}
+
+void ShaderTypeInfoStore::MakeCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) {
+	CompatibleMap::value_type &vec = compatibles[shader_typename];
+	if(std::find(vec.begin(), vec.end(), cpp_type) == vec.end())
+		vec.push_back(cpp_type);
+}
+
+const ShaderTypeInfo & ShaderTypeInfoStore::GetTypeInfo(const s2string &shader_typename) const {
+	return types[shader_typename];
+}
+
+bool ShaderTypeInfoStore::HasTypeInfo(const s2string &shader_typename) const {
+	return types.find(shader_typename);
+}
+
+ShaderTypeInfo * ShaderTypeInfoStore::CreateTypeInfo(const s2string &shader_typename) {
+	CHECK(HasTypeInfo(shader_typename)==false)<<"TypeInfo "<<shader_typename<<" is already there.";
+	return &types[shader_typename];
+}
 
 }
 
