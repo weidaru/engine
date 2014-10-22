@@ -2,7 +2,7 @@
 #define D3D11_SHADER_REFLECTION_H_
 
 #include "utils/s2string.h"
-#include "utils/type_info.h"
+#include "shader_typeinfo_manager.h"
 
 #include <vector>
 #include <map>
@@ -15,6 +15,8 @@ typedef struct _D3D11_SHADER_DESC D3D11_SHADER_DESC;
 struct ID3D11ShaderReflectionType;
 
 namespace s2 {
+
+class TypeInfo;
 
 /**
  * You know what, Directx assumes binary compatible in c++. Aha!
@@ -59,29 +61,6 @@ public:
 	struct Resource {
 		//Stub
 	};
-	
-private:
-	class ShaderTypeInfoManager {
-	private:
-		typedef std::map<s2string, TypeInfo*> TypeMap;
-		typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
-
-	public:
-		//This should only be used after main starts.
-		bool CheckCompatible(const s2string &shader_typename, const s2string &cpp_type) const;
-		void MakeCompatible(const s2string &shader_typename, const s2string &cpp_type);
-		const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
-		bool HasTypeInfo(const s2string &shader_typename) const;
-		const TypeInfo & CreatePrimitive(const s2string &shader_typename, unsigned int size);
-		const TypeInfo & CreateVector(const s2string &shader_typename, const s2string &primitive_typename, unsigned int count);
-		cosnt TypeInfo & CreateMatrix(const s2string &shader_typename, const s2string &primitive_typename, unsigned int count);
-		const TypeInfo & CreateStruct(const s2string &shader_typename, unsigned int size, const TypeInfo::Members &members);
-		const TypeInfo & CreateArray();
-		
-	private:
-		TypeMap types;
-		CompatibleMap compatibles;
-	};
 
 private:
 	typedef std::vector<Parameter> ParameterVector;
@@ -110,12 +89,13 @@ public:
 	bool HasResource(const s2string &name) const;
 	
 	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const;
-	const ShaderTypeInfo & GetTypeInfo(const s2string &shader_typename) const;
+	const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
 	bool HasTypeInfo(const s2string &shader_typename) const;
 	
 	const s2string & GetLastError() const { return error; }
 	
 private:
+	void PopulateScalarTypes();
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
 	void PopulateInputs(const D3D11_SHADER_DESC &desc);
 	void PopulateOutputs(const D3D11_SHADER_DESC &desc);
@@ -123,7 +103,7 @@ private:
 	void PopulateResources(const D3D11_SHADER_DESC &desc);
 	//Only uniforms are parsed for now.
 	void ParseShaderType(ID3D11ShaderReflectionType &type);
-	void _ParseShaderType(ID3D11ShaderReflectionType &type, const D3D11_SHADER_TYPE_DESC &desc, ShaderTypeInfo *_info);
+	void _ParseShaderType(ID3D11ShaderReflectionType &type, const D3D11_SHADER_TYPE_DESC &desc);
 
 	//No copy
 	D3D11ShaderReflection(const D3D11ShaderReflection&);
@@ -137,7 +117,7 @@ private:
 	CBVector cbs;
 	UniformMap uniforms;
 	
-	mutable ShaderTypeInfoStore type_store;
+	ShaderTypeInfoManager typeinfo_manager;
 	
 	ParameterVector inputs;
 	ParameterVector outputs;

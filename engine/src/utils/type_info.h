@@ -52,14 +52,15 @@ public:
 	typedef std::vector<Member> Members;
 
 public:
+	virtual ~TypeInfo() {}
 	virtual const TypeInfo & GetMemberType(unsigned int index) const = 0;
 	virtual unsigned int GetMemberOffset(unsigned int index) const = 0;
-	virtual const s2string & GetMemberName(unsigned int index) const = 0;
+	virtual s2string GetMemberName(unsigned int index) const = 0;
 	virtual unsigned int GetMemberIndex(const s2string &member_name) const = 0;
 	virtual unsigned int GetMemberSize() const = 0;
 	virtual bool HasMember(const s2string &member_name) const = 0;
 
-	virtual const s2string & GetName() const = 0;
+	virtual s2string GetName() const = 0;
 	virtual unsigned int GetSize() const = 0;
 };
 

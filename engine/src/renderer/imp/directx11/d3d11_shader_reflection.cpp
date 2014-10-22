@@ -13,7 +13,6 @@
 
 #include <glog/logging.h>
 #include <stdio.h>
-#include <algorithm>
 
 #include "d3d11_shader_reflection.h"
 
@@ -128,14 +127,14 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 
 namespace {
 
+unsigned int Pack4Byte(unsigned int size) {
+	return size%4==0 ? size : (size/4+1)*4;
+}
+
 s2string ParseArrayTypeName(const s2string &type_name, unsigned int length) {
 	char buf[512];
 	CHECK(sprintf(buf, "%s[%d]", type_name.c_str(), length)>=0)<<"sprintf catches fire.";
 	return buf;
-}
-
-unsigned int Pack4Byte(unsigned int size) {
-	return size%4==0 ? size : (size/4+1)*4;
 }
 
 s2string GetScalarTypeName(D3D_SHADER_VARIABLE_TYPE type) {
@@ -161,64 +160,41 @@ s2string GetScalarTypeName(D3D_SHADER_VARIABLE_TYPE type) {
 //This handles not array type (scalar, vector, matrix ) regardlessly.
 void D3D11ShaderReflection::_ParseShaderType(
 				ID3D11ShaderReflectionType &type, 
-				const D3D11_SHADER_TYPE_DESC &desc, 
-				ShaderTypeInfo *_info) {
-	ShaderTypeInfo &info = *_info;
-	
+				const D3D11_SHADER_TYPE_DESC &desc) {
 	if(desc.Class == D3D_SVC_STRUCT) {
-		info.name = desc.Name;
-		info.members.clear();
+		TypeInfo::Members members;
+		
+		s2string name = desc.Name;
 		for(unsigned int i=0; i<desc.Members; i++) {
-			ShaderTypeInfo::Member m;
+			TypeInfo::Member m;
 			ID3D11ShaderReflectionType *member_type = type.GetMemberTypeByIndex(i);
 			D3D11_SHADER_TYPE_DESC member_desc;
 			member_type->GetDesc(&member_desc);
 			m.name = type.GetMemberTypeName(i);
 			m.type_name = member_desc.Name;
 			m.offset = member_desc.Offset;
-			info.members.push_back(m);
+			members.push_back(m);
 			
 			ParseShaderType(*member_type);
 		}
 		
-		const ShaderTypeInfo &last_member = GetTypeInfo(info.members.back().type_name);
-		info.size = Pack4Byte(info.members.back().offset + last_member.size);
+		const TypeInfo &last_member = GetTypeInfo(members.back().type_name);
+		unsigned int size = Pack4Byte(members.back().offset + last_member.GetSize());
+		typeinfo_manager.CreateStruct(name, size, members);
 	} else if(desc.Class == D3D_SVC_VECTOR) {
-		info.name = desc.Name;
+		s2string name= desc.Name;
 		s2string scalar_typename = GetScalarTypeName(desc.Type);
-		const ShaderTypeInfo &scalar_typeinfo = GetPrimitiveTypeInfoStore()->GetTypeInfo(scalar_typename);
-		info.size = scalar_typeinfo.size * desc.Columns;
-		char buf[512];
-		for(unsigned int i=0; i<desc.Columns; i++) {
-			ShaderTypeInfo::Member m;
-			m.type_name = scalar_typename;
-			m.offset = i*scalar_typeinfo.size;
-			sprintf(buf, "%d", i);
-			m.name = buf;
-		}
 		
+		typeinfo_manager.CreateVector(name, scalar_typename, desc.Columns);
 	} else if(desc.Class ==  D3D_SVC_MATRIX_COLUMNS) {
-		info.name = desc.Name;
+		s2string name = desc.Name;
 		s2string scalar_typename = GetScalarTypeName(desc.Type);
-		const ShaderTypeInfo &scalar_typeinfo = GetPrimitiveTypeInfoStore()->GetTypeInfo(scalar_typename);
-		info.size = scalar_typeinfo.size * desc.Columns;
-		char buf[512];
-		for(unsigned int i=0; i<desc.Rows; i++) {
-			for(unsigned int j=0; j<desc.Columns; j++) {
-				ShaderTypeInfo::Member m;
-				unsigned int index = i*desc.Columns+j;
-				m.type_name = scalar_typename;
-				m.offset = index*scalar_typeinfo.size;
-				sprintf(buf, "%d", index);
-				m.name = buf;
-			}
-		}
+		typeinfo_manager.CreateMatrix(name, scalar_typename, desc.Rows, desc.Columns);
 	} else{
 		CHECK(false)<<"Unsupported "<<desc.Type;
 	}
 
 }
-	
 
 
 void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
@@ -227,30 +203,43 @@ void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
 	CHECK(!FAILED(result))<<"Fail to get shader variable type info.";
 	
 	if(!HasTypeInfo(desc.Name)) {
-		ShaderTypeInfo &info = *type_store.CreateTypeInfo(desc.Name);
-		_ParseShaderType(type, desc, &info);
+		_ParseShaderType(type, desc);
 	}
 	
 	if(desc.Elements > 0 ) {									//Add array type too
 		s2string array_typename(ParseArrayTypeName(desc.Name, desc.Elements));
 		if(!HasTypeInfo(array_typename)) {
-			const ShaderTypeInfo &info = GetTypeInfo(desc.Name);
-			ShaderTypeInfo &array_typeinfo = *type_store.CreateTypeInfo(array_typename) ;
-			array_typeinfo.name = array_typename;
-			array_typeinfo.size = Pack4Byte(info.size) * desc.Elements;
-			char buf[512];
-			array_typeinfo.members.clear();
-			for(unsigned int i=0; i<desc.Elements; i++) {
-				ShaderTypeInfo::Member m;
-				sprintf(buf,"%d", i);
-				m.name = buf;
-				m.type_name = info.name;
-				m.offset = Pack4Byte(info.size) * i;
-				array_typeinfo.members.push_back(m);
-			}
+			typeinfo_manager.CreateArray(array_typename, desc.Name, desc.Elements);
 		}
 	}
+}
+
+void D3D11ShaderReflection::PopulateScalarTypes() {
+	typeinfo_manager.CreateScalar("bool", 4);
+	typeinfo_manager.MakeCompatible("bool", "int32_t");
+	typeinfo_manager.MakeCompatible("bool", "uint32_t");
+	if(sizeof(int) == 4)
+		typeinfo_manager.MakeCompatible("bool", "int");
+	if(sizeof(unsigned int) == 4)
+		typeinfo_manager.MakeCompatible("bool", "unsigned int");
 	
+	typeinfo_manager.CreateScalar("int", 4);
+	typeinfo_manager.MakeCompatible("int", "int32_t");
+	if(sizeof(int) == 4)
+		typeinfo_manager.MakeCompatible("int", "int");
+
+	typeinfo_manager.CreateScalar("uint", 4);
+	typeinfo_manager.MakeCompatible("uint", "uint32_t");
+	if(sizeof(int) == 4)
+		typeinfo_manager.MakeCompatible("uint", "unsigned int");
+
+	CHECK(sizeof(float)==4)<<"Wow, float is not 4 bytes!!";
+	typeinfo_manager.CreateScalar("float", 4);
+	typeinfo_manager.MakeCompatible("float", "float");
+
+	CHECK(sizeof(double)==8)<<"Wow, double is not 8 bytes!!";
+	typeinfo_manager.CreateScalar("double", 8);
+	typeinfo_manager.MakeCompatible("float", "float");
 }
 
 D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob)
@@ -264,6 +253,8 @@ D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob
 	result = reflect->GetDesc(&desc);
 	CHECK(!FAILED(result))<<"Cannot get shader reflection desc for "<<_filepath;	
 	
+	PopulateScalarTypes();
+
 	PopulateCBAndUniforms(desc);
 	PopulateInputs(desc);
 	PopulateOutputs(desc);
@@ -335,103 +326,26 @@ bool D3D11ShaderReflection::HasResource(const s2string &name) const {
 }
 
 bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const {
-	if( type_store.CheckCompatible(shader_typename, cpp_type.GetName()) || 
-		GetPrimitiveTypeInfoStore()->CheckCompatible(shader_typename, cpp_type.GetName()))
-		return true;
-	
 	if(!HasTypeInfo(shader_typename))
 		return false;
-		
-	const ShaderTypeInfo &shader_typeinfo = GetTypeInfo(shader_typename);
-	if(shader_typeinfo.size != cpp_type.GetSize())
+	const TypeInfo &info = GetTypeInfo(shader_typename);
+	if(info.GetSize()!=cpp_type.GetSize() || info.GetMemberSize()!=cpp_type.GetMemberSize())
 		return false;
-	for(unsigned int i=0; i<shader_typeinfo.members.size(); i++) {
-		const ShaderTypeInfo::Member &m_shader = shader_typeinfo.members[i];
-		if(m_shader.offset != cpp_type.GetMemberOffset(i))
-			return false;
-		if(!CheckCompatible(m_shader.type_name, cpp_type.GetMemberType(i)))
+	for(unsigned int i=0; i<info.GetSize(); i++) {
+		if(	info.GetMemberOffset(i) != cpp_type.GetMemberOffset(i) ||
+			!CheckCompatible(info.GetMemberType(i).GetName(), cpp_type.GetMemberType(i)))
 			return false;
 	}
-
-	type_store.MakeCompatible(shader_typename, cpp_type.GetName());
+	
 	return true;
 }
 
-const ShaderTypeInfo & D3D11ShaderReflection::GetTypeInfo(const s2string &shader_typename) const {
-	if(type_store.HasTypeInfo(shader_typename))
-		return type_store.GetTypeInfo(shader_typename);
-	else
-		return GetPrimitiveTypeInfoStore()->GetTypeInfo(shader_typename);
+const TypeInfo & D3D11ShaderReflection::GetTypeInfo(const s2string &shader_typename) const {
+	return typeinfo_manager.GetTypeInfo(shader_typename);
 }
 
 bool D3D11ShaderReflection::HasTypeInfo(const s2string &shader_typename) const {
-	return 	type_store.HasTypeInfo(shader_typename) || 
-				GetPrimitiveTypeInfoStore()->HasTypeInfo(shader_typename) ;
-}
-
-
-ShaderTypeInfoStore * D3D11ShaderReflection::GetPrimitiveTypeInfoStore() {
-	static bool firsttime = true;
-	static ShaderTypeInfoStore store;
-	if(firsttime) {
-		store.CreateTypeInfo("bool")->size = 4;
-		store.MakeCompatible("bool", "int32_t");
-		store.MakeCompatible("bool", "uint32_t");
-		if(sizeof(int) == 4)
-			store.MakeCompatible("bool", "int");
-		if(sizeof(unsigned int) == 4)
-			store.MakeCompatible("bool", "unsigned int");
-		
-		store.CreateTypeInfo("int")->size = 4;
-		store.MakeCompatible("int", "int32_t");
-		if(sizeof(int) == 4)
-			store.MakeCompatible("int", "int");
-
-		store.CreateTypeInfo("uint")->size = 4;
-		store.MakeCompatible("uint", "uint32_t");
-		if(sizeof(int) == 4)
-			store.MakeCompatible("uint", "unsigned int");
-
-		CHECK(sizeof(float)==4)<<"Wow, float is not 4 bytes!!";
-		store.CreateTypeInfo("float")->size = 4;
-		store.MakeCompatible("float", "float");
-
-		CHECK(sizeof(double)==8)<<"Wow, double is not 8 bytes!!";
-		store.CreateTypeInfo("double")->size = 8;
-		store.MakeCompatible("float", "float");
-	
-		firsttime = false;
-	}
-	
-	return &store;
-}
-
-
-bool ShaderTypeInfoStore::CheckCompatible(const s2string &shader_typename, const s2string &cpp_type) const {
-	if(compatibles.find(shader_typename)!=compatibles.end()) {
-		const CompatibleMap::mapped_type &vec = compatibles.at(shader_typename);
-		return std::find(vec.begin(), vec.end(), cpp_type) != vec.end(); 
-	}
-	return false;
-}
-
-void ShaderTypeInfoStore::MakeCompatible(const s2string &shader_typename, const s2string &cpp_type) {
-	CompatibleMap::mapped_type &vec = compatibles[shader_typename];
-	if(std::find(vec.begin(), vec.end(), cpp_type) == vec.end())
-		vec.push_back(cpp_type);
-}
-
-const ShaderTypeInfo & ShaderTypeInfoStore::GetTypeInfo(const s2string &shader_typename) const {
-	return types.at(shader_typename);
-}
-
-bool ShaderTypeInfoStore::HasTypeInfo(const s2string &shader_typename) const {
-	return types.find(shader_typename)!=types.end();
-}
-
-ShaderTypeInfo * ShaderTypeInfoStore::CreateTypeInfo(const s2string &shader_typename) {
-	CHECK(HasTypeInfo(shader_typename)==false)<<"TypeInfo "<<shader_typename<<" is already there.";
-	return &types[shader_typename];
+	return typeinfo_manager.HasTypeInfo(shader_typename);
 }
 
 }

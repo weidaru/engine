@@ -22,7 +22,7 @@ public:
 		return members[index].offset;
 	}
 	
-	virtual const s2string & GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(unsigned int index) const {
 		return members[index].name;
 	}
 	
@@ -47,7 +47,7 @@ public:
 		return false;
 	}
 
-	virtual const s2string & GetName() const {
+	virtual s2string GetName() const {
 		return name;
 	}
 	
@@ -84,7 +84,7 @@ public:
 		CHECK(false)<<"This is primitive type. No member.";
 		return 0;
 	}
-	virtual const s2string & GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(unsigned int index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return *(new s2string());
 	}
@@ -101,7 +101,7 @@ public:
 		return false;
 	}
 
-	virtual const s2string & GetName() const {
+	virtual s2string GetName() const {
 		return name;
 	}
 	
@@ -158,12 +158,17 @@ public:
 		return GetMemberType(index).GetSize()*index;
 	}
 	
-	virtual const s2string & GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(unsigned int index) const {
+		CHECK(index<e_count)<<"Try index "<<index<<" while max index is "<<e_count-1;
+		char buf[512];
+		sprintf(buf, "%d", index);
 		return e_name;
 	}
 	
 	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		return atoi(member_name.c_str());
+		unsigned int result = atoi(member_name.c_str());
+		CHECK(result<e_count)<<member_name<<" must be a number smaller than "<<e_count;
+		return result;
 	}
 	
 	virtual unsigned int GetMemberSize() const {
@@ -175,7 +180,7 @@ public:
 		return index>=0 && index<e_count;
 	}
 
-	virtual const s2string & GetName() const {
+	virtual s2string GetName() const {
 		return name;
 	}
 	

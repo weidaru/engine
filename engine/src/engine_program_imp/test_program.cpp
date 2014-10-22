@@ -86,7 +86,7 @@ public:
 		D3D11_SIGNATURE_PARAMETER_DESC in_desc;
 		reflect->GetInputParameterDesc(1, &in_desc);
 
-		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("worldViewProj2");
+		ID3D11ShaderReflectionVariable* var =  reflect->GetVariableByName("myStruct");
 		D3D11_SHADER_VARIABLE_DESC  var_desc;
 		var->GetDesc(&var_desc);
 		{
@@ -97,7 +97,10 @@ public:
 		
 		{
 			D3D11_SHADER_TYPE_DESC type_desc;
+			var->GetType()->GetMemberTypeByName("b")->GetDesc(&type_desc);
+			var->GetType()->GetMemberTypeByName("a")->GetDesc(&type_desc);
 			var->GetType()->GetMemberTypeByName("c")->GetDesc(&type_desc);
+			var->GetType()->GetMemberTypeByName("foo")->GetDesc(&type_desc);
 			int a = 0;
 		}
 
@@ -109,6 +112,19 @@ public:
 		reflect->GetResourceBindingDesc(2, &input_bind);
 
 		D3D11ShaderReflection ref(path, shader_blob);
+
+		{
+			const TypeInfo & info = ref.GetTypeInfo("MyStruct");
+			unsigned int size = info.GetSize();
+			unsigned int member_count = info.GetMemberSize();
+			for(unsigned int i=0; i<member_count; i++) {
+				s2string member_name = info.GetMemberName(i);
+				unsigned int offset = info.GetMemberOffset(i);
+			}
+
+			int dummy = 1;
+		}
+	 	
 		
 		return true;
 	}
