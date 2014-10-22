@@ -44,6 +44,14 @@ class TypeInfoManager;
   */
 class TypeInfo  {
 public:
+	struct Member {
+		s2string 		type_name;
+		s2string 		name;
+		unsigned int 	offset;
+	};
+	typedef std::vector<Member> Members;
+
+public:
 	virtual const TypeInfo & GetMemberType(unsigned int index) const = 0;
 	virtual unsigned int GetMemberOffset(unsigned int index) const = 0;
 	virtual const s2string & GetMemberName(unsigned int index) const = 0;

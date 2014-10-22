@@ -11,21 +11,10 @@ namespace {
 
 class TypeInfoStruct : public TypeInfo {
 public:
-	struct Member {
-		s2string 		type_name;
-		s2string 		name;
-		unsigned int 	offset;
-	};
-
-public:
-	//member name and type name pair.
-	typedef std::vector<Member> Members;
-
-public:
-	virtual TypeInfoStruct(const s2string &new_name, unsigned int size, const Members &new_members) 
+	TypeInfoStruct(const s2string &new_name, unsigned int new_size, const Members &new_members) 
 			: name(new_name), size(new_size), members(new_members) {}
 
-	virtual const TypeInfoStruct & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(unsigned int index) const {
 		return TypeInfoManager::GetSingleton()->Get(members[index].type_name);
 	}
 	
@@ -86,9 +75,9 @@ public:
 	TypeInfoPrimitive(const s2string &_name, unsigned int _size) :
 		name(_name), size(_size){}
 
-	virtual const TypeInfoPrimitive & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(unsigned int index) const {
 		CHECK(false)<<"This is primitive type. No member.";
-		return *(new TypeInfoPrimitive("",0))
+		return *(new TypeInfoPrimitive("",0));
 	}
 	
 	virtual unsigned int GetMemberOffset(unsigned int index) const {
@@ -97,7 +86,7 @@ public:
 	}
 	virtual const s2string & GetMemberName(unsigned int index) const {
 		CHECK(false)<<"This is primitive type. No member.";
-		return "";
+		return *(new s2string());
 	}
 	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
 		CHECK(false)<<"This is primitive type. No member.";
@@ -173,15 +162,15 @@ public:
 		return e_name;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) {
-		return GetMemberName(atoi(member_name.c_str()));
+	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
+		return atoi(member_name.c_str());
 	}
 	
 	virtual unsigned int GetMemberSize() const {
 		return e_count;
 	}
 	
-	virtual bool HasMember(const s2string &member_name) {
+	virtual bool HasMember(const s2string &member_name) const {
 		unsigned int index = atoi(member_name.c_str());
 		return index>=0 && index<e_count;
 	}
