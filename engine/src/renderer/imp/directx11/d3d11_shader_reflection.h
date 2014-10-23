@@ -16,36 +16,6 @@ struct ID3D11ShaderReflectionType;
 
 namespace s2 {
 
-struct ShaderTypeInfo {
-	struct Member {
-		s2string name;
-		s2string type_name;
-		unsigned int offset;
-	};
-
-	s2string name;
-	unsigned int size;
-	std::vector<Member> members;
-};
-
-class ShaderTypeInfoStore {
-private:
-	typedef std::map<s2string, ShaderTypeInfo> TypeMap;
-	typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
-
-public:
-	//This should only be used after main starts.
-	bool CheckCompatible(const s2string &shader_typename, const s2string &cpp_type) const;
-	void MakeCompatible(const s2string &shader_typename, const s2string &cpp_type);
-	const ShaderTypeInfo & GetTypeInfo(const s2string &shader_typename) const;
-	bool HasTypeInfo(const s2string &shader_typename) const;
-	ShaderTypeInfo * CreateTypeInfo(const s2string &shader_typename);
-	
-private:
-	TypeMap types;
-	CompatibleMap compatibles;
-};
-
 /**
  * You know what, Directx assumes binary compatible in c++. Aha!
  * Guess all the microsoft stuffs only play with themselves, this does make sense.
@@ -89,6 +59,29 @@ public:
 	struct Resource {
 		//Stub
 	};
+	
+private:
+	class ShaderTypeInfoManager {
+	private:
+		typedef std::map<s2string, TypeInfo*> TypeMap;
+		typedef std::map<s2string, std::vector<s2string> > CompatibleMap;
+
+	public:
+		//This should only be used after main starts.
+		bool CheckCompatible(const s2string &shader_typename, const s2string &cpp_type) const;
+		void MakeCompatible(const s2string &shader_typename, const s2string &cpp_type);
+		const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
+		bool HasTypeInfo(const s2string &shader_typename) const;
+		const TypeInfo & CreatePrimitive(const s2string &shader_typename, unsigned int size);
+		const TypeInfo & CreateVector(const s2string &shader_typename, const s2string &primitive_typename, unsigned int count);
+		cosnt TypeInfo & CreateMatrix(const s2string &shader_typename, const s2string &primitive_typename, unsigned int count);
+		const TypeInfo & CreateStruct(const s2string &shader_typename, unsigned int size, const TypeInfo::Members &members);
+		const TypeInfo & CreateArray();
+		
+	private:
+		TypeMap types;
+		CompatibleMap compatibles;
+	};
 
 private:
 	typedef std::vector<Parameter> ParameterVector;
@@ -121,8 +114,6 @@ public:
 	bool HasTypeInfo(const s2string &shader_typename) const;
 	
 	const s2string & GetLastError() const { return error; }
-	
-	static ShaderTypeInfoStore * GetPrimitiveTypeInfoStore();
 	
 private:
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
