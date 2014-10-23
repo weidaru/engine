@@ -158,7 +158,7 @@ if not pcall(rule.parse, rule, ...) then
 	print(rule:to_string())
 end
 assert(source_dir~=nil, string.format("Soruce Dir is nil! Usage:\n%s", rule:to_string()))
-assert(dest~=nil, string.format("Dest Dir is nil! USage:\n%s", rule:to_string()))
+assert(dest~=nil, string.format("Dest file is nil! USage:\n%s", rule:to_string()))
 
 local outputfile = io.open(dest, "w")
 assert(outputfile, string.format("Cannot open dest file %s", dest))

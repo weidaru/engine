@@ -136,8 +136,9 @@ end
 
 do 
 	local primitives = require("primitives")
+	context.primitive = {}
 	for _,v in ipairs(primitives) do
-		context.primitive["v"] = v
+		context.primitive[v] = v
 	end
 
 	setmetatable(context.primitive, {
@@ -164,7 +165,7 @@ function context.methods.init(self)
 	
 	--Add some primitive type here.
 	for k,v in pairs(context.primitive) do
-		assert(k==v)
+		assert(k==v, string.format("k=%s, v=%s", k, v))
 		local e = context.create_struct_info()
 		e.typename = v
 		e.file = "primitive"
