@@ -143,6 +143,7 @@ public:
 					buf[c-number_start]='\0';
 					e_count = atoi(buf);
 				}
+				break;
 			default:
 				CHECK(false)<<"Logic hole!";
 			}

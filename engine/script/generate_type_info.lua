@@ -10,10 +10,9 @@ struct PointerRegistration {
 	static PointerRegistration registration;
 
 	PointerRegistration() {
-		TypeInfoManager::GetSingleton()->Create( 
+		TypeInfoManager::GetSingleton()->CreatePrimitive( 
 			kPointerTypename, 
-			sizeof(char *), 
-			TypeInfo::Members()); 
+			sizeof(char *)); 
 	}
 };
 PointerRegistration PointerRegistration::registration;

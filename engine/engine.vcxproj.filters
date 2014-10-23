@@ -46,6 +46,9 @@
     <Filter Include="Source Files\engine_program_imp">
       <UniqueIdentifier>{87b671f2-09cd-4b75-837e-8eb00b2aa498}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\generate">
+      <UniqueIdentifier>{fad1adad-4b4f-4207-a928-504621c6214a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utils\s2string.h">
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="src\renderer\imp\directx11\shader_typeinfo_manager.cpp">
       <Filter>Source Files\renderer\imp\directx11</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generate\generated_type_info.cpp">
+      <Filter>Source Files\generate</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

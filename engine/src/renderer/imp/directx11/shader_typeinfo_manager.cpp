@@ -169,6 +169,11 @@ public:
 		return name;
 	}
 	
+	/**
+	 * You wanna know why is this implemented like following? Boom! 
+	 * http://stackoverflow.com/questions/24276402/unexpected-sizes-of-arrays-in-a-hlsl-constant-buffer
+	 * Bascially, hlsl does not have end padding.
+	 */
 	virtual unsigned int GetSize() const {
 		unsigned int member_size = GetMemberType(0).GetSize();
 		return member_size + Pack16Byte(member_size)*(e_count-1);

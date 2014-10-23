@@ -28,14 +28,16 @@ namespace {
 
 void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
-	cbs.resize(desc.ConstantBuffers);
 	for(unsigned int i=0; i<desc.ConstantBuffers; i++) {
-		ConstantBuffer &cb = cbs[i];
 		ID3D11ShaderReflectionConstantBuffer *cb_reflect = reflect->GetConstantBufferByIndex(i);
 		D3D11_SHADER_BUFFER_DESC cb_desc;
 		result = cb_reflect->GetDesc(&cb_desc);
 		CHECK(!FAILED(result))<<"Cannot get constant buffer description for"<<filepath;
-		cb.index = i;
+		if(cb_desc.Type != D3D_CT_CBUFFER)
+			continue;
+		cbs.push_back(ConstantBuffer());
+		ConstantBuffer &cb = cbs.back();
+		cb.index = cbs.size()-1;
 		cb.name = cb_desc.Name;
 		cb.size = cb_desc.Size;
 		cb.uniforms.resize(cb_desc.Variables);
@@ -103,9 +105,9 @@ void D3D11ShaderReflection::PopulateInputs(const D3D11_SHADER_DESC &desc) {
 
 void D3D11ShaderReflection::PopulateOutputs(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
-	inputs.resize(desc.OutputParameters);
+	outputs.resize(desc.OutputParameters);
 	for(unsigned int i=0;i<desc.OutputParameters; i++) {
-		Parameter &p = inputs[i];
+		Parameter &p = outputs[i];
 		D3D11_SIGNATURE_PARAMETER_DESC out_desc;
 		result = reflect->GetOutputParameterDesc(i, &out_desc);
 		CHECK(!FAILED(result))<<"Cannot get output description for"<<filepath;
@@ -215,29 +217,25 @@ void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
 }
 
 void D3D11ShaderReflection::PopulateScalarTypes() {
+	CHECK(sizeof(float)==4)<<"Opps, float is not 4 bytes!!";
+	CHECK(sizeof(int)==4)<<"Opps, int is not 4 bytes!!";
+	CHECK(sizeof(unsigned int)==4)<<"Opps, unsigned int is not 4 bytes!!";
+	CHECK(sizeof(double)==8)<<"Opps, double is not 8 bytes!!";
+
 	typeinfo_manager.CreateScalar("bool", 4);
-	typeinfo_manager.MakeCompatible("bool", "int32_t");
-	typeinfo_manager.MakeCompatible("bool", "uint32_t");
-	if(sizeof(int) == 4)
-		typeinfo_manager.MakeCompatible("bool", "int");
-	if(sizeof(unsigned int) == 4)
-		typeinfo_manager.MakeCompatible("bool", "unsigned int");
+	typeinfo_manager.MakeCompatible("bool", "bool");
+	typeinfo_manager.MakeCompatible("bool", "int");
+	typeinfo_manager.MakeCompatible("bool", "unsigned int");
 	
 	typeinfo_manager.CreateScalar("int", 4);
-	typeinfo_manager.MakeCompatible("int", "int32_t");
-	if(sizeof(int) == 4)
-		typeinfo_manager.MakeCompatible("int", "int");
+	typeinfo_manager.MakeCompatible("int", "int");
 
 	typeinfo_manager.CreateScalar("uint", 4);
-	typeinfo_manager.MakeCompatible("uint", "uint32_t");
-	if(sizeof(int) == 4)
-		typeinfo_manager.MakeCompatible("uint", "unsigned int");
+	typeinfo_manager.MakeCompatible("uint", "unsigned int");
 
-	CHECK(sizeof(float)==4)<<"Wow, float is not 4 bytes!!";
 	typeinfo_manager.CreateScalar("float", 4);
 	typeinfo_manager.MakeCompatible("float", "float");
 
-	CHECK(sizeof(double)==8)<<"Wow, double is not 8 bytes!!";
 	typeinfo_manager.CreateScalar("double", 8);
 	typeinfo_manager.MakeCompatible("float", "float");
 }
@@ -325,17 +323,30 @@ bool D3D11ShaderReflection::HasResource(const s2string &name) const {
 	return false;
 }
 
+namespace {
+
+bool IsArray(const s2string &type_name) {
+	return type_name.find('[') != std::string::npos;
+}
+
+}
+
 bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const {
 	if(!HasTypeInfo(shader_typename))
 		return false;
 	const TypeInfo &info = GetTypeInfo(shader_typename);
-	if(info.GetSize()!=cpp_type.GetSize() || info.GetMemberSize()!=cpp_type.GetMemberSize())
+	if(info.GetMemberSize()!=cpp_type.GetMemberSize())
 		return false;
-	for(unsigned int i=0; i<info.GetSize(); i++) {
-		if(	info.GetMemberOffset(i) != cpp_type.GetMemberOffset(i) ||
-			!CheckCompatible(info.GetMemberType(i).GetName(), cpp_type.GetMemberType(i)))
-			return false;
+	if(IsArray(shader_typename) && IsArray(cpp_type.GetName())) {
+		return CheckCompatible(info.GetMemberType(0).GetName(), cpp_type.GetMemberType(0));
+	} else {
+		for(unsigned int i=0; i<info.GetMemberSize(); i++) {
+			if(	info.GetMemberOffset(i) != cpp_type.GetMemberOffset(i) ||
+				!CheckCompatible(info.GetMemberType(i).GetName(), cpp_type.GetMemberType(i)))
+				return false;
+		}
 	}
+
 	
 	return true;
 }

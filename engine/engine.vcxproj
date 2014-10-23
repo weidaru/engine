@@ -54,6 +54,7 @@
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\engine_program.cpp" />
     <ClCompile Include="src\engine_program_imp\test_program.cpp" />
+    <ClCompile Include="src\generate\generated_type_info.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_constant_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_context.cpp" />
