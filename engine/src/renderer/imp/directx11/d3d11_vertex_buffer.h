@@ -25,9 +25,13 @@ public:
 private:
 	void Clear();
 
+protected:
+	virtual void Initialize(unsigned int element_count, const void *data, const TypeInfo &type_info, bool is_dynamic);
+
 private:
 	D3D11GraphicResourceManager *manager;
 	ID3D11Buffer *vb;
+	s2string type_name;
 };
 
 }

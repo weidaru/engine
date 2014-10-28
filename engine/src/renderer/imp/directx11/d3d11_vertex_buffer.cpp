@@ -51,6 +51,10 @@ void D3D11VertexBuffer::Initialize(unsigned int size, const void *data, bool is_
 	CHECK(!FAILED(result))<<"Cannot create vertex buffer. Error code: " <<::GetLastError();
 }
 
+void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic) {
+	
+}
+
 bool D3D11VertexBuffer::IsDynamic() {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	D3D11_BUFFER_DESC desc;
