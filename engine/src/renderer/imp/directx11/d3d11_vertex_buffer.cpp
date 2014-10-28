@@ -52,7 +52,8 @@ void D3D11VertexBuffer::Initialize(unsigned int size, const void *data, bool is_
 }
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic) {
-	
+	type_name = type_info.GetName();
+	this->Initialize(element_count*type_info.GetSize(), data, is_dynamic);
 }
 
 bool D3D11VertexBuffer::IsDynamic() {
