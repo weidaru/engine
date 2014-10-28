@@ -123,7 +123,7 @@ local function generate(context, file)
 	end
 	append_help("")
 		--Do for pointer and reference
-	append_help([[//TypeInfo for pointer and reference]])
+	append_help([[//TypeInfo for pointer]])
 	append_help(POINTER_REFERENCE_CODE)
 	append_help("")
 	--Do for others

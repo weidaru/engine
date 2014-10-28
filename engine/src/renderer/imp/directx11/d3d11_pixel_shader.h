@@ -12,6 +12,7 @@ namespace s2 {
 class D3D11GraphicResourceManager;
 class D3D11ConstantBuffer;
 class D3D11Texture2D;
+class D3D11ShaderReflection;
 
 class D3D11PixelShader : public PixelShader {
 public:
@@ -45,6 +46,7 @@ private:
 	std::vector<D3D11ConstantBuffer *> cbs;
 	
 	ID3D11PixelShader *shader;
+	D3D11ShaderReflection *reflect;
 	s2string error;
 	
 };

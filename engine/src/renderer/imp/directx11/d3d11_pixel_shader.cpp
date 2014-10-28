@@ -14,6 +14,7 @@
 #include "d3d11_constant_buffer.h"
 #include "d3d11_texture2d.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_shader_reflection.h"
 
 
 #ifdef NDEBUG
@@ -29,7 +30,7 @@
 namespace s2 {
 
 D3D11PixelShader::D3D11PixelShader(D3D11GraphicResourceManager *_manager)
-			: manager(_manager), shader(0){
+			: manager(_manager), shader(0), reflect(0){
 	cbs.resize(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, 0);
 }
 
@@ -112,7 +113,7 @@ bool D3D11PixelShader::SetUniform(const s2string &name, const void * value, unsi
 	return true;
 }
 
-bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
+bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) {
 	Check();
 	if(!reflect->HasUniform(name)) {
 		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());

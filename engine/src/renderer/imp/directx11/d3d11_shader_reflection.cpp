@@ -323,7 +323,6 @@ bool D3D11ShaderReflection::HasResource(const s2string &name) const {
 	return false;
 }
 
-<<<<<<< HEAD
 namespace {
 
 bool IsArray(const s2string &type_name) {
@@ -332,10 +331,7 @@ bool IsArray(const s2string &type_name) {
 
 }
 
-bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const {
-=======
 bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type, s2string *message) const {
->>>>>>> Used sprintf_s instead of sprintf and give it a wrapper function on s2string.
 	if(!HasTypeInfo(shader_typename))
 		return false;
 	const TypeInfo &info = GetTypeInfo(shader_typename);
