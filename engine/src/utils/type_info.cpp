@@ -161,8 +161,8 @@ public:
 	
 	virtual s2string GetMemberName(unsigned int index) const {
 		CHECK(index<e_count)<<"Try index "<<index<<" while max index is "<<e_count-1;
-		char buf[512];
-		sprintf(buf, "%d", index);
+		s2string buf;
+		S2StringFormat(&buf, "%d", index);
 		return e_name;
 	}
 	

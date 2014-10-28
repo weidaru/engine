@@ -82,6 +82,15 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	} else {
 		manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
 		//Setup reflection and constant buffer.
+		reflect = new D3D11ShaderReflection(path, shader_blob);
+		CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+					<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
+		cbs.resize(reflect->GetConstantBufferSize());
+		for(unsigned int i=0; i<cbs.size(); i++) {
+			const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
+			cbs[i] = new D3D11ConstantBuffer(manager);
+			cbs[i]->Initialize(cb_reflect.size, 0);
+		}
 		
 		if(shader_blob)
 			shader_blob->Release();
@@ -93,14 +102,30 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 
 bool D3D11PixelShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
+	if(!reflect->HasUniform(name)) {
+		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());
+		return false;
+	}
+	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
+	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
+	CHECK(cb.SetData(uniform.offset, value ,size))<<cb.GetLastError();
+	return true;
 }
 
 bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
+	if(!reflect->HasUniform(name)) {
+		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());
+		return false;
+	}
+	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
+	if(!reflect->CheckCompatible(uniform.type_name, cpp_type)) {
+		S2StringFormat(&error, "shader type %s and cpp type %s are not compatible,", uniform.type_name, cpp_type.GetName());
+		return false;
+	}
+	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
+	CHECK(cb.SetData(uniform.offset, value, cpp_type.GetSize()))<<cb.GetLastError();
+	return true;
 }
 
 bool D3D11PixelShader::SetSampler(const s2string &name, Sampler *sampler) {

@@ -134,8 +134,8 @@ unsigned int Pack4Byte(unsigned int size) {
 }
 
 s2string ParseArrayTypeName(const s2string &type_name, unsigned int length) {
-	char buf[512];
-	CHECK(sprintf(buf, "%s[%d]", type_name.c_str(), length)>=0)<<"sprintf catches fire.";
+	s2string buf;
+	S2StringFormat(&buf, "%s[%d]", type_name.c_str(), length);
 	return buf;
 }
 
@@ -323,6 +323,7 @@ bool D3D11ShaderReflection::HasResource(const s2string &name) const {
 	return false;
 }
 
+<<<<<<< HEAD
 namespace {
 
 bool IsArray(const s2string &type_name) {
@@ -332,6 +333,9 @@ bool IsArray(const s2string &type_name) {
 }
 
 bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const {
+=======
+bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type, s2string *message) const {
+>>>>>>> Used sprintf_s instead of sprintf and give it a wrapper function on s2string.
 	if(!HasTypeInfo(shader_typename))
 		return false;
 	const TypeInfo &info = GetTypeInfo(shader_typename);

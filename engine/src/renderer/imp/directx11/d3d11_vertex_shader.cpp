@@ -56,9 +56,7 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 	{
 		FILE* file = fopen(path.c_str(), "rb");
 		if(!file) {
-			char buffer[1024*5];
-			sprintf(buffer, "Cannot open file %s", path.c_str());
-			error = buffer;
+			S2StringFormat(&error, "Cannot open file %s", path.c_str());
 			return false;
 		}
 		fseek(file, 0, SEEK_END);
@@ -117,9 +115,7 @@ void D3D11VertexShader::Check() {
 bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
 	Check();
 	if(!reflect->HasUniform(name)) {
-		char buf[256];
-		sprintf(buf, "Cannot find uniform %s", name.c_str());
-		error = buf;
+		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());
 		return false;
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
@@ -128,17 +124,19 @@ bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, uns
 	return true;
 }
 
-bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) {
+bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) {
 	Check();
 	if(!reflect->HasUniform(name)) {
-		char buf[256];
-		sprintf(buf, "Cannot find uniform %s", name.c_str());
-		error = buf;
+		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());
 		return false;
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
+	if(!reflect->CheckCompatible(uniform.type_name, cpp_type)) {
+		S2StringFormat(&error, "shader type %s and cpp type %s are not compatible,", uniform.type_name, cpp_type.GetName());
+		return false;
+	}
 	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
-	CHECK(cb.SetData(uniform.offset, value, type_info.GetSize()))<<cb.GetLastError();
+	CHECK(cb.SetData(uniform.offset, value, cpp_type.GetSize()))<<cb.GetLastError();
 	return true;
 }
 

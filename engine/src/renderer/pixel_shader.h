@@ -34,7 +34,7 @@ public:
 	virtual const s2string &		GetLastError() = 0;
 	
 protected:
-	virtual bool 						SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) = 0;
+	virtual bool 						SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) = 0;
 };
 
 }

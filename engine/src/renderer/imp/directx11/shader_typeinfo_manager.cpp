@@ -145,8 +145,8 @@ public:
 	
 	virtual s2string GetMemberName(unsigned int index) const {
 		CHECK(index < e_count)<<"Try index "<<index<<" while max index is "<<e_count-1;;
-		char buf[512];
-		sprintf(buf, "%d", index);
+		s2string buf;
+		S2StringFormat(&buf, "%d", index);
 		return buf;
 	}
 	
@@ -209,8 +209,8 @@ public:
 	
 	virtual s2string GetMemberName(unsigned int index) const {
 		CHECK(index < count)<<"Try index "<<index<<" while max index is "<<count-1;;
-		char buf[512];
-		sprintf(buf, "%d", index);
+		s2string buf;
+		S2StringFormat(&buf, "%d", index);
 		return buf;
 	}
 	
@@ -269,8 +269,8 @@ public:
 	
 	virtual s2string GetMemberName(unsigned int index) const {
 		CHECK(index < rows*columns)<<"Try index "<<index<<" while max index is "<<rows*columns-1;
-		char buf[512];
-		sprintf(buf, "%d", index);
+		s2string buf;
+		S2StringFormat(&buf, "%d", index);
 		return buf;
 	}
 	

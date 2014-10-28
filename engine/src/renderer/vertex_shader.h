@@ -23,6 +23,8 @@ public:
 	bool SetUniform(const s2string &name, const T *value) {
 		SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(),value);
 	}
+	
+	//This will be version without compatibility check, more like a c style.
 	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size) = 0;
 	
 	virtual bool 					SetSampler(const s2string &name, Sampler *sampler) = 0;
@@ -35,7 +37,7 @@ public:
 	virtual const s2string &	GetLastError() = 0;
 	
 protected:
-	virtual bool 					SetUniform(const s2string &name, const TypeInfo &type_info, const void *value) = 0;
+	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) = 0;
 };
 
 }

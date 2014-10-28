@@ -88,11 +88,11 @@ public:
 	const D3D11ShaderReflection::Resource & GetResource(const s2string &name) const;
 	bool HasResource(const s2string &name) const;
 	
-	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type) const;
+	//message is ignored for now.
+	//TODO: Added support to check message indicating why false is returned.
+	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type, s2string *message=0) const;
 	const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
 	bool HasTypeInfo(const s2string &shader_typename) const;
-	
-	const s2string & GetLastError() const { return error; }
 	
 private:
 	void PopulateScalarTypes();
@@ -121,8 +121,6 @@ private:
 	
 	ParameterVector inputs;
 	ParameterVector outputs;
-	
-	s2string error;
 };
 
 }

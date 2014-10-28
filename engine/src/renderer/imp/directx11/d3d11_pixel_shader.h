@@ -34,7 +34,7 @@ public:
 	
 protected:
 	//That is everything in constant buffer, in the sense of Directx 11.
-	virtual bool SetUniform(const s2string &name, const TypeInfo &type_info, const void *value);
+	virtual bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value);
 	
 private:
 	void Check();

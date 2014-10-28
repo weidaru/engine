@@ -74,6 +74,7 @@
     <ClCompile Include="src\renderer\texture2d.cpp" />
     <ClCompile Include="src\renderer\texture3d.cpp" />
     <ClCompile Include="src\renderer\texture_enum.cpp" />
+    <ClCompile Include="src\utils\s2string.cpp" />
     <ClCompile Include="src\utils\type_info.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
