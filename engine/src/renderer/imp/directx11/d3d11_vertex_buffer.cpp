@@ -14,7 +14,7 @@
 namespace s2 {
 
 D3D11VertexBuffer::D3D11VertexBuffer(D3D11GraphicResourceManager *_manager)
-		: manager(_manager){
+		: manager(_manager),vb(0), ele_count(0), ele_bytewidth(0){
 
 }
 
@@ -29,11 +29,14 @@ void D3D11VertexBuffer::Clear() {
 	}
 }
 
-void D3D11VertexBuffer::Initialize(unsigned int size, const void *data, bool is_dynamic) {
+void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_ele_size, const void *data, bool is_dynamic) {
 	Clear();
 
+	ele_count = element_count;
+	ele_bytewidth = per_ele_size;
+	
 	D3D11_BUFFER_DESC desc;
-	desc.ByteWidth = size;
+	desc.ByteWidth = element_count * element_size;
 	if(is_dynamic) {
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -63,11 +66,14 @@ bool D3D11VertexBuffer::IsDynamic() {
 	return desc.Usage == D3D11_USAGE_DYNAMIC;
 }
 
-unsigned int D3D11VertexBuffer::GetSize() {
+unsigned int D3D11VertexBuffer::GetElementCount() {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
-	D3D11_BUFFER_DESC desc;
-	vb->GetDesc(&desc);
-	return desc.ByteWidth;
+	return ele_count;
+}
+
+unsigned int D3D11VertexBuffer::GetElementBytewidth() {
+	CHECK(vb)<<"Vertex buffer is not initialized.";
+	return ele_bytewidth;
 }
 
 void * D3D11VertexBuffer::Map() {

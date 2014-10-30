@@ -9,6 +9,9 @@
 #include "d3d11_vertex_buffer.h"
 #include "d3d11_index_buffer.h"
 
+#include "pipeline_stage/d3d11_input_stage.h"
+#include "pipeline_stage/d3d11_output_stage.h"
+
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
@@ -20,44 +23,6 @@ class D3D11GraphicResourceManager;
 class D3D11Texture2D;
 
 class D3D11GraphicPipeline : public GraphicPipeline {
-private:
-	struct RenderTarget {
-		D3D11Texture2D *tex;		//Only allow Texture2D for now.
-		bool enable_clear;
-		float rgba[4];
-		
-		RenderTarget() {
-			tex=0;
-			enable_clear=false;
-		}
-	};
-	
-	struct DepthStencil {
-		D3D11Texture2D *tex;		//Only allow Texture2D for now.
-		bool enable_depth_clear;
-		bool enable_stencil_clear;
-		float depth;
-		uint8_t stencil;
-		
-		DepthStencil(){
-			tex=0;
-			enable_depth_clear = false;
-			enable_stencil_clear = false;
-		}
-	};
-	
-	struct VBInfo {
-		D3D11VertexBuffer *vb;
-		VertexBufferUsage usage;
-		s2string type_name;
-		
-		VBInfo() {
-			vb = 0;
-			usage = PER_VERTEX;
-			type_name = "";
-		}
-	};
-
 public:
 	D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11GraphicPipeline();
@@ -65,8 +30,9 @@ public:
 	//Input
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue);
 	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
-	virtual void SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name);
-	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name);
+	
+	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf, VertexBufferUsage usage);
+	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index, VertexBufferUsage *usage);
 	virtual void SetIndexBuffer(IndexBuffer *buf);
 	virtual D3D11IndexBuffer * GetIndexBuffer();
 	
@@ -103,20 +69,16 @@ public:
 	//This is only function which really does something to the pipeline.
 	virtual void Draw();
 	
+	
 private:
-	void SetInput();
 	void SetRasterizationOption();
 	void SetDepthStencilOption();
 	void SetBlendOption();
-	void SetOutput();
 	
 private:
 	D3D11GraphicResourceManager *manager;
 	
-	bool new_input;
-	D3D11IndexBuffer *ib;
-	std::vector<VBInfo> vbs;
-	PrimitiveTopology topology;
+	D3D11InputStage input_stage; 
 	
 	bool new_vs;
 	D3D11VertexShader *vs;
@@ -135,9 +97,7 @@ private:
 	bool new_blend;
 	ID3D11BlendState *blend_state;
 	
-	bool new_output;
-	std::vector<RenderTarget> rts;
-	DepthStencil ds;
+	D3D11OutputStage output_stage;
 };
 
 

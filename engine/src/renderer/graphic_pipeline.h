@@ -48,14 +48,8 @@ public:
 	//Input
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
-	virtual void SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage, const s2string &type_name) = 0;
-	template <typename T>
-	void SetVertexBuffer(unsigned int index, VertexBuffer *buf, VertexBufferUsage usage) {
-		 const s2string &type_name = TypeInfoManager::GetSingleton()->Get<T>().GetName();
-		 SetVertexBuffer(index, buf, usage, type_name);
-	}
-	
-	virtual VertexBuffer * GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) = 0;
+	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf, VertexBufferUsage usage) = 0;
+	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index, VertexBufferUsage *usage) = 0;
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
 

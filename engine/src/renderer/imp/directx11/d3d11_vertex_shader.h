@@ -41,6 +41,7 @@ protected:
 private:
 	void Check();
 	void Clear();
+	void GenerateInputLayout();
 
 private:
 	D3D11GraphicResourceManager *manager;
@@ -48,6 +49,7 @@ private:
 	std::vector<D3D11ConstantBuffer *> cbs;
 	ID3D11VertexShader *shader;
 	D3D11ShaderReflection *reflect;
+
 	s2string error;
 };
 	

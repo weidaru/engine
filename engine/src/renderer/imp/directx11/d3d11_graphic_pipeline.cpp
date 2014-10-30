@@ -26,12 +26,10 @@ namespace s2 {
 
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager)
 	: 	manager(_manager), 
-		new_input(true), ib(0), vbs(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT), topology(),
 		vs(0), ps(0), 
 		new_rast(true), rast_state(0), 
 		new_ds(true), ds_state(0), 
-		new_blend(true), blend_state(0),
-		new_output(true), rts(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT) {
+		new_blend(true), blend_state(0) {
 
 }
 
@@ -46,36 +44,27 @@ D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 
 
 void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
-	new_input = true;
-	topology = newvalue;
+	input_stage.SetPrimitiveTopology(newvalue);
 }
 
 GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() {
-	return topology;
+	return input_stage.GetPrimitiveTopology();
 }
 
-void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, VertexBuffer *_buf, VertexBufferUsage usage, const s2string &type_name) {
-	new_input = true;
-	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
-	int i = 0;
-	vbs[i].vb = buf;
-	vbs[i].usage = usage;
-	vbs[i].type_name = type_name;
+void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf, VertexBufferUsage usage) {
+	input_stage.SetVertexBuffer(index, start_input_index, buf, usage);
 }
 
-D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, VertexBufferUsage *usage, s2string *type_name) {
-	CHECK(false)<<"Disable for now";
-	return 0;
+D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, unsigned int *start_input_index, VertexBufferUsage *usage) {
+	return input_stage.GetVertexBuffer(index, start_input_index, usage);
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
-	new_input = true;
-	D3D11IndexBuffer *buf = NiceCast(D3D11IndexBuffer *, _buf);
-	ib = buf;
+	input_stage.SetIndexBuffer(_buf);
 }
 
 D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
-	return ib;
+	return input_stage.GetIndexBuffer();
 }
 
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
@@ -232,51 +221,35 @@ void D3D11GraphicPipeline::GetBlendOption(BlendOption *option) {
 }
 
 void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
-	new_output = true;
-	rts[index].tex = NiceCast(D3D11Texture2D *, target);
+	output_stage.SetRenderTarget(index, target);
 }
 
 Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
-	return rts[index].tex;
+	return output_stage.GetRenderTarget(index);
 }
 
 void D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
-	new_output = true;
-	ds.tex = NiceCast(D3D11Texture2D *, buffer);
+	output_stage.SetDepthStencilBuffer(buffer);
 }
 
 Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
-	return ds.tex;
+	output_stage.GetDepthStencilBuffer();
 }
 
 void D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
-	rts[index].enable_clear = enable;
-	rts[index].rgba[0] = rgba[0];
-	rts[index].rgba[1] = rgba[1];
-	rts[index].rgba[2] = rgba[2];
-	rts[index].rgba[3] = rgba[3];
+	output_stage.SetRenderTargetClearOption(index, enable, rgba);
 }
 
 void D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
-	*enable = rts[index].enable_clear;
-	rgba[0] = rts[index].rgba[0];
-	rgba[1] = rts[index].rgba[1];
-	rgba[2] = rts[index].rgba[2];
-	rgba[3] = rts[index].rgba[3];
+	output_stage.GetRenderTargetClearOption(index, enable, rgba);
 }
 
 void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) {
-	ds.enable_depth_clear = enable_depth_clear;
-	ds.enable_stencil_clear = enable_stencil_clear;
-	ds.depth = depth;
-	ds.stencil = stencil;
+	output_stage.SetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
 void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) {
-	*enable_depth_clear = ds.enable_depth_clear;
-	*enable_stencil_clear = ds.enable_stencil_clear;
-	*depth = ds.depth;
-	*stencil = ds.stencil;
+	output_stage.GetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
 void D3D11GraphicPipeline::SetRasterizationOption() {
@@ -322,69 +295,12 @@ void D3D11GraphicPipeline::SetBlendOption() {
 	context->OMSetBlendState(blend_state , blend_opt.factor, 0);
 }
 
-void D3D11GraphicPipeline::SetInput() {
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	//Set primitive topology
-	context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
-	
-	//Set vertex buffer.
-	{
-		int last_index = -1;
-		for(int i=vbs.size()-1; i>=0; i--) {
-			if(vbs[i].vb) {
-				last_index = i;
-				break;
-			}
-		}
-		if(last_index != -1) {
-			ID3D11Buffer **buf_array = new ID3D11Buffer *[last_index+1];
-			unsigned int *stride_array = new unsigned int[last_index+1];
-			unsigned int *offset_array = new unsigned int[last_index+1];
-			for(int i=0; i<=last_index; i++) {
-				buf_array[i] = vbs[i].vb->GetInternal();
-				stride_array[i] = 4;			//TODO: This information needs to retrive from type_name, use 4 for now.
-				offset_array[i] = 0;
-			}
-			context->IASetVertexBuffers(0, last_index+1, buf_array, stride_array, offset_array);
-			delete[] stride_array;
-			delete[] offset_array;
-		}
-	}
-	
-	//Set index buffer
-	if(ib) {
-		context->IASetIndexBuffer(ib->GetInternal(), DXGI_FORMAT_R32_UINT, 0);
-	}
-}
-
-void D3D11GraphicPipeline::SetOutput() {
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	//Set render target.
-	{
-		int last_index = -1;
-		for(int i=rts.size()-1; i>=0; i--) {
-			if(rts[i].tex) {
-				last_index = i;
-				break;
-			}
-		}
-		if(last_index != -1) {
-			ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
-			for(int i=0; i<=last_index; i++) {
-				array[i] = rts[i].tex->GetRenderTargetView();
-			}
-			context->OMSetRenderTargets(last_index+1, array, ds.tex?ds.tex->GetDepthStencilView():0);
-			delete[] array;
-		}
-	}
-}
-
 bool D3D11GraphicPipeline::Validate(s2string *error) {
 	return true;
 }
 
 void D3D11GraphicPipeline::Draw() {
-	SetInput();
+	input_stage.Flush();
 
 	if(vs && new_vs) {
 		vs->Flush();
@@ -413,10 +329,7 @@ void D3D11GraphicPipeline::Draw() {
 		SetBlendOption();
 		new_blend = false;
 	}
-	if(new_output) {
-		SetOutput();
-		new_output = false;
-	}
+	output_stage.Flush();
 	
 	//Do clear.
 	ID3D11DeviceContext *context = manager->GetDeviceContext();

@@ -36,7 +36,7 @@
 namespace s2 {
 
 D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
-		manager(_manager), shader(0), reflect(0){
+		manager(_manager), shader(0), reflect(0) {
 }
 
 /*TODO: Find a way to cache the program as it will need to be compiled every time a 
@@ -75,26 +75,26 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 		if(error_blob)
 			error_blob->Release();
 		return false;
-	} else {
-		manager->GetDevice()->CreateVertexShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
-		
-		//Setup reflection and constant buffer.
-		reflect = new D3D11ShaderReflection(path, shader_blob);
-		CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-					<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
-		cbs.resize(reflect->GetConstantBufferSize());
-		for(unsigned int i=0; i<cbs.size(); i++) {
-			const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
-			cbs[i] = new D3D11ConstantBuffer(manager);
-			cbs[i]->Initialize(cb_reflect.size, 0);
-		}
-		
-		if(shader_blob)
-			shader_blob->Release();
-		if(error_blob)
-			error_blob->Release();
-		return true;
 	}
+	
+	manager->GetDevice()->CreateVertexShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
+	
+	//Setup reflection and constant buffer.
+	reflect = new D3D11ShaderReflection(path, shader_blob);
+	CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+				<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
+	cbs.resize(reflect->GetConstantBufferSize());
+	for(unsigned int i=0; i<cbs.size(); i++) {
+		const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
+		cbs[i] = new D3D11ConstantBuffer(manager);
+		cbs[i]->Initialize(cb_reflect.size, 0);
+	}
+	
+	if(shader_blob)
+		shader_blob->Release();
+	if(error_blob)
+		error_blob->Release();
+	return true;
 }
 
 D3D11VertexShader::~D3D11VertexShader() {
