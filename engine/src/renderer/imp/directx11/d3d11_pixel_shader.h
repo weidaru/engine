@@ -31,6 +31,7 @@ public:
 	virtual Resource * GetResource(const s2string &name);
 	
 	virtual const s2string & GetLastError() { return error; }
+	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() { return blob; }
 	
 	/*****************D3D11 exclusive.******************/

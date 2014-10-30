@@ -43,8 +43,7 @@ Engine::~Engine() {
 		
 	delete program_manager;
 
-	RendererSetting renderer_setting;
-	renderer_context->GetSetting(&renderer_setting);
+	RendererSetting renderer_setting = renderer_context->GetSetting();
 	delete renderer_context;
 
 	// Fix the display settings if leaving full screen mode.

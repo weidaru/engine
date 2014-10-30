@@ -44,15 +44,15 @@ public:
 	
 	//Rasterization
 	virtual void SetRasterizationOption(const RasterizationOption &option);
-	virtual void GetRasterizationOption(RasterizationOption *option);
+	virtual const RasterizationOption & GetRasterizationOption() const;
 
 	//DepthStencil
 	virtual void SetDepthStencilOption(const DepthStencilOption &option);
-	virtual void GetDepthStencilOption(DepthStencilOption *option);
+	virtual const DepthStencilOption & GetDepthStencilOption() const;
 	
 	//Blend
 	virtual void SetBlendOption(const BlendOption &option);
-	virtual void GetBlendOption(BlendOption *option);
+	virtual const BlendOption & GetBlendOption() const;
 	
 	//Output
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
@@ -63,6 +63,8 @@ public:
 	virtual Resource * GetDepthStencilBuffer();
 	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
 	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil);
+	
+	virtual void Clear();
 	
 	virtual bool Validate(s2string *_error);
 	

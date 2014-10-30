@@ -18,8 +18,8 @@ public:
 	virtual ~D3D11Context();
 	virtual D3D11GraphicPipeline * GetPipeline() { return pipeline; }
 	virtual D3D11GraphicResourceManager * GetResourceManager() { return resource_manager; }
-	virtual bool SetSetting(const RendererSetting &_setting);
-	virtual void GetSetting(RendererSetting *_setting);
+	virtual bool SetSetting(const RendererSetting &_setting) ;
+	virtual const RendererSetting & GetSetting() const;
 	virtual const s2string & GetLastError() { return error; }
 	virtual void PropagateSetting();
 	virtual void SwapBuffer();

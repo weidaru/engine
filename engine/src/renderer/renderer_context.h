@@ -27,7 +27,7 @@ public:
 	virtual GraphicPipeline * GetPipeline() = 0;
 	virtual GraphicResourceManager * GetResourceManager() = 0;
 	virtual bool SetSetting(const RendererSetting &_setting) = 0;
-	virtual void GetSetting(RendererSetting *_setting) = 0;
+	virtual const RendererSetting & GetSetting() const = 0;
 	virtual const s2string & GetLastError() = 0;
 	virtual void PropagateSetting() = 0;
 	virtual void SwapBuffer() = 0;

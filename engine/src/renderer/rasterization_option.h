@@ -12,6 +12,13 @@ struct RasterizationOption {
 		float top_left_y;
 		float width;
 		float height;
+		
+		Rectangle(float _top_left_x, float _top_left_y, float _width, float _height) {
+			top_left_x = _top_left_x;
+			top_left_y = _top_left_y;
+			width = _width;
+			height = _height;
+		}
 	};
 	
 	enum FillMode {

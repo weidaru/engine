@@ -27,23 +27,39 @@ namespace s2 {
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager)
 	: 	manager(_manager), 
 		input_stage(_manager),
-		vs(0), ps(0), 
-		new_rast(true), rast_state(0), 
-		new_ds(true), ds_state(0), 
-		new_blend(true), blend_state(0),
+		rast_state(0),
+		ds_state(0),
+		blend_state(0),
 		output_stage(_manager) {
-
+	Clear();
 }
 
 D3D11GraphicPipeline::~D3D11GraphicPipeline() {
-	if(rast_state)
-		rast_state->Release();
-	if(ds_state)
-		ds_state->Release();
-	if(blend_state)
-		blend_state->Release();
+	Clear();
 }
 
+void D3D11GraphicPipeline::Clear() {
+	vs=0;
+	ps=0; 
+	
+	if(rast_state)
+		rast_state->Release();
+	new_rast=true;
+	rast_state=0; 
+	
+	if(ds_state)
+		ds_state->Release();
+	new_ds=true;
+	ds_state=0; 
+	
+	if(blend_state)
+		blend_state->Release();
+	new_blend=true;
+	blend_state=0;
+	
+	input_stage.Clear();
+	output_stage.Clear();
+}
 
 void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
 	input_stage.SetPrimitiveTopology(newvalue);
@@ -194,8 +210,8 @@ void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &opt
 	new_rast = true;
 }
 
-void D3D11GraphicPipeline::GetRasterizationOption(RasterizationOption *option) {
-	*option = rast_opt;
+const RasterizationOption & D3D11GraphicPipeline::GetRasterizationOption() const {
+	return rast_opt;
 }
 
 void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &option) {
@@ -206,8 +222,8 @@ void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &optio
 	new_ds = true;
 }
 
-void D3D11GraphicPipeline::GetDepthStencilOption(DepthStencilOption *option) {
-	*option = ds_opt;
+const DepthStencilOption & D3D11GraphicPipeline::GetDepthStencilOption() const {
+	return ds_opt;
 }
 
 void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
@@ -218,8 +234,8 @@ void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
 	new_blend = true;
 }
 
-void D3D11GraphicPipeline::GetBlendOption(BlendOption *option) {
-	*option = blend_opt;
+const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
+	return blend_opt;
 }
 
 void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {

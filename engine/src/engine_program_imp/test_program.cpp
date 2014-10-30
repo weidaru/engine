@@ -17,12 +17,21 @@
 #include "engine_program.h"
 #include "engine.h"
 
+#include "renderer/rasterization_option.h"
 #include "renderer/graphic_pipeline.h"
 #include "renderer/graphic_resource_manager.h"
-#include "renderer/imp/directx11/d3d11_shader_reflection.h"
 #include "renderer/texture2d.h"
+#include "renderer/vertex_shader.h"
+#include "renderer/pixel_shader.h"
+#include "renderer/vertex_buffer.h"
 
 #include <stdio.h>
+
+struct Vertex {
+	float position[3];
+	float color[4];
+};
+
 
 namespace s2 {
 
@@ -41,13 +50,45 @@ public:
 		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
 		
 		//Create and set depth stencil buffer
-		RendererSetting renderer_setting;
-		Engine::GetSingleton()->GetRendererContext()->GetSetting(&renderer_setting);
+		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		Texture2D::Option ds_option;
 		Texture2D::Option::SetAsDepthStencilBuffer(&ds_option, renderer_setting.window_width, renderer_setting.window_height);
 		Texture2D *ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
+		
+		//Set clean  up
+		float red[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		pipeline->SetRenderTargetClearOption(0, true, red);
+		
+		//Set vertex shader
+		vs = manager->CreateVertexShader();
+		CHECK(vs->Initialize("d:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
+			vs->GetLastError();
+		pipeline->SetVertexShader(vs);
+		
+		//Set pixel shader
+		ps = manager->CreatePixelShader();
+		CHECK(ps->Initialize("d:\\github_repository\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
+			ps->GetLastError();
+		pipeline->SetPixelShader(ps);
+		
+		//Set vertex buffer
+		Vertex vertices[3] = {
+			{{2.4f,	2.3f,	1.0f},{0.0f, 1.0f, 0.0f, 1.0f}}, 
+			{{0.3f,	-0.3f, 2.5f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
+			{{-1.3f, 1.3f, 0.5f}, {0.0f, 1.0f, 0.0f, 1.0f}}
+		};
+		vb = manager->CreateVertexBuffer();
+		vb->Initialize(3, sizeof(Vertex), vertices, false);
+		pipeline->SetVertexBuffer(0, 0, vb);
+		
+		//Set view port.
+		RasterizationOption rast_option = pipeline->GetRasterizationOption();
+		rast_option.viewports.clear();
+		rast_option.viewports.push_back(
+				RasterizationOption::Rectangle(0.0f, 0.0f, (float)renderer_setting.window_width, (float)renderer_setting.window_height));
+		pipeline->SetRasterizationOption(rast_option);
 		
 		return true;
 	}
@@ -59,14 +100,15 @@ public:
 	
 	virtual void OneFrame(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-	
-		float red[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->SetRenderTargetClearOption(0, true, red);
+		
 		pipeline->Draw();
 	}
 	
 private:
 	Texture2D *ds_buffer;
+	VertexBuffer *vb;
+	VertexShader *vs;
+	PixelShader *ps;
 };
 
 AddBeforeMain(TestProgram)

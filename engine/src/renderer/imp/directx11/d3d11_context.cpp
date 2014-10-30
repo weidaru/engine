@@ -30,8 +30,8 @@ bool D3D11Context::SetSetting(const RendererSetting &_setting) {
 	return true;
 }
 
-void D3D11Context::GetSetting(RendererSetting *_setting) {
-	*_setting = setting;
+const RendererSetting & D3D11Context::GetSetting() const {
+	return setting;
 }
 
 void D3D11Context::PropagateSetting() {

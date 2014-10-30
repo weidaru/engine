@@ -63,7 +63,7 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 		long size = ftell(file);
 		fseek(file, 0, SEEK_SET);
 		char *buffer = new char[size];
-		fread(buffer, size, size, file);
+		fread(buffer, size, 1, file);
 		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "vs_5_0", flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}

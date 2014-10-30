@@ -73,11 +73,12 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	HRESULT result = 1;
 	
 	{
-		FILE* file = fopen(path.c_str(), "r");
+		FILE* file = fopen(path.c_str(), "rb");
 		fseek(file, 0, SEEK_END);
 		long size = ftell(file);
+		fseek(file, 0, SEEK_SET);
 		char *buffer = new char[size];
-		fread(buffer, size, size, file);
+		fread(buffer, size, 1, file);
 		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "ps_5_0", flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}

@@ -47,12 +47,18 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_
 		desc.CPUAccessFlags = 0;
 	}
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	
-	D3D11_SUBRESOURCE_DATA subresource;
-	subresource.pSysMem = data;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
 	
 	HRESULT result = 1;
-	result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &vb);
+	if(data) {
+		D3D11_SUBRESOURCE_DATA subresource;
+		subresource.pSysMem = data;
+		result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &vb);
+	} else {
+		result = manager->GetDevice()->CreateBuffer(&desc, 0, &vb);
+	}
+	
 	CHECK(!FAILED(result))<<"Cannot create vertex buffer. Error code: " <<::GetLastError();
 }
 
