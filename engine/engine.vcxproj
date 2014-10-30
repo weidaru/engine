@@ -29,6 +29,8 @@
     <ClInclude Include="src\renderer\imp\directx11\d3d11_texture2d.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_vertex_buffer.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_vertex_shader.h" />
+    <ClInclude Include="src\renderer\imp\directx11\pipeline_stage\d3d11_input_stage.h" />
+    <ClInclude Include="src\renderer\imp\directx11\pipeline_stage\d3d11_output_stage.h" />
     <ClInclude Include="src\renderer\imp\directx11\shader_typeinfo_manager.h" />
     <ClInclude Include="src\renderer\imp\directx11\video_card_info.h" />
     <ClInclude Include="src\renderer\index_buffer.h" />
@@ -67,6 +69,8 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_texture2d.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp" />
+    <ClCompile Include="src\renderer\imp\directx11\pipeline_stage\d3d11_input_stage.cpp" />
+    <ClCompile Include="src\renderer\imp\directx11\pipeline_stage\d3d11_output_stage.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\shader_typeinfo_manager.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\video_card_info.cpp" />
     <ClCompile Include="src\renderer\resource.cpp" />

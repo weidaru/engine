@@ -12,6 +12,7 @@ class D3D11VertexBuffer;
 class D3D11IndexBuffer;
 class D3D11VertexShader;
 class D3D11ShaderReflection;
+class D3D11GraphicResourceManager;
 
 class D3D11InputStage {
 private:
@@ -45,11 +46,14 @@ public:
 	void Flush();
 	
 private:
-	SetInput();
-	SetInputLayout(const D3D11VertexShader &shader);
+	void SetInput();
+	void SetInputLayout(const D3D11VertexShader &shader);
 	
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
 	s2string DumpVertexBufferInfo(const std::vector<VBInfo> infos);
+
+	D3D11InputStage(const D3D11InputStage &);
+	D3D11InputStage & operator=(const D3D11InputStage &);
 	
 private:
 	D3D11GraphicResourceManager *manager;
@@ -57,7 +61,7 @@ private:
 	bool new_input;
 	D3D11IndexBuffer *ib;
 	std::vector<VBInfo> vbs;
-	PrimitiveTopology topology;
+	GraphicPipeline::PrimitiveTopology topology;
 	ID3D11InputLayout *input_layout;
 	
 };

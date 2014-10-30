@@ -38,7 +38,7 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_
 	ele_bytewidth = per_ele_size;
 	
 	D3D11_BUFFER_DESC desc;
-	desc.ByteWidth = element_count * element_size;
+	desc.ByteWidth = element_count * per_ele_size;
 	if(is_dynamic) {
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -58,7 +58,7 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic) {
 	type_name = type_info.GetName();
-	this->Initialize(element_count*type_info.GetSize(), data, is_dynamic);
+	this->Initialize(element_count, type_info.GetSize(), data, is_dynamic);
 }
 
 bool D3D11VertexBuffer::IsDynamic() {

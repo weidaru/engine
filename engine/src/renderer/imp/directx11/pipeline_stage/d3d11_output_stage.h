@@ -1,11 +1,14 @@
 #ifndef D3D11_OUTPUT_STAGE_H_
 #define D3D11_OUTPUT_STAGE_H_
 
+#include <stdint.h>
+
 namespace s2 {
 
 class D3D11Texture2D;
 class Resource;
 class Texture2D;
+class D3D11GraphicResourceManager;
 
 class D3D11OutputStage {
 private:

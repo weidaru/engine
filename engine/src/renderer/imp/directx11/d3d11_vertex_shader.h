@@ -36,7 +36,7 @@ public:
 	/*****************D3D11 exclusive.******************/
 	void Setup();
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
-	ID3DBlob * GetBlob() { return blob;}
+	ID3DBlob * GetBlob() const { return blob;}
 	
 protected:
 	//That is everything in constant buffer, in the sense of Directx 11.

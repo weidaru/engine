@@ -12,6 +12,8 @@ struct ID3D10Blob;
 typedef ID3D10Blob ID3DBlob;
 struct _D3D11_SHADER_DESC;
 typedef struct _D3D11_SHADER_DESC D3D11_SHADER_DESC;
+struct _D3D11_SHADER_TYPE_DESC;
+typedef struct _D3D11_SHADER_TYPE_DESC D3D11_SHADER_TYPE_DESC;
 struct ID3D11ShaderReflectionType;
 
 namespace s2 {

@@ -26,10 +26,12 @@ namespace s2 {
 
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager)
 	: 	manager(_manager), 
+		input_stage(_manager),
 		vs(0), ps(0), 
 		new_rast(true), rast_state(0), 
 		new_ds(true), ds_state(0), 
-		new_blend(true), blend_state(0) {
+		new_blend(true), blend_state(0),
+		output_stage(_manager) {
 
 }
 
@@ -233,7 +235,7 @@ void D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
 }
 
 Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
-	output_stage.GetDepthStencilBuffer();
+	return output_stage.GetDepthStencilBuffer();
 }
 
 void D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
@@ -302,7 +304,7 @@ bool D3D11GraphicPipeline::Validate(s2string *error) {
 void D3D11GraphicPipeline::Draw() {
 	//Setup input
 	if(vs && new_vs)
-		input_stage.Setup(&(vs->GetReflection()));
+		input_stage.Setup(vs);
 	else
 		input_stage.Setup(0);
 

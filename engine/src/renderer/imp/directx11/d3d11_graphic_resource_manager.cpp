@@ -14,6 +14,11 @@
 
 #include "video_card_info.h"
 
+#include "renderer/texture1d.h"
+#include "renderer/texture2d.h"
+#include "renderer/texture3d.h"
+#include "renderer/sampler.h"
+
 
 namespace s2 {
 
@@ -115,9 +120,8 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);
 }
 
-D3D11VertexBuffer * D3D11GraphicResourceManager::CreateVertexBuffer(unsigned int size, const void* data, bool is_dynamic) {
+D3D11VertexBuffer * D3D11GraphicResourceManager::CreateVertexBuffer() {
 	D3D11VertexBuffer *buffer = new D3D11VertexBuffer(this);
-	buffer->Initialize(size, data, is_dynamic);
 	vb_map[buffer->GetID()] = buffer;
 	return buffer;
 }
@@ -133,9 +137,8 @@ void D3D11GraphicResourceManager::RemoveVertexBuffer(unsigned int id) {
 	}
 }
 	
-D3D11IndexBuffer * D3D11GraphicResourceManager::CreateIndexBuffer(unsigned int size, const uint32_t* data, bool is_dynamic) {
+D3D11IndexBuffer * D3D11GraphicResourceManager::CreateIndexBuffer() {
 	D3D11IndexBuffer *buffer = new D3D11IndexBuffer(this);
-	buffer->Initialize(size, data, is_dynamic);
 	ib_map[buffer->GetID()] = buffer;
 	return buffer;
 }
@@ -151,7 +154,7 @@ void D3D11GraphicResourceManager::RemoveIndexBuffer(unsigned int id) {
 	}
 }
 	
-Texture1D * D3D11GraphicResourceManager::CreateTexture1D(const Texture1D::Option &option) {
+Texture1D * D3D11GraphicResourceManager::CreateTexture1D() {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
@@ -165,9 +168,8 @@ void D3D11GraphicResourceManager::RemoveTexture1D(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
 	
-D3D11Texture2D * D3D11GraphicResourceManager::CreateTexture2D(const Texture2D::Option &option) {
+D3D11Texture2D * D3D11GraphicResourceManager::CreateTexture2D() {
 	D3D11Texture2D *texture = new D3D11Texture2D(this);
-	texture->Initialize(option);
 	tex2d_map[texture->GetID()] = texture;
 	return texture;
 }
@@ -187,7 +189,7 @@ D3D11Texture2D * D3D11GraphicResourceManager::GetBackBuffer() {
 	return back_buffer;
 }	
 
-Texture3D * D3D11GraphicResourceManager::CreateTexture3D(const Texture1D::Option &option) {
+Texture3D * D3D11GraphicResourceManager::CreateTexture3D() {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
@@ -201,7 +203,7 @@ void D3D11GraphicResourceManager::RemoveTexture3D(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
 	
-Sampler * D3D11GraphicResourceManager::CreateSampler(const Texture1D::Option &option) {
+Sampler * D3D11GraphicResourceManager::CreateSampler() {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
@@ -215,13 +217,8 @@ void D3D11GraphicResourceManager::RemoveSampler(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
 
-D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader(const s2string &path, const s2string &entry_point) {
+D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader() {
 	D3D11VertexShader *shader = new D3D11VertexShader(this);
-	if(shader->Initialize(path, entry_point) == false) {
-		error=shader->GetLastError();
-		delete shader;
-		return 0;
-	}
 	vs_map[shader->GetID()] = shader;
 	return shader;
 }
@@ -237,13 +234,8 @@ void D3D11GraphicResourceManager::RemoveVertexShader(unsigned int id) {
 	}
 }
 
-D3D11PixelShader * D3D11GraphicResourceManager::CreatePixelShader(const s2string &path, const s2string &entry_point) {
+D3D11PixelShader * D3D11GraphicResourceManager::CreatePixelShader() {
 	D3D11PixelShader *shader = new D3D11PixelShader(this);
-	if(shader->Initialize(path, entry_point) == false) {
-		error = shader->GetLastError();
-		delete shader;
-		return 0;
-	}
 	ps_map[shader->GetID()] = shader;
 	return shader;
 }

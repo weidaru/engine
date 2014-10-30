@@ -6,18 +6,27 @@
 #undef ERROR
 
 #include <glog/logging.h>
+#include <algorithm>
 
 #include "d3d11_input_stage.h"
 #include "renderer/imp/directx11/d3d11_vertex_buffer.h"
 #include "renderer/imp/directx11/d3d11_index_buffer.h"
 #include "renderer/imp/directx11/d3d11_vertex_shader.h"
 #include "renderer/imp/directx11/d3d11_shader_reflection.h"
+#include "renderer/imp/directx11/d3d11_graphic_resource_manager.h"
+#include "renderer/imp/directx11/d3d11_enum_converter.h"
+
+#ifdef NDEBUG
+	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#else
+	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#endif
 
 
 namespace s2 {
 
 D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
-			: 	manager(_manager), {
+			: 	manager(_manager), input_layout(0) {
 	Clear();
 }
 
@@ -25,7 +34,7 @@ D3D11InputStage::~D3D11InputStage() {
 	Clear();
 }
 
-D3D11InputStage::Clear() {
+void D3D11InputStage::Clear() {
 	new_input = true;
 	ib = 0;
 	vbs.clear();
@@ -44,7 +53,7 @@ GraphicPipeline::PrimitiveTopology D3D11InputStage::GetPrimitiveTopology() {
 	return topology;
 }
 
-void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) {
+void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *_buf) {
 	new_input = true;
 	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
 	int i = 0;
@@ -67,7 +76,7 @@ D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer() {
 	return ib;
 }
 
-void D3D11InputStage::SetupInput() {
+void D3D11InputStage::SetInput() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	//Set primitive topology
 	context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
@@ -105,8 +114,8 @@ void D3D11InputStage::SetupInput() {
 void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	if(new_input) 
 		SetInput();
-		
-	if(new_input || reflect)
+	
+	if(shader)
 		SetInputLayout(*shader);
 }
 
@@ -128,7 +137,8 @@ void D3D11InputStage::Flush() {
 }
 
 bool D3D11InputStage::Validate(const D3D11VertexShader &shader, s2string *message) const {
-	
+	CHECK(false)<<"Disabled";
+	return true;
 }
 
 namespace {
@@ -146,6 +156,8 @@ DXGI_FORMAT GetFormat(const D3D11ShaderReflection::Parameter &p) {
 		return int_list[p.size/4];
 	if(p.type_name == "uint")
 		return uint_list[p.size/4];
+	CHECK(false)<<"Unexpected parameter typename "<<p.type_name;
+	return DXGI_FORMAT_R32_FLOAT;
 }
 
 }
@@ -158,11 +170,11 @@ s2string D3D11InputStage::DumpVertexBufferInfo(const std::vector<VBInfo> infos) 
 	char buffer[1024*8];
 	char *head = buffer;
 	for(unsigned int i=0; i<infos.size(); i++) {
-		if(infos[i].vs)
-			head += sprintf_s(head, "VertexBuffer %d, start at input %d, ends at input %d.\n", 
+		if(infos[i].vb)
+			head += sprintf_s(head, 1024*8, "VertexBuffer %d, start at input %d, ends at input %d.\n", 
 											i, 
 											infos[i].start_index, 
-											infos[i].start_index+infos[i].vs->GetElementCount()-1);
+											infos[i].start_index+infos[i].vb->GetElementCount()-1);
 	}
 	return s2string(buffer);
 }
@@ -185,7 +197,7 @@ typedef struct D3D11_INPUT_ELEMENT_DESC {
 void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 	const D3D11ShaderReflection &reflect = shader.GetReflection();
 	if(input_layout) {
-		input_layout.Release();
+		input_layout->Release();
 		input_layout = 0;
 	}
 		
@@ -194,14 +206,14 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 	
 	for(unsigned int i=0; i<size; i++) {
 		const D3D11ShaderReflection::Parameter &p = reflect.GetInput(i);
-		desc[i].SemanticName = p.semantic.c_str();
-		desc[i].SemanticIndex = p.semantic_index;
-		desc[i].Format = GetFormat(p);
+		descs[i].SemanticName = p.semantic.c_str();
+		descs[i].SemanticIndex = p.semantic_index;
+		descs[i].Format = GetFormat(p);
 		//All the instance semantics starts with Instance_
 		if(p.semantic.substr(0, 9) == "Instance_")
-			desc[i].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+			descs[i].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
 		else
-			desc[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			descs[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	}
 	
 	std::vector<std::vector<VBInfo>::iterator> pool;
@@ -210,10 +222,10 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 			pool.push_back(it);
 	}
 	
-	sort(pool.begin(), pool.end(), VBCompare);
+	std::sort(pool.begin(), pool.end(), VBCompare);
 	
 	unsigned int head = 0;
-	for(std::vector<std::vector<VBInfo>::iterator> it=pool.begin(); it != pool.end(); it++) {
+	for(std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin(); it != pool.end(); it++) {
 		const VBInfo &vbinfo = **it;
 		if(head < vbinfo.start_index) {
 			CHECK(false)<<"Shader input "<<head<<" is not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
@@ -229,7 +241,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		CHECK(false)<<"Vertex buffer overflows input. Dumping:\n"<<DumpVertexBufferInfo(vbs);
 	}
 	
-	std::vector<std::vector<VBInfo>::iterator> it=pool.begin();
+	std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin();
 	unsigned int offset = 0;
 	for(unsigned int i=0; i<size; i++) {
 		if((**it).start_index < i) {
@@ -238,11 +250,11 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		}
 		const D3D11ShaderReflection::Parameter &p = reflect.GetInput(i);
 		const VBInfo &vbinfo = **it;
-		CHECK(i<=vbinfo.start_info);
-		desc[i].InputSlot = *it - vbs.begin();
-		desc[i].AlignedByteOffset = offset;
+		CHECK(i<=vbinfo.start_index);
+		descs[i].InputSlot = *it - vbs.begin();
+		descs[i].AlignedByteOffset = offset;
 		offset += p.size;
-		desc[i].InstanceDataStepRate = 1; 			//Make this 1 which means 1 data for 1 instance.
+		descs[i].InstanceDataStepRate = 1; 			//Make this 1 which means 1 data for 1 instance.
 	}
 	
 	ID3D11Device *device = manager->GetDevice();

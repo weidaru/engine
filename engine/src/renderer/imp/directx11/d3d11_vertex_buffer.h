@@ -28,7 +28,7 @@ private:
 	void Clear();
 
 protected:
-	virtual void Initialize(unsigned int element_count, const void *data, const TypeInfo &type_info, bool is_dynamic);
+	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic);
 
 private:
 	D3D11GraphicResourceManager *manager;

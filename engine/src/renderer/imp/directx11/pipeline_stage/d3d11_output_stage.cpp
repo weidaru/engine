@@ -13,6 +13,13 @@
 #include "renderer/imp/directx11/d3d11_context.h"
 #include "renderer/imp/directx11/d3d11_texture2d.h"
 
+#ifdef NDEBUG
+	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#else
+	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#endif
+
+namespace s2 {
 
 D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager) 
 		: manager(_manager){
@@ -23,7 +30,7 @@ D3D11OutputStage::~D3D11OutputStage() {
 	Clear();
 }
 
-D3D11OutputStage::Clear() {
+void D3D11OutputStage::Clear() {
 	new_output = true;
 	rts.clear();
 	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
@@ -114,4 +121,7 @@ void D3D11OutputStage::SetOutput() {
 		context->OMSetRenderTargets(last_index+1, array, ds.tex?ds.tex->GetDepthStencilView():0);
 		delete[] array;
 	}
+}
+
+
 }
