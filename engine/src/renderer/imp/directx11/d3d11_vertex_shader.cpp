@@ -36,7 +36,7 @@
 namespace s2 {
 
 D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
-		manager(_manager), shader(0), reflect(0) {
+		manager(_manager), shader(0), reflect(0), blob(0) {
 }
 
 /*TODO: Find a way to cache the program as it will need to be compiled every time a 
@@ -90,8 +90,7 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 		cbs[i]->Initialize(cb_reflect.size, 0);
 	}
 	
-	if(shader_blob)
-		shader_blob->Release();
+	blob = shader_blob;
 	if(error_blob)
 		error_blob->Release();
 	return true;
@@ -101,6 +100,10 @@ D3D11VertexShader::~D3D11VertexShader() {
 	if(shader) {
 		shader->Release();
 		shader = 0;
+	}
+	if(blob) {
+		blob->Release();
+		blob = 0;
 	}
 	delete reflect;
 	for(unsigned int i=0; i<cbs.size(); i++) {
@@ -176,7 +179,7 @@ Resource * D3D11VertexShader::GetResource(const s2string &name) {
 	return 0;
 }
 
-void D3D11VertexShader::Flush() {
+void D3D11VertexShader::Setup() {
 	if(shader) {
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->VSSetShader(shader, 0, 0);

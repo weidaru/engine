@@ -6,6 +6,8 @@
 #include <vector>
 
 struct ID3D11PixelShader;
+struct ID3D10Blob;
+typedef ID3D10Blob ID3DBlob;
 
 namespace s2 {
 
@@ -29,9 +31,10 @@ public:
 	virtual Resource * GetResource(const s2string &name);
 	
 	virtual const s2string & GetLastError() { return error; }
+	ID3DBlob * GetBlob() { return blob; }
 	
 	/*****************D3D11 exclusive.******************/
-	void Flush();
+	void Setup();
 	
 protected:
 	//That is everything in constant buffer, in the sense of Directx 11.
@@ -47,6 +50,7 @@ private:
 	
 	ID3D11PixelShader *shader;
 	D3D11ShaderReflection *reflect;
+	ID3DBlob *blob;
 	s2string error;
 	
 };

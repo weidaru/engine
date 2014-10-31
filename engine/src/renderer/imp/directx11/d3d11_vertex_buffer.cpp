@@ -31,6 +31,8 @@ void D3D11VertexBuffer::Clear() {
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_ele_size, const void *data, bool is_dynamic) {
 	Clear();
+	CHECK(element_count>0 && per_ele_size>0)<<"element count and element bytewidth must not be 0";
+	
 
 	ele_count = element_count;
 	ele_bytewidth = per_ele_size;

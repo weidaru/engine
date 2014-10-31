@@ -51,12 +51,12 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 	return input_stage.GetPrimitiveTopology();
 }
 
-void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf, VertexBufferUsage usage) {
-	input_stage.SetVertexBuffer(index, start_input_index, buf, usage);
+void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) {
+	input_stage.SetVertexBuffer(index, start_input_index, buf);
 }
 
-D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, unsigned int *start_input_index, VertexBufferUsage *usage) {
-	return input_stage.GetVertexBuffer(index, start_input_index, usage);
+D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
+	return input_stage.GetVertexBuffer(index, start_input_index);
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
@@ -300,64 +300,48 @@ bool D3D11GraphicPipeline::Validate(s2string *error) {
 }
 
 void D3D11GraphicPipeline::Draw() {
-	input_stage.Flush();
+	//Setup input
+	if(vs && new_vs)
+		input_stage.Setup(&(vs->GetReflection()));
+	else
+		input_stage.Setup(0);
 
 	if(vs && new_vs) {
-		vs->Flush();
+		vs->Setup();
 		new_vs = false;
 	}
 	if(ps && new_ps) {
-		ps->Flush();
+		ps->Setup();
 		new_ps = false;
 	}
 	
-	//Flush rasterization option.
+	//Setup rasterization option.
 	if(new_rast) {
 		SetRasterizationOption();
 		new_rast = false;
 	}
 	
 	
-	//Flush depth stencil option.
+	//Setup depth stencil option.
 	if(new_ds) {
 		SetDepthStencilOption();
 		new_ds = false;
 	}
 	
-	//Flush blend option.
+	//Setup blend option.
 	if(new_blend) {
 		SetBlendOption();
 		new_blend = false;
 	}
-	output_stage.Flush();
 	
-	//Do clear.
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	for(unsigned int i=0; i<rts.size(); i++) {
-		if(rts[i].enable_clear)
-			context->ClearRenderTargetView(rts[i].tex->GetRenderTargetView(), rts[i].rgba);
-	}
-	if(ds.enable_depth_clear || ds.enable_stencil_clear) {
-		unsigned int flag = ds.enable_depth_clear ? D3D11_CLEAR_DEPTH:0;
-		flag |= ds.enable_stencil_clear ? D3D11_CLEAR_STENCIL:0;
-		
-		context->ClearDepthStencilView(ds.tex->GetDepthStencilView(), flag, ds.depth, ds.stencil);
-	}
+	//Setup output
+	output_stage.Setup();
 	
-	//Start drawing.
-	if(ib)
-		context->DrawIndexed(ib->GetSize()/sizeof(IndexBuffer::InputType), 0, 0);
-	else {
-		unsigned int index = -1;
-		for(unsigned int i=0; i<vbs.size(); i++) {
-			if(vbs[i].vb) {
-				index = i;
-				break;
-			}
-		}
-		if(index != -1)
-			context->Draw(vbs[index].vb->GetSize()/4, 0);			//Per vertex size is 4 for now, see line 391
-	}
+	//Do clear
+	output_stage.ClearRenderTargets();
+	
+	//Flush data in input stage and start drawing.
+	input_stage.Flush();
 }
 
 

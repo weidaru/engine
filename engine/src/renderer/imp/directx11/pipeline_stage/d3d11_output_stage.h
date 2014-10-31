@@ -47,8 +47,10 @@ public:
 	void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
 	void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil);
 	
-	Clear();
-	Flush();
+	void Clear();
+	
+	void ClearRenderTargets();
+	void Setup();
 	
 private:
 	void SetOutput();

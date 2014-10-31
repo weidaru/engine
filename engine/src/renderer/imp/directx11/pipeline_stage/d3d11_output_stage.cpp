@@ -9,6 +9,8 @@
 
 #include "d3d11_output_stage.h"
 
+#include "renderer/imp/directx11/d3d11_graphic_resource_manager.h"
+#include "renderer/imp/directx11/d3d11_context.h"
 #include "renderer/imp/directx11/d3d11_texture2d.h"
 
 
@@ -75,29 +77,41 @@ void D3D11OutputStage::GetDepthStencilBufferClearOption(bool *enable_depth_clear
 	*stencil = ds.stencil;
 }
 
-void D3D11OutputStage::Flush() {
+void D3D11OutputStage::Setup() {
 	if(new_output)
 		SetOutput();
+}
+
+void D3D11OutputStage::ClearRenderTargets() {
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	for(unsigned int i=0; i<rts.size(); i++) {
+		if(rts[i].enable_clear)
+			context->ClearRenderTargetView(rts[i].tex->GetRenderTargetView(), rts[i].rgba);
+	}
+	if(ds.enable_depth_clear || ds.enable_stencil_clear) {
+		unsigned int flag = ds.enable_depth_clear ? D3D11_CLEAR_DEPTH:0;
+		flag |= ds.enable_stencil_clear ? D3D11_CLEAR_STENCIL:0;
+		
+		context->ClearDepthStencilView(ds.tex->GetDepthStencilView(), flag, ds.depth, ds.stencil);
+	}
 }
 
 void D3D11OutputStage::SetOutput() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	//Set render target.
-	{
-		int last_index = -1;
-		for(int i=rts.size()-1; i>=0; i--) {
-			if(rts[i].tex) {
-				last_index = i;
-				break;
-			}
+	int last_index = -1;
+	for(int i=rts.size()-1; i>=0; i--) {
+		if(rts[i].tex) {
+			last_index = i;
+			break;
 		}
-		if(last_index != -1) {
-			ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
-			for(int i=0; i<=last_index; i++) {
-				array[i] = rts[i].tex->GetRenderTargetView();
-			}
-			context->OMSetRenderTargets(last_index+1, array, ds.tex?ds.tex->GetDepthStencilView():0);
-			delete[] array;
+	}
+	if(last_index != -1) {
+		ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
+		for(int i=0; i<=last_index; i++) {
+			array[i] = rts[i].tex->GetRenderTargetView();
 		}
+		context->OMSetRenderTargets(last_index+1, array, ds.tex?ds.tex->GetDepthStencilView():0);
+		delete[] array;
 	}
 }

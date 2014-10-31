@@ -30,7 +30,7 @@
 namespace s2 {
 
 D3D11PixelShader::D3D11PixelShader(D3D11GraphicResourceManager *_manager)
-			: manager(_manager), shader(0), reflect(0){
+			: manager(_manager), shader(0), reflect(0), blob(0){
 	cbs.resize(D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, 0);
 }
 
@@ -46,6 +46,14 @@ void D3D11PixelShader::Clear() {
 	if(shader) {
 		shader->Release();
 		shader = 0;
+	}
+	if(blob) {
+		blob->Release();
+		blob =0;
+	}
+	delete reflect;
+	for(unsigned int i=0; i<cbs.size(); i++) {
+		delete cbs[i];
 	}
 }
 
@@ -80,25 +88,24 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 		if(error_blob)
 			error_blob->Release();
 		return false;
-	} else {
-		manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
-		//Setup reflection and constant buffer.
-		reflect = new D3D11ShaderReflection(path, shader_blob);
-		CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-					<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
-		cbs.resize(reflect->GetConstantBufferSize());
-		for(unsigned int i=0; i<cbs.size(); i++) {
-			const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
-			cbs[i] = new D3D11ConstantBuffer(manager);
-			cbs[i]->Initialize(cb_reflect.size, 0);
-		}
-		
-		if(shader_blob)
-			shader_blob->Release();
-		if(error_blob)
-			error_blob->Release();
-		return true;
+	} 
+	manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
+	//Setup reflection and constant buffer.
+	reflect = new D3D11ShaderReflection(path, shader_blob);
+	CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
+				<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
+	cbs.resize(reflect->GetConstantBufferSize());
+	for(unsigned int i=0; i<cbs.size(); i++) {
+		const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
+		cbs[i] = new D3D11ConstantBuffer(manager);
+		cbs[i]->Initialize(cb_reflect.size, 0);
 	}
+	
+	blob = shader_blob;
+	if(error_blob)
+		error_blob->Release();
+	return true;
+
 }
 
 bool D3D11PixelShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
@@ -165,7 +172,7 @@ Resource * D3D11PixelShader::GetResource(const s2string &name) {
 	return 0;
 }
 	
-void D3D11PixelShader::Flush() {
+void D3D11PixelShader::Setup() {
 	if(shader) {
 		HRESULT result = 1;
 		ID3D11DeviceContext *context = manager->GetDeviceContext();

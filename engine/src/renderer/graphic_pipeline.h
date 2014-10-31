@@ -39,17 +39,12 @@ public:
 		TRIANGLE_STRIP
 	};
 
-	enum VertexBufferUsage {
-		PER_VERTEX,
-		PER_INSTANCE
-	};
-
 public:
 	//Input
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
-	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf, VertexBufferUsage usage) = 0;
-	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index, VertexBufferUsage *usage) = 0;
+	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
+	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index) = 0;
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
 
