@@ -12,9 +12,9 @@ public:
 
 public:
 	virtual 					~IndexBuffer() {}
-	virtual void 			Initialize(unsigned int size, const InputType *data, bool is_dynamic) = 0;
-	virtual bool 			IsDynamic() = 0;
-	virtual unsigned int GetSize() = 0;
+	virtual void 			Initialize(unsigned int element_count, const InputType *data, bool is_dynamic) = 0;
+	virtual bool 			IsDynamic() const = 0;
+	virtual unsigned int GetElementCount() const = 0;
 	virtual void * 			Map() = 0;
 	virtual void 			UnMap() = 0;
 };

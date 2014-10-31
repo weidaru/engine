@@ -114,7 +114,7 @@ void D3D11InputStage::SetInput() {
 void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	if(new_input) 
 		SetInput();
-	
+	new_input = false;
 	if(shader)
 		SetInputLayout(*shader);
 }
@@ -122,7 +122,7 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 void D3D11InputStage::Flush() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	if(ib) {
-		context->DrawIndexed(ib->GetSize()/sizeof(IndexBuffer::InputType), 0, 0);
+		context->DrawIndexed(ib->GetElementCount(), 0, 0);
 	} else {
 		unsigned int index = -1;
 		for(unsigned int i=0; i<vbs.size(); i++) {
@@ -132,7 +132,7 @@ void D3D11InputStage::Flush() {
 			}
 		}
 		if(index != -1)
-			context->Draw(vbs[index].vb->GetElementBytewidth(), 0);	
+			context->Draw(vbs[index].vb->GetElementCount(), 0);	
 	}
 }
 
@@ -151,11 +151,11 @@ DXGI_FORMAT GetFormat(const D3D11ShaderReflection::Parameter &p) {
 	static DXGI_FORMAT uint_list[4] = {	DXGI_FORMAT_R32_UINT, DXGI_FORMAT_R32G32_UINT, 
 															DXGI_FORMAT_R32G32B32_UINT, DXGI_FORMAT_R32G32B32A32_UINT};
 	if(p.type_name == "float")
-		return float_list[p.size/4];
+		return float_list[p.size/4-1];
 	if(p.type_name == "int")
-		return int_list[p.size/4];
+		return int_list[p.size/4-1];
 	if(p.type_name == "uint")
-		return uint_list[p.size/4];
+		return uint_list[p.size/4-1];
 	CHECK(false)<<"Unexpected parameter typename "<<p.type_name;
 	return DXGI_FORMAT_R32_FLOAT;
 }
@@ -210,10 +210,13 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		descs[i].SemanticIndex = p.semantic_index;
 		descs[i].Format = GetFormat(p);
 		//All the instance semantics starts with Instance_
-		if(p.semantic.substr(0, 9) == "Instance_")
+		if(p.semantic.substr(0, 9) == "Instance_") {
 			descs[i].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
-		else
+			descs[i].InstanceDataStepRate = 1; 			//Make this 1 which means 1 data for 1 instance.
+		} else {
 			descs[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			descs[i].InstanceDataStepRate = 0; 
+		}
 	}
 	
 	std::vector<std::vector<VBInfo>::iterator> pool;
@@ -232,7 +235,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		} else if(head > vbinfo.start_index) {
 			CHECK(false)<<"Shader input "<<head<<" is covered by multiple vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
 		} else {
-			head = vbinfo.start_index + vbinfo.vb->GetElementCount();
+			head = vbinfo.start_index + vbinfo.vb->GetElementMemberCount();
 		}
 	}
 	if(head < size) {
@@ -244,24 +247,24 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 	std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin();
 	unsigned int offset = 0;
 	for(unsigned int i=0; i<size; i++) {
-		if((**it).start_index < i) {
+		if((**it).start_index + (**it).vb->GetElementMemberCount() < i) {
 			it++;
 			offset = 0;
 		}
 		const D3D11ShaderReflection::Parameter &p = reflect.GetInput(i);
 		const VBInfo &vbinfo = **it;
-		CHECK(i<=vbinfo.start_index);
+		CHECK(i<=(vbinfo.start_index+vbinfo.vb->GetElementMemberCount()));
 		descs[i].InputSlot = *it - vbs.begin();
 		descs[i].AlignedByteOffset = offset;
 		offset += p.size;
-		descs[i].InstanceDataStepRate = 1; 			//Make this 1 which means 1 data for 1 instance.
 	}
 	
 	ID3D11Device *device = manager->GetDevice();
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	HRESULT result = 1;
 	result = device->CreateInputLayout(descs, size, shader.GetBlob()->GetBufferPointer(), shader.GetBlob()->GetBufferSize(), &input_layout);
 	CHECK(!FAILED(result))<<"Fail to create input layout error "<<::GetLastError();
-	
+	context->IASetInputLayout(input_layout);
 	delete descs;
 }
 

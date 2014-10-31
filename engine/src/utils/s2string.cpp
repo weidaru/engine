@@ -9,7 +9,7 @@ void S2StringFormat(s2string *str, const char *pattern, ...) {
 	va_list args;
     va_start(args, pattern);
 	char buf[1024];
-	sprintf_s(buf, 1024, pattern, args);
+	vsprintf_s(buf, 1024, pattern, args);
 	*str = buf;
     va_end(args);
 }

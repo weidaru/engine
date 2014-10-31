@@ -13,13 +13,15 @@ class D3D11VertexBuffer : public VertexBuffer {
 public:
 	D3D11VertexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11VertexBuffer();
-	virtual void Initialize(unsigned int element_count, unsigned int per_ele_size, const void *data, bool is_dynamic);
-	virtual bool IsDynamic();
-	virtual unsigned int GetElementCount();
-	virtual unsigned int GetElementBytewidth();
+	virtual void Initialize(	unsigned int element_count, unsigned int element_member_count,
+									unsigned int per_ele_size, const void *data, bool is_dynamic);
+	virtual bool IsDynamic() const;
+	virtual unsigned int GetElementCount() const;
+	virtual unsigned int GetElementBytewidth() const;
+	virtual unsigned int GetElementMemberCount() const;
 	virtual void * Map();
 	virtual void UnMap();
-	virtual s2string GetElementTypeName() { return type_name; }
+	virtual s2string GetElementTypeName() const { return type_name; }
 
 	/**************D3D11 exclusive************/
 	ID3D11Buffer * GetInternal() { return vb; }
@@ -34,6 +36,7 @@ private:
 	D3D11GraphicResourceManager *manager;
 	ID3D11Buffer *vb;
 	unsigned int ele_count;
+	unsigned int ele_member_count;
 	unsigned int ele_bytewidth;
 	s2string type_name;
 	

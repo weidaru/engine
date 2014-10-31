@@ -87,6 +87,7 @@ void D3D11OutputStage::GetDepthStencilBufferClearOption(bool *enable_depth_clear
 void D3D11OutputStage::Setup() {
 	if(new_output)
 		SetOutput();
+	new_output = false;
 }
 
 void D3D11OutputStage::ClearRenderTargets() {

@@ -56,11 +56,11 @@ struct DepthStencilOption {
 		stencil_replace_value = 0xFF;
 		front_compare = NEVER;
 		front_fail = KEEP;
-		front_fail = KEEP;
+		front_pass = KEEP;
 		front_stencil_pass_depth_fail = KEEP;
 		back_compare = NEVER;
 		back_fail = KEEP;
-		back_fail = KEEP;
+		back_pass = KEEP;
 		back_stencil_pass_depth_fail = KEEP;
 	}
 };

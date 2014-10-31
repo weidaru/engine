@@ -15,9 +15,9 @@ class D3D11IndexBuffer : public IndexBuffer {
 public:
 	D3D11IndexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11IndexBuffer();
-	virtual void Initialize(unsigned int size, const InputType *data, bool is_dynamic);
-	virtual bool IsDynamic();
-	virtual unsigned int GetSize();
+	virtual void Initialize(unsigned int element_count, const InputType *data, bool is_dynamic);
+	virtual bool IsDynamic() const;
+	virtual unsigned int GetElementCount() const;
 	virtual void * Map();
 	virtual void UnMap();
 	
@@ -30,7 +30,7 @@ private:
 private:
 	D3D11GraphicResourceManager *manager;
 	ID3D11Buffer *ib;
-	s2string error;
+	unsigned int ele_count;
 };
 
 }

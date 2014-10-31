@@ -73,9 +73,9 @@ public:
 	
 	
 private:
-	void SetRasterizationOption();
-	void SetDepthStencilOption();
-	void SetBlendOption();
+	void FlushRasterizationOption();
+	void FlushDepthStencilOption();
+	void FlushBlendOption();
 	
 private:
 	D3D11GraphicResourceManager *manager;

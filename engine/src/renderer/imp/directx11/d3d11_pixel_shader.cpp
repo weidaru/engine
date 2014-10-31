@@ -175,28 +175,18 @@ Resource * D3D11PixelShader::GetResource(const s2string &name) {
 	
 void D3D11PixelShader::Setup() {
 	if(shader) {
-		HRESULT result = 1;
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->PSSetShader(shader, 0, 0);
 		
 		//Set constant buffer.
-		{
-			int last_index = -1;
-			for(int i=cbs.size()-1; i>=0; i--) {
-				if(cbs[i]) {
-					last_index = i;
-					break;
-				}
+		if(!cbs.empty()) {
+			ID3D11Buffer **array = new ID3D11Buffer *[cbs.size()];
+			for(unsigned int i=0; i<cbs.size(); i++) {
+				cbs[i]->Flush();
+				array[i] = cbs[i]->GetInternal();
 			}
-			
-			if(last_index != -1) {
-				ID3D11Buffer **array = new ID3D11Buffer *[last_index+1];
-				for(int i=0; i<=last_index; i++) {
-					array[i] = cbs[i]->GetInternal();
-				}
-				context->PSSetConstantBuffers(0, last_index+1, array);
-				delete[] array;
-			}
+			context->VSSetConstantBuffers(0, cbs.size(), array);
+			delete[] array;
 		}
 	}
 }

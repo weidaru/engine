@@ -14,7 +14,7 @@
 namespace s2 {
 
 D3D11VertexBuffer::D3D11VertexBuffer(D3D11GraphicResourceManager *_manager)
-		: manager(_manager),vb(0), ele_count(0), ele_bytewidth(0){
+		: manager(_manager),vb(0), ele_count(0), ele_member_count(0), ele_bytewidth(0){
 
 }
 
@@ -29,12 +29,14 @@ void D3D11VertexBuffer::Clear() {
 	}
 }
 
-void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_ele_size, const void *data, bool is_dynamic) {
+void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int element_member_count,
+													unsigned int per_ele_size, const void *data, bool is_dynamic) {
 	Clear();
 	CHECK(element_count>0 && per_ele_size>0)<<"element count and element bytewidth must not be 0";
 	
 
 	ele_count = element_count;
+	ele_member_count = element_member_count;
 	ele_bytewidth = per_ele_size;
 	
 	D3D11_BUFFER_DESC desc;
@@ -64,24 +66,29 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int per_
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic) {
 	type_name = type_info.GetName();
-	this->Initialize(element_count, type_info.GetSize(), data, is_dynamic);
+	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, is_dynamic);
 }
 
-bool D3D11VertexBuffer::IsDynamic() {
+bool D3D11VertexBuffer::IsDynamic() const {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	D3D11_BUFFER_DESC desc;
 	vb->GetDesc(&desc);
 	return desc.Usage == D3D11_USAGE_DYNAMIC;
 }
 
-unsigned int D3D11VertexBuffer::GetElementCount() {
+unsigned int D3D11VertexBuffer::GetElementCount() const {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	return ele_count;
 }
 
-unsigned int D3D11VertexBuffer::GetElementBytewidth() {
+unsigned int D3D11VertexBuffer::GetElementBytewidth() const {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	return ele_bytewidth;
+}
+
+unsigned int D3D11VertexBuffer::GetElementMemberCount() const {
+	CHECK(vb)<<"Vertex buffer is not initialized.";
+	return ele_member_count;
 }
 
 void * D3D11VertexBuffer::Map() {

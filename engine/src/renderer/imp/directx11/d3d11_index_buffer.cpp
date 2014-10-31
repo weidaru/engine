@@ -15,7 +15,7 @@
 namespace s2 {
 
 D3D11IndexBuffer::D3D11IndexBuffer(D3D11GraphicResourceManager *_manager)
-		: manager(_manager){
+		: manager(_manager), ib(0){
 
 }
 
@@ -30,10 +30,11 @@ void D3D11IndexBuffer::Clear() {
 	}
 }
 
-void D3D11IndexBuffer::Initialize(unsigned int size, const InputType *data, bool is_dynamic) {
+void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, bool is_dynamic) {
 	Clear();
+	ele_count = element_count;
 	D3D11_BUFFER_DESC desc;
-	desc.ByteWidth = sizeof(uint32_t)*size;
+	desc.ByteWidth = sizeof(InputType)*element_count;
 	if(is_dynamic) {
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -42,27 +43,31 @@ void D3D11IndexBuffer::Initialize(unsigned int size, const InputType *data, bool
 		desc.CPUAccessFlags = 0;
 	}
 	desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	
-	D3D11_SUBRESOURCE_DATA subresource;
-	subresource.pSysMem = data;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
 	
 	HRESULT result = 1;
-	result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &ib);
+	if(data) {
+		D3D11_SUBRESOURCE_DATA subresource;
+		subresource.pSysMem = data;
+		result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &ib);
+	} else {
+		result = manager->GetDevice()->CreateBuffer(&desc, 0, &ib);
+	}
+	
 	CHECK(!FAILED(result)) <<"Cannot create index buffer. Error code: " << ::GetLastError();
 }
 
-bool D3D11IndexBuffer::IsDynamic() {
+bool D3D11IndexBuffer::IsDynamic() const {
 	CHECK(ib)<<"Index buffer is not initialized.";
 	D3D11_BUFFER_DESC desc;
 	ib->GetDesc(&desc);
 	return desc.Usage == D3D11_USAGE_DYNAMIC;
 }
 
-unsigned int D3D11IndexBuffer::GetSize() {
+unsigned int D3D11IndexBuffer::GetElementCount() const {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	D3D11_BUFFER_DESC desc;
-	ib->GetDesc(&desc);
-	return desc.ByteWidth;
+	return ele_count;
 }
 
 void * D3D11IndexBuffer::Map() {

@@ -185,13 +185,16 @@ void D3D11VertexShader::Setup() {
 		context->VSSetShader(shader, 0, 0);
 		
 		//Set constant buffer.
-		ID3D11Buffer **array = new ID3D11Buffer *[cbs.size()];
-		for(unsigned int i=0; i<=cbs.size(); i++) {
-			cbs[i]->Flush();
-			array[i] = cbs[i]->GetInternal();
+		if(!cbs.empty()) {
+			ID3D11Buffer **array = new ID3D11Buffer *[cbs.size()];
+			for(unsigned int i=0; i<cbs.size(); i++) {
+				cbs[i]->Flush();
+				array[i] = cbs[i]->GetInternal();
+			}
+			context->VSSetConstantBuffers(0, cbs.size(), array);
+			delete[] array;
 		}
-		context->PSSetConstantBuffers(0, cbs.size(), array);
-		delete[] array;
+
 	}
 }
 

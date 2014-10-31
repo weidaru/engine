@@ -16,6 +16,8 @@
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
 
+#include "engine.h"
+
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
 #else
@@ -45,12 +47,21 @@ void D3D11GraphicPipeline::Clear() {
 	if(rast_state)
 		rast_state->Release();
 	new_rast=true;
-	rast_state=0; 
+	rast_state=0;
+	{
+		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+		RasterizationOption option;
+		option.viewports.clear();
+		option.viewports.push_back(RasterizationOption::Rectangle(0.0f, 0.0f, 
+									(float)renderer_setting.window_width, (float)renderer_setting.window_height));
+		SetRasterizationOption(option);
+	}
 	
 	if(ds_state)
 		ds_state->Release();
 	new_ds=true;
 	ds_state=0; 
+	SetDepthStencilOption(DepthStencilOption());
 	
 	if(blend_state)
 		blend_state->Release();
@@ -270,13 +281,14 @@ void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_c
 	output_stage.GetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
-void D3D11GraphicPipeline::SetRasterizationOption() {
+void D3D11GraphicPipeline::FlushRasterizationOption() {
+	CHECK(rast_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	RasterizationOption &option = rast_opt;
 	
 	if(!option.viewports.empty()) {
 		D3D11_VIEWPORT *viewports = new D3D11_VIEWPORT[option.viewports.size()];
-		for(unsigned int i=0; option.viewports.size(); i++) {
+		for(unsigned int i=0; i<option.viewports.size(); i++) {
 			viewports[i].TopLeftX = option.viewports[i].top_left_x;
 			viewports[i].TopLeftY = option.viewports[i].top_left_y;
 			viewports[i].Width = option.viewports[i].width;
@@ -303,12 +315,15 @@ void D3D11GraphicPipeline::SetRasterizationOption() {
 	context->RSSetState(rast_state);
 }
 
-void D3D11GraphicPipeline::SetDepthStencilOption() {
+void D3D11GraphicPipeline::FlushDepthStencilOption() {
+	CHECK(ds_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetDepthStencilState(ds_state, ds_opt.stencil_replace_value);
+	
 }
 
-void D3D11GraphicPipeline::SetBlendOption() {
+void D3D11GraphicPipeline::FlushBlendOption() {
+	CHECK(blend_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetBlendState(blend_state , blend_opt.factor, 0);
 }
@@ -335,20 +350,20 @@ void D3D11GraphicPipeline::Draw() {
 	
 	//Setup rasterization option.
 	if(new_rast) {
-		SetRasterizationOption();
+		FlushRasterizationOption();
 		new_rast = false;
 	}
 	
-	
 	//Setup depth stencil option.
 	if(new_ds) {
-		SetDepthStencilOption();
+		FlushDepthStencilOption();
 		new_ds = false;
 	}
 	
 	//Setup blend option.
 	if(new_blend) {
-		SetBlendOption();
+		if(blend_state)
+			FlushBlendOption();
 		new_blend = false;
 	}
 	
