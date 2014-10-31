@@ -28,17 +28,11 @@
 
 #include <stdio.h>
 
-struct Vertex {
-	float position[4];
-	float color[4];
-};
-
-
 namespace s2 {
 
 class TestProgram : public EngineProgram {
 public:
-	TestProgram():ds_buffer(0), vb(0), ib(0), vs(0), ps(0) {}
+	TestProgram():ds_buffer(0), vb_pos(0), vb_color(0), ib(0), vs(0), ps(0) {}
 
 	virtual ~TestProgram() {}
 	virtual bool Initialize(){
@@ -75,14 +69,22 @@ public:
 		pipeline->SetPixelShader(ps);
 		
 		//Set vertex buffer
-		Vertex vertices[3] = {
-			{{0.0f, 0.5f,	0.0f, 1.0f},{1.0f, 0.0f, 0.0f, 1.0f}}, 
-			{{0.45f, -0.5f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
-			{{-0.45f, -0.5f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+		float vertices[3][3] = {
+			{0.0f, 0.5f, 0.0f},
+			{0.45f, -0.5f, 0.0f}, 
+			{-0.45f, -0.5f, 0.0f}
 		};
-		vb = manager->CreateVertexBuffer();
-		vb->Initialize(3, 2, sizeof(Vertex), vertices, false);
-		pipeline->SetVertexBuffer(0, 0, vb);
+		vb_pos = manager->CreateVertexBuffer();
+		vb_pos->Initialize(3, 1, 12, vertices, false);
+		pipeline->SetVertexBuffer(0, 0, vb_pos);
+		float colors[3][4] = {
+			{1.0f, 0.0f, 0.0f, 1.0f},
+			{0.0f, 1.0f, 0.0f, 1.0f},
+			{0.0f, 0.0f, 1.0f, 1.0f}
+		};
+		vb_color = manager->CreateVertexBuffer();
+		vb_color->Initialize(3, 1, 16, colors, false);
+		pipeline->SetVertexBuffer(1,1, vb_color);
 
 		//Set index buffer
 		IndexBuffer::InputType indices[3] = {0,1,2};
@@ -106,7 +108,8 @@ public:
 	
 private:
 	Texture2D *ds_buffer;
-	VertexBuffer *vb;
+	VertexBuffer *vb_pos;
+	VertexBuffer *vb_color;
 	IndexBuffer *ib;
 	VertexShader *vs;
 	PixelShader *ps;

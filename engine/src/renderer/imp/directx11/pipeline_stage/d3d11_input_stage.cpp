@@ -56,9 +56,8 @@ GraphicPipeline::PrimitiveTopology D3D11InputStage::GetPrimitiveTopology() {
 void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *_buf) {
 	new_input = true;
 	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
-	int i = 0;
-	vbs[i].start_index = start_input_index;
-	vbs[i].vb = buf;
+	vbs[index].start_index = start_input_index;
+	vbs[index].vb = buf;
 }
 
 D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
@@ -143,6 +142,7 @@ bool D3D11InputStage::Validate(const D3D11VertexShader &shader, s2string *messag
 
 namespace {
 
+//Exception for POSITION semantic 
 DXGI_FORMAT GetFormat(const D3D11ShaderReflection::Parameter &p) {
 	static DXGI_FORMAT float_list[4] = {	DXGI_FORMAT_R32_FLOAT, DXGI_FORMAT_R32G32_FLOAT, 
 															DXGI_FORMAT_R32G32B32_FLOAT, DXGI_FORMAT_R32G32B32A32_FLOAT};
@@ -247,7 +247,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 	std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin();
 	unsigned int offset = 0;
 	for(unsigned int i=0; i<size; i++) {
-		if((**it).start_index + (**it).vb->GetElementMemberCount() < i) {
+		if((**it).start_index + (**it).vb->GetElementMemberCount()-1 < i) {
 			it++;
 			offset = 0;
 		}
