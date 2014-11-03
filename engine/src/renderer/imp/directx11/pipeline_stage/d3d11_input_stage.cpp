@@ -210,7 +210,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		descs[i].SemanticIndex = p.semantic_index;
 		descs[i].Format = GetFormat(p);
 		//All the instance semantics starts with Instance_
-		if(p.semantic.substr(0, 9) == "Instance_") {
+		if(p.semantic.substr(0, 9) == "INSTANCE_") {
 			descs[i].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
 			descs[i].InstanceDataStepRate = 1; 			//Make this 1 which means 1 data for 1 instance.
 		} else {
@@ -239,7 +239,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		}
 	}
 	if(head < size) {
-		CHECK(false)<<"Some inputs are not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
+		CHECK(false)<<"Some shader tail inputs are not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
 	} else if(head > size) {
 		CHECK(false)<<"Vertex buffer overflows input. Dumping:\n"<<DumpVertexBufferInfo(vbs);
 	}

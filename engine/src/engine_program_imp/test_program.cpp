@@ -58,13 +58,13 @@ public:
 		
 		//Set vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
 			vs->GetLastError();
 		pipeline->SetVertexShader(vs);
 		
 		//Set pixel shader
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
 			ps->GetLastError();
 		pipeline->SetPixelShader(ps);
 		
