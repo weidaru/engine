@@ -67,6 +67,7 @@ void D3D11GraphicPipeline::Clear() {
 		blend_state->Release();
 	new_blend=true;
 	blend_state=0;
+	SetBlendOption(BlendOption());
 	
 	input_stage.Clear();
 	output_stage.Clear();
@@ -325,7 +326,7 @@ void D3D11GraphicPipeline::FlushDepthStencilOption() {
 void D3D11GraphicPipeline::FlushBlendOption() {
 	CHECK(blend_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	context->OMSetBlendState(blend_state , blend_opt.factor, 0);
+	context->OMSetBlendState(blend_state , blend_opt.factor, blend_opt.sample_mask);
 }
 
 bool D3D11GraphicPipeline::Validate(s2string *error) {
@@ -362,8 +363,7 @@ void D3D11GraphicPipeline::Draw() {
 	
 	//Setup blend option.
 	if(new_blend) {
-		if(blend_state)
-			FlushBlendOption();
+		FlushBlendOption();
 		new_blend = false;
 	}
 	

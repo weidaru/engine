@@ -68,7 +68,7 @@ local function parse_member(context, lex)
 		return
 	end
 	
-	--Lookahead to determine variable-dec oor function-dec
+	--Lookahead to determine variable-dec or function-dec
 	lex:checkpoint()
 		parse_type(context, lex)
 		lex:ignore_blank()
