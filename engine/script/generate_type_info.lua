@@ -66,12 +66,13 @@ local function generate(context, file)
 		local explored = {}
 		local result = {}
 		local function _resolve(e, path)
-			if explored[e.typename] ~=nil then
+			local typename = context_class.peel_arrayinfo(e.typename)
+			if explored[typename] ~=nil then
 				return
 			end
-			path[e.typename] = true;
+			path[typename] = true;
 			for _,m in ipairs(e.members) do
-				local k = m.typename
+				local k = context_class.peel_arrayinfo(m.typename)
 				local v = c[k]
 				
 				if context_class.primitive[k] == nil and explored[k] == nil  then
@@ -79,7 +80,7 @@ local function generate(context, file)
 					_resolve(v, path)
 				end
 			end
-			explored[e.typename] = true;
+			explored[typename] = true;
 			table.insert(result, e)
 		end
 		

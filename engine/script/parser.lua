@@ -52,6 +52,14 @@ local function parse_variable_dec(context, lex)
 	lex:ignore_blank()
 	local name = assert_help(lex, "Expect a word ", lex.expect_word)
 	lex:ignore_blank()
+	if lex:expect("%[") ~= nil then
+		lex:ignore_blank()
+		local length = tonumber(assert_help(lex, "Expect a positive number", lex.expect, "[1-9]%d*"))
+		lex:ignore_blank()
+		assert_help(lex, "Expect a ]", lex.expect, "%]")
+		typename = string.format("%s[%d]", typename, length)
+		lex:ignore_blank()
+	end
 	assert_help(lex, "Expect a ;", lex.expect, ";")
 	
 	--Sub-program for variable declaration
@@ -75,6 +83,7 @@ local function parse_member(context, lex)
 		assert_help(lex, "Expect a name ", lex.expect_word)
 		lex:ignore_blank()
 		local is_variable = (lex:expect(";") ~= nil)
+		is_variable = is_variable or (lex:expect("%[") ~= nil)
 	lex:rollback()
 	if is_variable then
 		parse_variable_dec(context, lex)
@@ -153,8 +162,11 @@ Actually implementation may just use pattern matching.]
 <struct> ::= "struct" <blank> <word> <blank> "{" <members> "}" <blank> ";"
 <blank> ::= "\t" <blank> | " " <blank> | "\n" <blank> | <comment> <blank> | " " | "\t" | "\n"
 <spaces-tabs> ::= "\t" <spaces-tabs> | " " <spaces-tabs> | ""
-<members> ::= <variable-dec> <blank> <members> | <function-dec> <members> | <blank>
-<variable-dec> ::= <type> <blank> <word> <blank> ";"
+<members> ::= 	<variable-dec> <blank> <members> | 
+							<function-dec> <members> |  
+							<blank>
+<variable-dec> ::=  	<type> <blank> <word> <blank> ";" |
+								<type> <blank> <word> <blank> "[" <blank> <positive_number> <blank> "]"
 <function-dec> ::= <type> <blank> <word> <blank> "(" <anything> ")" <anything> ";"		As we don't care about function, just match it loosely.
 <type> ::= <word> <blank> "*" | <word> "*"
 ]=]
@@ -182,14 +194,15 @@ Here we only check whether each type has a place to reference.
 function m.link(context)
 	for _,typeinfo in pairs(context) do
 		for _, v in ipairs(typeinfo.members) do
-			 if context[v.typename] == nil then
+			local typename = context_class.peel_arrayinfo(v.typename)
+			 if context[typename] == nil then
 				assert(false, string.format(
 [[
-Cannot find typeinfo %s as a member of %s at 
+Cannot find typeinfo %s (could be array) as a member of %s at 
 %s line %d
 Dump context: %s
 ]], 
-						v.typename, typeinfo.typename, typeinfo.file, typeinfo.line, context:dump()))
+						typename, typeinfo.typename, typeinfo.file, typeinfo.line, context:dump()))
 			 end
 		end
 	end

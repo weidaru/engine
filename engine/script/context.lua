@@ -134,6 +134,10 @@ function context.dump_entry(entry, level)
 	return table.concat(buffer)
 end
 
+function context.peel_arrayinfo(typename)
+	return typename:match("(%w+)%[%d+%]")  or typename
+end
+
 do 
 	local primitives = require("primitives")
 	context.primitive = {}

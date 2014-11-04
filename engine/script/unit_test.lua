@@ -14,6 +14,7 @@ if not pcall(rule.parse, rule, ...) then
 end
 assert(dir~=nil, string.format("Soruce Dir is nil! Usage:\n%s", rule:to_string()))
 
+local any_failure = false
 fs.scan_dir(dir, {"*.lua"}, 
 function(filepath)
 	local filename = fs.get_last_entry(filepath)
@@ -26,8 +27,12 @@ function(filepath)
 	if result then
 		print([[======Unit test Succeed ======]])
 	else
+		any_failure = true
 		print([[======Unit test Failed ======]])
 		print(traceback)
 	end
 	print("\n\n")
 end)
+if any_failure then
+	os.exit(false)
+end
