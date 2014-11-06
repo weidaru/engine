@@ -27,6 +27,7 @@
 #include "renderer/index_buffer.h"
 
 #include <stdio.h>
+#include <math.h>
 
 //[[TypeInfo]]//
 struct Vertex {
@@ -66,6 +67,32 @@ public:
 		vs = manager->CreateVertexShader();
 		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
 			vs->GetLastError();
+			//Set world view projection
+		{
+			float identity[16] = {
+				1.0f, 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f, 0.0f, 0.0f,
+				0.0f, 0.0f, 1.0f, 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f};
+			vs->SetUniform("world", (const void *)identity, 64);
+			vs->SetUniform("view", (const void *)identity, 64);
+
+			float np=5.0f, fp =1000.0f;
+			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
+			float fov=3.141596253f*35/180;
+			float yscale = 1.0f/tan(fov/2);
+			
+			//Column major matrix
+			float projection[16] = {
+				yscale/aspect, 0.0f, 0.0f, 0.0f,
+				0.0f, yscale, 0.0f, 0.0f,
+				0.0f, 0.0f, fp/(fp-np), -np*fp/(fp-np), 
+				0.0f, 0.0f, 1.0, 0.0f
+			};
+
+			vs->SetUniform("projection", (const void *)projection, 64);
+		}
+
 		pipeline->SetVertexShader(vs);
 		
 		//Set pixel shader
@@ -76,9 +103,9 @@ public:
 		
 		//Set vertex buffer
 		Vertex vertices[3] = {
-			{{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f},},
-			{{0.45f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
-			{{-0.45f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+			{{0.0f, 0.5f, 5.0f}, {1.0f, 0.0f, 0.0f, 1.0f},},
+			{{0.5f, -0.5f, 5.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
+			{{-0.5f, -0.5f, 5.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
 		};
 		vb = manager->CreateVertexBuffer();
 		vb->Initialize(3, vertices, false);
@@ -89,6 +116,9 @@ public:
 		ib = manager->CreateIndexBuffer();
 		ib->Initialize(3, indices, false);
 		pipeline->SetIndexBuffer(ib);
+
+		
+		
 
 		return true;
 	}

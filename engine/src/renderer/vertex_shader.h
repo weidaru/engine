@@ -21,7 +21,7 @@ public:
 
 	template <typename T>
 	bool SetUniform(const s2string &name, const T *value) {
-		SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(),value);
+		return SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(),value);
 	}
 	
 	//This will be version without compatibility check, more like a c style.

@@ -38,7 +38,7 @@ bool D3D11ConstantBuffer::SetData(unsigned int offset, const void *data, unsigne
 		error = "Data overflow.";
 		return false;
 	}
-	memcpy(data_buffer, data, _size);
+	memcpy(data_buffer+offset, data, _size);
 	return true;
 }
 
@@ -46,13 +46,19 @@ void D3D11ConstantBuffer::Initialize(unsigned int _size, const void *data) {
 	Clear();
 	size = _size;
 	data_buffer = new char[size];
-	memcpy((void *)data_buffer, data, size);
-	
+	if(data) {
+		memcpy((void *)data_buffer, data, size);
+	} else {
+		memset((void *)data_buffer, 0, size);
+	}
+
 	D3D11_BUFFER_DESC desc;
 	desc.ByteWidth = size;
 	desc.Usage = D3D11_USAGE_DYNAMIC;
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+	desc.StructureByteStride = 0;
 	
 	HRESULT result = 1;
 	if(data) {
@@ -70,7 +76,7 @@ void D3D11ConstantBuffer::Flush() {
 	CHECK(cb)<<"Constant buffer is not initialized.";
 	D3D11_MAPPED_SUBRESOURCE subresource;
 	HRESULT result=1;
-	result = manager->GetDeviceContext()->Map(cb, 1, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
+	result = manager->GetDeviceContext()->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
 	CHECK(!FAILED(result))<<"Fail to map the constant buffer. Error code  "<<::GetLastError();
 	memcpy(subresource.pData, (const void *)data_buffer, size);
 	
