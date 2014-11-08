@@ -118,36 +118,85 @@ private:
 	unsigned int size;
 };
 
+class SimpleLexer {
+public:
+	SimpleLexer(const s2string &_data) : data(_data) {
+		start = data.c_str();
+		cur = start;
+	}
+
+	bool ExpectWord(s2string *result) {
+		if(!IsAlphabetic(cur))
+			return false;
+		const char *word_start = cur;
+		cur++;
+		while(cur!='\0' && IsAlphanumeric(cur)) {
+			cur++;
+		}
+		result = s2string(word_start, cur-word_start);
+		return true;
+	}
+	
+	//return 0 as an error code.
+	unsigned int ExpectPositveNumber() {
+		return strtol(cur, &cur, 10);
+	}
+	
+	bool Expect(const s2string expected) {
+		const char *backup = cur;
+		const char *c = expected.c_str();
+		while(*cur!='\0' && *c!='\0') {
+			if(*cur != *c) {
+				cur = backup;
+				return false;
+			}
+			cur++;
+			c++
+		}
+		if(*c=='\0')
+			return true;
+		else {
+			cur = backup;
+			return false;
+		}
+	}
+	
+	bool IsEnd() {
+		return *cur == '\0';
+	}
+	
+private:
+	static bool IsAlphanumeric(const char *c) {
+		return IsAlphabetic(c) || IsNumeric(c);
+	}
+	
+	static bool IsAlphabetic(const char *c) {
+		return (*c>='a' && *c<='z') || (*c>='A' && *c<='Z');
+	}
+	
+	static bool IsNumeric(const char *c) {
+		return *c>='0' && *c<='9';
+	}
+	
+private:
+	s2string data;
+	const char *start;
+	const char *cur;
+};
+
+
 class TypeInfoArray  : public TypeInfo {
 public:
 	TypeInfoArray(const s2string &_name) : name(_name) {
-		const char *str = name.c_str();
-		char buf[512];
-		const char *c = str;
-		int state=0;	//0 is reading name, 1 is reading count,
-		const char *number_start=0;
-		while(*c != '\0'){
-			switch(state) {
-			case 0:
-				if(*c == '[') {
-					memcpy(buf, str, c-str);
-					buf[c-str]='\0';
-					e_name = buf;
-					number_start = ++c;
-					state=1;
-				}
-				break;
-			case 1:
-				if(*c == ']') {
-					memcpy(buf, number_start, c-number_start);
-					buf[c-number_start]='\0';
-					e_count = atoi(buf);
-				}
-				break;
-			default:
-				CHECK(false)<<"Logic hole!";
-			}
-			c++;
+		SimpleLexer lexer(name);
+		
+		CHECK(lexer.ExpectWord(&e_name))<<"Bad array typename "<<name;
+		e_count = 1;
+		while(!lexer.IsEnd()) {
+			CHECK(lexer.Expect("["))<<"Bad array typename "<<name;
+			unsigned int count = lexer.ExpectPositveNumber();
+			e_count *= count;
+			CHECK(lexer.Expect("]"))<<"Bad array typename "<<name;
 		}
 	}
 
@@ -189,6 +238,23 @@ public:
 		return e_count * GetMemberType(0).GetSize();
 	}
 	
+	static bool IsArrayTypename(const s2string &name) {
+		SimpleLexer lexer(name);
+		if(!lexer.ExpectWord(&e_name)) {
+			return false;
+		}
+		while(!lexer.IsEnd()) {
+			if(lexer.Expect("[")) {
+				return false;
+			}
+			lexer.ExpectPositveNumber();
+			if(lexer.Expect("]")) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 private:
 	TypeInfoArray(const TypeInfoArray &);
 	TypeInfoArray & operator=(const TypeInfoArray &);
@@ -210,8 +276,12 @@ TypeInfoManager::~TypeInfoManager() {
 }
 
 const TypeInfo & TypeInfoManager::Get(const s2string &name) const {
+	//It could be an array.
 	if(name.find('[') != std::string::npos && !Has(name)) {
 		TypeInfo *new_typeinfo = new TypeInfoArray(name);
+		s2string element_typename = new_typeinfo->GetMemberName(0);
+		CHECK(Has(element_typename))<<
+					"Element type "<<element_typename<<" cannot be found for "<<name;
 		data[name] = new_typeinfo;
 	}
 
@@ -219,6 +289,14 @@ const TypeInfo & TypeInfoManager::Get(const s2string &name) const {
 }
 
 const bool TypeInfoManager::Has(const s2string &name) const {
+	//It could be an array.
+	if(data.find(name)==data.end() && SimpleLexer::IsArrayTypename(name)) {
+		TypeInfo *new_typeinfo = new TypeInfoArray(name);	
+		s2string element_typename = new_typeinfo->GetMemberName(0);
+		if(data.find(element_typename)!=data.end()) {
+			data[name] = new_typeinfo;
+		}
+	}
 	return data.find(name) != data.end();
 }
 

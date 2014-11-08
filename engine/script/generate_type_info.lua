@@ -166,6 +166,7 @@ assert(outputfile, string.format("Cannot open dest file %s", dest))
 local context = context_class.new()
 
 --Start scan
+print("===========Parsing ")
 fs.scan_dir(source_dir, {"*.h", "*.hpp", "*.cpp", "*.c", "*.cc"}, 
 function(filepath)
 	local f = assert(io.open(filepath, "r"))
@@ -174,18 +175,15 @@ function(filepath)
 	f:close()
 	
 	local lex = lexer.new(buffer, filepath)
-	print("===========Parsing " .. filepath)
+	
 	parser.parse(context, lex)
-	print("===========Parsing complete\n")
+	
 end)
+print("===========Parsing complete\n")
 
 print("===========Linking...")
 parser.link(context)
 print("===========Linking complete.\n\n")
-
-print("Dump context: ")
-print(context:dump())
-print("\n\n")
 
 print("===========Generating...")
 generate(context, outputfile)

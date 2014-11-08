@@ -71,11 +71,21 @@ private:
 public:
 	virtual ~TypeInfoManager();
 	
+	/*
+	 * Get also accepts typenames that can be considered as array.
+	 * It should matches exactly as  
+	 * array_typename ::= word ("["positive-number"]")
+	 * word ::= !"[a-zA-Z]%w*"
+	 * positive-number ::= !"[1-9]%d*"
+	 */
 	const TypeInfo & 	Get(const s2string &name) const;
 	template<typename T>
 	const TypeInfo &	Get() const {
 		return Get(TypeInfoBind<T>::GetName());
 	}
+	/*
+	 * Array is also considered, see @Get
+	 */
 	const bool			Has(const s2string &name) const;
 	
 	/**

@@ -135,7 +135,7 @@ function context.dump_entry(entry, level)
 end
 
 function context.peel_arrayinfo(typename)
-	return typename:match("(%w+)%[%d+%]")  or typename
+	return select(3,typename:find("^(%w+)%["))  or typename
 end
 
 do 

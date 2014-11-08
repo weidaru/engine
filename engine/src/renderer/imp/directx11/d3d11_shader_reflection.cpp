@@ -346,8 +346,6 @@ bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, con
 				return false;
 		}
 	}
-
-	
 	return true;
 }
 

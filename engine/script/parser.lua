@@ -52,14 +52,24 @@ local function parse_variable_dec(context, lex)
 	lex:ignore_blank()
 	local name = assert_help(lex, "Expect a word ", lex.expect_word)
 	lex:ignore_blank()
-	if lex:expect("%[") ~= nil then
+	local length_list = {}
+	while lex:expect("%[") ~= nil do
 		lex:ignore_blank()
 		local length = tonumber(assert_help(lex, "Expect a positive number", lex.expect, "[1-9]%d*"))
+		table.insert(length_list, length);
 		lex:ignore_blank()
 		assert_help(lex, "Expect a ]", lex.expect, "%]")
-		typename = string.format("%s[%d]", typename, length)
 		lex:ignore_blank()
 	end
+	
+	local buffer = {typename}
+	for i,l in ipairs(length_list) do
+		table.insert(buffer, "[");
+		table.insert(buffer, l);
+		table.insert(buffer, "]");
+	end
+	typename = table.concat(buffer);
+	
 	assert_help(lex, "Expect a ;", lex.expect, ";")
 	
 	--Sub-program for variable declaration

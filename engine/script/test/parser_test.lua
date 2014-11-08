@@ -17,7 +17,7 @@ Messed up with indentation.
 
 	//[[TypeInfo]]//
 	struct Foo {
-		int foo_a;
+		int foo_a[2][3];
 		Bar foo_b;
 		int GetFoo(arbitrary things in between);  //This will be ignored 
 		char * Get(asfoasdfwenfocjnv sdfsdf  ,, &#$5oiserfewfnaoscvnioiwev);
@@ -55,7 +55,7 @@ do
 	"Foo":={
 		"typename":="Foo",
 		"members":=[
-			{"typename":="int", "name":="foo_a"},
+			{"typename":="int[2][3]", "name":="foo_a"},
 			{"typename":="Bar", "name":="foo_b"}
 		],
 		"file":="inmemory",
