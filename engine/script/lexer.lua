@@ -47,16 +47,12 @@ end
 
 --Use checkpoint and rollback to perform lookahead
 function lexer.methods.checkpoint(self)
-	assert(self.old_pos == -1, 	[[checkpoint and rollback should always come into pairs. 
-								Use either of them consecutively will raise an error.]])
-	self.old_pos = self.pos
+	table.insert(self.checkpoints, self.pos)
 end
 
 function lexer.methods.rollback(self)
-	assert(self.old_pos ~= -1,	[[checkpoint and rollback should always come into pairs. 
-								Use either of them consecutively will raise an error.]])
-	self.pos = self.old_pos
-	self.old_pos = -1
+	assert(#self.checkpoints ~= 0,	[[checkpoint is not set. Cannot rollback.]])
+	self.pos = table.remove(self.checkpoints)
 end
 
 --Do some cache if possible in the future. This function should not be used frequently.
@@ -68,6 +64,17 @@ function lexer.methods.linenumber(self)
 		end
 	end
 	return count
+end
+
+function lexer.methods.build_syntax_error_message(self, message)
+	local buffer = {}
+	table.insert(buffer, "\nSyntax Error at ")
+	table.insert(buffer, self.name)
+	table.insert(buffer, " line: ")
+	table.insert(buffer, self:linenumber())
+	table.insert(buffer, "\n")
+	table.insert(buffer, message)
+	return table.concat(buffer)
 end
 
 local function check_method(l, name)
@@ -106,6 +113,8 @@ lexer.patterns = {
 	
 lexer.patterns.blank = {"[%s\n\t]", lexer.patterns.block_comment, table.unpack(lexer.patterns.line_comment)}
 
+
+
 setmetatable(lexer.patterns,{
 	__index = function(t,k)
 		local temp = rawget(t,k)
@@ -133,7 +142,7 @@ end
 function lexer.methods.init(self, str, file)
 	self.data = str
 	self.pos = 1
-	self.old_pos = -1
+	self.checkpoints= {}
 	self.file = file or ""
 	
 	return self

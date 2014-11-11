@@ -35,6 +35,19 @@ struct Vertex {
 	float color[4];
 };
 
+//[[TypeInfo]]//
+struct Matrix {
+	float data[4][4];
+
+	Matrix() {
+		memset(data, 0, 64);
+		data[0][0] = 1.0f;
+		data[1][1] = 1.0f;
+		data[2][2] = 1.0f;
+		data[3][3] = 1.0f;
+	}
+};
+
 namespace s2 {
 
 class TestProgram : public EngineProgram {
@@ -76,7 +89,7 @@ public:
 				0.0f, 0.0f, 0.0f, 1.0f};
 			vs->SetUniform("world", (const void *)identity, 64);
 			vs->SetUniform("view", (const void *)identity, 64);
-
+			
 			float np=5.0f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 			float fov=3.141596253f*35/180;
@@ -103,7 +116,7 @@ public:
 		
 		//Set vertex buffer
 		Vertex vertices[3] = {
-			{{0.0f, 0.5f, 5.0f}, {1.0f, 0.0f, 0.0f, 1.0f},},
+			{{0.0f, 0.5f, 5.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
 			{{0.5f, -0.5f, 5.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
 			{{-0.5f, -0.5f, 5.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
 		};
@@ -116,9 +129,6 @@ public:
 		ib = manager->CreateIndexBuffer();
 		ib->Initialize(3, indices, false);
 		pipeline->SetIndexBuffer(ib);
-
-		
-		
 
 		return true;
 	}

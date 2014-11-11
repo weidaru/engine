@@ -74,8 +74,10 @@ public:
 	/*
 	 * Get also accepts typenames that can be considered as array.
 	 * It should matches exactly as  
-	 * array_typename ::= word ("["positive-number"]")
+	 * array_typename ::= typename ("["positive-number"]")
+	 * typename ::= word | typename " " word
 	 * word ::= !"[a-zA-Z]%w*"
+	 * blank ::= !"%s"
 	 * positive-number ::= !"[1-9]%d*"
 	 */
 	const TypeInfo & 	Get(const s2string &name) const;

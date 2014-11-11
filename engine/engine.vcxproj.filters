@@ -252,14 +252,14 @@
       <Filter>Source Files\generate</Filter>
       <Filter>Source Files\utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\s2string.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\renderer\imp\directx11\pipeline_stage\d3d11_output_stage.cpp">
       <Filter>Source Files\renderer\imp\directx11\pipeline_stage</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\imp\directx11\pipeline_stage\d3d11_input_stage.cpp">
       <Filter>Source Files\renderer\imp\directx11\pipeline_stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\s2string.cpp">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,14 +7,7 @@ local function assert_help(lex, message, func, ...)
 	local temp = {func(lex, ...)}
 
 	if temp[1] == nil then
-		local buffer = {}
-		table.insert(buffer, "\nSyntax Error at ")
-		table.insert(buffer, lex.name)
-		table.insert(buffer, " line: ")
-		table.insert(buffer, lex:linenumber())
-		table.insert(buffer, "\n")
-		table.insert(buffer, message)
-		assert(false, table.concat(buffer))
+		assert(false, lex:build_syntax_error_message(message))
 	end
 	local result = {lex.data:sub(temp[1], temp[2])}
 	for i=3, #result do
@@ -24,27 +17,99 @@ local function assert_help(lex, message, func, ...)
 	return table.unpack(result)
 end
 
+--[[
+typename in c++ is really annoying. We can have something like "signed long long int" which is 
+a legit typename. Here we lookahead for array or function indication and let the compiler decide its
+legitimation. Thus typename is loosely matched.
+]]
 local function parse_type(context, lex)
-	local typename = assert_help(lex, "Expect a word", lex.expect_word)
+	local start_pos = lex.pos
+	
+	local typename = ""
+	assert_help(lex, "Expect a word", lex.expect_word)
+	local end_pos = lex.pos-1
+
 	lex:ignore_blank()
-	if lex:expect("*") then 
-		typename = "pointer"
+	
+	while true do
+		if lex:expect("*") then 
+			typename = "pointer"
+			break
+		end
+		
+		lex:checkpoint()
+			lex:ignore_blank()
+			assert_help(lex, string.format("Expect either a variable or function name after %s", lex.data:sub(start_pos, lex.pos)),
+								lex.expect_word)
+			if lex:expect("%[") or lex:expect("%(") or lex:expect(";") then
+				lex:rollback()
+				typename = lex.data:sub(start_pos, end_pos)
+				break
+			end
+		lex:rollback()
+	
+		lex:ignore_blank()
+		assert(lex:expect_word(), "logic hole!!!")
+		
 	end
 	
 	return typename
 end
 
---We do not care about function dec so just do syntax match, no sub-program here.
-local function parse_function_dec(context, lex)
-	parse_type(context, lex)
-	lex:ignore_blank()
-	assert_help(lex, "Expect a word ", lex.expect_word)
-	lex:ignore_blank()
+local function parse_function_argument_body(context, lex)
 	--I am being lazy here. As in c/c++ parameter declaration will contain no parenthesis, I simply try to find the pair of "(" ")"
 	assert_help(lex, "Expect a ( ", lex.expect, "%(")
 	assert_help(lex, "Cannot find matching )", lex.next, "%)")
 	lex:ignore_blank()
-	assert_help(lex, "Expect a ;", lex.expect, ";")
+	if lex:expect(";") then
+		return
+	else 
+		assert_help(lex, "Expect a { or ;", lex.expect, "{")
+		local old_line = lex:linenumber()
+		local count = 1
+		while lex:expect("$") == nil do
+			local cur = lex.data:sub(lex:next(".")) 
+			if cur == "{" then
+				count = count+1
+			elseif cur == "}" then
+				count = count -1
+			end
+			if count==0 then
+				break
+			end
+		end
+		assert(count==0, lex:build_syntax_error_message(
+				string.format("Cannot match { at line %s ", old_line)))
+	end
+end
+
+local function parse_constructor(context, lex)
+	local name=assert_help(lex, "Expect a word as constructor name ", lex.expect_word)
+	assert(	context.__head.typename==name, 
+				lex:build_syntax_error_message(
+					string.format("Destructor name %s does not match struct name %s", 
+					name, context.__head.typename)))
+	lex:ignore_blank()
+	parse_function_argument_body(context, lex)
+end
+
+local function parse_destructor(context, lex)
+	assert_help(lex, "Expect destructor ~...", lex.expect, "~")
+	local name = assert_help(lex, "Expect a word as destructor name", lex.expect_word)
+	assert(	context.__head.typename==name, 
+				lex:build_syntax_error_message(
+					string.format("Destructor name %s does not match struct name %s", 
+					name, context.__head.typename)))
+	lex:ignore_blank()
+	parse_function_argument_body(context, lex)
+end
+
+local function parse_normal_method(context, lex)
+	parse_type(context, lex)
+	lex:ignore_blank()
+	assert_help(lex, "Expect a word as method name ", lex.expect_word)
+	lex:ignore_blank()
+	parse_function_argument_body(context, lex)
 end
 
 local function parse_variable_dec(context, lex)
@@ -87,18 +152,42 @@ local function parse_member(context, lex)
 	end
 	
 	--Lookahead to determine variable-dec or function-dec
+	local member_type = "method"; 
 	lex:checkpoint()
-		parse_type(context, lex)
-		lex:ignore_blank()
-		assert_help(lex, "Expect a name ", lex.expect_word)
-		lex:ignore_blank()
-		local is_variable = (lex:expect(";") ~= nil)
-		is_variable = is_variable or (lex:expect("%[") ~= nil)
+		lex:checkpoint()
+			repeat
+				if lex:expect("~") then
+					member_type = "destructor"
+					break
+				end
+				local name = assert_help(lex, "Expect either a constructor or return type ", lex.expect_word)
+				lex:ignore_blank()
+				if lex:expect("%(") then
+					member_type = "constructor"
+					break
+				end
+			until true
+		lex:rollback()
+		if member_type == "method" then
+			local tt = parse_type(context, lex)
+			lex:ignore_blank()
+			assert_help(lex, "Expect a name after type " .. tt , lex.expect_word)
+			lex:ignore_blank()
+			if lex:expect(";") ~= nil or lex:expect("%[") ~= nil then
+				member_type = "variable"
+			end
+		end
 	lex:rollback()
-	if is_variable then
+	if member_type == "variable" then
 		parse_variable_dec(context, lex)
+	elseif member_type == "destructor" then
+		parse_destructor(context, lex)
+	elseif member_type == "constructor" then
+		parse_constructor(context, lex) 
+	elseif member_type == "method" then
+		parse_normal_method(context, lex)
 	else
-		parse_function_dec(context, lex)
+		assert(false, "Unknown member type " .. member_type)
 	end
 end
 

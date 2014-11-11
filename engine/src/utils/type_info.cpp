@@ -125,6 +125,18 @@ public:
 		cur = start;
 	}
 
+	bool ExpectTypename(s2string *result) {
+		const char *type_start = cur;
+		bool succeed = false;
+		while(ExpectWord(0)) {
+			succeed = true;
+			Expect(" ");
+		}
+		if(result)
+			*result=s2string(type_start, cur-type_start);
+		return succeed;
+	}
+
 	bool ExpectWord(s2string *result) {
 		if(!IsAlphabetic(cur))
 			return false;
@@ -133,16 +145,17 @@ public:
 		while(cur!='\0' && IsAlphanumeric(cur)) {
 			cur++;
 		}
-		result = s2string(word_start, cur-word_start);
+		if(result)
+			*result = s2string(word_start, cur-word_start);
 		return true;
 	}
 	
 	//return 0 as an error code.
 	unsigned int ExpectPositveNumber() {
-		return strtol(cur, &cur, 10);
+		return strtol(cur, (char **)&cur, 10);
 	}
 	
-	bool Expect(const s2string expected) {
+	bool Expect(const s2string &expected) {
 		const char *backup = cur;
 		const char *c = expected.c_str();
 		while(*cur!='\0' && *c!='\0') {
@@ -151,7 +164,7 @@ public:
 				return false;
 			}
 			cur++;
-			c++
+			c++;
 		}
 		if(*c=='\0')
 			return true;
@@ -190,7 +203,7 @@ public:
 	TypeInfoArray(const s2string &_name) : name(_name) {
 		SimpleLexer lexer(name);
 		
-		CHECK(lexer.ExpectWord(&e_name))<<"Bad array typename "<<name;
+		CHECK(lexer.ExpectTypename(&e_name))<<"Bad array typename "<<name;
 		e_count = 1;
 		while(!lexer.IsEnd()) {
 			CHECK(lexer.Expect("["))<<"Bad array typename "<<name;
@@ -240,19 +253,21 @@ public:
 	
 	static bool IsArrayTypename(const s2string &name) {
 		SimpleLexer lexer(name);
-		if(!lexer.ExpectWord(&e_name)) {
+		if(!lexer.ExpectTypename(0)) {
 			return false;
 		}
+		bool is_array = false;
 		while(!lexer.IsEnd()) {
-			if(lexer.Expect("[")) {
+			if(!lexer.Expect("[")) {
 				return false;
 			}
 			lexer.ExpectPositveNumber();
 			if(lexer.Expect("]")) {
 				return false;
 			}
+			is_array = true;
 		}
-		return true;
+		return is_array;
 	}
 	
 private:
@@ -290,7 +305,7 @@ const TypeInfo & TypeInfoManager::Get(const s2string &name) const {
 
 const bool TypeInfoManager::Has(const s2string &name) const {
 	//It could be an array.
-	if(data.find(name)==data.end() && SimpleLexer::IsArrayTypename(name)) {
+	if(data.find(name)==data.end() && TypeInfoArray::IsArrayTypename(name)) {
 		TypeInfo *new_typeinfo = new TypeInfoArray(name);	
 		s2string element_typename = new_typeinfo->GetMemberName(0);
 		if(data.find(element_typename)!=data.end()) {

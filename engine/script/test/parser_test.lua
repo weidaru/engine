@@ -19,7 +19,10 @@ Messed up with indentation.
 	struct Foo {
 		int foo_a[2][3];
 		Bar foo_b;
+		Foo();
+		~Foo() {}
 		int GetFoo(arbitrary things in between);  //This will be ignored 
+		unsigned long long int Shit() { { } }
 		char * Get(asfoasdfwenfocjnv sdfsdf  ,, &#$5oiserfewfnaoscvnioiwev);
 	};
 	
