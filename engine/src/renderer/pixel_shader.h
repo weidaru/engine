@@ -30,6 +30,15 @@ public:
 	virtual bool 						SetResource(const s2string &name, Texture2D *resource) = 0;
 	virtual bool 						SetResource(const s2string &name, Texture3D *resource) = 0;
 	virtual Resource * 				GetResource(const s2string &name) = 0;
+	template<typename T>
+	T * GetResource() {
+		Resource *resource = GetResource();
+	#ifdef NDEBUG
+		return static_cast<T *>(resource);
+	#else
+		return dynamic_cast<T *>(resource);
+	#endif
+	}
 	
 	virtual const s2string &		GetLastError() = 0;
 	

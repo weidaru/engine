@@ -77,7 +77,7 @@ public:
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target) = 0;
 	virtual Resource * GetRenderTarget(unsigned int index) = 0;
 	template <typename T>
-	T * GetRenderTargetCast(unsigned int index) {
+	T * GetRenderTarget(unsigned int index) {
 		Resource * res = GetRenderTarget(index);
 	#ifdef NDEBUG
 		return static_cast<T *>(res);
@@ -91,7 +91,7 @@ public:
 	virtual void SetDepthStencilBuffer(Texture2D *buffer) = 0;
 	virtual Resource* GetDepthStencilBuffer() = 0;
 	template <typename T>
-	T * GetDepthStencilBufferCast(unsigned int index) {
+	T * GetDepthStencilBuffer(unsigned int index) {
 		Resource * res = GetDepthStencilBuffer(index);
 	#ifdef NDEBUG
 		return static_cast<T *>(res);
