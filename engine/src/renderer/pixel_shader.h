@@ -19,8 +19,8 @@ public:
 	virtual bool 						Initialize(const s2string &path, const s2string &entry_point) = 0;
 	
 	template <typename T>
-	bool SetUniform(const s2string &name, const T *value) {
-		SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>().GetName(),value);
+	bool SetUniform(const s2string &name, const T &value) {
+		SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>().GetName(),&value);
 	}
 	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size) = 0;
 	

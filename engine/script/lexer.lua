@@ -69,7 +69,7 @@ end
 function lexer.methods.build_syntax_error_message(self, message)
 	local buffer = {}
 	table.insert(buffer, "\nSyntax Error at ")
-	table.insert(buffer, self.name)
+	table.insert(buffer, self.file)
 	table.insert(buffer, " line: ")
 	table.insert(buffer, self:linenumber())
 	table.insert(buffer, "\n")
@@ -104,7 +104,7 @@ function lexer.define_pattern(name, pattern)
 end
 
 lexer.patterns = {
-	annotation = "^[%s\t]*//%[%[[%s\t]*(%w+)[%s\t]*%]%]//",
+	annotation = "^[%s\t]*//%[%[[%s\t]*([^\n]-)[%s\t]*%]%]//",
 	line = {".-\n", "(.+)$"},
 	word = "[%a_][%w_]*",
 	line_comment = {"//.-\n", "//.-$"},

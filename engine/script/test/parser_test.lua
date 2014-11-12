@@ -17,13 +17,14 @@ Messed up with indentation.
 
 	//[[TypeInfo]]//
 	struct Foo {
+		//[[CoreData]]//
 		int foo_a[2][3];
 		Bar foo_b;
 		Foo();
 		~Foo() {}
 		int GetFoo(arbitrary things in between);  //This will be ignored 
 		unsigned long long int Shit() { { } }
-		char * Get(asfoasdfwenfocjnv sdfsdf  ,, &#$5oiserfewfnaoscvnioiwev);
+		const char * Get(asfoasdfwenfocjnv sdfsdf  ,, &#$5oiserfewfnaoscvnioiwev) const;
 	};
 	
 asdfsdf]=]
@@ -49,7 +50,7 @@ do
 			{"typename":="double", "name":="bar_b"}
 		],
 		"file":="inmemory",
-		"line":="7"
+		"line":="6"
 	}
 }]]
 
@@ -62,7 +63,7 @@ do
 			{"typename":="Bar", "name":="foo_b"}
 		],
 		"file":="inmemory",
-		"line":="14"
+		"line":="13"
 	}
 }]]
 	local source_bar = cont["Bar"]:dump()
@@ -73,7 +74,7 @@ do
 	print(string.format("Foo:\n%s\n%s\n\n", target_foo, source_foo))
 	assert(source_bar == target_bar and source_foo == target_foo)
 	
-	
+	assert(cont["Foo"].custom["CoreData"] == 0, string.format("Expect %s but got %s", 0, cont["Foo"].custom["CoreData"]))
 	--Test linking
 	parser.link(cont)
 end

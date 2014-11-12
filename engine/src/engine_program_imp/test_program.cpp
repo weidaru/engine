@@ -37,6 +37,7 @@ struct Vertex {
 
 //[[TypeInfo]]//
 struct Matrix {
+	//[[CoreData]]//
 	float data[4][4];
 
 	Matrix() {
@@ -45,6 +46,14 @@ struct Matrix {
 		data[1][1] = 1.0f;
 		data[2][2] = 1.0f;
 		data[3][3] = 1.0f;
+	}
+	
+	float * operator[](unsigned int index) {
+		return data[index];
+	}
+	
+	const float * operator[](unsigned int index) const {
+		return data[index];
 	}
 };
 
@@ -78,17 +87,13 @@ public:
 		
 		//Set vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
+		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
 			vs->GetLastError();
 			//Set world view projection
 		{
-			float identity[16] = {
-				1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f};
-			vs->SetUniform("world", (const void *)identity, 64);
-			vs->SetUniform("view", (const void *)identity, 64);
+			Matrix identity;
+			vs->SetUniform("world", identity);
+			vs->SetUniform("view", identity);
 			
 			float np=5.0f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
@@ -96,21 +101,22 @@ public:
 			float yscale = 1.0f/tan(fov/2);
 			
 			//Column major matrix
-			float projection[16] = {
-				yscale/aspect, 0.0f, 0.0f, 0.0f,
-				0.0f, yscale, 0.0f, 0.0f,
-				0.0f, 0.0f, fp/(fp-np), -np*fp/(fp-np), 
-				0.0f, 0.0f, 1.0, 0.0f
-			};
+			Matrix projection;
+			projection[0][0] = yscale/aspect;
+			projection[1][1] = yscale;
+			projection[2][2] = fp/(fp-np);
+			projection[2][3] = 1.0f;
+			projection[3][2] = -np*fp/(fp-np);
+			projection[3][3] = 0.0f;
 
-			vs->SetUniform("projection", (const void *)projection, 64);
+			vs->SetUniform("projection", projection);
 		}
 
 		pipeline->SetVertexShader(vs);
 		
 		//Set pixel shader
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
+		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
 			ps->GetLastError();
 		pipeline->SetPixelShader(ps);
 		

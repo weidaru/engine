@@ -7,6 +7,19 @@
 
 namespace s2 {
 
+const s2string & TypeInfo::GetCustomMetadata(const s2string &key) const {
+	return custom_data.at(key);
+}
+
+bool TypeInfo::HasCustomMetadata(const s2string &key) const {
+	const CustomData &data = custom_data;
+	return custom_data.find(key) != custom_data.end();
+}
+
+void TypeInfo::SetCustomMetadata(const s2string &key, const s2string &value) {
+	custom_data[key] = value;
+}
+
 namespace {
 
 class TypeInfoStruct : public TypeInfo {
@@ -315,14 +328,14 @@ const bool TypeInfoManager::Has(const s2string &name) const {
 	return data.find(name) != data.end();
 }
 
-const TypeInfo & TypeInfoManager::CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members) {
+TypeInfo & TypeInfoManager::CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members) {
 	CHECK(Has(name) == false)<<"Try to create a typeinfo ["<<name<<"] that exists.";
 	TypeInfo *new_typeinfo = new TypeInfoStruct(name, size, new_members);
 	data[name] = new_typeinfo;
 	return *new_typeinfo;	
 }
 
-const TypeInfo & TypeInfoManager::CreatePrimitive(const s2string &name, unsigned int size) {
+TypeInfo & TypeInfoManager::CreatePrimitive(const s2string &name, unsigned int size) {
 	CHECK(Has(name) == false)<<"Try to create a typeinfo ["<<name<<"] that exists.";
 	TypeInfo *new_typeinfo = new TypeInfoPrimitive(name, size);
 	data[name] = new_typeinfo;

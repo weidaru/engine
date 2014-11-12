@@ -29,9 +29,8 @@ local function parse_type(context, lex)
 	assert_help(lex, "Expect a word", lex.expect_word)
 	local end_pos = lex.pos-1
 
-	lex:ignore_blank()
-	
 	while true do
+		lex:ignore_blank()
 		if lex:expect("*") then 
 			typename = "pointer"
 			break
@@ -60,6 +59,8 @@ local function parse_function_argument_body(context, lex)
 	--I am being lazy here. As in c/c++ parameter declaration will contain no parenthesis, I simply try to find the pair of "(" ")"
 	assert_help(lex, "Expect a ( ", lex.expect, "%(")
 	assert_help(lex, "Cannot find matching )", lex.next, "%)")
+	lex:ignore_blank()
+	lex:expect("const")
 	lex:ignore_blank()
 	if lex:expect(";") then
 		return
@@ -107,12 +108,12 @@ end
 local function parse_normal_method(context, lex)
 	parse_type(context, lex)
 	lex:ignore_blank()
-	assert_help(lex, "Expect a word as method name ", lex.expect_word)
+	assert_help(lex, "Expect a word as method name ", lex.expect, "[^%s\t\n(]*")
 	lex:ignore_blank()
 	parse_function_argument_body(context, lex)
 end
 
-local function parse_variable_dec(context, lex)
+local function parse_variable_dec(context, lex, member_annotation)
 	local typename = parse_type(context, lex)
 	lex:ignore_blank()
 	local name = assert_help(lex, "Expect a word ", lex.expect_word)
@@ -120,7 +121,7 @@ local function parse_variable_dec(context, lex)
 	local length_list = {}
 	while lex:expect("%[") ~= nil do
 		lex:ignore_blank()
-		local length = tonumber(assert_help(lex, "Expect a positive number", lex.expect, "[1-9]%d*"))
+		local length = tonumber(assert_help(lex, "Expect a positive number as length of array", lex.expect, "[1-9]%d*"))
 		table.insert(length_list, length);
 		lex:ignore_blank()
 		assert_help(lex, "Expect a ]", lex.expect, "%]")
@@ -138,10 +139,15 @@ local function parse_variable_dec(context, lex)
 	assert_help(lex, "Expect a ;", lex.expect, ";")
 	
 	--Sub-program for variable declaration
+	if member_annotation == "CoreData" then
+		assert(context.__head.custom["CoreData"] == nil, 
+					lex:build_syntax_error_message("Duplicated CoreData, only one is allowed"))
+		context.__head.custom["CoreData"] = #context.__head.members
+	end
 	context.__head.members:append(typename, name)
 end
 
-local function parse_member(context, lex)
+local function parse_member(context, lex, member_annotation)
 	--Lookahead for }
 	lex:checkpoint()
 		local should_end = (lex:expect("}")~=nil)
@@ -171,49 +177,45 @@ local function parse_member(context, lex)
 		if member_type == "method" then
 			local tt = parse_type(context, lex)
 			lex:ignore_blank()
-			assert_help(lex, "Expect a name after type " .. tt , lex.expect_word)
+			local typename=assert_help(lex, "Expect a name after type " .. tt , lex.expect_word)
 			lex:ignore_blank()
-			if lex:expect(";") ~= nil or lex:expect("%[") ~= nil then
+			if lex:expect(";") ~= nil then
+				member_type = "variable"
+			elseif  lex:expect("%[") ~= nil and typename ~= "operator" then
 				member_type = "variable"
 			end
 		end
 	lex:rollback()
 	if member_type == "variable" then
-		parse_variable_dec(context, lex)
+		parse_variable_dec(context, lex, member_annotation)
 	elseif member_type == "destructor" then
-		parse_destructor(context, lex)
+		parse_destructor(context, lex, member_annotation)
 	elseif member_type == "constructor" then
-		parse_constructor(context, lex) 
+		parse_constructor(context, lex, member_annotation) 
 	elseif member_type == "method" then
-		parse_normal_method(context, lex)
+		parse_normal_method(context, lex, member_annotation)
 	else
 		assert(false, "Unknown member type " .. member_type)
 	end
 end
 
 local function parse_struct(context, lex)
-	context.__head = context_class.create_struct_info()							--__head is used to store current parsing unit.
-	context.__head.file = lex.file
-	context.__head.line = lex:linenumber()
-	local text_start = lex.pos
 	assert_help(lex, "Expect struct declaration ", lex.expect, "struct")
 	lex:ignore_blank()	
 	local typename = assert_help(lex, "Expect a typename", lex.expect_word)
 	context.__head.typename = typename
 	lex:ignore_blank()
 	assert_help(lex, "Expect { ", lex.expect, "{")
-	lex:ignore_blank()
 	
 	while lex:expect("}")==nil and lex:expect("$")==nil  do
+		lex:ignore("[%s\t\n]", lexer.patterns.block_comment, "//[^%[].-\n", "//[^%[].-$")
+		_,_,member_annotation = lex:expect_annotation()
 		lex:ignore_blank()
-		parse_member(context, lex)
+		parse_member(context, lex, member_annotation)
 	end
 	
 	lex:ignore_blank()
 	assert_help(lex, "Expect ; ", lex.expect, ";")
-	local text_end = lex.pos-1
-	
-	context.__head.text = lex.data:sub(text_start, text_end)
 	
 	if context[context.__head.typename] ~= nil then
 		local lhs = context[context.__head.typename]
@@ -230,11 +232,18 @@ local function parse_struct(context, lex)
 	end
 end
 
-local function parse_annotation(context, lex)
-	local _,_,annotation = lex:expect_annotation()
+local function parse_annotation(context, lex, annotation)
 	if annotation == "TypeInfo" then
+		local text_start = lex.pos
+		context.__head = context_class.create_struct_info()							--__head is used to store current parsing unit.
+		context.__head.file = lex.file
+		context.__head.line = lex:linenumber()
+		
+		lex:expect_annotation()
 		lex:ignore_blank()
 		parse_struct(context, lex)
+		
+		context.__head.text = lex.data:sub(text_start, lex.pos-1)
 		print(string.format("Successfully paring a struct. Dumping:\n%s", context.__head:dump()))
 	else
 		assert(false, "Unknown annotation " .. annotation)
@@ -279,7 +288,7 @@ function m.parse(context, lex)
 		
 		if annotation then
 			print(string.format("Annotation found! File: %s at %s line: %d", annotation, lex.file, lex:linenumber()))
-			parse_annotation(context, lex)
+			parse_annotation(context, lex, annotation)
 		end
 
 		lex:next_line()

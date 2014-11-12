@@ -135,7 +135,7 @@ bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &cpp_typ
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
 	if(!reflect->CheckCompatible(uniform.type_name, cpp_type)) {
-		S2StringFormat(&error, "shader type %s and cpp type %s are not compatible,", uniform.type_name, cpp_type.GetName());
+		S2StringFormat(&error, "shader type %s and cpp type %s are not compatible,", uniform.type_name.c_str(), cpp_type.GetName().c_str());
 		return false;
 	}
 	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];

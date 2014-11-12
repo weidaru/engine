@@ -29,7 +29,7 @@ local function make_no_override(_t)
 end
 
 function context.create_struct_info()
-	local t = {typename="", members={}, file="", line=-1, text=""}
+	local t = {typename="", members={}, file="", line=-1, text="", custom={}}
 	t.location = function(self)
 		return string.format("File:%s\tLine:%d", t.file, t.line)
 	end

@@ -20,8 +20,8 @@ public:
 	virtual bool 					Initialize(const s2string &path, const s2string &entry_point) = 0;
 
 	template <typename T>
-	bool SetUniform(const s2string &name, const T *value) {
-		return SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(),value);
+	bool SetUniform(const s2string &name, const T &value) {
+		return SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(),&value);
 	}
 	
 	//This will be version without compatibility check, more like a c style.

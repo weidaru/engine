@@ -62,6 +62,15 @@ public:
 
 	virtual s2string GetName() const = 0;
 	virtual unsigned int GetSize() const = 0;
+	
+	const s2string & GetCustomMetadata(const s2string &key) const;
+	bool HasCustomMetadata(const s2string &key) const;
+	
+	void SetCustomMetadata(const s2string &key, const s2string &value);
+	
+private:
+	typedef std::map<s2string, s2string> CustomData;
+	CustomData custom_data;
 };
 
 class TypeInfoManager : public Singleton<TypeInfoManager>{
@@ -93,8 +102,8 @@ public:
 	/**
 	 * Don't call the following unless you know what you are doing.
 	 */
-	const TypeInfo & CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members);
-	const TypeInfo & CreatePrimitive(const s2string &name, unsigned int size);
+	TypeInfo & CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members);
+	TypeInfo & CreatePrimitive(const s2string &name, unsigned int size);
 	
 private:
 	mutable Data data;

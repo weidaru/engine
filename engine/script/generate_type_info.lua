@@ -56,7 +56,12 @@ local function generate(context, file)
 				end_scope()
 				append_help("}")
 			end
-			append_help(string.format('TypeInfoManager::GetSingleton()->CreateStruct(TypeInfoBind<%s>::GetName(), sizeof(%s), members);', e.typename, e.typename))
+			append_help(string.format('TypeInfo &info = TypeInfoManager::GetSingleton()->CreateStruct(TypeInfoBind<%s>::GetName(), sizeof(%s), members);', 
+													e.typename, e.typename))
+			for k,v in pairs(e.custom) do
+				append_help(string.format('info.SetCustomMetadata("%s", "%s");', k, v))
+			end
+			
 		end_scope()
 		append_help('}')
 	end
