@@ -4,6 +4,7 @@
 #include "resource.h"
 #include "utils/s2string.h"
 #include "texture_enum.h"
+#include "general_enum.h"
 
 namespace s2 {
 
@@ -16,8 +17,7 @@ public:
 		TextureEnum::TextureFormat format;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
-		bool as_shaderresource;
-		bool is_dynamic;
+		GeneralEnum::CPUAccess cpu_access;
 		void *data;
 		
 		Option();
