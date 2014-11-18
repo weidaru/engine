@@ -14,8 +14,8 @@ public:
 	D3D11VertexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11VertexBuffer();
 	virtual void Initialize(	unsigned int element_count, unsigned int element_member_count,
-									unsigned int per_ele_size, const void *data, bool is_dynamic);
-	virtual bool IsDynamic() const;
+									unsigned int per_ele_size, const void *data, GeneralEnum::CPUAccess cpu_access);
+	virtual GeneralEnum::CPUAccess GetCPUAccessFlag() const;
 	virtual unsigned int GetElementCount() const;
 	virtual unsigned int GetElementBytewidth() const;
 	virtual unsigned int GetElementMemberCount() const;
@@ -30,7 +30,7 @@ private:
 	void Clear();
 
 protected:
-	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic);
+	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, GeneralEnum::CPUAccess cpu_access);
 
 private:
 	D3D11GraphicResourceManager *manager;
@@ -39,7 +39,7 @@ private:
 	unsigned int ele_member_count;
 	unsigned int ele_bytewidth;
 	s2string type_name;
-	
+	GeneralEnum::CPUAccess cpu_access;
 };
 
 }

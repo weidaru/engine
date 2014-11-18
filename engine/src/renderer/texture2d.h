@@ -3,6 +3,7 @@
 
 #include "resource.h"
 #include "texture_enum.h"
+#include "general_enum.h"
 #include "utils/s2string.h"
 
 namespace s2 {
@@ -15,8 +16,8 @@ public:
 		unsigned int 	mip_level;				//0 is full mipmap.
 		unsigned int 	array_size;
 		TextureEnum::TextureFormat 	format;
-		unsigned int 	sample_size;
-		bool is_dynamic;
+		unsigned int 	sample_size;			//This is only useful for render target
+		GeneralEnum::CPUAccess cpu_access;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
 		void *data;

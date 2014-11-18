@@ -15,8 +15,8 @@ class D3D11IndexBuffer : public IndexBuffer {
 public:
 	D3D11IndexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11IndexBuffer();
-	virtual void Initialize(unsigned int element_count, const InputType *data, bool is_dynamic);
-	virtual bool IsDynamic() const;
+	virtual void Initialize(unsigned int element_count, const InputType *data, GeneralEnum::CPUAccess cpu_access);
+	virtual GeneralEnum::CPUAccess GetCPUAccessFlag() const;
 	virtual unsigned int GetElementCount() const;
 	virtual void * Map();
 	virtual void UnMap();
@@ -31,6 +31,7 @@ private:
 	D3D11GraphicResourceManager *manager;
 	ID3D11Buffer *ib;
 	unsigned int ele_count;
+	GeneralEnum::CPUAccess cpu_access;
 };
 
 }

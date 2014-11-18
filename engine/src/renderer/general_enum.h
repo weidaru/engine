@@ -5,10 +5,10 @@ namespace s2 {
 
 struct GeneralEnum {
 	enum CPUAccess {
-		NONE
-		READ,
-		WRITE,
-		READ_WRITE
+		CPU_NO_ACCESS,
+		CPU_READ,
+		CPU_WRITE,
+		CPU_READ_WRITE
 	};
 }
 

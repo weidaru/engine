@@ -61,13 +61,10 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	// Set the refresh rate of the back buffer.
-	if(enable_vsync)
-	{
+	if(enable_vsync) {
 		swap_chain_desc.BufferDesc.RefreshRate.Numerator = adapter_info.refresh_numerator;
 		swap_chain_desc.BufferDesc.RefreshRate.Denominator = adapter_info.refresh_denominator;
-	}
-	else
-	{
+	} else {
 		swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
 		swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
 	}

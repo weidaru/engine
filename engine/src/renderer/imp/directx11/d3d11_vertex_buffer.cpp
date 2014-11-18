@@ -10,12 +10,13 @@
 #include <glog/logging.h>
 
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_buffer_helper.h"
 
 namespace s2 {
 
 D3D11VertexBuffer::D3D11VertexBuffer(D3D11GraphicResourceManager *_manager)
-		: manager(_manager),vb(0), ele_count(0), ele_member_count(0), ele_bytewidth(0){
-
+		: manager(_manager),vb(0){
+	Clear();
 }
 
 D3D11VertexBuffer::~D3D11VertexBuffer() {
@@ -27,30 +28,24 @@ void D3D11VertexBuffer::Clear() {
 		vb->Release();
 		vb=0;
 	}
+	ele_count = 0;
+	ele_member_count = 0;
+	ele_bytewidth = 0;
 }
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int element_member_count,
-													unsigned int per_ele_size, const void *data, bool is_dynamic) {
+													unsigned int per_ele_size, const void *data, GeneralEnum::CPUAccess _cpu_access) {
 	Clear();
 	CHECK(element_count>0 && per_ele_size>0)<<"element count and element bytewidth must not be 0";
 	
-
 	ele_count = element_count;
 	ele_member_count = element_member_count;
 	ele_bytewidth = per_ele_size;
+	cpu_access = _cpu_access;
 	
 	D3D11_BUFFER_DESC desc;
-	desc.ByteWidth = element_count * per_ele_size;
-	if(is_dynamic) {
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	} else {
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.CPUAccessFlags = 0;
-	}
+	D3D11BufferHelper::SetBufferDesc(&desc, per_ele_size*element_count, cpu_access);
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	desc.MiscFlags = 0;
-	desc.StructureByteStride = 0;
 	
 	HRESULT result = 1;
 	if(data) {
@@ -64,16 +59,14 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 	CHECK(!FAILED(result))<<"Cannot create vertex buffer. Error code: " <<::GetLastError();
 }
 
-void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, bool is_dynamic) {
+void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, GeneralEnum::CPUAccess _cpu_access) {
 	type_name = type_info.GetName();
-	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, is_dynamic);
+	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, _cpu_access);
 }
 
-bool D3D11VertexBuffer::IsDynamic() const {
+GeneralEnum::CPUAccess GetCPUAccessFlag() const {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
-	D3D11_BUFFER_DESC desc;
-	vb->GetDesc(&desc);
-	return desc.Usage == D3D11_USAGE_DYNAMIC;
+	return cpu_access;
 }
 
 unsigned int D3D11VertexBuffer::GetElementCount() const {
@@ -106,7 +99,6 @@ void * D3D11VertexBuffer::Map() {
 void D3D11VertexBuffer::UnMap() {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	CHECK(IsDynamic())<<"Vertex buffer mut be dynamic in order to unmap.";
-	HRESULT result = 1;
 	manager->GetDeviceContext()->Unmap(vb, 0);
 }
 
