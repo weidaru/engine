@@ -3,21 +3,22 @@
 
 #include "resource.h"
 #include "utils/s2string.h"
-#include "general_enum.h"
+#include "mappable.h"
 
 namespace s2 {
 
-class IndexBuffer : public Resource {
+class IndexBuffer : public Resource, public Mappable {
 public:
 	typedef unsigned int InputType;
 
 public:
 	virtual 					~IndexBuffer() {}
-	virtual void 			Initialize(unsigned int element_count, const InputType *data, GeneralEnum::CPUAccess cpu_access) = 0;
-	virtual GeneralEnum::CPUAccess GetCPUAccessFlag() const = 0;
+	virtual void 			Initialize(unsigned int element_count, const InputType *data, GeneralEnum::MapBehavior map_behavior) = 0;
+	virtual GeneralEnum::MapBehavior GetMapBehavior() const = 0;
 	virtual unsigned int GetElementCount() const = 0;
-	virtual void * 			Map() = 0;
-	virtual void 			UnMap() = 0;
+	void Update(unsigned int offset, InputType *data, unsigned int array_size) {
+		this->Update(offset, (void *)data, sizeof(InputType)*array_size);
+	}
 };
 
 }

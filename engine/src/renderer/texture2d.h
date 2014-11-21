@@ -3,12 +3,12 @@
 
 #include "resource.h"
 #include "texture_enum.h"
-#include "general_enum.h"
+#include "mappable.h"
 #include "utils/s2string.h"
 
 namespace s2 {
 
-class Texture2D : public Resource {
+class Texture2D : public Resource, public Mappable {
 public:
 	struct Option {
 		unsigned int 	width;
@@ -17,7 +17,7 @@ public:
 		unsigned int 	array_size;
 		TextureEnum::TextureFormat 	format;
 		unsigned int 	sample_size;			//This is only useful for render target
-		GeneralEnum::CPUAccess cpu_access;
+		GeneralEnum::MapBehavior map_behavior;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
 		void *data;
@@ -30,8 +30,6 @@ public:
 public:
 	virtual				~Texture2D() {}
 	virtual void 		Initialize(const Option &option) = 0;
-	virtual void * 		Map() = 0;
-	virtual void 		UnMap() = 0;
 	virtual void 		GetOption(Option *option) = 0;		
 };
 
