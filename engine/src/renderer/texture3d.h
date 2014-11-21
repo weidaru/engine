@@ -30,6 +30,9 @@ public:
 	virtual				~Texture3D() {}
 	virtual void 		Initialize(const Option &option) = 0;
 	virtual void 		GetOption(Option *option) = 0;		
+	virtual void 		Map(bool is_partial_map, unsigned int mip_slice_index, unsigned array_slice_index) = 0;
+	virtual void 		Update(unsigned int row, unsigned int column, unsigned int depth, const void *data, unsigned int size) = 0;
+	virtual void 		UnMap() = 0;
 };
 
 }

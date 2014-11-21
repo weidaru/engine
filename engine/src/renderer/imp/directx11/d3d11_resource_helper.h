@@ -12,8 +12,6 @@ namespace s2 {
 class D3D11ResourceHelper {
 public:
 	static void SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, GeneralEnum::MapBehavior map_behavior);
-	static void * Map(ID3D11DeviceContext *context, ID3D11Resource *resource, GeneralEnum::MapBehavior map_behavior, bool is_partial_map, s2string *error);
-	static void UnMap(ID3D11DeviceContext *context, ID3D11Resource *resource);
 };
 
 }

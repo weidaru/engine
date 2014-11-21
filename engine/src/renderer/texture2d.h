@@ -31,6 +31,8 @@ public:
 	virtual				~Texture2D() {}
 	virtual void 		Initialize(const Option &option) = 0;
 	virtual void 		GetOption(Option *option) = 0;		
+
+	
 };
 
 }

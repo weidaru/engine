@@ -27,6 +27,10 @@ public:
 	virtual				~Texture1D() {}
 	virtual void 		Initialize(const Option &option) = 0;
 	virtual void 		GetOption(Option *option) = 0;		
+	
+	virtual void Map(bool is_partial_map, unsigned int mip_slice_index, unsigned array_slice_index) = 0;
+	virtual void Update(unsigned int index, const InputType *data, unsigned int array_size) = 0;
+	virtual void UnMap() = 0;
 };
 
 }

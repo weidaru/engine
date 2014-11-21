@@ -12,3 +12,6 @@ TODO:
 - Use reflection to validate input, output and shaders.
 	-- Figure out of input layout and strides dynamically.
 	-- Validate in and out of different pipeline stages.
+	
+- If we bind a mip-mapped Texture2D as a RenderTarget and draw on top, what happen?
+	Would other mip level get updated too?

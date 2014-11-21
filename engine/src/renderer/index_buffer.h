@@ -16,9 +16,10 @@ public:
 	virtual void 			Initialize(unsigned int element_count, const InputType *data, GeneralEnum::MapBehavior map_behavior) = 0;
 	virtual GeneralEnum::MapBehavior GetMapBehavior() const = 0;
 	virtual unsigned int GetElementCount() const = 0;
-	void Update(unsigned int offset, InputType *data, unsigned int array_size) {
-		this->Update(offset, (void *)data, sizeof(InputType)*array_size);
-	}
+	
+	virtual void Map(bool is_partial_map) = 0;
+	virtual void Update(unsigned int start_index, const InputType *data, unsigned int array_size) = 0;
+	virtual void UnMap() = 0;
 };
 
 }

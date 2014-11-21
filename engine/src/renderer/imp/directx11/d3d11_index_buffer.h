@@ -19,7 +19,7 @@ public:
 	virtual GeneralEnum::CPUAccess GetCPUAccessFlag() const;
 	virtual unsigned int GetElementCount() const;
 	virtual void Map(bool is_partial_map);
-	virtual void Update(unsigned int offset, void *data, unsigned int size);
+	virtual void Update(unsigned int offset, const void *data, unsigned int size);
 	virtual void UnMap();
 	
 	/*********************D3D11 exclusive***********************/

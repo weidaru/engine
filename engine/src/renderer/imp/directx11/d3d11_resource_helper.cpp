@@ -42,15 +42,6 @@ void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  b
 	 */
 	desc->StructureByteStride = 0;			
 }
-
-void * D3D11ResourceHelper::Map(ID3D11DeviceContext *context, ID3D11Resource *resource, 
-									GeneralEnum::MapBehavior map_behavior, bool is_partial_map, s2string *error) {
-	
-}
-
-void D3D11ResourceHelper::UnMap(ID3D11DeviceContext *context, ID3D11Resource *resource) {
-
-}
 	
 	
 }

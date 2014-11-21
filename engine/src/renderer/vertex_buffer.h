@@ -27,11 +27,14 @@ public:
 	
 	virtual GeneralEnum::MapBehavior GetMapBehavior() const = 0;
 	template <typename T>
-	void Update(unsigned int offset, T *data, unsigned int array_size) {
-		this->Update(offset, (void *)data, sizeof(T)*array_size);
+	void Update(unsigned int start_index, T *data, unsigned int array_size) {
+		this->Update(start_index, (void *)data, sizeof(T)*array_size);
 	}
+	virtual void Map(bool is_partial_map) = 0;
+	virtual void UnMap() = 0;
 	
 protected:
+	virtual void Update(unsigned int start_index, const void *data, unsigned int size) = 0;
 	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, GeneralEnum::MapBehavior map_behavior) = 0;
 };
 
