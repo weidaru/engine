@@ -13,12 +13,13 @@
 
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_mapped_resource.h"
 
 namespace s2 {
 
 
 D3D11Texture2D::D3D11Texture2D(D3D11GraphicResourceManager *_manager) 
-		: manager(_manager), tex(0), ds_view(0), rt_view(0), sr_view(0) {
+		: manager(_manager), tex(0), ds_view(0), rt_view(0), sr_view(0), mapped(0) {
 	CHECK(_manager != 0)<<"Manager should never be NULL";
 }
 
@@ -43,6 +44,8 @@ void D3D11Texture2D::Clear() {
 		sr_view->Release();
 		sr_view = 0;
 	}
+	delete mapped;
+	mapped = 0;
 }
 
 void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetView *_rt_view,const Option &_option) {
@@ -52,15 +55,15 @@ void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetV
 	
 	tex = _tex;
 	rt_view = _rt_view;
+	option = _option;
 	
+	mapped = new D3D11MappedResource(manager, tex, _option.map_behavior);
 }
 
 void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	Clear();
-
-	tex = 0;
-	rt_view = 0;
-
+	
+	option = _option;
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = _option.width;
 	desc.Height = _option.height;
@@ -151,11 +154,23 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 	
 	desc.CPUAccessFlags = 0;
-	if(_option.is_dynamic) {
+	if(_option.map_behavior == GeneralEnum::MAP_WRITE_FREQUENT) {
 		desc.Usage =  D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	} else {
+	} else if(_option.map_behavior == GeneralEnum::MAP_WRITE_OCCASIONAL) {
 		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.CPUAccessFlags = 0;
+	} else if(_option.map_behavior == GeneralEnum::MAP_READ) {
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	} else if(_option.map_behavior == GeneralEnum::MAP_WRITE_FREQUENT) {
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	} else if(_option.map_behavior == GeneralEnum::MAP_FORBIDDEN) {
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.CPUAccessFlags = 0;
+	} else {
+		CHECK(false)<<"Not supported.";
 	}
 	
 	desc.MiscFlags = 0;
@@ -191,43 +206,54 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 }
 
-void * D3D11Texture2D::Map() {
-	CHECK(tex)<<"Texture not initialized.";
-	D3D11_MAPPED_SUBRESOURCE subresource;
-	HRESULT result = 1;
-	result = manager->GetDeviceContext()->Map(tex, 1, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
-	CHECK(!FAILED(result))<<"Fail to map texture 2d. Error code "<<::GetLastError();
+void D3D11Texture2D::Map(bool is_partial_map, unsigned int mip_index, unsigned array_index) {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	mapped->Map(is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
+}
+
+void D3D11Texture2D::Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) {
+	CHECK(tex)<<"Texture2D is not initialized.";
 	
-	return subresource.pData;
+	mapped->Write((row*option.width+col)*TextureEnum::GetFormatSize(option.format), data, size);
+}
+
+const void * D3D11Texture2D::Read(unsigned int row, unsigned int col) const {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	return (const char *)mapped->Read() + (row*option.width+col)*TextureEnum::GetFormatSize(option.format);
 }
 
 void D3D11Texture2D::UnMap() {
-	CHECK(tex)<<"Texture not initialized.";
-	manager->GetDeviceContext()->Unmap(tex, 0);
+	CHECK(tex)<<"Texture2D is not initialized.";
+	mapped->UnMap();
 }
 
-void D3D11Texture2D::GetOption(Texture2D::Option *option) {
-	D3D11_TEXTURE2D_DESC desc;
-	tex->GetDesc(&desc);
-	
-	option->width = desc.Width;
-	option->height = desc.Height;
-	option->mip_level = desc.MipLevels;
-	option->array_size= desc.ArraySize;
-	option->format = D3D11EnumConverter::DXGIFormatToTextureFormat(desc.Format);
-	option->sample_size = desc.SampleDesc.Count;
-	option->is_dynamic = (desc.Usage == D3D11_USAGE_DYNAMIC);
-	if(desc.BindFlags & D3D11_BIND_DEPTH_STENCIL)
-		option->output_bind = TextureEnum::DEPTH_STENCIL;
-	else if(desc.BindFlags & D3D11_BIND_RENDER_TARGET)
-		option->output_bind = TextureEnum::RENDER_TARGET;
-	else
-		option->output_bind = TextureEnum::NOT_OUTPUT;
-	if(desc.BindFlags & D3D11_BIND_SHADER_RESOURCE)
-		option->input_bind = TextureEnum::SHADER_RESOURCE;
-	else
-		option->input_bind = TextureEnum::NOT_INPUT;
+const Texture2D::Option & D3D11Texture2D::GetOption() const {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	return option;
 }
+
+void D3D11Texture2D::Update(
+			unsigned int left, unsigned int right,
+			unsigned int top, unsigned int bottom,
+			const void *data) {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	CHECK(mapped->GetMapBehavior() == GeneralEnum::MAP_WRITE_OCCASIONAL)<<
+				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
+	unsigned int ele_size = TextureEnum::GetFormatSize(option.format);
+	D3D11_BOX dest;
+	dest.left = left*ele_size;
+	dest.right = right*ele_size;
+	dest.top = top;
+	dest.bottom = bottom;
+	dest.front = 0;
+	dest.back = 1;
+	
+	manager->GetDeviceContext()->UpdateSubresource(
+		tex, 0, &dest, (const void *)data, option.width*ele_size, 0 
+	);
+}
+
+
 }
 
 

@@ -62,7 +62,7 @@ void D3D11OutputStage::SetRenderTargetClearOption(unsigned int index, bool enabl
 	rts[index].rgba[3] = rgba[3];
 }
 
-void D3D11OutputStage::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
+void D3D11OutputStage::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const {
 	*enable = rts[index].enable_clear;
 	rgba[0] = rts[index].rgba[0];
 	rgba[1] = rts[index].rgba[1];
@@ -77,7 +77,7 @@ void D3D11OutputStage::SetDepthStencilBufferClearOption(bool enable_depth_clear,
 	ds.stencil = stencil;
 }
 
-void D3D11OutputStage::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) {
+void D3D11OutputStage::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const {
 	*enable_depth_clear = ds.enable_depth_clear;
 	*enable_stencil_clear = ds.enable_stencil_clear;
 	*depth = ds.depth;

@@ -1,7 +1,7 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dx11.lib")
 
-#include "d3d11_resoruce_helper.h"
+#include "d3d11_resource_helper.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <d3d11.h>

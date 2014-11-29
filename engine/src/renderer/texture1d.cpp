@@ -9,7 +9,7 @@ Texture1D::Option::Option(){
 	format = TextureEnum::R8G8B8A8_UNORM;
 	output_bind = TextureEnum::NOT_OUTPUT;
 	input_bind = TextureEnum::SHADER_RESOURCE;
-	cpu_access = GeneralEnum::CPU_NO_ACCESS;
+	map_behavior = GeneralEnum::MAP_FORBIDDEN;
 }
 
 

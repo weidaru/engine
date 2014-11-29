@@ -1,8 +1,6 @@
 #ifndef GENERAL_ENUM_H_
 #define GENERAL_ENUM_H_
 
-#include "general_enum.h"
-
 namespace s2 {
 
 struct GeneralEnum {

@@ -4,11 +4,11 @@
 #include "resource.h"
 #include "utils/s2string.h"
 #include "texture_enum.h"
-#include "mappable.h"
+#include "general_enum.h"
 
 namespace s2 {
 
-class Texture1D : public Resource, public Mappable {
+class Texture1D : public Resource {
 public:
 	struct Option {
 		unsigned int width;
@@ -24,13 +24,16 @@ public:
 	};
 
 public:
-	virtual				~Texture1D() {}
-	virtual void 		Initialize(const Option &option) = 0;
-	virtual void 		GetOption(Option *option) = 0;		
+	virtual ~Texture1D() {}
+	virtual void Initialize(const Option &option) = 0;
+	virtual const Texture1D::Option & GetOption() const = 0;		
 	
-	virtual void Map(bool is_partial_map, unsigned int mip_slice_index, unsigned array_slice_index) = 0;
-	virtual void Update(unsigned int index, const InputType *data, unsigned int array_size) = 0;
+	virtual void Map(bool is_partial_map, unsigned int mip_index, unsigned array_index) = 0;
+	virtual void Write(unsigned int index, const void *data, unsigned int size) = 0;
+	virtual const void * Read(unsigned int index) const = 0;
 	virtual void UnMap() = 0;
+	
+	virtual void Update(unsigned int index, const void *data, unsigned int size) = 0;
 };
 
 }

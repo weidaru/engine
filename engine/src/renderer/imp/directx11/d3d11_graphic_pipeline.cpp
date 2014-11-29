@@ -270,7 +270,7 @@ void D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool e
 	output_stage.SetRenderTargetClearOption(index, enable, rgba);
 }
 
-void D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) {
+void D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const {
 	output_stage.GetRenderTargetClearOption(index, enable, rgba);
 }
 
@@ -278,7 +278,7 @@ void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable_depth_cl
 	output_stage.SetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
-void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) {
+void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const {
 	output_stage.GetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
@@ -329,7 +329,7 @@ void D3D11GraphicPipeline::FlushBlendOption() {
 	context->OMSetBlendState(blend_state , blend_opt.factor, blend_opt.sample_mask);
 }
 
-bool D3D11GraphicPipeline::Validate(s2string *error) {
+bool D3D11GraphicPipeline::Validate(s2string *error) const {
 	return true;
 }
 

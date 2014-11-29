@@ -44,11 +44,11 @@ public:
 	void SetRenderTarget(unsigned int index, Texture2D *target);
 	Resource * GetRenderTarget(unsigned int index);
 	void SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]);
-	void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba);
+	void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const;
 	void SetDepthStencilBuffer(Texture2D *buffer);
 	Resource * GetDepthStencilBuffer();
 	void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
-	void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil);
+	void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const;
 	
 	void Clear();
 	

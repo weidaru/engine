@@ -87,7 +87,7 @@ public:
 		
 		//Set vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
 			vs->GetLastError();
 			//Set world view projection
 		{
@@ -116,7 +116,7 @@ public:
 		
 		//Set pixel shader
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
 			ps->GetLastError();
 		pipeline->SetPixelShader(ps);
 		
@@ -127,13 +127,15 @@ public:
 			{{-0.5f, -0.5f, 5.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
 		};
 		vb = manager->CreateVertexBuffer();
-		vb->Initialize(3, vertices, false);
+		vb->Initialize(3, (Vertex *)0, GeneralEnum::MAP_WRITE_OCCASIONAL);
+		vb->Update(0, vertices, 3);
 		pipeline->SetVertexBuffer(0, 0, vb);
+		
 
 		//Set index buffer
 		IndexBuffer::InputType indices[3] = {0,1,2};
 		ib = manager->CreateIndexBuffer();
-		ib->Initialize(3, indices, false);
+		ib->Initialize(3, indices, GeneralEnum::MAP_FORBIDDEN);
 		pipeline->SetIndexBuffer(ib);
 
 		return true;

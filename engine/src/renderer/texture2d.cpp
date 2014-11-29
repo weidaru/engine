@@ -12,7 +12,7 @@ Texture2D::Option::Option(){
 	output_bind = TextureEnum::NOT_OUTPUT;
 	input_bind = TextureEnum::SHADER_RESOURCE;
 	sample_size = 1;
-	cpu_access = GeneralEnum::CPU_NO_ACCESS;
+	map_behavior = GeneralEnum::MAP_FORBIDDEN;
 	data = 0;
 }
 
@@ -25,7 +25,7 @@ void Texture2D::Option::SetAsDepthStencilBuffer(Option *option, unsigned int wid
 	option->output_bind = TextureEnum::DEPTH_STENCIL;
 	option->input_bind= TextureEnum::NOT_INPUT;
 	option->sample_size = 1;
-	option->is_dynamic = false;
+	option->map_behavior =  GeneralEnum::MAP_WRITE_OCCASIONAL;
 	option->data = 0;
 }
 

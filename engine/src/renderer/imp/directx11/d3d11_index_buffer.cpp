@@ -11,12 +11,13 @@
 #include <stdio.h>
 
 #include "d3d11_graphic_resource_manager.h"
-#include "d3d11_buffer_helper.h"
+#include "d3d11_resource_helper.h"
+#include "d3d11_mapped_resource.h"
 
 namespace s2 {
 
 D3D11IndexBuffer::D3D11IndexBuffer(D3D11GraphicResourceManager *_manager)
-		: manager(_manager), ib(0){
+		: manager(_manager), ib(0), mapped(0){
 	Clear();
 }
 
@@ -30,15 +31,15 @@ void D3D11IndexBuffer::Clear() {
 		ib=0;
 	}
 	ele_count = 0;
-	cpu_access = GeneralEnum::CPU_NO_ACCESS;
+	delete mapped;
+	mapped = 0;
 }
 
-void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, GeneralEnum::CPUAccess _cpu_access) {
+void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, GeneralEnum::MapBehavior map_behavior) {
 	Clear();
 	ele_count = element_count;
-	cpu_access = cpu_access;
 	D3D11_BUFFER_DESC desc;
-	D3D11BufferHelper::SetBufferDesc(&desc, sizeof(InputType)*element_count, cpu_access);
+	D3D11ResourceHelper::SetBufferDesc(&desc, sizeof(InputType)*element_count, map_behavior);
 	
 	desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	
@@ -52,11 +53,8 @@ void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *d
 	}
 	
 	CHECK(!FAILED(result)) <<"Cannot create index buffer. Error code: " << ::GetLastError();
-}
-
-virtual GeneralEnum::CPUAccess GetCPUAccessFlag() const; {
-	CHECK(ib)<<"Index buffer is not initialized.";
-	return cpu_access;
+	
+	mapped = new D3D11MappedResource(manager, ib, map_behavior);
 }
 
 unsigned int D3D11IndexBuffer::GetElementCount() const {
@@ -64,24 +62,48 @@ unsigned int D3D11IndexBuffer::GetElementCount() const {
 	return ele_count;
 }
 
-void * D3D11IndexBuffer::Map() {
+GeneralEnum::MapBehavior D3D11IndexBuffer::GetMapBehavior() const {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	CHECK(cpu_access==GeneralEnum::CPU_WRITE || cpu_access==GeneralEnum::CPU_READ_WRITE)<<
-				"Index buffer must be set to CPU_WRITE or CPU_READ_WRITE in order to map.";
-	D3D11_MAPPED_SUBRESOURCE subresource;
-	HRESULT result = 1;
-	result = manager->GetDeviceContext()->Map(ib, 1, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
-	CHECK(!FAILED(result))<<"Fail to map index buffer. Error code "<<::GetLastError();
-	
-	return subresource.pData;
+	return mapped->GetMapBehavior();
 }
 
+void D3D11IndexBuffer::Map(bool is_partial_map) {
+	CHECK(ib)<<"Index buffer is not initialized.";
+	mapped->Map(is_partial_map, 0);
+}
+
+void D3D11IndexBuffer::Write(unsigned int index, const InputType *data, unsigned int array_size) {
+	CHECK(ib)<<"Index buffer is not initialized.";
+	mapped->Write(index*sizeof(InputType), (const void *)data, array_size*sizeof(InputType));
+	
+}
+
+const IndexBuffer::InputType * D3D11IndexBuffer::Read(unsigned int index) const {
+	CHECK(ib)<<"Index buffer is not initialized.";
+	return (const InputType *)((const char *)mapped->Read()+index*sizeof(InputType));
+}
 
 void D3D11IndexBuffer::UnMap() {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	CHECK(cpu_access==GeneralEnum::CPU_WRITE || cpu_access==GeneralEnum::CPU_READ_WRITE)<<
-				"Index buffer must be set to CPU_WRITE or CPU_READ_WRITE in order to map.";
-	manager->GetDeviceContext()->Unmap(ib,0);
+	mapped->UnMap();
+}
+
+void D3D11IndexBuffer::Update(unsigned int index, const InputType *data, unsigned int array_size) {
+	CHECK(ib)<<"Index buffer is not initialized.";
+	CHECK(mapped->GetMapBehavior() == GeneralEnum::MAP_WRITE_OCCASIONAL)<<
+				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
+	
+	D3D11_BOX dest;
+	dest.left = index*sizeof(InputType);
+	dest.right = (index+array_size)*sizeof(InputType);
+	dest.top = 0;
+	dest.bottom = 1;
+	dest.front = 0;
+	dest.back = 1;
+	
+	manager->GetDeviceContext()->UpdateSubresource(
+		ib, 0, &dest, (const void *)data, 0, 0 
+	);
 }
 
 }
