@@ -282,7 +282,7 @@ void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_c
 	output_stage.GetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
-void D3D11GraphicPipeline::FlushRasterizationOption() {
+void D3D11GraphicPipeline::SetupRasterizationOption() {
 	CHECK(rast_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	RasterizationOption &option = rast_opt;
@@ -316,14 +316,14 @@ void D3D11GraphicPipeline::FlushRasterizationOption() {
 	context->RSSetState(rast_state);
 }
 
-void D3D11GraphicPipeline::FlushDepthStencilOption() {
+void D3D11GraphicPipeline::SetupDepthStencilOption() {
 	CHECK(ds_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetDepthStencilState(ds_state, ds_opt.stencil_replace_value);
 	
 }
 
-void D3D11GraphicPipeline::FlushBlendOption() {
+void D3D11GraphicPipeline::SetupBlendOption() {
 	CHECK(blend_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetBlendState(blend_state , blend_opt.factor, blend_opt.sample_mask);
@@ -340,30 +340,28 @@ void D3D11GraphicPipeline::Draw() {
 	else
 		input_stage.Setup(0);
 
-	if(vs && new_vs) {
+	if(vs) {
 		vs->Setup();
-		new_vs = false;
 	}
-	if(ps && new_ps) {
+	if(ps) {
 		ps->Setup();
-		new_ps = false;
 	}
 	
 	//Setup rasterization option.
 	if(new_rast) {
-		FlushRasterizationOption();
+		SetupRasterizationOption();
 		new_rast = false;
 	}
 	
 	//Setup depth stencil option.
 	if(new_ds) {
-		FlushDepthStencilOption();
+		SetupDepthStencilOption();
 		new_ds = false;
 	}
 	
 	//Setup blend option.
 	if(new_blend) {
-		FlushBlendOption();
+		SetupBlendOption();
 		new_blend = false;
 	}
 	

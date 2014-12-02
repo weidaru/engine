@@ -5,6 +5,8 @@
 
 #include <glog/logging.h>
 
+#include <time.h>
+
 LRESULT CALLBACK WndProc(HWND _hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
 	switch(umessage)
@@ -66,7 +68,10 @@ void Engine::Run() {
 	ZeroMemory(&msg, sizeof(MSG));
 
 	done = false;
+	float interval = 0.0f;
 	while(!done) {
+		clock_t t = clock();
+
 		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -75,7 +80,8 @@ void Engine::Run() {
 		if(msg.message == WM_QUIT || stop == true) 
 			done = true;
 		else
-			OneFrame(0.1f);
+			OneFrame(interval);
+		interval = ((float)(clock()-t))/CLOCKS_PER_SEC;
 	}
 }
 

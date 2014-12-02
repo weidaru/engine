@@ -29,6 +29,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#define PI 3.141596253f
+
 //[[TypeInfo]]//
 struct Vertex {
 	float position[3];
@@ -57,11 +59,28 @@ struct Matrix {
 	}
 };
 
+static void MakeIdentity(Matrix *_m) {
+	Matrix &m = *_m;
+	memset(_m, 0, 64);
+	m[0][0] = 1.0f;
+	m[1][1] = 1.0f;
+	m[2][2] = 1.0f;
+	m[3][3] = 1.0f;
+}
+
+static void MakeRotationAxisY(Matrix *_m, float theta) {
+	Matrix &m = *_m;
+	m[0][0]=cos(theta); 		m[0][1]=0.0f;		m[0][2]=-sin(theta);		m[0][3]=0.0f;
+	m[1][0]=0;			 		m[1][1]=1.0f;		m[1][2]=0.0f;				m[1][3]=0.0f;
+	m[2][0]=sin(theta); 		m[2][1]=0.0f;		m[2][2]=cos(theta);		m[2][3]=0.0f;
+	m[3][0]=0.0f;		 		m[3][1]=0.0f;		m[3][2]=0.0f;				m[3][3]=1.0f;
+}
+
 namespace s2 {
 
 class TestProgram : public EngineProgram {
 public:
-	TestProgram():ds_buffer(0), vb(0), ib(0), vs(0), ps(0) {}
+	TestProgram():ds_buffer(0), vb(0), ib(0), vs(0), ps(0), rotate(0.0f) {}
 
 	virtual ~TestProgram() {}
 	virtual bool Initialize(){
@@ -87,17 +106,22 @@ public:
 		
 		//Set vertex shader
 		vs = manager->CreateVertexShader();
+		pipeline->SetVertexShader(vs);
 		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
 			vs->GetLastError();
 			//Set world view projection
 		{
-			Matrix identity;
-			vs->SetUniform("world", identity);
-			vs->SetUniform("view", identity);
+			Matrix rotation_mat;
+			MakeRotationAxisY(&rotation_mat, rotate);
+			vs->SetUniform("world", rotation_mat);
+
+			Matrix camera;
+			camera[3][2] = 5.0;
+			vs->SetUniform("view", camera);
 			
-			float np=5.0f, fp =1000.0f;
+			float np=0.0f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
-			float fov=3.141596253f*35/180;
+			float fov=PI*35/180;
 			float yscale = 1.0f/tan(fov/2);
 			
 			//Column major matrix
@@ -112,19 +136,17 @@ public:
 			vs->SetUniform("projection", projection);
 		}
 
-		pipeline->SetVertexShader(vs);
-		
 		//Set pixel shader
 		ps = manager->CreatePixelShader();
+		pipeline->SetPixelShader(ps);
 		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
 			ps->GetLastError();
-		pipeline->SetPixelShader(ps);
 		
 		//Set vertex buffer
 		Vertex vertices[3] = {
-			{{0.0f, 0.5f, 5.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-			{{0.5f, -0.5f, 5.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
-			{{-0.5f, -0.5f, 5.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+			{{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
+			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
 		};
 		vb = manager->CreateVertexBuffer();
 		vb->Initialize(3, (Vertex *)0, GeneralEnum::MAP_WRITE_OCCASIONAL);
@@ -149,6 +171,12 @@ public:
 	virtual void OneFrame(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		
+		rotate += delta*PI/2.0f;
+		rotate = rotate>2*PI ? rotate-2*PI : rotate;
+		Matrix rotation_mat;
+		MakeRotationAxisY(&rotation_mat, rotate);
+		vs->SetUniform("world", rotation_mat);
+
 		pipeline->Draw();
 	}
 	
@@ -158,6 +186,8 @@ private:
 	IndexBuffer *ib;
 	VertexShader *vs;
 	PixelShader *ps;
+	
+	float rotate;
 };
 
 AddBeforeMain(TestProgram)

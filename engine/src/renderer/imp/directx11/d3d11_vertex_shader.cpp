@@ -93,6 +93,7 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 	blob = shader_blob;
 	if(error_blob)
 		error_blob->Release();
+		
 	return true;
 }
 
