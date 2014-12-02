@@ -41,9 +41,6 @@ D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 }
 
 void D3D11GraphicPipeline::Clear() {
-	vs=0;
-	ps=0; 
-	
 	if(rast_state)
 		rast_state->Release();
 	new_rast=true;
@@ -98,7 +95,6 @@ D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
 }
 
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
-	new_vs = true;
 	vs = NiceCast(D3D11VertexShader *, shader);
 }
 
@@ -107,7 +103,6 @@ VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 }
 
 void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
-	new_ps = true;
 	ps = NiceCast(D3D11PixelShader *, shader);
 }
 
@@ -335,10 +330,8 @@ bool D3D11GraphicPipeline::Validate(s2string *error) const {
 
 void D3D11GraphicPipeline::Draw() {
 	//Setup input
-	if(vs && new_vs)
+	if(vs)
 		input_stage.Setup(vs);
-	else
-		input_stage.Setup(0);
 
 	if(vs) {
 		vs->Setup();

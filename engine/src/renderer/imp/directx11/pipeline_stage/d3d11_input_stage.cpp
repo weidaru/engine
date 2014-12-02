@@ -36,6 +36,7 @@ D3D11InputStage::~D3D11InputStage() {
 
 void D3D11InputStage::Clear() {
 	new_input = true;
+	old_shader = 0;
 	ib = 0;
 	vbs.clear();
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
@@ -114,8 +115,9 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	if(new_input) 
 		SetInput();
 	new_input = false;
-	if(shader)
+	if(shader != old_shader)
 		SetInputLayout(*shader);
+	old_shader  = shader;
 }
 
 void D3D11InputStage::Flush() {

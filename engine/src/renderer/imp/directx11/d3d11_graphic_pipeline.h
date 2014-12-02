@@ -81,9 +81,7 @@ private:
 	
 	D3D11InputStage input_stage; 
 	
-	bool new_vs;
 	D3D11VertexShader *vs;
-	bool new_ps;
 	D3D11PixelShader *ps;
 	
 	RasterizationOption rast_opt;
