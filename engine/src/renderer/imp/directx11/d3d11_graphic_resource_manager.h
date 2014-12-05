@@ -8,6 +8,7 @@
 #include "d3d11_index_buffer.h"
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
+#include "d3d11_sampler.h"
 
 #include <map>
 
@@ -54,8 +55,8 @@ public:
 	virtual void RemoveTexture3D(unsigned int id);
 	
 	//Sampler
-	virtual Sampler * CreateSampler();
-	virtual Sampler * GetSampler(unsigned int id);
+	virtual D3D11Sampler * CreateSampler();
+	virtual D3D11Sampler * GetSampler(unsigned int id);
 	virtual void RemoveSampler(unsigned int id);
  
 	//VertexShader

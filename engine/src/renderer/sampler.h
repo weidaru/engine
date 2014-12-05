@@ -10,36 +10,45 @@ class Sampler : public Resource {
 public:
 	enum Filter {
 		NEAREST,
-		LINEAR,
-		/**
-		 * Care! Set this to one of Mag, Min and Mip filter will set all the others. 
-		 * At least that is all the current implementation do.
-		 */
-		ANISOTROPIC			
+		LINEAR	
 	};
 	
 	enum WrapMode {
 		REPEAT,
 		CLAMP,
 		MIRROR,
-		Border
+		BORDER
+	};
+	
+	enum ComparisonFunc {
+		UNDEFINED;
+		NEVER,
+		ALWAYS,
+		EQUAL,
+		NOT_EQUAL,
+		LESS,
+		LESS_EQUAL,
+		GREATER,
+		GREATER_EQUAL
 	};
 
 	struct Option {
-		Filter 			MagFilter;
-		Filter 			MinFilter;
-		Filter 			MipFilter;	//Mip filter is only applied when texture minification is desired.
-		WrapMode 		UWrap;
-		WrapMode 		VWrap;
-		WrapMode 		WWrap;
-		unsigned int 	MaxAnisotropy;
-		float 			BorderColor[4];
+		Filter 					min_mag_filter;
+		Filter 					mip_filter;	//Mip filter is only applied when texture minification is desired.
+		unsigned int 			max_anisotropy;
+		ComparisonFunc 	compare_func;
+		WrapMode 			u_wrap;
+		WrapMode 			v_wrap;
+		WrapMode 			w_wrap;
+		float 					border_color[4];
+		
+		Option();
 	};
 
 public:
 	virtual ~Sampler() {}
 	virtual void Initialize(const Option &option) = 0;
-	virtual void GetOption(Option *option) = 0;
+	virtual const Option * GetOption() const = 0;
 };
 
 }

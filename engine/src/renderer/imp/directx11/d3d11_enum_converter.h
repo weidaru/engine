@@ -5,6 +5,7 @@
 #include "renderer/depth_stencil_option.h"
 #include "renderer/blend_option.h"
 #include "renderer/graphic_pipeline.h"
+#include "renderer/sampler.h"
 
 enum DXGI_FORMAT;
 enum D3D11_COMPARISON_FUNC;
@@ -12,6 +13,8 @@ enum D3D_PRIMITIVE_TOPOLOGY;
 enum D3D11_STENCIL_OP;
 enum D3D11_BLEND;
 enum D3D11_BLEND_OP;
+enum D3D11_FILTER;
+
 
 namespace s2 {
 

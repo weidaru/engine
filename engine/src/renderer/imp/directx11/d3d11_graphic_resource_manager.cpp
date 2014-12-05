@@ -17,7 +17,6 @@
 #include "renderer/texture1d.h"
 #include "renderer/texture2d.h"
 #include "renderer/texture3d.h"
-#include "renderer/sampler.h"
 
 
 namespace s2 {
@@ -200,12 +199,13 @@ void D3D11GraphicResourceManager::RemoveTexture3D(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
 	
-Sampler * D3D11GraphicResourceManager::CreateSampler() {
-	CHECK(false)<<"Disabled.";
-	return 0;
+D3D11Sampler * D3D11GraphicResourceManager::CreateSampler() {
+	D3D11Sampler *sampler = new D3D11Sampler(this);
+	sampler_map[sampler->GetID()] = sampler;
+	return sampler;
 }
 
-Sampler * D3D11GraphicResourceManager::GetSampler(unsigned int id) {
+D3D11Sampler * D3D11GraphicResourceManager::GetSampler(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
