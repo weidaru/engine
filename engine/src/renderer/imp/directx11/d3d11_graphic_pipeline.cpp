@@ -79,7 +79,7 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 }
 
 void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) {
-	input_stage.SetVertexBuffer(index, start_input_index, buf);
+	input_stage.SetVertexBuffer(index, start_input_index, NiceCast(D3D11VertexBuffer *, buf));
 }
 
 D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
@@ -87,7 +87,7 @@ D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, un
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
-	input_stage.SetIndexBuffer(_buf);
+	input_stage.SetIndexBuffer(NiceCast(D3D11IndexBuffer *, _buf));
 }
 
 D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
@@ -246,7 +246,7 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 }
 
 void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
-	output_stage.SetRenderTarget(index, target);
+	output_stage.SetRenderTarget(index, NiceCast(D3D11Texture2D *, target));
 }
 
 Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
@@ -254,27 +254,11 @@ Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
 }
 
 void D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
-	output_stage.SetDepthStencilBuffer(buffer);
+	output_stage.SetDepthStencilBuffer(NiceCast(D3D11Texture2D *, buffer));
 }
 
 Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
 	return output_stage.GetDepthStencilBuffer();
-}
-
-void D3D11GraphicPipeline::SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) {
-	output_stage.SetRenderTargetClearOption(index, enable, rgba);
-}
-
-void D3D11GraphicPipeline::GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const {
-	output_stage.GetRenderTargetClearOption(index, enable, rgba);
-}
-
-void D3D11GraphicPipeline::SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) {
-	output_stage.SetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
-}
-
-void D3D11GraphicPipeline::GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const {
-	output_stage.GetDepthStencilBufferClearOption(enable_depth_clear, enable_stencil_clear, depth, stencil);
 }
 
 void D3D11GraphicPipeline::SetupRasterizationOption() {
@@ -328,6 +312,15 @@ bool D3D11GraphicPipeline::Validate(s2string *error) const {
 	return true;
 }
 
+void D3D11GraphicPipeline::ClearRenderTarget(Texture2D *texture, const float rgba[4]) {
+	output_stage.ClearRenderTarget(texture, rgba);
+}
+
+void D3D11GraphicPipeline::ClearDepthStencilBuffer(Texture2D *texture, bool clear_depth, float depth, bool clear_stencil, int stencil) {
+	output_stage.ClearDepthStencilBuffer(texture, clear_depth, depth , clear_stencil, stencil);
+}
+	
+	
 void D3D11GraphicPipeline::Draw() {
 	//Setup input
 	if(vs)
@@ -360,9 +353,6 @@ void D3D11GraphicPipeline::Draw() {
 	
 	//Setup output
 	output_stage.Setup();
-	
-	//Do clear
-	output_stage.ClearRenderTargets();
 	
 	//Flush data in input stage and start drawing.
 	input_stage.Flush();

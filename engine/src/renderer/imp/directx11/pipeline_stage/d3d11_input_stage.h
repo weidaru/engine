@@ -14,6 +14,10 @@ class D3D11VertexShader;
 class D3D11ShaderReflection;
 class D3D11GraphicResourceManager;
 
+
+/**
+ * TODO: Use D3D11 type directly instead of more general ones.
+ */
 class D3D11InputStage {
 private:
 	struct VBInfo {
@@ -33,9 +37,9 @@ public:
 	void SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue);
 	GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
-	void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
+	void SetVertexBuffer(unsigned int index, unsigned int start_input_index, D3D11VertexBuffer *buf);
 	D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
-	void SetIndexBuffer(IndexBuffer *buf);
+	void SetIndexBuffer(D3D11IndexBuffer *buf);
 	D3D11IndexBuffer * GetIndexBuffer();
 
 	void Clear();

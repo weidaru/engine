@@ -119,12 +119,23 @@ void D3D11ShaderReflection::PopulateOutputs(const D3D11_SHADER_DESC &desc) {
 	}
 }
 
-void D3D11ShaderReflection::PopulateSamplers(const D3D11_SHADER_DESC &desc) {
-	//STUB
-}
-
 void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
-	//STUB
+	HRESULT result = 1;
+
+	for(unsigned int i=0; i<desc.BoundResources; i++) {
+		D3D11_SHADER_INPUT_BIND_DESC resource_desc;
+		reflect->GetResourceBindingDesc(i, &resource_desc);
+		
+		if(resource_desc.Type == D3D_SIT_SAMPLER) {		//Consider sampler
+			if(samplers.empty() || samplers.size()-1<resource_desc.BindPoint) {
+				samplers.resize(resource_desc.BindPoint+1);
+			}
+			Sampler &cur = samplers[resource_desc.BindPoint];
+			cur.index = resource_desc.BindPoint;
+			cur.name = resource_desc.Name;
+			cur.is_compare_sampler = ((resource_desc.uFlags | D3D_SIF_COMPARISON_SAMPLER)!=0);
+		}
+	}
 }
 
 namespace {
@@ -237,7 +248,7 @@ void D3D11ShaderReflection::PopulateScalarTypes() {
 	typeinfo_manager.MakeCompatible("float", "float");
 
 	typeinfo_manager.CreateScalar("double", 8);
-	typeinfo_manager.MakeCompatible("float", "float");
+	typeinfo_manager.MakeCompatible("double", "double");
 }
 
 D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob)
@@ -257,7 +268,6 @@ D3D11ShaderReflection::D3D11ShaderReflection(const s2string &_filepath, ID3DBlob
 	PopulateInputs(desc);
 	PopulateOutputs(desc);
 	PopulateResources(desc);
-	PopulateSamplers(desc);
 }
 
 
@@ -298,16 +308,32 @@ unsigned int D3D11ShaderReflection::GetOutputSize() const {
 	return outputs.size();
 }
 
+const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(unsigned int index) const {
+	return samplers[index];
+}
+
 const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(const s2string &name) const {
-	//STUB
-	CHECK(false)<<"Disabled";
-	return Sampler();
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(samplers[i].name == name) {
+			return samplers[i];
+		}
+	}
+	CHECK(false)<<"Cannot find sampler "<<name;
+	
+	return samplers[0];
 }
 
 bool D3D11ShaderReflection::HasSampler(const s2string &name) const {
-	//STUB
-	CHECK(false)<<"Disabled";
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(samplers[i].name == name) {
+			return true;
+		}
+	}
 	return false;
+}
+
+unsigned int D3D11ShaderReflection::GetSamplerSize() const {
+	return samplers.size();
 }
 
 

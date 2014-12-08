@@ -54,11 +54,10 @@ GraphicPipeline::PrimitiveTopology D3D11InputStage::GetPrimitiveTopology() {
 	return topology;
 }
 
-void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *_buf) {
+void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, D3D11VertexBuffer *_buf) {
 	new_input = true;
-	D3D11VertexBuffer *buf = NiceCast(D3D11VertexBuffer *, _buf);
 	vbs[index].start_index = start_input_index;
-	vbs[index].vb = buf;
+	vbs[index].vb = _buf;
 }
 
 D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
@@ -66,10 +65,9 @@ D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigne
 	return 0;
 }
 
-void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf) {
+void D3D11InputStage::SetIndexBuffer(D3D11IndexBuffer *_buf) {
 	new_input = true;
-	D3D11IndexBuffer *buf = NiceCast(D3D11IndexBuffer *, _buf);
-	ib = buf;
+	ib = _buf;
 }
 
 D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer() {

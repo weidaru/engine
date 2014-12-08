@@ -1,6 +1,9 @@
 #ifndef D3D11_VERTEX_SHADER_H_
 #define D3D11_VERTEX_SHADER_H_
 
+#include "d3d11_sampler.h"
+#include "d3d11_texture2d.h"
+
 #include "renderer/vertex_shader.h"
 
 #include <vector>
@@ -16,8 +19,12 @@ class D3D11ConstantBuffer;
 class D3D11VertexBuffer;
 class D3D11IndexBuffer;
 class D3D11ShaderReflection;
+class D3D11Sampler;
 	
 class D3D11VertexShader : public VertexShader {
+private:
+	typedef std::vector<D3D11ConstantBuffer *> CBVector;
+	typedef std::vector<D3D11Sampler *> SamplerVector;
 public:
 	D3D11VertexShader(D3D11GraphicResourceManager *_manager);
 	virtual bool Initialize(const s2string &path, const s2string &entry_point);
@@ -25,11 +32,9 @@ public:
 
 	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size);
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
-	virtual Sampler * GetSampler(const s2string &name);
-	virtual bool SetResource(const s2string &name, Texture1D *resource);
-	virtual bool SetResource(const s2string &name, Texture2D *resource);
-	virtual bool SetResource(const s2string &name, Texture3D *resource);
-	virtual Resource * GetResource(const s2string &name);
+	virtual D3D11Sampler* GetSampler(const s2string &name);
+	virtual bool SetTexture2D(const s2string &name, Texture2D *resource);
+	virtual D3D11Texture2D * GetTexture2D(const s2string &name);
 	
 	virtual const s2string & GetLastError() { return error; } 
 	
@@ -50,7 +55,9 @@ private:
 private:
 	D3D11GraphicResourceManager *manager;
 	
-	std::vector<D3D11ConstantBuffer *> cbs;
+	CBVector cbs;
+	SamplerVector samplers;
+	
 	ID3D11VertexShader *shader;
 	D3D11ShaderReflection *reflect;
 	ID3DBlob *blob;

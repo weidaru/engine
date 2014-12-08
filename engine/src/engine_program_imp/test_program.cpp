@@ -11,6 +11,8 @@
 #include "renderer/pixel_shader.h"
 #include "renderer/vertex_buffer.h"
 #include "renderer/index_buffer.h"
+#include "renderer/texture_enum.h"
+#include "renderer/sampler.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -21,6 +23,12 @@
 struct Vertex {
 	float position[3];
 	float color[4];
+};
+
+//[[TypeInfo]]//
+struct TextureVertex {
+	float position[3];
+	float tex[2];
 };
 
 //[[TypeInfo]]//
@@ -66,36 +74,52 @@ namespace s2 {
 
 class TestProgram : public EngineProgram {
 public:
-	TestProgram():ds_buffer(0), vb(0), ib(0), vs(0), ps(0), rotate(0.0f) {}
+	TestProgram():
+		ds_buffer(0), rtt_texture(0),
+		vb(0), ib(0), vs(0), ps(0), rotate(0.0f),
+		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0){}
 
 	virtual ~TestProgram() {}
 	virtual bool Initialize(){
 		printf("Initialize test program.\n");
-		
+		//Create and set depth stencil buffer
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		
-		//Back buffer as render target 
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
-		
-		//Create and set depth stencil buffer
 		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		Texture2D::Option ds_option;
 		Texture2D::Option::SetAsDepthStencilBuffer(&ds_option, renderer_setting.window_width, renderer_setting.window_height);
-		Texture2D *ds_buffer = manager->CreateTexture2D();
+		ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
-		//Set clean  up
-		float background[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->SetRenderTargetClearOption(0, true, background);
+		CreateColorProgram();
+		CreateTextureProgram();
 		
-		//Set vertex shader
+		return true;
+	}
+	
+	virtual const s2string & GetName() {
+		static s2string name="test";
+		return name;
+	}
+	
+	void CreateColorProgram() {
+		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+		
+		//Create texture we render to.
+		Texture2D::Option tex_option;
+		rtt_texture = manager->CreateTexture2D();
+		tex_option.width = renderer_setting.window_width;
+		tex_option.height = renderer_setting.window_height;
+		tex_option.output_bind = TextureEnum::RENDER_TARGET;
+		rtt_texture->Initialize(tex_option);
+		
+		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		pipeline->SetVertexShader(vs);
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "ColorVertexShader")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "main")) <<
 			vs->GetLastError();
-			//Set world view projection
 		{
 			Matrix rotation_mat;
 			MakeRotationAxisY(&rotation_mat, rotate);
@@ -110,7 +134,6 @@ public:
 			float fov=PI*35/180;
 			float yscale = 1.0f/tan(fov/2);
 			
-			//Column major matrix
 			Matrix projection;
 			projection[0][0] = yscale/aspect;
 			projection[1][1] = yscale;
@@ -122,13 +145,12 @@ public:
 			vs->SetUniform("projection", projection);
 		}
 
-		//Set pixel shader
+		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		pipeline->SetPixelShader(ps);
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "ColorPixelShader")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "main")) <<
 			ps->GetLastError();
 		
-		//Set vertex buffer
+		//Create VertexBuffer
 		Vertex vertices[3] = {
 			{{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
 			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
@@ -137,25 +159,63 @@ public:
 		vb = manager->CreateVertexBuffer();
 		vb->Initialize(3, (Vertex *)0, GeneralEnum::MAP_WRITE_OCCASIONAL);
 		vb->Update(0, vertices, 3);
-		pipeline->SetVertexBuffer(0, 0, vb);
 		
-
-		//Set index buffer
+		//Create IndexBuffer
 		IndexBuffer::InputType indices[3] = {0,1,2};
 		ib = manager->CreateIndexBuffer();
 		ib->Initialize(3, indices, GeneralEnum::MAP_FORBIDDEN);
-		pipeline->SetIndexBuffer(ib);
-
-		return true;
 	}
 	
-	virtual const s2string & GetName() {
-		static s2string name="test";
-		return name;
-	}
-	
-	virtual void OneFrame(float delta) {
+	void CreateTextureProgram() {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		
+		//Create sampler
+		sampler = manager->CreateSampler();
+		Sampler::Option option;
+		sampler->Initialize(option);
+
+		//Set vertex shader
+		tex_vs = manager->CreateVertexShader();
+		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
+			tex_vs->GetLastError();
+
+		//Set pixel shader
+		tex_ps = manager->CreatePixelShader();
+		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
+			tex_ps->GetLastError();
+		tex_ps->SetSampler("shader_sampler", sampler);
+		tex_ps->SetTexture2D("shader_texture", rtt_texture);
+		
+		//Set vertex buffer
+		TextureVertex vertices[4] = {
+			{{0.9f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, 
+			{{1.0f, 0.9f, 0.0f}, {1.0f, 1.0f}}, 
+			{{0.9f, 0.9f, 0.0f}, {0.0f, 1.0f}}
+		};
+		tex_vb = manager->CreateVertexBuffer();
+		tex_vb->Initialize(4, vertices, GeneralEnum::MAP_WRITE_OCCASIONAL);
+		
+		//Set index buffer
+		IndexBuffer::InputType indices[6] = {0,1,2, 1,2,3};
+		tex_ib = manager->CreateIndexBuffer();
+		tex_ib->Initialize(6, indices, GeneralEnum::MAP_FORBIDDEN);
+	}
+	
+	void DrawNormal(float delta) {
+		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		float background[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		pipeline->ClearRenderTarget(manager->GetBackBuffer(), background);
+		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
+		pipeline->SetRenderTarget(1, rtt_texture);
+		pipeline->SetVertexShader(vs);
+		pipeline->SetPixelShader(ps);
+		pipeline->SetVertexBuffer(0, 0, vb);
+		pipeline->SetIndexBuffer(ib);
+		
 		
 		rotate += delta*PI/2.0f;
 		rotate = rotate>2*PI ? rotate-2*PI : rotate;
@@ -166,14 +226,39 @@ public:
 		pipeline->Draw();
 	}
 	
+	void DrawTexture(float delta) {
+		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+		
+		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
+		pipeline->SetVertexShader(tex_vs);
+		pipeline->SetPixelShader(tex_ps);
+		pipeline->SetVertexBuffer(0, 0, tex_vb);
+		pipeline->SetIndexBuffer(tex_ib);
+
+		pipeline->Draw();
+	}
+	
+	virtual void OneFrame(float delta) {
+		DrawNormal(delta);
+		DrawTexture(delta);
+	}
+	
 private:
 	Texture2D *ds_buffer;
+	Texture2D *rtt_texture;
+	
 	VertexBuffer *vb;
 	IndexBuffer *ib;
 	VertexShader *vs;
 	PixelShader *ps;
-	
 	float rotate;
+	
+	VertexBuffer *tex_vb;
+	IndexBuffer *tex_ib;
+	VertexShader *tex_vs;
+	PixelShader *tex_ps;
+	Sampler *sampler;
 };
 
 AddBeforeMain(TestProgram)

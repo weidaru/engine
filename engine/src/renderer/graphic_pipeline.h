@@ -85,8 +85,6 @@ public:
 		return dynamic_cast<T *>(res);
 	#endif
 	}
-	virtual void SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]) = 0;
-	virtual void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const = 0;
 	
 	virtual void SetDepthStencilBuffer(Texture2D *buffer) = 0;
 	virtual Resource* GetDepthStencilBuffer() = 0;
@@ -99,14 +97,14 @@ public:
 		return dynamic_cast<T *>(res);
 	#endif
 	}
-	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil) = 0;
-	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const = 0;
 	
 	virtual void Clear() = 0;
 	
 	//Validate whether each stage is settled properly.
 	virtual bool Validate(s2string *error) const = 0;
 	
+	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]) = 0;
+	virtual void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	virtual void Draw() = 0;
 };
 

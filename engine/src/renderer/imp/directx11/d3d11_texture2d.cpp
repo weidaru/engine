@@ -106,6 +106,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		dsv_desc = new D3D11_DEPTH_STENCIL_VIEW_DESC;
 		dsv_desc->Format = desc.Format;
+		dsv_desc->Flags = 0;
 		//dsv_dsc->Flags is useful when multiple depth stencil buffer is bound. Our assumption is only one for now.
 		if(desc.ArraySize > 1 && desc.SampleDesc.Count > 1) {
 			dsv_desc->ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY;
@@ -194,9 +195,9 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		CHECK(!FAILED(result))<<"Cannot create render target view. Error " << ::GetLastError();
 		delete rtv_desc;
 	}
-	if(srv_desc) {
+	if(dsv_desc) {
 		result = manager->GetDevice()->CreateDepthStencilView(tex, dsv_desc, &ds_view);
-		CHECK(!FAILED(result))<<"Cannot create render target view. Error " << ::GetLastError();
+		CHECK(!FAILED(result))<<"Cannot create depth stencil view. Error " << ::GetLastError();
 		delete srv_desc;
 	}
 	if(srv_desc) {

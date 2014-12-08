@@ -57,7 +57,9 @@ public:
 	};
 	
 	struct Sampler {
-		//Stub
+		unsigned int index;
+		s2string name;
+		bool is_compare_sampler;
 	};
 	
 	struct Resource {
@@ -67,6 +69,7 @@ public:
 private:
 	typedef std::vector<Parameter> ParameterVector;
 	typedef std::vector<ConstantBuffer> CBVector;
+	typedef std::vector<Sampler> SamplerVector;
 	typedef std::map<s2string, Uniform> UniformMap;
 	
 	
@@ -85,8 +88,10 @@ public:
 	const D3D11ShaderReflection::Parameter & GetOutput(unsigned int index) const;
 	unsigned int GetOutputSize() const;
 	
+	const D3D11ShaderReflection::Sampler & GetSampler(unsigned int index) const;
 	const D3D11ShaderReflection::Sampler & GetSampler(const s2string &name) const;
 	bool HasSampler(const s2string &name) const;
+	unsigned int GetSamplerSize() const;
 	const D3D11ShaderReflection::Resource & GetResource(const s2string &name) const;
 	bool HasResource(const s2string &name) const;
 	
@@ -101,7 +106,6 @@ private:
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
 	void PopulateInputs(const D3D11_SHADER_DESC &desc);
 	void PopulateOutputs(const D3D11_SHADER_DESC &desc);
-	void PopulateSamplers(const D3D11_SHADER_DESC &desc);
 	void PopulateResources(const D3D11_SHADER_DESC &desc);
 	//Only uniforms are parsed for now.
 	void ParseShaderType(ID3D11ShaderReflectionType &type);
@@ -123,6 +127,7 @@ private:
 	
 	ParameterVector inputs;
 	ParameterVector outputs;
+	SamplerVector samplers;
 };
 
 }

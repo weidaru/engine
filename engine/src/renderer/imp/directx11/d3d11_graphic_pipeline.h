@@ -57,17 +57,15 @@ public:
 	//Output
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
 	virtual Resource * GetRenderTarget(unsigned int index);
-	virtual void SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]);
-	virtual void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const;
 	virtual void SetDepthStencilBuffer(Texture2D *buffer);
 	virtual Resource * GetDepthStencilBuffer();
-	virtual void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
-	virtual void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const;
 	
 	virtual void Clear();
 	
 	virtual bool Validate(s2string *_error) const;
 
+	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
+	virtual void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil);
 	virtual void Draw();
 	
 	

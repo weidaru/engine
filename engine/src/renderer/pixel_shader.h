@@ -26,20 +26,9 @@ public:
 	
 	virtual bool 						SetSampler(const s2string &name, Sampler *sampler) = 0;
 	virtual Sampler * 				GetSampler(const s2string &name) = 0;
-	virtual bool 						SetResource(const s2string &name, Texture1D *resource) = 0;
-	virtual bool 						SetResource(const s2string &name, Texture2D *resource) = 0;
-	virtual bool 						SetResource(const s2string &name, Texture3D *resource) = 0;
-	virtual Resource * 				GetResource(const s2string &name) = 0;
-	template<typename T>
-	T * GetResource() {
-		Resource *resource = GetResource();
-	#ifdef NDEBUG
-		return static_cast<T *>(resource);
-	#else
-		return dynamic_cast<T *>(resource);
-	#endif
-	}
-	
+	virtual bool 						SetTexture2D(const s2string &name, Texture2D *resource) = 0;
+	virtual Texture2D *			GetTexture2D(const s2string &name) = 0;
+
 	virtual const s2string &		GetLastError() = 0;
 	
 protected:

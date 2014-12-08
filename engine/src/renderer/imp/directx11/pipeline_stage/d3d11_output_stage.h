@@ -10,49 +10,25 @@ class Resource;
 class Texture2D;
 class D3D11GraphicResourceManager;
 
-class D3D11OutputStage {
-private:
-	struct RenderTarget {
-		D3D11Texture2D *tex;		//Only allow Texture2D for now.
-		bool enable_clear;
-		float rgba[4];
-		
-		RenderTarget() {
-			tex=0;
-			enable_clear=false;
-		}
-	};
-	
-	struct DepthStencil {
-		D3D11Texture2D *tex;		//Only allow Texture2D for now.
-		bool enable_depth_clear;
-		bool enable_stencil_clear;
-		float depth;
-		uint8_t stencil;
-		
-		DepthStencil(){
-			tex=0;
-			enable_depth_clear = false;
-			enable_stencil_clear = false;
-		}
-	};
 
+/**
+ * TODO: Use D3D11 type directly instead of more general ones.
+ */
+class D3D11OutputStage {
 public:
 	D3D11OutputStage(D3D11GraphicResourceManager *_manager);
 	~D3D11OutputStage();
 	
-	void SetRenderTarget(unsigned int index, Texture2D *target);
+	void SetRenderTarget(unsigned int index, D3D11Texture2D *target);
 	Resource * GetRenderTarget(unsigned int index);
-	void SetRenderTargetClearOption(unsigned int index, bool enable, const float rgba[4]);
-	void GetRenderTargetClearOption(unsigned int index, bool *enable, float *rgba) const;
-	void SetDepthStencilBuffer(Texture2D *buffer);
+	void SetDepthStencilBuffer(D3D11Texture2D *buffer);
 	Resource * GetDepthStencilBuffer();
-	void SetDepthStencilBufferClearOption(bool enable_depth_clear, bool enable_stencil_clear,  float depth, uint8_t stencil);
-	void GetDepthStencilBufferClearOption(bool *enable_depth_clear, bool *enable_stencil_clear,  float *depth, uint8_t *stencil) const;
 	
 	void Clear();
 	
-	void ClearRenderTargets();
+	void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
+	void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil);
+	
 	void Setup();
 	
 private:
@@ -62,8 +38,8 @@ private:
 	D3D11GraphicResourceManager *manager;
 
 	bool new_output;
-	std::vector<RenderTarget> rts;
-	DepthStencil ds;
+	std::vector<D3D11Texture2D *> rts;
+	D3D11Texture2D *ds;
 	
 };
 

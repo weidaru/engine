@@ -21,7 +21,7 @@ public:
 	};
 	
 	enum ComparisonFunc {
-		UNDEFINED;
+		UNDEFINED,
 		NEVER,
 		ALWAYS,
 		EQUAL,
@@ -48,7 +48,7 @@ public:
 public:
 	virtual ~Sampler() {}
 	virtual void Initialize(const Option &option) = 0;
-	virtual const Option * GetOption() const = 0;
+	virtual const Sampler::Option & GetOption() const = 0;
 };
 
 }

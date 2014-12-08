@@ -79,8 +79,13 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 	
 	manager->GetDevice()->CreateVertexShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
 	
-	//Setup reflection and constant buffer.
+	//Setup reflection
 	reflect = new D3D11ShaderReflection(path, shader_blob);
+	blob = shader_blob;
+	if(error_blob)
+		error_blob->Release();
+	
+	//Setup constant buffer.
 	CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
 				<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
 	cbs.resize(reflect->GetConstantBufferSize());
@@ -90,9 +95,9 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 		cbs[i]->Initialize(cb_reflect.size, 0);
 	}
 	
-	blob = shader_blob;
-	if(error_blob)
-		error_blob->Release();
+	//Setup samplers.
+	samplers.resize(reflect->GetSamplerSize(), 0);
+	
 		
 	return true;
 }
@@ -146,35 +151,27 @@ bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &cpp_typ
 
 bool D3D11VertexShader::SetSampler(const s2string &name, Sampler *sampler) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
+	if(!reflect->HasSampler(name)) {
+		return false;
+	}
+	const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(name);
+	samplers[info.index] = NiceCast(D3D11Sampler *, sampler);
+	return true;
 }
 
-Sampler * D3D11VertexShader::GetSampler(const s2string &name) {
+D3D11Sampler * D3D11VertexShader::GetSampler(const s2string &name) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return 0;
+	return samplers[reflect->GetSampler(name).index];
 }
 
-bool D3D11VertexShader::SetResource(const s2string &name, Texture1D *resource) {
-	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
-}
-
-bool D3D11VertexShader::SetResource(const s2string &name, Texture2D *resource) {
+bool D3D11VertexShader::SetTexture2D(const s2string &name, Texture2D *resource) {
 	Check();
 	CHECK(false)<<"Disable for now";
 	return false;
 }
 
-bool D3D11VertexShader::SetResource(const s2string &name, Texture3D *resource) {
-	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
-}
 
-Resource * D3D11VertexShader::GetResource(const s2string &name) {
+D3D11Texture2D * D3D11VertexShader::GetTexture2D(const s2string &name) {
 	Check();
 	CHECK(false)<<"Disable for now";
 	return 0;
@@ -195,7 +192,16 @@ void D3D11VertexShader::Setup() {
 			context->VSSetConstantBuffers(0, cbs.size(), array);
 			delete[] array;
 		}
-
+		
+		//Set samplers.
+		if(!samplers.empty()) {
+			ID3D11SamplerState  **array = new ID3D11SamplerState *[samplers.size()];
+			for(unsigned int i=0; i<samplers.size(); i++) {
+				array[i] = samplers[i]->GetInternal();
+			}
+			context->VSSetSamplers(0, samplers.size(), array);
+			delete[] array;
+		}
 	}
 }
 

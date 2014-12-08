@@ -12,7 +12,6 @@
 #include <glog/logging.h>
 
 #include "d3d11_constant_buffer.h"
-#include "d3d11_texture2d.h"
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_shader_reflection.h"
 
@@ -74,6 +73,10 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	
 	{
 		FILE* file = fopen(path.c_str(), "rb");
+		if(!file) {
+			S2StringFormat(&error, "Cannot open file %s", path.c_str());
+			return false;
+		}
 		fseek(file, 0, SEEK_END);
 		long size = ftell(file);
 		fseek(file, 0, SEEK_SET);
@@ -93,6 +96,11 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
 	//Setup reflection and constant buffer.
 	reflect = new D3D11ShaderReflection(path, shader_blob);
+	blob = shader_blob;
+	if(error_blob)
+		error_blob->Release();
+	
+	//Setup constant buffers
 	CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
 				<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
 	cbs.resize(reflect->GetConstantBufferSize());
@@ -102,9 +110,9 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 		cbs[i]->Initialize(cb_reflect.size, 0);
 	}
 	
-	blob = shader_blob;
-	if(error_blob)
-		error_blob->Release();
+	//Setup samplers.
+	samplers.resize(reflect->GetSamplerSize(), 0);
+	
 	return true;
 
 }
@@ -139,35 +147,27 @@ bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &cpp_type
 
 bool D3D11PixelShader::SetSampler(const s2string &name, Sampler *sampler) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
+	if(!reflect->HasSampler(name)) {
+		return false;
+	}
+	const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(name);
+	samplers[info.index] = NiceCast(D3D11Sampler *, sampler);
+	return true;
 }
 
 Sampler * D3D11PixelShader::GetSampler(const s2string &name) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return 0;
+	return samplers[reflect->GetSampler(name).index];
 }
 
-bool D3D11PixelShader::SetResource(const s2string &name, Texture1D *resource) {
+
+bool D3D11PixelShader::SetTexture2D(const s2string &name, Texture2D *resource) {
 	Check();
 	CHECK(false)<<"Disable for now";
 	return false;
 }
 
-bool D3D11PixelShader::SetResource(const s2string &name, Texture2D *resource) {
-	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
-}
-
-bool D3D11PixelShader::SetResource(const s2string &name, Texture3D *resource) {
-	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
-}
-
-Resource * D3D11PixelShader::GetResource(const s2string &name) {
+Texture2D * D3D11PixelShader::GetTexture2D(const s2string &name) {
 	Check();
 	CHECK(false)<<"Disable for now";
 	return 0;
@@ -185,7 +185,7 @@ void D3D11PixelShader::Setup() {
 				cbs[i]->Flush();
 				array[i] = cbs[i]->GetInternal();
 			}
-			context->VSSetConstantBuffers(0, cbs.size(), array);
+			context->PSSetConstantBuffers(0, cbs.size(), array);
 			delete[] array;
 		}
 	}
