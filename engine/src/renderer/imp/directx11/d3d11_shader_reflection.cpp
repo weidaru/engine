@@ -37,7 +37,11 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 			continue;
 		cbs.push_back(ConstantBuffer());
 		ConstantBuffer &cb = cbs.back();
-		cb.index = cbs.size()-1;
+		
+		//Find its slot
+		D3D11_SHADER_INPUT_BIND_DESC cb_resource_desc;
+		reflect->GetResourceBindingDescByName(cb_desc.Name, cb_resource_desc);
+		cb_index = cb_resource_desc.BindPoint;
 		cb.name = cb_desc.Name;
 		cb.size = cb_desc.Size;
 		cb.uniforms.resize(cb_desc.Variables);
@@ -134,6 +138,8 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 			cur.index = resource_desc.BindPoint;
 			cur.name = resource_desc.Name;
 			cur.is_compare_sampler = ((resource_desc.uFlags | D3D_SIF_COMPARISON_SAMPLER)!=0);
+		} else if(resource_desc.Type == D3D_SIT_TEXTURE) {	//Consider texture
+			
 		}
 	}
 }

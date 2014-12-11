@@ -92,7 +92,11 @@ void D3D11OutputStage::SetOutput() {
 	if(last_index != -1) {
 		ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
 		for(int i=0; i<=last_index; i++) {
-			array[i] = rts[i]->GetRenderTargetView();
+			if(rts[i] != 0) {
+				array[i] = rts[i]->GetRenderTargetView();
+			} else {
+				array[i] = 0;
+			}
 		}
 		context->OMSetRenderTargets(last_index+1, array, ds?ds->GetDepthStencilView():0);
 		delete[] array;

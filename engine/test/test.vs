@@ -23,7 +23,7 @@ struct MyStruct {
 
 bool myBool;
 
-cbuffer CBuffer{
+cbuffer CBuffer  : register(b3){
 MyStruct myStruct;
 float4x4 worldViewProj;
 }
@@ -32,7 +32,7 @@ tbuffer MyMatrix {
 float4x4 worldViewProj2[10];
 };
 
-Buffer<float4> g_BufferBoneWorld;
+Buffer<float4> g_BufferBoneWorld : register(t5);
 
 Texture2D<float4> diffuse   : register(t0);
 Texture2D height    : register(t1);
