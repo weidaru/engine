@@ -218,7 +218,7 @@ public:
 		pipeline->ClearRenderTarget(manager->GetBackBuffer(), background);
 		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
 		pipeline->SetRenderTarget(1, manager->GetBackBuffer());
-		pipeline->SetRenderTarget(0, NULL);
+		pipeline->SetRenderTarget(0, rtt_texture);
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
 		pipeline->SetVertexBuffer(0, 0, vb);

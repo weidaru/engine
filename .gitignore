@@ -8,3 +8,4 @@
 /engine/log
 *.obj
 *.tlog
+*.opensdf

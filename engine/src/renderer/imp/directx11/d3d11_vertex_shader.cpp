@@ -20,23 +20,13 @@
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_shader_reflection.h"
+#include "d3d11_shader_helper.h"
 
-
-#ifdef NDEBUG
-	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
-#else
-	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
-#endif
-
-/**
- * Right now the binding of resources will be hard coded thus static. 
- * TODO: Add reflection to support dynamic binding. 
- */
 
 namespace s2 {
 
 D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
-		manager(_manager), shader(0), reflect(0), blob(0) {
+		manager(_manager), shader(0), reflect(0), blob(0), cb_container(0), sampler_container(0) {
 }
 
 /*TODO: Find a way to cache the program as it will need to be compiled every time a 
@@ -86,35 +76,37 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 		error_blob->Release();
 	
 	//Setup constant buffer.
-	CHECK(reflect->GetConstantBufferSize()<=D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT)
-				<<"Constant buffer overflow. Max size is "<<D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT <<" get "<<reflect->GetConstantBufferSize();
-	cbs.resize(reflect->GetConstantBufferSize());
-	for(unsigned int i=0; i<cbs.size(); i++) {
-		const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
-		cbs[i] = new D3D11ConstantBuffer(manager);
-		cbs[i]->Initialize(cb_reflect.size, 0);
-	}
+	cb_container = new ConstantBufferContainer(manager, reflect);
 	
 	//Setup samplers.
-	samplers.resize(reflect->GetSamplerSize(), 0);
+	sampler_container = new SamplerContainer(reflect);
 	
-		
 	return true;
 }
 
 D3D11VertexShader::~D3D11VertexShader() {
-	if(shader) {
-		shader->Release();
-		shader = 0;
-	}
+	Clear();
+}
+
+void D3D11VertexShader::Clear() {
+	delete sampler_container;
+	sampler_container = 0;
+	
+	delete cb_container;
+	cb_container = 0;
+	
+	delete reflect;
+	reflect = 0;
+	
 	if(blob) {
 		blob->Release();
 		blob = 0;
 	}
-	delete reflect;
-	for(unsigned int i=0; i<cbs.size(); i++) {
-		delete cbs[i];
+	if(shader) {
+		shader->Release();
+		shader = 0;
 	}
+	
 }
 
 void D3D11VertexShader::Check() {
@@ -123,45 +115,22 @@ void D3D11VertexShader::Check() {
 
 bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
 	Check();
-	if(!reflect->HasUniform(name)) {
-		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());
-		return false;
-	}
-	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
-	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
-	CHECK(cb.SetData(uniform.offset, value ,size))<<cb.GetLastError();
-	return true;
+	return cb_container->SetUniform(name, value, size, &error);
 }
 
 bool D3D11VertexShader::SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) {
 	Check();
-	if(!reflect->HasUniform(name)) {
-		S2StringFormat(&error, "Cannot find uniform %s", name.c_str());
-		return false;
-	}
-	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
-	if(!reflect->CheckCompatible(uniform.type_name, cpp_type)) {
-		S2StringFormat(&error, "shader type %s and cpp type %s are not compatible,", uniform.type_name.c_str(), cpp_type.GetName().c_str());
-		return false;
-	}
-	D3D11ConstantBuffer &cb = *cbs[uniform.cb_index];
-	CHECK(cb.SetData(uniform.offset, value, cpp_type.GetSize()))<<cb.GetLastError();
-	return true;
+	return cb_container->SetUniform(name, cpp_type, value, &error);
 }
 
 bool D3D11VertexShader::SetSampler(const s2string &name, Sampler *sampler) {
 	Check();
-	if(!reflect->HasSampler(name)) {
-		return false;
-	}
-	const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(name);
-	samplers[info.index] = NiceCast(D3D11Sampler *, sampler);
-	return true;
+	return sampler_container->SetSampler(name, sampler, &error);
 }
 
 D3D11Sampler * D3D11VertexShader::GetSampler(const s2string &name) {
 	Check();
-	return samplers[reflect->GetSampler(name).index];
+	return sampler_container->GetSampler(name, &error);
 }
 
 bool D3D11VertexShader::SetTexture2D(const s2string &name, Texture2D *resource) {
@@ -169,7 +138,6 @@ bool D3D11VertexShader::SetTexture2D(const s2string &name, Texture2D *resource) 
 	CHECK(false)<<"Disable for now";
 	return false;
 }
-
 
 D3D11Texture2D * D3D11VertexShader::GetTexture2D(const s2string &name) {
 	Check();
@@ -180,28 +148,14 @@ D3D11Texture2D * D3D11VertexShader::GetTexture2D(const s2string &name) {
 void D3D11VertexShader::Setup() {
 	if(shader) {
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::VERTEX;
 		context->VSSetShader(shader, 0, 0);
 		
 		//Set constant buffer.
-		if(!cbs.empty()) {
-			ID3D11Buffer **array = new ID3D11Buffer *[cbs.size()];
-			for(unsigned int i=0; i<cbs.size(); i++) {
-				cbs[i]->Flush();
-				array[i] = cbs[i]->GetInternal();
-			}
-			context->VSSetConstantBuffers(0, cbs.size(), array);
-			delete[] array;
-		}
+		cb_container->Setup(context, type);
 		
 		//Set samplers.
-		if(!samplers.empty()) {
-			ID3D11SamplerState  **array = new ID3D11SamplerState *[samplers.size()];
-			for(unsigned int i=0; i<samplers.size(); i++) {
-				array[i] = samplers[i]->GetInternal();
-			}
-			context->VSSetSamplers(0, samplers.size(), array);
-			delete[] array;
-		}
+		sampler_container->Setup(context, type);
 	}
 }
 

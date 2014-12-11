@@ -20,11 +20,11 @@ class D3D11VertexBuffer;
 class D3D11IndexBuffer;
 class D3D11ShaderReflection;
 class D3D11Sampler;
+
+class ConstantBufferContainer;
+class SamplerContainer;
 	
 class D3D11VertexShader : public VertexShader {
-private:
-	typedef std::vector<D3D11ConstantBuffer *> CBVector;
-	typedef std::vector<D3D11Sampler *> SamplerVector;
 public:
 	D3D11VertexShader(D3D11GraphicResourceManager *_manager);
 	virtual bool Initialize(const s2string &path, const s2string &entry_point);
@@ -50,17 +50,16 @@ protected:
 private:
 	void Check();
 	void Clear();
-	void GenerateInputLayout();
 
 private:
 	D3D11GraphicResourceManager *manager;
 	
-	CBVector cbs;
-	SamplerVector samplers;
-	
 	ID3D11VertexShader *shader;
 	D3D11ShaderReflection *reflect;
 	ID3DBlob *blob;
+	
+	ConstantBufferContainer *cb_container;
+	SamplerContainer *sampler_container;
 
 	s2string error;
 };

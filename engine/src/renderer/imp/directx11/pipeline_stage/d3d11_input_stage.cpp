@@ -80,27 +80,15 @@ void D3D11InputStage::SetInput() {
 	context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
 	
 	//Set vertex buffer.
-	{
-		int last_index = -1;
-		for(int i=vbs.size()-1; i>=0; i--) {
-			if(vbs[i].vb) {
-				last_index = i;
-				break;
-			}
+	for(unsigned i=0; i<vbs.size(); i++) {
+		if(vbs[i].vb == 0) {
+			continue;
 		}
-		if(last_index != -1) {
-			ID3D11Buffer **buf_array = new ID3D11Buffer *[last_index+1];
-			unsigned int *stride_array = new unsigned int[last_index+1];
-			unsigned int *offset_array = new unsigned int[last_index+1];
-			for(int i=0; i<=last_index; i++) {
-				buf_array[i] = vbs[i].vb->GetInternal();
-				stride_array[i] = vbs[i].vb->GetElementBytewidth();
-				offset_array[i] = 0;
-			}
-			context->IASetVertexBuffers(0, last_index+1, buf_array, stride_array, offset_array);
-			delete[] stride_array;
-			delete[] offset_array;
-		}
+		D3D11VertexBuffer *vb = vbs[i].vb;
+		unsigned int stride = vbs[i].vb->GetElementBytewidth();
+		unsigned int offset = 0;
+		ID3D11Buffer *buffer = vb->GetInternal();
+		context->IASetVertexBuffers(i, 1, &buffer, &stride, &offset);
 	}
 	
 	//Set index buffer
@@ -110,12 +98,14 @@ void D3D11InputStage::SetInput() {
 }
 
 void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
-	if(new_input) 
+	if(new_input)  {
 		SetInput();
-	new_input = false;
-	if(shader != old_shader)
+	}
+	if(shader != old_shader || new_input) {
 		SetInputLayout(*shader);
+	}
 	old_shader  = shader;
+	new_input = false;
 }
 
 void D3D11InputStage::Flush() {

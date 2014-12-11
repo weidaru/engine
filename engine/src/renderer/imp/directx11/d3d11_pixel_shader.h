@@ -17,12 +17,11 @@ class D3D11ConstantBuffer;
 class D3D11Texture2D;
 class D3D11ShaderReflection;
 class D3D11Sampler;
+class ConstantBufferContainer;
+class SamplerContainer;
+
 
 class D3D11PixelShader : public PixelShader {
-private:
-	typedef std::vector<D3D11ConstantBuffer *> CBVector;
-	typedef std::vector<D3D11Sampler *> SamplerVector;
-
 public:
 	D3D11PixelShader(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11PixelShader();
@@ -52,13 +51,14 @@ private:
 	
 private:
 	D3D11GraphicResourceManager *manager;
-	CBVector cbs;
-	SamplerVector samplers;
+	
 	ID3D11PixelShader *shader;
 	D3D11ShaderReflection *reflect;
 	ID3DBlob *blob;
 	s2string error;
 	
+	ConstantBufferContainer *cb_container;
+	SamplerContainer *sampler_container;
 };
 
 

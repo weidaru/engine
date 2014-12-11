@@ -63,12 +63,12 @@ private:
 	D3D11GraphicResourceManager *manager;
 	
 	bool new_input;
-	const D3D11VertexShader *old_shader;
 	D3D11IndexBuffer *ib;
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
 	ID3D11InputLayout *input_layout;
 	
+	const D3D11VertexShader *old_shader;
 };
 
 

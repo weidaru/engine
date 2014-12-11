@@ -25,15 +25,17 @@ D3D11VertexBuffer::~D3D11VertexBuffer() {
 }
 
 void D3D11VertexBuffer::Clear() {
+	delete mapped;
+	mapped = 0;
+
+	ele_count = 0;
+	ele_member_count = 0;
+	ele_bytewidth = 0;
+	
 	if(vb) {
 		vb->Release();
 		vb=0;
 	}
-	ele_count = 0;
-	ele_member_count = 0;
-	ele_bytewidth = 0;
-	delete mapped;
-	mapped = 0;
 }
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int element_member_count,

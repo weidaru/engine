@@ -40,8 +40,8 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 		
 		//Find its slot
 		D3D11_SHADER_INPUT_BIND_DESC cb_resource_desc;
-		reflect->GetResourceBindingDescByName(cb_desc.Name, cb_resource_desc);
-		cb_index = cb_resource_desc.BindPoint;
+		reflect->GetResourceBindingDescByName(cb_desc.Name, &cb_resource_desc);
+		cb.index = cb_resource_desc.BindPoint;
 		cb.name = cb_desc.Name;
 		cb.size = cb_desc.Size;
 		cb.uniforms.resize(cb_desc.Variables);
