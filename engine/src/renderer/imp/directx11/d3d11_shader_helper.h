@@ -7,7 +7,7 @@
 #include "utils/s2string.h"
 
 struct ID3D11DeviceContext;
-
+struct ID3D11ShaderResourceView;
 
 namespace s2 {
 
@@ -54,7 +54,7 @@ public:
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	
 private:
-	int GetSamplerIndex(const s2string &name);
+	int GetSamplerIndex(const s2string &name) const;
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -62,11 +62,25 @@ private:
 	SamplerVector samplers;
 };
 
-class ResourceContainer {
+class ShaderResourceContainer {
 private:
+	typedef std::vector<std::pair<unsigned int , ID3D11ShaderResourceView *> > ShaderResourceVector;
 
+public:
+	ShaderResourceContainer(D3D11ShaderReflection *_reflect);
+
+	bool SetTexture2D(const s2string &name, Texture2D *resource);
+	D3D11Texture2D * GetTexture2D(const s2string &name);
+	
+	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	
 private:
-
+	int GetShaderResourceIndex(const s2string &name) const;
+	
+private:
+	D3D11ShaderReflection *reflect;
+	
+	ShaderResourceVector shader_resources;
 };
 	
 }

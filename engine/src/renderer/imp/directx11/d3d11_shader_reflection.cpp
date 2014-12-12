@@ -41,7 +41,7 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 		//Find its slot
 		D3D11_SHADER_INPUT_BIND_DESC cb_resource_desc;
 		reflect->GetResourceBindingDescByName(cb_desc.Name, &cb_resource_desc);
-		cb.index = cb_resource_desc.BindPoint;
+		cb.slot_index = cb_resource_desc.BindPoint;
 		cb.name = cb_desc.Name;
 		cb.size = cb_desc.Size;
 		cb.uniforms.resize(cb_desc.Variables);
@@ -54,7 +54,7 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 			ID3D11ShaderReflectionType *type = v_reflect->GetType();
 			type->GetDesc(&type_desc);
 			Uniform &u = uniforms[v_desc.Name];
-			u.cb_index = cb.index;
+			u.cb_slot_index = cb.slot_index;
 			u.cb_name = cb.name;
 			u.name = v_desc.Name;
 			u.type_name = type_desc.Name;
@@ -131,15 +131,17 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 		reflect->GetResourceBindingDesc(i, &resource_desc);
 		
 		if(resource_desc.Type == D3D_SIT_SAMPLER) {		//Consider sampler
-			if(samplers.empty() || samplers.size()-1<resource_desc.BindPoint) {
-				samplers.resize(resource_desc.BindPoint+1);
-			}
-			Sampler &cur = samplers[resource_desc.BindPoint];
-			cur.index = resource_desc.BindPoint;
+			samplers.push_back(Sampler());
+			Sampler &cur = samplers.back();
+			cur.slot_index = resource_desc.BindPoint;
 			cur.name = resource_desc.Name;
 			cur.is_compare_sampler = ((resource_desc.uFlags | D3D_SIF_COMPARISON_SAMPLER)!=0);
 		} else if(resource_desc.Type == D3D_SIT_TEXTURE) {	//Consider texture
-			
+			shader_resources.push_back(ShaderResource());
+			ShaderResource &cur = shader_resources.back();
+			cur.slot_index = resource_desc.BindPoint;
+			cur.name = resource_desc.Name;
+			cur.type = D3D11ShaderReflection::TEXTURE;
 		}
 	}
 }
@@ -343,16 +345,31 @@ unsigned int D3D11ShaderReflection::GetSamplerSize() const {
 }
 
 
-const D3D11ShaderReflection::Resource & D3D11ShaderReflection::GetResource(const s2string &name) const {
-	//STUB
-	CHECK(false)<<"Disabled";
-	return Resource();
+const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderResource(unsigned int index) const {
+	return shader_resources[index];
 }
 
-bool D3D11ShaderReflection::HasResource(const s2string &name) const {
-	//STUB
-	CHECK(false)<<"Disabled";
+const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderResource(const s2string &name) const {
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(shader_resources[i].name == name) {
+			return shader_resources[i];
+		}
+	}
+	CHECK(false)<<"Cannot find shader resource "<<name;
+	return shader_resources[0];
+}
+
+bool D3D11ShaderReflection::HasShaderResource(const s2string &name) const {
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(shader_resources[i].name == name) {
+			return true;
+		}
+	}
 	return false;
+}
+
+unsigned int D3D11ShaderReflection::GetShaderResourceSize() const {
+	return shader_resources.size();
 }
 
 namespace {

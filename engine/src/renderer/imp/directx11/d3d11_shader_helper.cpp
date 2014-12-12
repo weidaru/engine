@@ -33,7 +33,7 @@ ConstantBufferContainer::ConstantBufferContainer(D3D11GraphicResourceManager *ma
 	cbs.resize(reflect->GetConstantBufferSize());
 	for(unsigned int i=0; i<cbs.size(); i++) {
 		const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
-		cbs[i].first = cb_reflect.index;		//slot index
+		cbs[i].first = cb_reflect.slot_index;
 		cbs[i].second = new D3D11ConstantBuffer(manager);
 		cbs[i].second->Initialize(cb_reflect.size, 0);
 	}
@@ -53,7 +53,7 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const void * valu
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
 	D3D11ConstantBuffer *cb = 0;
 	for(unsigned int i=0; i<cbs.size(); i++) {
-		if(cbs[i].first == uniform.cb_index) {
+		if(cbs[i].first == uniform.cb_slot_index) {
 			cb = cbs[i].second;
 		}
 	}
@@ -74,7 +74,7 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 	}
 	D3D11ConstantBuffer *cb = 0;
 	for(unsigned int i=0; i<cbs.size(); i++) {
-		if(cbs[i].first == uniform.cb_index) {
+		if(cbs[i].first == uniform.c_slot_index) {
 			cb = cbs[i].second;
 		}
 	}
@@ -112,7 +112,7 @@ SamplerContainer::SamplerContainer(D3D11ShaderReflection *_reflect)
 	samplers.resize(reflect->GetSamplerSize());
 	for(unsigned int i=0; i<samplers.size(); i++) {
 		const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(i);
-		samplers[i].first = info.index;
+		samplers[i].first = info.slot_index;
 		samplers[i].second = 0;
 	}
 }
@@ -134,13 +134,13 @@ bool SamplerContainer::SetSampler(const s2string &name, Sampler *_sampler, s2str
 	}
 }
 
-int SamplerContainer::GetSamplerIndex(const s2string &name) {
+int SamplerContainer::GetSamplerIndex(const s2string &name) const {
 	if(!reflect->HasSampler(name)) {
 		return -1;
 	}
 	const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(name);
 	for(unsigned int i=0; i<samplers.size(); i++) {
-		if(samplers[i].first == info.index) {
+		if(samplers[i].first == info.slot_index) {
 			return i;
 		}
 	}
@@ -178,6 +178,34 @@ void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::Sh
 		}
 	}
 }
+
+ShaderResourceContainer::ShaderResourceContainer(D3D11ShaderReflection *_reflect)
+		: relfect(_reflect){
+	CHECK_NOTNULL(reflect);
+	shader_resources.resize(reflect->GetShaderResourceSize());
+	for(unsigned int i=0; i<shader_resource.size(); i++) {
+		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(i);
+	}
+}
+
+bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *resource) {
+
+}
+
+D3D11Texture2D * ShaderResourceContainer::GetTexture2D(const s2string &name) {
+
+}
+
+void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+
+}
+
+int ShaderResourceContainer::GetShaderResourceIndex(const s2string &name) const {
+	for() {
+	
+	}
+}
+
 }
 
 

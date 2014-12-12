@@ -30,7 +30,7 @@ class TypeInfo;
 class D3D11ShaderReflection {
 public:
 	struct ConstantBuffer {
-		unsigned int index;
+		unsigned int slot_index;
 		s2string name;
 		unsigned int size;
 		
@@ -38,7 +38,7 @@ public:
 	};
 
 	struct Uniform {
-		unsigned int cb_index;
+		unsigned int cb_slot_index;
 		s2string cb_name;
 		
 		s2string name;
@@ -57,21 +57,27 @@ public:
 	};
 	
 	struct Sampler {
-		unsigned int index;
+		unsigned int slot_index;
 		s2string name;
 		bool is_compare_sampler;
 	};
 	
-	struct Resource {
-		//Stub
+	enum ShaderResourceType {
+		TEXTURE
+	};
+	
+	struct ShaderResource {
+		unsigned int slot_index;
+		s2string name;
+		ShaderResourceType type;
 	};
 
 private:
 	typedef std::vector<Parameter> ParameterVector;
 	typedef std::vector<ConstantBuffer> CBVector;
-	typedef std::vector<Sampler> SamplerVector;
 	typedef std::map<s2string, Uniform> UniformMap;
-	
+	typedef std::vector<Sampler> SamplerVector;
+	typedef std::vector<ShaderResource> ShaderResourceVector;
 	
 public:
 	D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob);
@@ -92,8 +98,11 @@ public:
 	const D3D11ShaderReflection::Sampler & GetSampler(const s2string &name) const;
 	bool HasSampler(const s2string &name) const;
 	unsigned int GetSamplerSize() const;
-	const D3D11ShaderReflection::Resource & GetResource(const s2string &name) const;
-	bool HasResource(const s2string &name) const;
+	
+	const D3D11ShaderReflection::ShaderResource & GetShaderResource(unsigned int index) const;
+	const D3D11ShaderReflection::ShaderResource & GetShaderResource(const s2string &name) const;
+	bool HasShaderResource(const s2string &name) const;
+	unsigned int GetShaderResourceSize() const;
 	
 	//message is ignored for now.
 	//TODO: Added support to check message indicating why false is returned.
@@ -128,6 +137,7 @@ private:
 	ParameterVector inputs;
 	ParameterVector outputs;
 	SamplerVector samplers;
+	ShaderResourceVector shader_resources;
 };
 
 }
