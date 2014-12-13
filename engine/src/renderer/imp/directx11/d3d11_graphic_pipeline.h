@@ -55,6 +55,7 @@ public:
 	virtual const BlendOption & GetBlendOption() const;
 	
 	//Output
+	virtual void ResetRenderTargets();
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
 	virtual Resource * GetRenderTarget(unsigned int index);
 	virtual void SetDepthStencilBuffer(Texture2D *buffer);

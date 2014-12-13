@@ -74,6 +74,7 @@ public:
 	virtual const BlendOption & GetBlendOption() const = 0;
 	
 	//Output
+	virtual void ResetRenderTargets() = 0;
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target) = 0;
 	virtual Resource * GetRenderTarget(unsigned int index) = 0;
 	template <typename T>

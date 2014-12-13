@@ -98,11 +98,13 @@ public:
 	const D3D11ShaderReflection::Sampler & GetSampler(const s2string &name) const;
 	bool HasSampler(const s2string &name) const;
 	unsigned int GetSamplerSize() const;
+	unsigned int GetSamplerIndex(const s2string  &name) const;
 	
 	const D3D11ShaderReflection::ShaderResource & GetShaderResource(unsigned int index) const;
 	const D3D11ShaderReflection::ShaderResource & GetShaderResource(const s2string &name) const;
 	bool HasShaderResource(const s2string &name) const;
 	unsigned int GetShaderResourceSize() const;
+	unsigned int GetShaderResourceIndex(const s2string &name) const;
 	
 	//message is ignored for now.
 	//TODO: Added support to check message indicating why false is returned.

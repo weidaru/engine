@@ -74,7 +74,7 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 	}
 	D3D11ConstantBuffer *cb = 0;
 	for(unsigned int i=0; i<cbs.size(); i++) {
-		if(cbs[i].first == uniform.c_slot_index) {
+		if(cbs[i].first == uniform.cb_slot_index) {
 			cb = cbs[i].second;
 		}
 	}
@@ -112,7 +112,7 @@ SamplerContainer::SamplerContainer(D3D11ShaderReflection *_reflect)
 	samplers.resize(reflect->GetSamplerSize());
 	for(unsigned int i=0; i<samplers.size(); i++) {
 		const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(i);
-		samplers[i].first = info.slot_index;
+		samplers[i].first = i;
 		samplers[i].second = 0;
 	}
 }
@@ -123,39 +123,40 @@ bool SamplerContainer::SetSampler(const s2string &name, Sampler *_sampler, s2str
 		sampler = NiceCast(D3D11Sampler *, _sampler);
 		CHECK(sampler) << "Cannot cast sampler to D3D11Sampler.";
 	}
-
-	int index = GetSamplerIndex(name);
-	if(index == -1) {
+	if(!reflect->HasSampler(name)) {
 		S2StringFormat(error, "Cannot find sampler %s", name.c_str());
 		return false;
-	} else {
-		samplers[index].second = sampler;
-		return true;
-	}
-}
-
-int SamplerContainer::GetSamplerIndex(const s2string &name) const {
-	if(!reflect->HasSampler(name)) {
-		return -1;
-	}
-	const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(name);
-	for(unsigned int i=0; i<samplers.size(); i++) {
-		if(samplers[i].first == info.slot_index) {
-			return i;
-		}
 	}
 	
-	return -1;
+	unsigned int reflect_index = reflect->GetSamplerIndex(name);
+	const D3D11ShaderReflection::Sampler &info = reflect->GetSampler(reflect_index);
+	
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(samplers[i].first == reflect_index) {
+			samplers[i].second = sampler;
+			return true;
+		}
+	}
+	CHECK(false);
+	return false;
 }
 
 D3D11Sampler* SamplerContainer::GetSampler(const s2string &name, s2string *error) {
-	int index = GetSamplerIndex(name);
-	if(index == -1) {
+	if(!reflect->HasSampler(name)) {
 		S2StringFormat(error, "Cannot find sampler %s", name.c_str());
 		return 0;
-	} else {
-		return samplers[index].second;
 	}
+	
+	unsigned int reflect_index = reflect->GetSamplerIndex(name);
+	const D3D11ShaderReflection::Sampler &info = reflect->GetSampler(reflect_index);
+	
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(samplers[i].first == reflect_index) {
+			return samplers[i].second;
+		}
+	}
+	CHECK(false);
+	return 0;
 }
 	
 void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
@@ -180,32 +181,105 @@ void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::Sh
 }
 
 ShaderResourceContainer::ShaderResourceContainer(D3D11ShaderReflection *_reflect)
-		: relfect(_reflect){
+		: reflect(_reflect){
 	CHECK_NOTNULL(reflect);
 	shader_resources.resize(reflect->GetShaderResourceSize());
-	for(unsigned int i=0; i<shader_resource.size(); i++) {
+	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(i);
+		shader_resources[i].first = i;
+		shader_resources[i].second = 0;
 	}
 }
 
-bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *resource) {
-
+bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *_texture, s2string *error) {
+	D3D11Texture2D *texture = 0;
+	if(_texture != 0) {
+		texture = NiceCast(D3D11Texture2D*, _texture);
+		CHECK(texture) << "Cannot cast texture to D3D11Texture2D";
+	}
+	
+	if(!reflect->HasShaderResource(name)) {
+		S2StringFormat(error, "Cannot find shader resource %s", name);
+		return false;
+	}
+	unsigned int reflect_index = reflect->GetShaderResourceIndex(name);
+	const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(reflect_index);
+	if(info.type != D3D11ShaderReflection::TEXTURE) {
+		S2StringFormat(error, "Shader resource %s is not declared as a texture", name);
+		return false;
+	}
+	for(unsigned int i=0; i<shader_resources.size(); i++) {
+		if(shader_resources[i].first == reflect_index) {
+			shader_resources[i].second = texture;
+			return true;
+		}
+	}
+	CHECK(false);
+	return false;
 }
 
-D3D11Texture2D * ShaderResourceContainer::GetTexture2D(const s2string &name) {
-
+D3D11Texture2D * ShaderResourceContainer::GetTexture2D(const s2string &name, s2string *error) {
+	if(!reflect->HasShaderResource(name)) {
+		S2StringFormat(error, "Cannot find shader resource %s", name);
+		return 0;
+	}
+	unsigned int reflect_index = reflect->GetShaderResourceIndex(name);
+	const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(reflect_index);
+	if(info.type != D3D11ShaderReflection::TEXTURE) {
+		S2StringFormat(error, "Shader resource %s is not declared as a texture", name);
+		return 0;
+	}
+	for(unsigned int i=0; i<shader_resources.size(); i++) {
+		if(shader_resources[i].first == reflect_index) {
+			return NiceCast(D3D11Texture2D *, shader_resources[i].second);
+		}
+	}
+	CHECK(false);
+	return 0;
 }
 
 void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
-
-}
-
-int ShaderResourceContainer::GetShaderResourceIndex(const s2string &name) const {
-	for() {
-	
+	for(unsigned int i=0; i<shader_resources.size(); i++) {
+		if(shader_resources[i].second == 0) {
+			continue;
+		}
+		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].first);
+		ID3D11ShaderResourceView *view = 0;
+		switch(info.type) {
+			case D3D11ShaderReflection::TEXTURE:
+				view = NiceCast(D3D11Texture2D *, shader_resources[i].second)->GetShaderResourceView();
+				break;
+			default:
+				CHECK(false)<<"Unknown shader resource type "<<info.type;
+				break;
+		}
+		CHECK(view)<<"View should be set.";
+		switch(shader_type) {
+			case D3D11ShaderHelper::VERTEX:
+				context->VSSetShaderResources(info.slot_index, 1, &view);
+				break;
+			case D3D11ShaderHelper::PIXEL:
+				context->PSSetShaderResources(info.slot_index, 1, &view);
+				break;
+			default:
+				CHECK(false)<<"Unknown shader_type "<<shader_type;
+				break;
+		}
 	}
 }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 

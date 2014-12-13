@@ -30,7 +30,8 @@
 namespace s2 {
 
 D3D11PixelShader::D3D11PixelShader(D3D11GraphicResourceManager *_manager)
-			: manager(_manager), shader(0), reflect(0), blob(0), cb_container(0), sampler_container(0){
+			: 	manager(_manager), shader(0), reflect(0), blob(0), 
+				cb_container(0), sampler_container(0), sr_container(0) {
 
 }
 
@@ -43,10 +44,17 @@ void D3D11PixelShader::Check() {
 }
 
 void D3D11PixelShader::Clear() {
+	delete sr_container;
+	sr_container = 0;
+
 	delete sampler_container;
+	sampler_container = 0;
+	
 	delete cb_container;
+	cb_container = 0;
 	
 	delete reflect;
+	reflect = 0;
 	
 	if(blob) {
 		blob->Release();
@@ -109,6 +117,9 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	//Setup samplers.
 	sampler_container = new SamplerContainer(reflect);
 	
+	//Setup shader resources.
+	sr_container = new ShaderResourceContainer(reflect);
+	
 	return true;
 }
 
@@ -133,16 +144,14 @@ Sampler * D3D11PixelShader::GetSampler(const s2string &name) {
 }
 
 
-bool D3D11PixelShader::SetTexture2D(const s2string &name, Texture2D *resource) {
+bool D3D11PixelShader::SetTexture2D(const s2string &name, Texture2D *texture) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return false;
+	return sr_container->SetTexture2D(name, texture, &error);
 }
 
 Texture2D * D3D11PixelShader::GetTexture2D(const s2string &name) {
 	Check();
-	CHECK(false)<<"Disable for now";
-	return 0;
+	return sr_container->GetTexture2D(name, &error);
 }
 	
 void D3D11PixelShader::Setup() {
@@ -157,6 +166,9 @@ void D3D11PixelShader::Setup() {
 		
 		//Set sampler
 		sampler_container->Setup(context, type);
+		
+		//Set shader resources.
+		sr_container->Setup(context, type);
 	}
 }
 

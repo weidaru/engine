@@ -198,7 +198,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	if(dsv_desc) {
 		result = manager->GetDevice()->CreateDepthStencilView(tex, dsv_desc, &ds_view);
 		CHECK(!FAILED(result))<<"Cannot create depth stencil view. Error " << ::GetLastError();
-		delete srv_desc;
+		delete dsv_desc;
 	}
 	if(srv_desc) {
 		result = manager->GetDevice()->CreateShaderResourceView(tex, srv_desc, &sr_view);

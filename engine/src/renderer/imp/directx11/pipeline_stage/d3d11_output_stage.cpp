@@ -33,11 +33,22 @@ D3D11OutputStage::~D3D11OutputStage() {
 void D3D11OutputStage::Clear() {
 	new_output = true;
 	rts.clear();
-	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, 0);
+}
+
+void D3D11OutputStage::ResetRenderTargets() {
+	for(unsigned int i=0; i<rts.size(); i++) {
+		rts[i] = 0;
+	}
 }
 
 void D3D11OutputStage::SetRenderTarget(unsigned int index, D3D11Texture2D *target) {
 	new_output = true;
+	for(unsigned int i=0; i<rts.size(); i++) {
+		if(rts[i] == target) {
+			rts[i] = 0;
+		}
+	}
 	rts[index] = target;
 }
 
@@ -81,26 +92,16 @@ void D3D11OutputStage::ClearDepthStencilBuffer(Texture2D *_buffer, bool clear_de
 
 void D3D11OutputStage::SetOutput() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	//Set render target.
-	int last_index = -1;
-	for(int i=rts.size()-1; i>=0; i--) {
-		if(rts[i]) {
-			last_index = i;
-			break;
+	ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[rts.size()];
+	for(int i=0; i<rts.size(); i++) {
+		if(rts[i] != 0) {
+			array[i] = rts[i]->GetRenderTargetView();
+		} else {
+			array[i] = 0;
 		}
 	}
-	if(last_index != -1) {
-		ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[last_index+1];
-		for(int i=0; i<=last_index; i++) {
-			if(rts[i] != 0) {
-				array[i] = rts[i]->GetRenderTargetView();
-			} else {
-				array[i] = 0;
-			}
-		}
-		context->OMSetRenderTargets(last_index+1, array, ds?ds->GetDepthStencilView():0);
-		delete[] array;
-	}
+	context->OMSetRenderTargets(rts.size(), array, ds?ds->GetDepthStencilView():0);
+	delete[] array;
 }
 
 

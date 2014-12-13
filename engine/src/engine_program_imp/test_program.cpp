@@ -88,7 +88,7 @@ public:
 
 		/*
 		VertexShader *temp = manager->CreateVertexShader();
-		CHECK(temp->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\test.vs", "PerVertex")) <<
+		CHECK(temp->Initialize("D:\\github_repository\\engine\\engine\\test\\test.vs", "PerVertex")) <<
 			temp->GetLastError();
 		*/
 
@@ -100,7 +100,7 @@ public:
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
 		CreateColorProgram();
-		//CreateTextureProgram();
+		CreateTextureProgram();
 		
 		return true;
 	}
@@ -121,11 +121,12 @@ public:
 		tex_option.width = renderer_setting.window_width;
 		tex_option.height = renderer_setting.window_height;
 		tex_option.output_bind = TextureEnum::RENDER_TARGET;
+		tex_option.format = TextureEnum::R32G32B32A32_FLOAT;
 		rtt_texture->Initialize(tex_option);
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.vs", "main")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix rotation_mat;
@@ -154,7 +155,7 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.ps", "main")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
@@ -197,16 +198,16 @@ public:
 		
 		//Set vertex buffer
 		TextureVertex vertices[4] = {
-			{{0.9f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, 1.0f, 0.0f}, {0.0f, 0.0f}},
 			{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, 
-			{{1.0f, 0.9f, 0.0f}, {1.0f, 1.0f}}, 
-			{{0.9f, 0.9f, 0.0f}, {0.0f, 1.0f}}
+			{{1.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}, 
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}}
 		};
 		tex_vb = manager->CreateVertexBuffer();
 		tex_vb->Initialize(4, vertices, GeneralEnum::MAP_WRITE_OCCASIONAL);
 		
 		//Set index buffer
-		IndexBuffer::InputType indices[6] = {0,1,2, 1,2,3};
+		IndexBuffer::InputType indices[6] = {0,1,2, 0,2,3};
 		tex_ib = manager->CreateIndexBuffer();
 		tex_ib->Initialize(6, indices, GeneralEnum::MAP_FORBIDDEN);
 	}
@@ -214,16 +215,14 @@ public:
 	void DrawNormal(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		float background[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->ClearRenderTarget(manager->GetBackBuffer(), background);
-		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
-		pipeline->SetRenderTarget(1, manager->GetBackBuffer());
-		pipeline->SetRenderTarget(0, rtt_texture);
+
+		pipeline->ResetRenderTargets();
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
+		pipeline->SetRenderTarget(1, rtt_texture);
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
 		pipeline->SetVertexBuffer(0, 0, vb);
 		pipeline->SetIndexBuffer(ib);
-		
 		
 		rotate += delta*PI/2.0f;
 		rotate = rotate>2*PI ? rotate-2*PI : rotate;
@@ -238,6 +237,7 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		pipeline->ResetRenderTargets();
 		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
 		pipeline->SetVertexShader(tex_vs);
 		pipeline->SetPixelShader(tex_ps);
@@ -248,8 +248,16 @@ public:
 	}
 	
 	virtual void OneFrame(float delta) {
+		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		pipeline->ClearRenderTarget(manager->GetBackBuffer(), black);
+		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
+		float red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+		pipeline->ClearRenderTarget(rtt_texture, red);
 		DrawNormal(delta);
-		//DrawTexture(delta);
+		
+		DrawTexture(delta);
 	}
 	
 private:

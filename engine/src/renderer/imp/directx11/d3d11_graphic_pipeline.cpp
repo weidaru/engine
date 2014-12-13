@@ -245,6 +245,10 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 	return blend_opt;
 }
 
+void D3D11GraphicPipeline::ResetRenderTargets() {
+	output_stage.ResetRenderTargets();
+}
+
 void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
 	output_stage.SetRenderTarget(index, NiceCast(D3D11Texture2D *, target));
 }
@@ -326,9 +330,13 @@ void D3D11GraphicPipeline::Draw() {
 	if(vs)
 		input_stage.Setup(vs);
 
+	//Setup output
+	output_stage.Setup();
+
 	if(vs) {
 		vs->Setup();
 	}
+	
 	if(ps) {
 		ps->Setup();
 	}
@@ -350,9 +358,6 @@ void D3D11GraphicPipeline::Draw() {
 		SetupBlendOption();
 		new_blend = false;
 	}
-	
-	//Setup output
-	output_stage.Setup();
 	
 	//Flush data in input stage and start drawing.
 	input_stage.Flush();

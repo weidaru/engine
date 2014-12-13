@@ -7,7 +7,6 @@
 #include "utils/s2string.h"
 
 struct ID3D11DeviceContext;
-struct ID3D11ShaderResourceView;
 
 namespace s2 {
 
@@ -16,7 +15,10 @@ class D3D11GraphicResourceManager;
 class D3D11ConstantBuffer;
 class D3D11ShaderReflection;
 class D3D11Sampler;
+class D3D11Texture2D;
 class Sampler;
+class Texture2D;
+class Resource;
 
 struct D3D11ShaderHelper {
 	enum ShaderType {VERTEX, PIXEL};
@@ -54,9 +56,6 @@ public:
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	
 private:
-	int GetSamplerIndex(const s2string &name) const;
-	
-private:
 	D3D11ShaderReflection *reflect;
 	
 	SamplerVector samplers;
@@ -64,18 +63,16 @@ private:
 
 class ShaderResourceContainer {
 private:
-	typedef std::vector<std::pair<unsigned int , ID3D11ShaderResourceView *> > ShaderResourceVector;
+	typedef std::vector<std::pair<unsigned int , Resource *> > ShaderResourceVector;
 
 public:
 	ShaderResourceContainer(D3D11ShaderReflection *_reflect);
 
-	bool SetTexture2D(const s2string &name, Texture2D *resource);
-	D3D11Texture2D * GetTexture2D(const s2string &name);
+	bool SetTexture2D(const s2string &name, Texture2D *_texture, s2string *error);
+	D3D11Texture2D * GetTexture2D(const s2string &name, s2string *error);
 	
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	
-private:
-	int GetShaderResourceIndex(const s2string &name) const;
 	
 private:
 	D3D11ShaderReflection *reflect;

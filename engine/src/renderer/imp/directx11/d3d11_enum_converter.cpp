@@ -19,6 +19,8 @@ DXGI_FORMAT D3D11EnumConverter::TextureFormatToDXGIFormat(TextureEnum::TextureFo
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
 	case TextureEnum::D24_UNORM_S8_UINT:
 		return DXGI_FORMAT_D24_UNORM_S8_UINT;
+	case TextureEnum::R32G32B32A32_FLOAT:
+		return DXGI_FORMAT_R32G32B32A32_FLOAT;
 	default:
 		CHECK(false)<<"Invalid input "<<input;
 		return DXGI_FORMAT_FORCE_UINT;

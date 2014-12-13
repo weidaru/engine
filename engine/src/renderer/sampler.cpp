@@ -10,10 +10,10 @@ Sampler::Option::Option() {
 	u_wrap = CLAMP;
 	v_wrap = CLAMP;
 	w_wrap = CLAMP;
-	border_color[0] = 0.0f;
-	border_color[1] = 0.0f;
-	border_color[2] = 0.0f;
-	border_color[3] = 0.0f;
+	border_color[0] = 1.0f;
+	border_color[1] = 1.0f;
+	border_color[2] = 1.0f;
+	border_color[3] = 1.0f;
 }
 
 }

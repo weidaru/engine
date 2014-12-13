@@ -321,14 +321,7 @@ const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(unsigne
 }
 
 const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(const s2string &name) const {
-	for(unsigned int i=0; i<samplers.size(); i++) {
-		if(samplers[i].name == name) {
-			return samplers[i];
-		}
-	}
-	CHECK(false)<<"Cannot find sampler "<<name;
-	
-	return samplers[0];
+	return samplers[GetSamplerIndex(name)];
 }
 
 bool D3D11ShaderReflection::HasSampler(const s2string &name) const {
@@ -338,6 +331,17 @@ bool D3D11ShaderReflection::HasSampler(const s2string &name) const {
 		}
 	}
 	return false;
+}
+
+unsigned int D3D11ShaderReflection::GetSamplerIndex(const s2string  &name) const {
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(samplers[i].name == name) {
+			return i;
+		}
+	}
+	CHECK(false)<<"Cannot find sampler "<<name;
+	
+	return 0;
 }
 
 unsigned int D3D11ShaderReflection::GetSamplerSize() const {
@@ -350,13 +354,7 @@ const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderRe
 }
 
 const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderResource(const s2string &name) const {
-	for(unsigned int i=0; i<samplers.size(); i++) {
-		if(shader_resources[i].name == name) {
-			return shader_resources[i];
-		}
-	}
-	CHECK(false)<<"Cannot find shader resource "<<name;
-	return shader_resources[0];
+	return shader_resources[GetShaderResourceIndex(name)];
 }
 
 bool D3D11ShaderReflection::HasShaderResource(const s2string &name) const {
@@ -366,6 +364,16 @@ bool D3D11ShaderReflection::HasShaderResource(const s2string &name) const {
 		}
 	}
 	return false;
+}
+
+unsigned int D3D11ShaderReflection::GetShaderResourceIndex(const s2string &name) const {
+	for(unsigned int i=0; i<samplers.size(); i++) {
+		if(shader_resources[i].name == name) {
+			return i;
+		}
+	}
+	CHECK(false)<<"Cannot find shader resource "<<name;
+	return 0;
 }
 
 unsigned int D3D11ShaderReflection::GetShaderResourceSize() const {

@@ -101,6 +101,7 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&bf_ptr);
 	CHECK(!FAILED(result))<<"Cannot get back buffer from swap chain. Error " << ::GetLastError();
 	result = device->CreateRenderTargetView(bf_ptr, NULL, &bf_rt_view);
+	
 	CHECK(!FAILED(result))<<"Cannot create render target view for back buffer. Error " << ::GetLastError();
 	back_buffer = new D3D11Texture2D(this);
 	Texture2D::Option bf_desc;

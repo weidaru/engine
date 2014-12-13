@@ -23,6 +23,7 @@ class D3D11Sampler;
 
 class ConstantBufferContainer;
 class SamplerContainer;
+class ShaderResourceContainer;
 	
 class D3D11VertexShader : public VertexShader {
 public:
@@ -60,6 +61,7 @@ private:
 	
 	ConstantBufferContainer *cb_container;
 	SamplerContainer *sampler_container;
+	ShaderResourceContainer *sr_container;
 
 	s2string error;
 };

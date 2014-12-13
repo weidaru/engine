@@ -19,6 +19,7 @@ class D3D11ShaderReflection;
 class D3D11Sampler;
 class ConstantBufferContainer;
 class SamplerContainer;
+class ShaderResourceContainer;
 
 
 class D3D11PixelShader : public PixelShader {
@@ -31,7 +32,7 @@ public:
 	
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
 	virtual Sampler * GetSampler(const s2string &name);
-	virtual bool SetTexture2D(const s2string &name, Texture2D *resource);
+	virtual bool SetTexture2D(const s2string &name, Texture2D *texure);
 	virtual Texture2D * GetTexture2D(const s2string &name);
 	
 	virtual const s2string & GetLastError() { return error; }
@@ -59,6 +60,7 @@ private:
 	
 	ConstantBufferContainer *cb_container;
 	SamplerContainer *sampler_container;
+	ShaderResourceContainer *sr_container;
 };
 
 

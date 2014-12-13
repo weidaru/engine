@@ -19,6 +19,7 @@ public:
 	D3D11OutputStage(D3D11GraphicResourceManager *_manager);
 	~D3D11OutputStage();
 	
+	void ResetRenderTargets();
 	void SetRenderTarget(unsigned int index, D3D11Texture2D *target);
 	Resource * GetRenderTarget(unsigned int index);
 	void SetDepthStencilBuffer(D3D11Texture2D *buffer);
