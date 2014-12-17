@@ -88,7 +88,7 @@ public:
 
 		/*
 		VertexShader *temp = manager->CreateVertexShader();
-		CHECK(temp->Initialize("D:\\github_repository\\engine\\engine\\test\\test.vs", "PerVertex")) <<
+		CHECK(temp->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\test.vs", "PerVertex")) <<
 			temp->GetLastError();
 		*/
 
@@ -126,7 +126,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "main")) <<
+		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix rotation_mat;
@@ -134,7 +134,7 @@ public:
 			vs->SetUniform("world", rotation_mat);
 
 			Matrix camera;
-			camera[3][2] = 5.0;
+			camera[3][2] = -5.0;
 			vs->SetUniform("view", camera);
 			
 			float np=0.0f, fp =1000.0f;
@@ -145,8 +145,8 @@ public:
 			Matrix projection;
 			projection[0][0] = yscale/aspect;
 			projection[1][1] = yscale;
-			projection[2][2] = fp/(fp-np);
-			projection[2][3] = 1.0f;
+			projection[2][2] = -fp/(fp-np);
+			projection[2][3] = -1.0f;
 			projection[3][2] = -np*fp/(fp-np);
 			projection[3][3] = 0.0f;
 
@@ -155,14 +155,14 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "main")) <<
+		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Vertex vertices[3] = {
 			{{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, 
-			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
+			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}
 		};
 		vb = manager->CreateVertexBuffer();
 		vb->Initialize(3, (Vertex *)0, GeneralEnum::MAP_WRITE_OCCASIONAL);
@@ -186,12 +186,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", rtt_texture);

@@ -93,7 +93,7 @@ void D3D11OutputStage::ClearDepthStencilBuffer(Texture2D *_buffer, bool clear_de
 void D3D11OutputStage::SetOutput() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[rts.size()];
-	for(int i=0; i<rts.size(); i++) {
+	for(unsigned int i=0; i<rts.size(); i++) {
 		if(rts[i] != 0) {
 			array[i] = rts[i]->GetRenderTargetView();
 		} else {
