@@ -14,6 +14,8 @@
 #include "renderer/texture_enum.h"
 #include "renderer/sampler.h"
 
+#include "asset/model.h"
+
 #include <stdio.h>
 #include <math.h>
 
@@ -22,7 +24,7 @@
 //[[TypeInfo]]//
 struct Vertex {
 	float position[3];
-	float color[4];
+	float normal[3];
 };
 
 //[[TypeInfo]]//
@@ -85,19 +87,19 @@ public:
 		//Create and set depth stencil buffer
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-
-		/*
-		VertexShader *temp = manager->CreateVertexShader();
-		CHECK(temp->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\test.vs", "PerVertex")) <<
-			temp->GetLastError();
-		*/
-
+		
+		//Set depth buffer
 		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		Texture2D::Option ds_option;
 		Texture2D::Option::SetAsDepthStencilBuffer(&ds_option, renderer_setting.window_width, renderer_setting.window_height);
 		ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
+		
+		//Use wireframe mode
+		RasterizationOption rast_option = pipeline->GetRasterizationOption();
+		rast_option.fill_mode = RasterizationOption::WIREFRAME;
+		pipeline->SetRasterizationOption(rast_option);
 		
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -126,7 +128,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.vs", "main")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix rotation_mat;
@@ -134,20 +136,23 @@ public:
 			vs->SetUniform("world", rotation_mat);
 
 			Matrix camera;
-			camera[3][2] = -5.0;
+			camera[3][0] = 0.0f;
+			camera[3][1] = -0.1f;
+			camera[3][2] = -0.5f;
 			vs->SetUniform("view", camera);
 			
-			float np=0.0f, fp =1000.0f;
+			float np=-0.5f, fp =-1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 			float fov=PI*35/180;
 			float yscale = 1.0f/tan(fov/2);
 			
 			Matrix projection;
+			
 			projection[0][0] = yscale/aspect;
 			projection[1][1] = yscale;
-			projection[2][2] = -fp/(fp-np);
+			projection[2][2] = fp/(np-fp);
 			projection[2][3] = -1.0f;
-			projection[3][2] = -np*fp/(fp-np);
+			projection[3][2] = -np*fp/(np-fp);
 			projection[3][3] = 0.0f;
 
 			vs->SetUniform("projection", projection);
@@ -155,23 +160,46 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\color.ps", "main")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
-		Vertex vertices[3] = {
-			{{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
-			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}},
-			{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}
-		};
-		vb = manager->CreateVertexBuffer();
-		vb->Initialize(3, (Vertex *)0, GeneralEnum::MAP_WRITE_OCCASIONAL);
-		vb->Update(0, vertices, 3);
+		Model model;
+		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		{
+			Vertex *vertices = 0;
+			
+	 		unsigned int size = model.GetVertexSize();
+			vertices = new Vertex[size];
+			for(unsigned int i=0; i<size; i++) {
+				Model::Vertex v = model.GetVertex(i);
+				vertices[i].position[0] = v.x;
+				vertices[i].position[1] = v.y;
+				vertices[i].position[2] = v.z;
+
+				vertices[i].normal[0] = v.nx;
+				vertices[i].normal[1] = v.ny;
+				vertices[i].normal[2] = v.nz;
+			}
+
+			vb = manager->CreateVertexBuffer();
+			vb->Initialize(size, vertices, GeneralEnum::MAP_WRITE_OCCASIONAL);
+			delete[] vertices;
+		}
 		
-		//Create IndexBuffer
-		IndexBuffer::InputType indices[3] = {0,1,2};
-		ib = manager->CreateIndexBuffer();
-		ib->Initialize(3, indices, GeneralEnum::MAP_FORBIDDEN);
+		{
+			//Create IndexBuffer
+			unsigned int size = model.GetTriangleSize()*3;
+			IndexBuffer::InputType *indices = new IndexBuffer::InputType[size];
+			for(unsigned int i=0; i<model.GetTriangleSize(); i++) {
+				indices[i*3] = model.GetTriangleVertexIndex(i, 0);
+				indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
+				indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
+			}
+			ib = manager->CreateIndexBuffer();
+			ib->Initialize(size, indices, GeneralEnum::MAP_FORBIDDEN);
+			delete[] indices;
+		}
 	}
 	
 	void CreateTextureProgram() {
@@ -186,12 +214,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", rtt_texture);
@@ -224,7 +252,7 @@ public:
 		pipeline->SetVertexBuffer(0, 0, vb);
 		pipeline->SetIndexBuffer(ib);
 		
-		rotate += delta*PI/2.0f;
+		//rotate += delta*PI/2.0f;
 		rotate = rotate>2*PI ? rotate-2*PI : rotate;
 		Matrix rotation_mat;
 		MakeRotationAxisY(&rotation_mat, rotate);

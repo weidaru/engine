@@ -38,7 +38,7 @@ bool D3D11ConstantBuffer::SetData(unsigned int offset, const void *data, unsigne
 		error = "Data overflow.";
 		return false;
 	}
-	memcpy(data_buffer+offset, data, _size);
+	memcpy((void*)(data_buffer+offset), data, _size);
 	return true;
 }
 

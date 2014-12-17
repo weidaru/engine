@@ -4,11 +4,10 @@
 #include "utils/s2string.h"
 
 namespace Assimp {
-
 class Importer;
-class aiMesh;
-
 }
+
+struct aiMesh;
 
 namespace s2 {
 
@@ -28,19 +27,21 @@ public:
 	bool Initialize(aiMesh *_mesh);
 	
 	const s2string & GetLastError() const;
+
+	bool HasTextureCoordinates() const;
 	
 	unsigned int GetVertexSize() const;
 	Vertex GetVertex(unsigned int index) const;
 	
 	unsigned int GetTriangleSize() const;
-	unsigned int GetTriangleIndex(unsigned int index, unsigned int vertex_index) const;
+	unsigned int GetTriangleVertexIndex(unsigned int index, unsigned int vertex_index) const;
 	
 private:
 	void Clear();
-	void Check();
+	void Check() const;
 
 private:
-	Importer *importer;
+	Assimp::Importer *importer;
 	aiMesh *mesh;
 	
 	s2string error;

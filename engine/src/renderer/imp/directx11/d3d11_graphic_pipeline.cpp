@@ -147,7 +147,15 @@ ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const Ras
 	default:
 		break;
 	}
+	desc.DepthBias = 0;
+	desc.SlopeScaledDepthBias = 0.0f;
+	desc.DepthBiasClamp = 0.0f;
+	desc.DepthClipEnable = true;
 	desc.ScissorEnable = option.enable_scissor;
+	
+	//TODO: Have some control over these fields.
+	desc.MultisampleEnable = false;
+	desc.AntialiasedLineEnable = false;
 	ID3D11RasterizerState *state = 0;
 	HRESULT result = 1;
 	result = device->CreateRasterizerState(&desc, &state);

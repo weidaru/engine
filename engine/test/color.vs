@@ -1,7 +1,7 @@
 struct VertexInputType
 {
     float3 position : POSITION;
-    float4 color : COLOR;
+    float3 normal : NORMAL;
 };
 
 struct PixelInputType
