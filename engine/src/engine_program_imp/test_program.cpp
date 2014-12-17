@@ -96,11 +96,6 @@ public:
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
-		//Use wireframe mode
-		RasterizationOption rast_option = pipeline->GetRasterizationOption();
-		rast_option.fill_mode = RasterizationOption::WIREFRAME;
-		pipeline->SetRasterizationOption(rast_option);
-		
 		CreateColorProgram();
 		CreateTextureProgram();
 		
@@ -128,7 +123,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\color.vs", "main")) <<
+		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix rotation_mat;
@@ -137,8 +132,8 @@ public:
 
 			Matrix camera;
 			camera[3][0] = 0.0f;
-			camera[3][1] = -0.1f;
-			camera[3][2] = -0.5f;
+			camera[3][1] = -5.0f;
+			camera[3][2] = -30.0f;
 			vs->SetUniform("view", camera);
 			
 			float np=-0.5f, fp =-1000.0f;
@@ -160,12 +155,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\color.ps", "main")) <<
+		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\dragon.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -214,12 +209,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", rtt_texture);
@@ -252,7 +247,7 @@ public:
 		pipeline->SetVertexBuffer(0, 0, vb);
 		pipeline->SetIndexBuffer(ib);
 		
-		//rotate += delta*PI/2.0f;
+		rotate += delta*PI/2.0f;
 		rotate = rotate>2*PI ? rotate-2*PI : rotate;
 		Matrix rotation_mat;
 		MakeRotationAxisY(&rotation_mat, rotate);
