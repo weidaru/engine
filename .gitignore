@@ -6,7 +6,6 @@
 /engine/Release
 /engine/ipch
 /engine/log
-*.obj
 *.tlog
 *.opensdf
 *.suo
