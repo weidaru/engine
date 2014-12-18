@@ -38,7 +38,7 @@ PixelInputType main(VertexInputType input)
 	light_view = normalize(light_view);
 	
 	// Calculate reflection
-	float n_dot_light = dot(light_view, normal_view);
+	float n_dot_light = saturate(dot(light_view, normal_view));
 	float3 reflection = n_dot_light*normal_view*2 - light_view;
 	
 	float light_ambient = 0.1f;
@@ -49,7 +49,7 @@ PixelInputType main(VertexInputType input)
 	// Diffuse only for now.
     output.color = light_ambient * light_color;
 	output.color += light_diffuse * light_color * n_dot_light;
-	output.color += light_specular * light_color * pow(dot(reflection, float3(0.0f, 0.0f, 1.0f)), smooth);
+	output.color += light_specular * light_color * pow(saturate(dot(reflection, float3(0.0f, 0.0f, 1.0f))), smooth);
 	saturate(output.color);
     
     return output;
