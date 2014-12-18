@@ -132,8 +132,8 @@ public:
 
 			Matrix camera;
 			camera[3][0] = 0.0f;
-			camera[3][1] = -5.0f;
-			camera[3][2] = -30.0f;
+			camera[3][1] = -1.5f;
+			camera[3][2] = -10.0f;
 			vs->SetUniform("view", camera);
 			
 			float np=-0.5f, fp =-1000.0f;
@@ -160,7 +160,7 @@ public:
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\dragon.obj")) << model.GetLastError();
+		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
