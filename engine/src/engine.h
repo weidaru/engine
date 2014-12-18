@@ -11,6 +11,7 @@
 namespace s2 {
 
 class EngineProgramManager;
+class InputSystem;
 
 class Engine : public Singleton<Engine>  {
 public:
@@ -29,6 +30,7 @@ public:
 	HWND GetWindowHandle() { return hwnd; }
 	
 	EngineProgramManager * GetEngineProgramManager() { return program_manager; }
+	const InputSystem & GetInputSystem() { return *input_system; }
 
 private:
 	void InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen);
@@ -40,6 +42,7 @@ private:
 	s2string window_name;
 	
 	EngineProgramManager *program_manager;
+	InputSystem *input_system;
 
 	//Need to be thread safe?
 	bool stop;

@@ -2,6 +2,7 @@
 
 #include "renderer/imp/directx11/d3d11_context.h"
 #include "engine_program.h"
+#include "input_system.h"
 
 #include <glog/logging.h>
 
@@ -35,7 +36,8 @@ static const char * PISSED_STR = "If someone name it like this, I will be pissed
 namespace s2 {
 
 Engine::Engine() 
-	: hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), program_manager(new EngineProgramManager){
+	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), 
+		program_manager(new EngineProgramManager), input_system(0){
 
 }
 
@@ -71,23 +73,32 @@ void Engine::Run() {
 	float interval = 0.0f;
 	while(!done) {
 		clock_t t = clock();
-
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		
+		unsigned int i=0;
+		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			if(msg.message == WM_QUIT || stop == true) {
+				done = true;
+			}
 		}
-
-		if(msg.message == WM_QUIT || stop == true) 
-			done = true;
-		else
+		
+		if(!done) {
 			OneFrame(interval);
+		}
 		interval = ((float)(clock()-t))/CLOCKS_PER_SEC;
 	}
 }
 
 void Engine::OneFrame(float delta) {
 	//Only run test program for now.
+	input_system->OneFrame(delta);
+	
 	program_manager->Get("test")->OneFrame(delta);
+	
+	if(input_system->GetMouseXDelta() != 0 || input_system->GetMouseYDelta()!=0 ) {
+		printf("delta_x = %d.\tdelta_y = %d\n", input_system->GetMouseXDelta(), input_system->GetMouseXDelta()  );
+	}
 	
 	renderer_context->SwapBuffer();
 }
@@ -164,6 +175,7 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
 	
+	input_system = new InputSystem(hwnd);
 }
 
 }
