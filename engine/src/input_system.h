@@ -33,17 +33,22 @@ public:
 	InputSystem(void *hwnd);
 	virtual ~InputSystem() {}
 
-	void Update(int delta_x, int delta_y);
-	void PostFrame(float delta);
+	void OneFrame(float delta);
 	
 	int GetMouseX() const { return mouse_x; }
-	int GetMouseXDelta() const {  return mouse_x_delta; }
+
+	/**
+	 * Result between -1.0f and 1.0f
+	 */
+	float GetMouseXMove() const;
 	int GetMouseY() const { return mouse_y; }
-	int GetMouseYDelta() const { 
-		int a=0;
-		a++;
-		return mouse_y_delta; 
-	}
+	/**
+	 * Result between -1.0f and 1.0f
+	 */
+	float GetMouseYMove() const;
+
+	void SetMousePosition(int x, int y);
+	void SetMousePositionPercent(float x, float y);
 	
 	bool IsMouseButtonDown(MouseButton button) const;
 	
@@ -53,7 +58,9 @@ private:
 	void *hwnd;
 	std::vector<unsigned char> current;
 	int mouse_x, mouse_y;
-	int mouse_x_delta, mouse_y_delta;
+	float mouse_x_delta, mouse_y_delta;
+
+	float timer;
 };
 
 

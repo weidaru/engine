@@ -43,39 +43,67 @@ int KeyToVirtualKey(InputSystem::Key key) {
 	}
 }
 
+template <typename T>
+T Clamp(T value, const T &floor, const T &ceiling) {
+	T result = value<floor ? floor:value;
+	return result>ceiling ? ceiling:result;
+}
+
+}
+
+void InputSystem::SetMousePosition(int x, int y) {
+	const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	mouse_x = Clamp(x, 0, (int)rs.window_width);
+	mouse_y = Clamp(y, 0, (int)rs.window_height);
+	RECT rect;
+	GetWindowRect((HWND)hwnd, &rect);
+	SetCursorPos( rect.left+mouse_x, rect.top+mouse_y);
+}
+
+void InputSystem::SetMousePositionPercent(float x, float y) {
+	const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	SetMousePosition((int)(x*rs.window_width), (int)(y*rs.window_height));
 }
 
 InputSystem::InputSystem(void *_hwnd) 
-			: hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0) {
-	RECT rect;
-	GetWindowRect((HWND)hwnd, &rect);
-	mouse_x = (rect.right - rect.left)/2;
-	mouse_y = (rect.bottom - rect.top)/2;
-	SetCursorPos((rect.right + rect.left)/2, (rect.bottom + rect.top)/2);
+			: hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0), timer(0.0f) {
+	SetMousePositionPercent(0.5f,0.5f);
 }
 
-void InputSystem::Update(int delta_x, int delta_y) {
+float InputSystem::GetMouseXMove() const {
+	return mouse_x_delta;
+}
+
+float InputSystem::GetMouseYMove() const {
+	return  mouse_y_delta;
+} 
+
+void InputSystem::OneFrame(float delta) {
 	CHECK(GetKeyboardState(&current[0]))<<GetLastError();
-	
-	if(mouse_x == -1) {
-		POINT p;
-		GetCursorPos(&p);
-		ScreenToClient((HWND)hwnd, &p);
-		mouse_x = p.x;
-		mouse_y = p.y;
-		mouse_x_delta += delta_x;
-		mouse_y_delta += delta_y;
-	} else {
-		mouse_x_delta += delta_x;
-		mouse_y_delta += delta_y;
-		mouse_x += delta_x;
-		mouse_y += delta_y;
-	}
-}
+	POINT p;
+	GetCursorPos(&p);
+	ScreenToClient((HWND)hwnd, &p);
+	int old_x = mouse_x;
+	mouse_x = p.x;
+	int old_y = mouse_y;
+	mouse_y = p.y;
 
-void InputSystem::PostFrame(float delta) {
-	mouse_x_delta = 0;
-	mouse_y_delta = 0;
+	if(timer <= 0.0f) {
+		mouse_x_delta = (float)(mouse_x-old_x);
+		mouse_y_delta = (float)(mouse_y-old_y);
+		
+		if(mouse_x_delta !=0.0f || mouse_y_delta!=0.0f) {
+			float larger = abs(mouse_x_delta);
+			larger = larger>abs(mouse_y_delta) ? larger:abs(mouse_y_delta);
+			mouse_x_delta /= larger;
+			mouse_y_delta /= larger;
+			timer = 1.0f/100.0f;
+		} else {
+			timer = 0.0f;
+		}
+		
+	}
+	timer -= delta;
 }
 
 bool InputSystem::IsMouseButtonDown(MouseButton button) const {

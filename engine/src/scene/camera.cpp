@@ -2,7 +2,19 @@
 
 #include <glog/logging.h>
 
+#define PI 3.141596253f
+
 namespace s2 {
+
+namespace {
+
+template <typename T>
+T Clamp(T value, const T &floor, const T &ceiling) {
+	T result = value<floor ? floor:value;
+	return result>ceiling ? ceiling:result;
+}
+
+}
 
 Camera::Camera() : calculate_vector(true), calculate_matrix(true) {
 	Reset();
@@ -22,6 +34,7 @@ void Camera::Reset() {
 
 void Camera::TurnAroundLocalX(float angle) {
 	alpha += angle;
+	alpha = Clamp(alpha, -PI/2.0f, PI/2.0f);
 	calculate_vector = true;
 	calculate_matrix = true;
 }
@@ -34,6 +47,7 @@ void Camera::TurnAroundLocalY(float angle) {
 
 void Camera::TurnAroundLocalZ(float angle) {
 	gamma += angle;
+	gamma = Clamp(gamma, -PI/2.0f, PI/2.0f);
 	calculate_vector = true;
 	calculate_matrix = true;
 }
@@ -42,6 +56,17 @@ Camera & Camera::Move(const Vector3 &movement) {
 	position += movement;
 	calculate_matrix = true;
 	return *this;
+}
+
+Camera & Camera::MoveForward(float distance) {
+	return Move(GetForwardVector()*distance);
+}
+
+Camera & Camera::MoveRight(float distance){
+	CalculateVectors();
+	Vector3 right = forward.Cross(up);
+
+	return Move(right*distance);
 }
 
 Camera & Camera::SetPosition(const Vector3 &vec) {
@@ -129,7 +154,7 @@ const Vector3 & Camera::GetPosition() {
 
 const Vector3 & Camera::GetForwardVector()  {
 	CalculateVectors();
-	return position;
+	return forward;
 }
 
 const Vector3 & Camera::GetUpVector() {

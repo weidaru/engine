@@ -30,7 +30,7 @@ public:
 	HWND GetWindowHandle() { return hwnd; }
 	
 	EngineProgramManager * GetEngineProgramManager() { return program_manager; }
-	const InputSystem & GetInputSystem() { return *input_system; }
+	InputSystem * GetInputSystem() { return input_system; }
 
 private:
 	void InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen);

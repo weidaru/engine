@@ -33,6 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	s2::Engine *engine = s2::Engine::GetSingleton();
 	s2::RendererSetting renderer_setting;
+	renderer_setting.enable_vsync = true;
 	
 	engine->Initialize("Hello World", renderer_setting);
 	engine->Run();

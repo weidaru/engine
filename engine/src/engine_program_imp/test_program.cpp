@@ -60,7 +60,7 @@ public:
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
-		camera.SetPosition(Vector3(0.0f, 1.0, 20.0f));
+		camera.SetPosition(Vector3(0.0f, 1.0, 40.0f));
 		
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -226,30 +226,31 @@ public:
 	}
 	
 	void UpdateCamera(float delta) {
-		const InputSystem &is = Engine::GetSingleton()->GetInputSystem();
+		InputSystem &is = *Engine::GetSingleton()->GetInputSystem();
 		
 		int mouse_x = is.GetMouseX();
 		int mouse_y = is.GetMouseY();
 		const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-		int delta_x = is.GetMouseXDelta();
-		int delta_y = is.GetMouseYDelta();
+		float delta_x = is.GetMouseXMove();
+		float delta_y = is.GetMouseYMove();
 		
-		if(mouse_x <= 5) {
-			camera.TurnAroundLocalY(3.0f*delta*PI/10.0f);
-		} else if(mouse_x >= rs.window_width-5) {
-			
-			camera.TurnAroundLocalY(-3.0f*delta*PI/10.0f);
-		} else if(delta_x != 0) {
-			
-			camera.TurnAroundLocalY(-10.0f*delta_x*delta*PI/10.0f);
+		if(delta_x != 0) {
+			camera.TurnAroundLocalY(-delta_x*delta*PI/4.0f);
 		}
-		
-		if(mouse_y <= 5) {
-			camera.TurnAroundLocalX(3.0f*delta*PI/10.0f);
-		} else if(mouse_y >= rs.window_height-5) {
-			camera.TurnAroundLocalX(-3.0f*delta*PI/10.0f);
-		} else if(delta_y != 0) {
-			camera.TurnAroundLocalX(-10.0f*delta_y*delta*PI/10.0f);
+		if (delta_y != 0) {
+			camera.TurnAroundLocalX(-delta_y*delta*PI/4.0f);
+		}
+		is.SetMousePositionPercent(0.5f, 0.5f);
+
+		if(is.IsKeyDown(InputSystem::K_W)) {
+			camera.MoveForward(20.0f*delta);
+		} else if(is.IsKeyDown(InputSystem::K_S)) {
+			camera.MoveForward(-20.0f*delta);
+		}
+		if(is.IsKeyDown(InputSystem::K_D)) {
+			camera.MoveRight(20.0f*delta);
+		} else if(is.IsKeyDown(InputSystem::K_A)) {
+			camera.MoveRight(-20.0f*delta);
 		}
 	}
 	

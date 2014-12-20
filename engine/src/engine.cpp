@@ -81,24 +81,13 @@ void Engine::Run() {
 			DispatchMessage(&msg);
 			if(msg.message == WM_QUIT || stop == true) {
 				done = true;
-			}	else if(msg.message ==  WM_INPUT) {
-				UINT dwSize = 40;
-				static BYTE lpb[40];
-    
-				GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, 
-								lpb, &dwSize, sizeof(RAWINPUTHEADER));
-    
-				RAWINPUT* raw = (RAWINPUT*)lpb;
-				if (raw->header.dwType == RIM_TYPEMOUSE)  {
-					input_system->Update(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				}
 			}
 		}
-		
+		printf("%f\n", interval);
+
 		if(!done) {
 			OneFrame(interval);
 		}
-		input_system->PostFrame(interval);
 		// stop timer
 		QueryPerformanceCounter(&t2);
 		interval = (float)(t2.QuadPart - t1.QuadPart) / frequency.QuadPart;
@@ -107,10 +96,10 @@ void Engine::Run() {
 
 void Engine::OneFrame(float delta) {
 	//Only run test program for now.
+	input_system->OneFrame(delta);
 	program_manager->Get("test")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
-
 
 void Engine::Stop() {
 	stop = true;
@@ -120,7 +109,10 @@ void Engine::Initialize(const s2string &window_name, const RendererSetting &rend
 	InitWindow(window_name, renderer_setting.window_width, renderer_setting.window_height, renderer_setting.full_screen);
 	D3D11Context * context = new D3D11Context();
 	renderer_context = context;
+	context->SetSetting(renderer_setting);
 	context->Initialize(hwnd);
+
+	input_system = new InputSystem(hwnd);
 	
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);
@@ -182,7 +174,7 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
-	//ShowCursor(false);
+	ShowCursor(false);
 	RECT clip;
 	GetWindowRect(hwnd, &clip);
 	ClipCursor(&clip);
@@ -194,8 +186,6 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
     Rid[0].dwFlags = RIDEV_INPUTSINK;   
     Rid[0].hwndTarget = hwnd;
     CHECK(RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])));
-	
-	input_system = new InputSystem(hwnd);
 }
 
 }

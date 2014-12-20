@@ -37,6 +37,8 @@ public:
 	const Vector3 & GetUpVector();
 	
 	Camera & Move(const Vector3 &movement);
+	Camera & MoveForward(float distance);
+	Camera & MoveRight(float distance);
 	
 	Camera & SetPosition(const Vector3 &vec);
 	/**
