@@ -176,8 +176,8 @@ Matrix4x4 & Matrix4x4::SetProjection(float aspect, float fov, float np, float fp
 	data[0][0] = yscale/aspect;
 	data[1][1] = yscale;
 	data[2][2] = fp/(np-fp);
-	data[2][3] = -1.0f;
-	data[3][2] = -np*fp/(np-fp);
+	data[2][3] = np*fp/(np-fp);
+	data[3][2] = -1.0f;
 	data[3][3] = 0.0f;
 
 	return *this;
@@ -193,8 +193,8 @@ Matrix4x4 & Matrix4x4::SetIdentity() {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetRotationX(float angel) {
-	float c=cos(angel), s=sin(angel);
+Matrix4x4 & Matrix4x4::SetRotationX(float angle) {
+	float c=cos(angle), s=sin(angle);
 	Set( 
 		1.0f,	0.0f,	0.0f,	0.0f,
 		0.0f,	c, 		-s,	0.0f,
@@ -203,8 +203,8 @@ Matrix4x4 & Matrix4x4::SetRotationX(float angel) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetRotationY(float angel) {
-	float c=cos(angel), s=sin(angel);
+Matrix4x4 & Matrix4x4::SetRotationY(float angle) {
+	float c=cos(angle), s=sin(angle);
 	Set(
 		c,		0.0f,	s,		0.0f,
 		0.0f,	1.0f, 0.0f,	0.0f,
@@ -213,8 +213,8 @@ Matrix4x4 & Matrix4x4::SetRotationY(float angel) {
 	return *this;
 }
 
- Matrix4x4 & Matrix4x4::SetRotationZ(float angel) {
-	float c=cos(angel), s=sin(angel);
+ Matrix4x4 & Matrix4x4::SetRotationZ(float angle) {
+	float c=cos(angle), s=sin(angle);
 	Set(
 		c,		-s,	0.0f,	0.0f,
 		s,		c, 		0.0f,	0.0f,
@@ -250,7 +250,7 @@ Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 		for(unsigned int j=0; j<4; j++) {
 			float value = 0.0f;
 			for(unsigned int k=0; k<4; k++) {
-				value += (lhs[j][k]*rhs[k][j]);
+				value += (lhs[i][k]*rhs[k][j]);
 			}
 			result[i][j] = value;
 		}

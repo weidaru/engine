@@ -60,7 +60,7 @@ public:
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
-		camera.SetPosition(Vector3(0.0f, 0.0f, 10.0f));
+		camera.SetPosition(Vector3(0.0f, 1.0, 20.0f));
 		
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -90,14 +90,14 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.vs", "main")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix4x4 identity;
 			vs->SetUniform("world", identity);
 			vs->SetUniform("view", identity);
 			
-			float np=-0.5f, fp =-1000.0f;
+			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 			float fov=PI*35/180;
 			Matrix4x4 projection;
@@ -108,12 +108,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.ps", "main")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -162,12 +162,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", rtt_texture);
@@ -228,11 +228,29 @@ public:
 	void UpdateCamera(float delta) {
 		const InputSystem &is = Engine::GetSingleton()->GetInputSystem();
 		
+		int mouse_x = is.GetMouseX();
+		int mouse_y = is.GetMouseY();
+		const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		int delta_x = is.GetMouseXDelta();
 		int delta_y = is.GetMouseYDelta();
 		
-		//camera.TurnAroundLocalY(-delta_x*delta*PI/3.0f);
-		//camera.TurnAroundLocalX(-delta_y*delta*PI/3.0f);
+		if(mouse_x <= 5) {
+			camera.TurnAroundLocalY(3.0f*delta*PI/10.0f);
+		} else if(mouse_x >= rs.window_width-5) {
+			
+			camera.TurnAroundLocalY(-3.0f*delta*PI/10.0f);
+		} else if(delta_x != 0) {
+			
+			camera.TurnAroundLocalY(-10.0f*delta_x*delta*PI/10.0f);
+		}
+		
+		if(mouse_y <= 5) {
+			camera.TurnAroundLocalX(3.0f*delta*PI/10.0f);
+		} else if(mouse_y >= rs.window_height-5) {
+			camera.TurnAroundLocalX(-3.0f*delta*PI/10.0f);
+		} else if(delta_y != 0) {
+			camera.TurnAroundLocalX(-10.0f*delta_y*delta*PI/10.0f);
+		}
 	}
 	
 	virtual void OneFrame(float delta) {

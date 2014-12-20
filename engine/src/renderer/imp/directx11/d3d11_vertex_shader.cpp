@@ -35,8 +35,8 @@ D3D11VertexShader::D3D11VertexShader(D3D11GraphicResourceManager *_manager) :
  */
 bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_point) {
 
-	//Just compile from file for now.
-	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS;
+	//Just compile from file for now and always pack it as row major matrix.
+	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 #ifndef NDEBUG
 	flag |= D3DCOMPILE_DEBUG;
 #endif

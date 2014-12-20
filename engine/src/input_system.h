@@ -3,6 +3,9 @@
 
 #include <vector>
 
+struct tagMSG;
+typedef struct tagMSG MSG;
+
 namespace s2 {
 
 class InputSystem {
@@ -30,12 +33,17 @@ public:
 	InputSystem(void *hwnd);
 	virtual ~InputSystem() {}
 
-	void OneFrame(float delta);
+	void Update(int delta_x, int delta_y);
+	void PostFrame(float delta);
 	
 	int GetMouseX() const { return mouse_x; }
 	int GetMouseXDelta() const {  return mouse_x_delta; }
 	int GetMouseY() const { return mouse_y; }
-	int GetMouseYDelta() const { return mouse_y_delta; }
+	int GetMouseYDelta() const { 
+		int a=0;
+		a++;
+		return mouse_y_delta; 
+	}
 	
 	bool IsMouseButtonDown(MouseButton button) const;
 	

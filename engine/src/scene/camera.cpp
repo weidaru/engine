@@ -10,38 +10,32 @@ Camera::Camera() : calculate_vector(true), calculate_matrix(true) {
 
 void Camera::Reset() {
 	position.Set(0.0f, 0.0f, 0.0f);
-	forward.Set(0.0f, 0.0f, -1.0f);
-	up.Set(0.0f, 1.0f, 0.0f);
+	forward_raw.Set(0.0f, 0.0f, -1.0f);
+	up_raw.Set(0.0f, 1.0f, 0.0f);
+	alpha = 0.0f;
+	beta = 0.0f;
+	gamma = 0.0f;
 	matrix.SetIdentity();
-	calculate_vector = false;
-	calculate_matrix = false;
+	calculate_vector = true;
+	calculate_matrix = true;
 }
 
-void Camera::TurnAroundLocalX(float angel) {
-	Matrix4x4 rot;
-	rot.SetRotationX(angel);
-	//Intrinsic rotation in column matrix
-	GetViewMatrix();
-	matrix *= rot;
+void Camera::TurnAroundLocalX(float angle) {
+	alpha += angle;
 	calculate_vector = true;
+	calculate_matrix = true;
 }
 
-void Camera::TurnAroundLocalY(float angel) {
-	Matrix4x4 rot;
-	rot.SetRotationY(angel);
-	//Intrinsic rotation in column matrix
-	GetViewMatrix();
-	matrix *= rot;
+void Camera::TurnAroundLocalY(float angle) {
+	beta += angle;
 	calculate_vector = true;
+	calculate_matrix = true;
 }
 
-void Camera::TurnAroundLocalZ(float angel) {
-	Matrix4x4 rot;
-	rot.SetRotationZ(angel);
-	//Intrinsic rotation in column matrix
-	GetViewMatrix();
-	matrix *= rot;
+void Camera::TurnAroundLocalZ(float angle) {
+	gamma += angle;
 	calculate_vector = true;
+	calculate_matrix = true;
 }
 
 Camera & Camera::Move(const Vector3 &movement) {
@@ -72,35 +66,40 @@ void MakeVertical(Vector3 *_lhs, const Vector3 &rhs) {
 }
 
 Camera & Camera::SetForwardVector(const Vector3 &vec) {
-	forward = vec;
-	forward.Normalize();
-	MakeVertical(&up, forward);
+	forward_raw = vec;
+	forward_raw.Normalize();
+	MakeVertical(&up_raw, forward_raw);
 	calculate_matrix = true;
 	calculate_vector = false;
 	return *this;
 }
 
 Camera & Camera::SetUpVector(const Vector3 &vec) {
-	up = vec;
-	up.Normalize();
-	MakeVertical(&up, forward);
+	up_raw = vec;
+	up_raw.Normalize();
+	MakeVertical(&up_raw, forward_raw);
 	calculate_matrix = true;
 	calculate_vector = false;
 	return *this;
 }
 
 const Matrix4x4 & Camera::GetViewMatrix() {
+	CalculateVectors();
+
 	if(calculate_matrix) {
-		Vector3 right = forward.Cross(up);
-		float p_dot_r = position.Dot(right);
-		float p_dot_u = position.Dot(up);
-		float p_dot_f = position.Dot(forward);
+		Vector3 zaxis = -1.0f * forward;
+		Vector3 xaxis = up.Cross(zaxis);
+		Vector3 yaxis = up;
+
+		float p_dot_x = position.Dot(xaxis);
+		float p_dot_y = position.Dot(yaxis);
+		float p_dot_z = position.Dot(zaxis);
 		
 		matrix.Set(
-			right[0],  	up[0], 		forward[0],	0.0f,
-			right[1],	up[1], 		forward[1],	0.0f,
-			right[2], 	up[2], 		forward[2],	0.0f,
-			p_dot_r,	p_dot_u,	p_dot_f,		0.0f
+			xaxis[0],  				xaxis[1], 				xaxis[2],			-p_dot_x,
+			yaxis[0],				yaxis[1], 				yaxis[2],			-p_dot_y,
+			zaxis[0], 				zaxis[1], 				zaxis[2],			-p_dot_z,
+			0.0f,						0.0f,						0.0f,					1.0f
 		);
 	}
 	calculate_matrix = false;
@@ -110,9 +109,16 @@ const Matrix4x4 & Camera::GetViewMatrix() {
 
 void Camera::CalculateVectors() {
 	if(calculate_vector) {
+		Matrix4x4 m, temp;
+		m.SetRotationX(alpha);
+		temp.SetRotationY(beta);
+		m *= temp;
+		temp.SetRotationZ(gamma);
+		m *= temp;
 		//No need to normalize as the matrix is rotation only.
-		forward = matrix*Vector4(0.0f, 0.0f, -1.0f, 0.0f);
-		up = matrix*Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+		
+		forward = m*Vector4(forward_raw, 0.0f);
+		up = m*Vector4(up_raw, 0.0f);
 	}
 	calculate_vector = false;
 }

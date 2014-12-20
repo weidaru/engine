@@ -6,8 +6,6 @@
 
 #include <glog/logging.h>
 
-#include <time.h>
-
 LRESULT CALLBACK WndProc(HWND _hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
 	switch(umessage)
@@ -23,7 +21,6 @@ LRESULT CALLBACK WndProc(HWND _hwnd, UINT umessage, WPARAM wparam, LPARAM lparam
 			PostQuitMessage(0);		
 			return 0;
 		}
-
 	default:
 		{
 			return DefWindowProc(_hwnd, umessage, wparam, lparam);
@@ -71,31 +68,46 @@ void Engine::Run() {
 
 	done = false;
 	float interval = 0.0f;
+	LARGE_INTEGER frequency;			// ticks per second
+	LARGE_INTEGER t1, t2;				// ticks
+	QueryPerformanceFrequency(&frequency);
+
 	while(!done) {
-		clock_t t = clock();
+		// start timer
+		QueryPerformanceCounter(&t1);
 		
-		unsigned int i=0;
 		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 			if(msg.message == WM_QUIT || stop == true) {
 				done = true;
+			}	else if(msg.message ==  WM_INPUT) {
+				UINT dwSize = 40;
+				static BYTE lpb[40];
+    
+				GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, 
+								lpb, &dwSize, sizeof(RAWINPUTHEADER));
+    
+				RAWINPUT* raw = (RAWINPUT*)lpb;
+				if (raw->header.dwType == RIM_TYPEMOUSE)  {
+					input_system->Update(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+				}
 			}
 		}
 		
 		if(!done) {
 			OneFrame(interval);
 		}
-		interval = ((float)(clock()-t))/CLOCKS_PER_SEC;
+		input_system->PostFrame(interval);
+		// stop timer
+		QueryPerformanceCounter(&t2);
+		interval = (float)(t2.QuadPart - t1.QuadPart) / frequency.QuadPart;
 	}
 }
 
 void Engine::OneFrame(float delta) {
 	//Only run test program for now.
-	input_system->OneFrame(delta);
-	
 	program_manager->Get("test")->OneFrame(delta);
-	
 	renderer_context->SwapBuffer();
 }
 
@@ -162,7 +174,7 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 
 	// Create the window with the screen settings and get the handle to it.
 	hwnd = CreateWindowEx(WS_EX_APPWINDOW, (LPCSTR )window_name.c_str(), (LPCSTR )window_name.c_str(), 
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_CAPTION,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
 		posX, posY, window_width, window_height, NULL, NULL, hinstance, NULL);
 	CHECK(hwnd)<<"Cannot create window handle";
 
@@ -170,6 +182,18 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
+	//ShowCursor(false);
+	RECT clip;
+	GetWindowRect(hwnd, &clip);
+	ClipCursor(&clip);
+
+	//Register mouse HID
+	RAWINPUTDEVICE Rid[1];
+    Rid[0].usUsagePage = (USHORT) 0x01; 
+    Rid[0].usUsage = (USHORT) 0x02; 
+    Rid[0].dwFlags = RIDEV_INPUTSINK;   
+    Rid[0].hwndTarget = hwnd;
+    CHECK(RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])));
 	
 	input_system = new InputSystem(hwnd);
 }

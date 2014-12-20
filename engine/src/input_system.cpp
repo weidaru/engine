@@ -1,7 +1,9 @@
 #include "input_system.h"
+#include "engine.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <windowsx.h>
 #undef ERROR
 
 #include <glog/logging.h>
@@ -45,19 +47,35 @@ int KeyToVirtualKey(InputSystem::Key key) {
 
 InputSystem::InputSystem(void *_hwnd) 
 			: hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0) {
-	
+	RECT rect;
+	GetWindowRect((HWND)hwnd, &rect);
+	mouse_x = (rect.right - rect.left)/2;
+	mouse_y = (rect.bottom - rect.top)/2;
+	SetCursorPos((rect.right + rect.left)/2, (rect.bottom + rect.top)/2);
 }
 
-void InputSystem::OneFrame(float delta) {
+void InputSystem::Update(int delta_x, int delta_y) {
 	CHECK(GetKeyboardState(&current[0]))<<GetLastError();
 	
-	POINT p;
-	CHECK(GetCursorPos(&p))<<"Cannot get absolute cursor position. Error "<<GetLastError();
-	CHECK(ScreenToClient((HWND)hwnd, &p))<<"Cannot get relative cursor position. Error"<<GetLastError();
-	mouse_x_delta = p.x-mouse_x;
-	mouse_x = p.x;
-	mouse_y_delta = p.y-mouse_y;
-	mouse_y = p.y;
+	if(mouse_x == -1) {
+		POINT p;
+		GetCursorPos(&p);
+		ScreenToClient((HWND)hwnd, &p);
+		mouse_x = p.x;
+		mouse_y = p.y;
+		mouse_x_delta += delta_x;
+		mouse_y_delta += delta_y;
+	} else {
+		mouse_x_delta += delta_x;
+		mouse_y_delta += delta_y;
+		mouse_x += delta_x;
+		mouse_y += delta_y;
+	}
+}
+
+void InputSystem::PostFrame(float delta) {
+	mouse_x_delta = 0;
+	mouse_y_delta = 0;
 }
 
 bool InputSystem::IsMouseButtonDown(MouseButton button) const {

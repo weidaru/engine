@@ -73,8 +73,8 @@ void D3D11PixelShader::Clear() {
 bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_point) {
 	Clear();
 
-	//Just compile from file for now.
-	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS;
+	//Just compile from file for now and always pack it as row major matrix.
+	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 #ifndef NDEBUG
 	flag |= D3DCOMPILE_DEBUG;
 #endif

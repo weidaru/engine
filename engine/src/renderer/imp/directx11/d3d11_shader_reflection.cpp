@@ -207,7 +207,7 @@ void D3D11ShaderReflection::_ParseShaderType(
 		s2string scalar_typename = GetScalarTypeName(desc.Type);
 		
 		typeinfo_manager.CreateVector(name, scalar_typename, desc.Columns);
-	} else if(desc.Class ==  D3D_SVC_MATRIX_COLUMNS) {
+	} else if(desc.Class ==  D3D_SVC_MATRIX_ROWS) {
 		s2string name = desc.Name;
 		s2string scalar_typename = GetScalarTypeName(desc.Type);
 		typeinfo_manager.CreateMatrix(name, scalar_typename, desc.Rows, desc.Columns);

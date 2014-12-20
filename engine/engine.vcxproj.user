@@ -4,5 +4,7 @@
     <ShowAllFiles>true</ShowAllFiles>
     <LocalDebuggerEnvironment Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerEnvironment Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_NO_DEBUG_HEAP=1</LocalDebuggerEnvironment>
+    <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

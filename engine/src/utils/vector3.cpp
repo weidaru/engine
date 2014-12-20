@@ -28,7 +28,7 @@ Vector3 Vector3::Cross(const Vector3 &rhs) const {
 	Vector3 result;
 	result[0] = data[1]*rhs[2] - data[2]*rhs[1];
 	result[1] = data[2]*rhs[0] - data[0]*rhs[2];
-	result[2] = data[0]*rhs[1] - data[2]*rhs[0];
+	result[2] = data[0]*rhs[1] - data[1]*rhs[0];
 	return result;
 }
 

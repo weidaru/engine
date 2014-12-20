@@ -19,6 +19,10 @@ struct Vector4 {
 	const float & operator[](unsigned int index) const { return data[index]; }
 };
 
+
+/**
+ * Row major memory layout.
+ */
 //[[TypeInfo]]//
 struct Matrix4x4 {
 	//[[CoreData]]//
@@ -49,9 +53,9 @@ struct Matrix4x4 {
 	}
 	
 	Matrix4x4 & SetIdentity();
-	Matrix4x4 & SetRotationX(float angel);
-	Matrix4x4 & SetRotationY(float angel);
-	Matrix4x4 & SetRotationZ(float angel);
+	Matrix4x4 & SetRotationX(float angle);
+	Matrix4x4 & SetRotationY(float angle);
+	Matrix4x4 & SetRotationZ(float angle);
 	Matrix4x4 & SetProjection(float aspect, float fov, float np, float fp);
 	
 	Matrix4x4 & operator+=(const Matrix4x4 &rhs);
