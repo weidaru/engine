@@ -34,11 +34,14 @@ local function parse_type(context, lex)
 		if lex:expect("*") then 
 			typename = "pointer"
 			break
+		elseif lex:expect("&") then
+			typename = "reference"
+			break
 		end
 		
 		lex:checkpoint()
 			lex:ignore_blank()
-			assert_help(lex, string.format("Expect either a variable or function name after %s", lex.data:sub(start_pos, lex.pos)),
+			assert_help(lex, string.format("Expect either a variable or function name after %s", lex.data:sub(start_pos, lex.pos-1)),
 								lex.expect_word)
 			if lex:expect("%[") or lex:expect("%(") or lex:expect(";") then
 				lex:rollback()

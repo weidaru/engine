@@ -16,6 +16,9 @@
 
 #include "asset/model.h"
 
+#include "scene/camera.h"
+#include "input_system.h"
+
 #include <stdio.h>
 #include <math.h>
 
@@ -57,8 +60,11 @@ public:
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
+		camera.SetPosition(Vector3(0.0f, 0.0f, 10.0f));
+		
 		CreateColorProgram();
 		CreateTextureProgram();
+		
 		
 		return true;
 	}
@@ -84,44 +90,30 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.vs", "main")) <<
+		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.vs", "main")) <<
 			vs->GetLastError();
 		{
-			Matrix rotation_mat;
-			MakeRotationAxisY(&rotation_mat, rotate);
-			vs->SetUniform("world", rotation_mat);
-
-			Matrix camera;
-			camera[3][0] = 0.0f;
-			camera[3][1] = -1.5f;
-			camera[3][2] = -10.0f;
-			vs->SetUniform("view", camera);
+			Matrix4x4 identity;
+			vs->SetUniform("world", identity);
+			vs->SetUniform("view", identity);
 			
 			float np=-0.5f, fp =-1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 			float fov=PI*35/180;
-			float yscale = 1.0f/tan(fov/2);
-			
-			Matrix projection;
-			
-			projection[0][0] = yscale/aspect;
-			projection[1][1] = yscale;
-			projection[2][2] = fp/(np-fp);
-			projection[2][3] = -1.0f;
-			projection[3][2] = -np*fp/(np-fp);
-			projection[3][3] = 0.0f;
+			Matrix4x4 projection;
+			projection.SetProjection(aspect, fov, np, fp);
 
 			vs->SetUniform("projection", projection);
 		}
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.ps", "main")) <<
+		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -170,12 +162,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", rtt_texture);
@@ -210,9 +202,11 @@ public:
 		
 		rotate += delta*PI/2.0f;
 		rotate = rotate>2*PI ? rotate-2*PI : rotate;
-		Matrix rotation_mat;
-		MakeRotationAxisY(&rotation_mat, rotate);
+		Matrix4x4 rotation_mat;
+		rotation_mat.SetRotationY(rotate);
 		vs->SetUniform("world", rotation_mat);
+
+		vs->SetUniform("view", camera.GetViewMatrix());
 
 		pipeline->Draw();
 	}
@@ -231,7 +225,19 @@ public:
 		pipeline->Draw();
 	}
 	
+	void UpdateCamera(float delta) {
+		const InputSystem &is = Engine::GetSingleton()->GetInputSystem();
+		
+		int delta_x = is.GetMouseXDelta();
+		int delta_y = is.GetMouseYDelta();
+		
+		//camera.TurnAroundLocalY(-delta_x*delta*PI/3.0f);
+		//camera.TurnAroundLocalX(-delta_y*delta*PI/3.0f);
+	}
+	
 	virtual void OneFrame(float delta) {
+		UpdateCamera(delta);
+	
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -240,7 +246,6 @@ public:
 		float red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
 		pipeline->ClearRenderTarget(rtt_texture, red);
 		DrawNormal(delta);
-		
 		DrawTexture(delta);
 	}
 	
@@ -259,6 +264,8 @@ private:
 	VertexShader *tex_vs;
 	PixelShader *tex_ps;
 	Sampler *sampler;
+	
+	Camera camera;
 };
 
 AddBeforeMain(TestProgram)

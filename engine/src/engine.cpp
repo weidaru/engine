@@ -96,10 +96,6 @@ void Engine::OneFrame(float delta) {
 	
 	program_manager->Get("test")->OneFrame(delta);
 	
-	if(input_system->GetMouseXDelta() != 0 || input_system->GetMouseYDelta()!=0 ) {
-		printf("delta_x = %d.\tdelta_y = %d\n", input_system->GetMouseXDelta(), input_system->GetMouseXDelta()  );
-	}
-	
 	renderer_context->SwapBuffer();
 }
 
