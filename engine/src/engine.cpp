@@ -83,7 +83,6 @@ void Engine::Run() {
 				done = true;
 			}
 		}
-		printf("%f\n", interval);
 
 		if(!done) {
 			OneFrame(interval);
@@ -166,7 +165,7 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 
 	// Create the window with the screen settings and get the handle to it.
 	hwnd = CreateWindowEx(WS_EX_APPWINDOW, (LPCSTR )window_name.c_str(), (LPCSTR )window_name.c_str(), 
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_CAPTION,
 		posX, posY, window_width, window_height, NULL, NULL, hinstance, NULL);
 	CHECK(hwnd)<<"Cannot create window handle";
 

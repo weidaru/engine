@@ -85,12 +85,12 @@ public:
 		tex_option.width = renderer_setting.window_width;
 		tex_option.height = renderer_setting.window_height;
 		tex_option.output_bind = TextureEnum::RENDER_TARGET;
-		tex_option.format = TextureEnum::R32G32B32A32_FLOAT;
+		tex_option.format = TextureEnum::R8G8B8A8_UNORM;
 		rtt_texture->Initialize(tex_option);
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.vs", "main")) <<
+		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix4x4 identity;
@@ -108,12 +108,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.ps", "main")) <<
+		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -162,12 +162,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", rtt_texture);
@@ -233,7 +233,7 @@ public:
 		const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		float delta_x = is.GetMouseXMove();
 		float delta_y = is.GetMouseYMove();
-		
+
 		if(delta_x != 0) {
 			camera.TurnAroundLocalY(-delta_x*delta*PI/4.0f);
 		}

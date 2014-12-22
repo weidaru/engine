@@ -82,11 +82,12 @@ void InputSystem::OneFrame(float delta) {
 	CHECK(GetKeyboardState(&current[0]))<<GetLastError();
 	POINT p;
 	GetCursorPos(&p);
-	ScreenToClient((HWND)hwnd, &p);
+	RECT rect;
+	GetWindowRect((HWND)hwnd, &rect);
 	int old_x = mouse_x;
-	mouse_x = p.x;
+	mouse_x = p.x-rect.left;
 	int old_y = mouse_y;
-	mouse_y = p.y;
+	mouse_y = p.y-rect.top;
 
 	if(timer <= 0.0f) {
 		mouse_x_delta = (float)(mouse_x-old_x);
@@ -103,6 +104,8 @@ void InputSystem::OneFrame(float delta) {
 		}
 		
 	}
+
+	
 	timer -= delta;
 }
 
