@@ -11,7 +11,7 @@ namespace s2 {
 class PixelMap {
 public:
 	enum Format {
-		RGBA_32
+		R8G8B8A8
 	};
 
 public:

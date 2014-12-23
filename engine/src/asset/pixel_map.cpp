@@ -42,18 +42,38 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 		return false;
 	}
 	
-	
+	switch(format) {
+	case R8G8B8A8:
+		{
+			FIBITMAP *bitmap_32 = FreeImage_ConvertTo32Bits(bitmap);
+			CHECK(bitmap_32)<<"Cannot convert to 32bit bitmap";
+			FreeImage_Unload(bitmap);
+			bitmap = bitmap_32;
+			CHECK(FreeImage_GetImageType(bitmap) == FIT_INT32);
+			unsigned int width = FreeImage_GetWidth(bitmap);
+			unsigned int height = FreeImage_GetHeight(bitmap);
+			unsigned int pitch = FreeImage_GetPitch(bitmap);
+			CHECK(pitch == width*4);
+		}
+		break;
+	default:
+		CHECK(false)<<"Unsupported format";
+		break;
+	}
 }
 
 void PixelMap::Clear() {
-	delete bitmap;
+	if(bitmap) {
+		FreeImage_Unload(bitmap);
+	}
+	
 	bitmap = 0;
 	
 }
 	
 const void * PixelMap::GetRawMemory() const {
 	Check();
-	return 0;
+	return (const void *)FreeImage_GetBits(bitmap);
 }
 
 const s2string & PixelMap::GetPath() const {
