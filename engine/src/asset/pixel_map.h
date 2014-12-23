@@ -3,6 +3,7 @@
 
 #include "utils/s2string.h"
 #include "renderer/texture_enum.h"
+#include "renderer/texture2d.h"
 
 struct FIBITMAP;
 
@@ -21,12 +22,16 @@ public:
 	bool Initialize(const s2string &_path, Format _format);
 	const s2string &GetLastError() { return error;}
 	
-	const void * GetRawMemory() const;
+	void * GetRawMemory();
+	unsigned int GetWidth() const;
+	unsigned int GetHeight() const;
 	const s2string & GetPath() const;
 	PixelMap::Format GetFormat() const;
 	
+	void PopulateTexture2DOption(Texture2D::Option *option);
+	
 private:
-	void Check();
+	void Check() const;
 	void Clear();
 	
 private:

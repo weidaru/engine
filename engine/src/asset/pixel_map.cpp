@@ -1,6 +1,6 @@
 #include "pixel_map.h"
 
-#include <glob/logging.h>
+#include <glog/logging.h>
 
 #include "FreeImage.h"
 
@@ -22,9 +22,9 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 	format = _format;
 	
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-	fif = FreeImage_GetFileType(filename, 0);
+	fif = FreeImage_GetFileType(path.c_str(), 0);
 	if(fif == FIF_UNKNOWN) {
-		fif = FreeImage_GetFIFFromFilename(filename);
+		fif = FreeImage_GetFIFFromFilename(path.c_str());
 	}
 	if(fif == FIF_UNKNOWN) {
 		S2StringFormat(&error, "Unknown format for %s", path);
@@ -32,28 +32,28 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 	}
 	
 	if(FreeImage_FIFSupportsReading(fif)) {
-		bitmap = FreeImage_Load(fif, filename);
+		bitmap = FreeImage_Load(fif, path.c_str());
 	} else {
 		S2StringFormat(&error, "File format does no support read.");
 		return false;
 	}
-	if(!dib) {
-		bitmap(&error, "Cannot load file %s", path);
+	if(!bitmap) {
+		S2StringFormat(&error, "Cannot load file %s", path);
 		return false;
 	}
+
 	
-	switch(format) {
+	switch(format) { 
 	case R8G8B8A8:
 		{
-			FIBITMAP *bitmap_32 = FreeImage_ConvertTo32Bits(bitmap);
-			CHECK(bitmap_32)<<"Cannot convert to 32bit bitmap";
-			FreeImage_Unload(bitmap);
-			bitmap = bitmap_32;
-			CHECK(FreeImage_GetImageType(bitmap) == FIT_INT32);
-			unsigned int width = FreeImage_GetWidth(bitmap);
-			unsigned int height = FreeImage_GetHeight(bitmap);
-			unsigned int pitch = FreeImage_GetPitch(bitmap);
-			CHECK(pitch == width*4);
+			FREE_IMAGE_TYPE type = FreeImage_GetImageType(bitmap);
+			unsigned int bpp = FreeImage_GetBPP(bitmap);
+			if(type!=FIT_BITMAP || bpp!=32) {
+				FIBITMAP *bitmap_32 = FreeImage_ConvertTo32Bits(bitmap);
+				CHECK(bitmap_32)<<"Cannot convert to 32bit bitmap";
+				FreeImage_Unload(bitmap);
+				bitmap = bitmap_32;
+			}
 		}
 		break;
 	default:
@@ -70,10 +70,34 @@ void PixelMap::Clear() {
 	bitmap = 0;
 	
 }
-	
-const void * PixelMap::GetRawMemory() const {
+
+void PixelMap::PopulateTexture2DOption(Texture2D::Option *option) {
+	option->data = GetRawMemory();
+	option->width = GetWidth();
+	option->height = GetHeight();
+	switch(format) {
+	case R8G8B8A8:
+		option->format = TextureEnum::R8G8B8A8_UNORM;
+		break;
+	default :
+		CHECK(false)<<"Unsupported format "<<format;
+		break;
+	}
+}
+
+unsigned int PixelMap::GetWidth() const {
 	Check();
-	return (const void *)FreeImage_GetBits(bitmap);
+	return FreeImage_GetWidth(bitmap);
+}
+
+unsigned int PixelMap::GetHeight() const {
+	Check();
+	return FreeImage_GetHeight(bitmap);
+}
+	
+void * PixelMap::GetRawMemory() {
+	Check();
+	return (void *)FreeImage_GetBits(bitmap);
 }
 
 const s2string & PixelMap::GetPath() const {
@@ -86,7 +110,7 @@ PixelMap::Format PixelMap::GetFormat() const {
 	return format;
 }
 
-void PixelMap::Check() {
+void PixelMap::Check() const {
 	CHECK_NOTNULL(bitmap);
 }
 

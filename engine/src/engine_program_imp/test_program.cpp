@@ -15,6 +15,7 @@
 #include "renderer/sampler.h"
 
 #include "asset/model.h"
+#include "asset/pixel_map.h"
 
 #include "scene/camera.h"
 #include "input_system.h"
@@ -41,7 +42,7 @@ namespace s2 {
 class TestProgram : public EngineProgram {
 public:
 	TestProgram():
-		ds_buffer(0), rtt_texture(0),
+		ds_buffer(0), texture(0),
 		vb(0), ib(0), vs(0), ps(0), rotate(0.0f),
 		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0){}
 
@@ -78,15 +79,6 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-		
-		//Create texture we render to.
-		Texture2D::Option tex_option;
-		rtt_texture = manager->CreateTexture2D();
-		tex_option.width = renderer_setting.window_width;
-		tex_option.height = renderer_setting.window_height;
-		tex_option.output_bind = TextureEnum::RENDER_TARGET;
-		tex_option.format = TextureEnum::R8G8B8A8_UNORM;
-		rtt_texture->Initialize(tex_option);
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
@@ -154,6 +146,14 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		
+		//Create texture.
+		Texture2D::Option tex_option;
+		texture = manager->CreateTexture2D();
+		PixelMap checkerboard;
+		checkerboard.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\image\\checkerboard.png",
+											PixelMap::R8G8B8A8);
+		checkerboard.PopulateTexture2DOption(&tex_option);
+		texture->Initialize(tex_option);
 		
 		//Create sampler
 		sampler = manager->CreateSampler();
@@ -170,7 +170,7 @@ public:
 		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
-		tex_ps->SetTexture2D("shader_texture", rtt_texture);
+		tex_ps->SetTexture2D("shader_texture", texture);
 		
 		//Set vertex buffer
 		TextureVertex vertices[4] = {
@@ -194,7 +194,6 @@ public:
 
 		pipeline->ResetRenderTargets();
 		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
-		pipeline->SetRenderTarget(1, rtt_texture);
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
 		pipeline->SetVertexBuffer(0, 0, vb);
@@ -262,15 +261,13 @@ public:
 		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 		pipeline->ClearRenderTarget(manager->GetBackBuffer(), black);
 		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
-		float red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->ClearRenderTarget(rtt_texture, red);
 		DrawNormal(delta);
 		DrawTexture(delta);
 	}
 	
 private:
 	Texture2D *ds_buffer;
-	Texture2D *rtt_texture;
+	Texture2D *texture;
 	
 	VertexBuffer *vb;
 	IndexBuffer *ib;

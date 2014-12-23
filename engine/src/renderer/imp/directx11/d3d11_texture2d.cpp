@@ -77,6 +77,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	D3D11_RENDER_TARGET_VIEW_DESC *rtv_desc=0;
 	D3D11_DEPTH_STENCIL_VIEW_DESC *dsv_desc=0;
 	D3D11_SHADER_RESOURCE_VIEW_DESC *srv_desc = 0;
+	desc.BindFlags = 0;
 	if(_option.output_bind == TextureEnum::RENDER_TARGET) {
 		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 		rtv_desc = new D3D11_RENDER_TARGET_VIEW_DESC;
