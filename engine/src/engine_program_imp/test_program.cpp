@@ -61,7 +61,8 @@ public:
 		ds_buffer->Initialize(ds_option);
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
-		camera.SetPosition(Vector3(0.0f, 1.0, 40.0f));
+		camera.SetPosition(Vector3(40.0f, 1.0, 0.0f));
+		camera.SetForwardVector(Vector3(-1.0f, 0.0f, 0.0f));
 		
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -87,7 +88,7 @@ public:
 		{
 			Matrix4x4 identity;
 			vs->SetUniform("world", identity);
-			vs->SetUniform("view", identity);
+			vs->SetUniform("view", camera.GetViewMatrix());
 			
 			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
