@@ -38,14 +38,16 @@ public:
 	int GetMouseX() const { return mouse_x; }
 
 	/**
-	 * Result between -1.0f and 1.0f
+	 * This is absolute movement which counts on delta already.
+	 * GetMouseXMove()/delta will give the mouse move speed on x axis.
 	 */
-	float GetMouseXMove() const;
+	int GetMouseXMove() const;
 	int GetMouseY() const { return mouse_y; }
 	/**
-	 * Result between -1.0f and 1.0f
+	 * This is absolute movement which counts on delta already.
+	 * GetMouseYMove()/delta will give the mouse move speed on y axis.
 	 */
-	float GetMouseYMove() const;
+	int GetMouseYMove() const;
 
 	void SetMousePosition(int x, int y);
 	void SetMousePositionPercent(float x, float y);
@@ -58,9 +60,7 @@ private:
 	void *hwnd;
 	std::vector<unsigned char> current;
 	int mouse_x, mouse_y;
-	float mouse_x_delta, mouse_y_delta;
-
-	float timer;
+	int mouse_x_delta, mouse_y_delta;
 };
 
 

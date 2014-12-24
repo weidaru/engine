@@ -235,10 +235,10 @@ public:
 		float delta_y = is.GetMouseYMove();
 
 		if(delta_x != 0) {
-			camera.TurnAroundLocalY(-delta_x*delta*PI/4.0f);
+			camera.TurnAroundLocalY(-delta_x*PI/1000.0f);
 		}
 		if (delta_y != 0) {
-			camera.TurnAroundLocalX(-delta_y*delta*PI/4.0f);
+			camera.TurnAroundLocalX(-delta_y*PI/1000.0f);
 		}
 		is.SetMousePositionPercent(0.5f, 0.5f);
 

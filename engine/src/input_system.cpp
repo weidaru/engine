@@ -66,15 +66,15 @@ void InputSystem::SetMousePositionPercent(float x, float y) {
 }
 
 InputSystem::InputSystem(void *_hwnd) 
-			: hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0), timer(0.0f) {
+			: hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0){
 	SetMousePositionPercent(0.5f,0.5f);
 }
 
-float InputSystem::GetMouseXMove() const {
+int InputSystem::GetMouseXMove() const {
 	return mouse_x_delta;
 }
 
-float InputSystem::GetMouseYMove() const {
+int InputSystem::GetMouseYMove() const {
 	return  mouse_y_delta;
 } 
 
@@ -89,24 +89,8 @@ void InputSystem::OneFrame(float delta) {
 	int old_y = mouse_y;
 	mouse_y = p.y-rect.top;
 
-	if(timer <= 0.0f) {
-		mouse_x_delta = (float)(mouse_x-old_x);
-		mouse_y_delta = (float)(mouse_y-old_y);
-		
-		if(mouse_x_delta !=0.0f || mouse_y_delta!=0.0f) {
-			float larger = abs(mouse_x_delta);
-			larger = larger>abs(mouse_y_delta) ? larger:abs(mouse_y_delta);
-			mouse_x_delta /= larger;
-			mouse_y_delta /= larger;
-			timer = 1.0f/100.0f;
-		} else {
-			timer = 0.0f;
-		}
-		
-	}
-
-	
-	timer -= delta;
+	mouse_x_delta = (float)(mouse_x-old_x);
+	mouse_y_delta = (float)(mouse_y-old_y);
 }
 
 bool InputSystem::IsMouseButtonDown(MouseButton button) const {
