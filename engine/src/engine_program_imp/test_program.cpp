@@ -83,7 +83,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.vs", "main")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix4x4 identity;
@@ -101,12 +101,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.ps", "main")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -151,7 +151,7 @@ public:
 		Texture2D::Option tex_option;
 		texture = manager->CreateTexture2D();
 		PixelMap checkerboard;
-		checkerboard.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\image\\checkerboard.png",
+		checkerboard.Initialize("D:\\github_repository\\engine\\engine\\test\\image\\checkerboard.png",
 											PixelMap::R8G8B8A8);
 		checkerboard.PopulateTexture2DOption(&tex_option);
 		texture->Initialize(tex_option);
@@ -163,12 +163,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", texture);

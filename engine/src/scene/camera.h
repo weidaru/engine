@@ -51,15 +51,17 @@ public:
 	Camera & SetUpVector(const Vector3 &vec);
 	
 private:
-	void CalculateRotationMatrix();
+	void CalculateVectors();
 	
 private:
 	Vector3 position;
-	Vector3 forward;
-	Vector3 up;
+	Vector3 forward, forward_raw;
+	Vector3 up, up_raw;
+	
+	float alpha, beta, gamma;
 
 	Matrix4x4 matrix;
-	Matrix4x4 rotation;
+	bool calculate_vector;
 	bool calculate_matrix;
 };
 

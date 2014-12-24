@@ -6,38 +6,50 @@
 
 namespace s2 {
 
-Camera::Camera() : calculate_matrix(true) {
+namespace {
+
+template <typename T>
+T Clamp(T value, const T &floor, const T &ceiling) {
+	T result = value<floor ? floor:value;
+	return result>ceiling ? ceiling:result;
+}
+
+}
+
+Camera::Camera() : calculate_vector(true), calculate_matrix(true) {
 	Reset();
 }
 
 void Camera::Reset() {
 	position.Set(0.0f, 0.0f, 0.0f);
-	forward.Set(0.0f, 0.0f, -1.0f);
-	up.Set(0.0f, 1.0f, 0.0f);
-	rotation.SetIdentity();
+	forward_raw.Set(0.0f, 0.0f, -1.0f);
+	up_raw.Set(0.0f, 1.0f, 0.0f);
+	alpha = 0.0f;
+	beta = 0.0f;
+	gamma = 0.0f;
 	matrix.SetIdentity();
-	calculate_matrix = false;
+	calculate_vector = true;
+	calculate_matrix = true;
 }
 
 void Camera::TurnAroundLocalX(float angle) {
-	Matrix4x4 temp;
-	temp.SetRotationX(-angle);
-	rotation = temp * rotation;
+	alpha += angle;
+	alpha = Clamp(alpha, -PI/2.0f, PI/2.0f);
+	calculate_vector = true;
 	calculate_matrix = true;
 }
 
 void Camera::TurnAroundLocalY(float angle) {
-	Matrix4x4 temp;
-	temp.SetRotationY(-angle);
-	rotation = temp * rotation;
+	beta += angle;
+	calculate_vector = true;
 	calculate_matrix = true;
 }
 
 void Camera::TurnAroundLocalZ(float angle) {
-	Matrix4x4 temp;
-	temp.SetRotationZ(-angle);
-	rotation = temp * rotation;
-	calculate_matrix =true;
+	gamma += angle;
+	gamma = Clamp(gamma, -PI/2.0f, PI/2.0f);
+	calculate_vector = true;
+	calculate_matrix = true;
 }
 
 Camera & Camera::Move(const Vector3 &movement) {
@@ -51,6 +63,7 @@ Camera & Camera::MoveForward(float distance) {
 }
 
 Camera & Camera::MoveRight(float distance){
+	CalculateVectors();
 	Vector3 right = forward.Cross(up);
 
 	return Move(right*distance);
@@ -78,48 +91,75 @@ void MakeVertical(Vector3 *_lhs, const Vector3 &rhs) {
 }
 
 Camera & Camera::SetForwardVector(const Vector3 &vec) {
-	forward = vec;
-	forward.Normalize();
-	MakeVertical(&up, forward);
-	CalculateRotationMatrix();
+	forward_raw = vec;
+	forward_raw.Normalize();
+	MakeVertical(&up_raw, forward_raw);
 	calculate_matrix = true;
+	calculate_vector = true;
 	return *this;
 }
 
 Camera & Camera::SetUpVector(const Vector3 &vec) {
-	up = vec;
-	up.Normalize();
-	MakeVertical(&up, forward);
-	CalculateRotationMatrix();
+	up_raw = vec;
+	up_raw.Normalize();
+	MakeVertical(&up_raw, forward_raw);
 	calculate_matrix = true;
+	calculate_vector = true;
 	return *this;
 }
 
-void Camera::CalculateRotationMatrix() {
-	Vector3 zaxis = -1.0f * forward;
-	Vector3 xaxis = up.Cross(zaxis);
-	Vector3 yaxis = up;
-	
-	rotation.Set(
-		xaxis[0],  				xaxis[1], 				xaxis[2],			0.0f,
-		yaxis[0],				yaxis[1], 				yaxis[2],			0.0f,
-		zaxis[0], 				zaxis[1], 				zaxis[2],			0.0f,
-		0.0f,						0.0f,						0.0f,					1.0f
-	);
-}
-
 const Matrix4x4 & Camera::GetViewMatrix() {
+	CalculateVectors();
+
 	if(calculate_matrix) {
-		Matrix4x4 translation;
-		translation[0][3] = -position[0];
-		translation[1][3] = -position[1];
-		translation[2][3] = -position[2];
+		Vector3 zaxis = -1.0f * forward;
+		Vector3 xaxis = up.Cross(zaxis);
+		Vector3 yaxis = up;
+
+		float p_dot_x = position.Dot(xaxis);
+		float p_dot_y = position.Dot(yaxis);
+		float p_dot_z = position.Dot(zaxis);
 		
-		matrix = rotation*translation;
+		matrix.Set(
+			xaxis[0],  				xaxis[1], 				xaxis[2],			-p_dot_x,
+			yaxis[0],				yaxis[1], 				yaxis[2],			-p_dot_y,
+			zaxis[0], 				zaxis[1], 				zaxis[2],			-p_dot_z,
+			0.0f,						0.0f,						0.0f,					1.0f
+		);
 	}
 	calculate_matrix = false;
 	
 	return matrix;
+}
+
+void Camera::CalculateVectors() {
+	if(calculate_vector) {
+		Matrix4x4 m, temp;
+		m.SetRotationX(alpha);
+		temp.SetRotationY(beta);
+		m *= temp;
+		temp.SetRotationZ(gamma);
+		m *= temp;
+		//No need to normalize as the matrix is rotation only.
+
+		Vector3 zaxis = forward_raw;
+		Vector3 xaxis = up_raw.Cross(zaxis);
+		Vector3 yaxis = up_raw;
+		Matrix4x4 raw_rotation;
+		raw_rotation.Set(
+			xaxis[0],  				xaxis[1], 				xaxis[2],			0.0f,
+			yaxis[0],				yaxis[1], 				yaxis[2],			0.0f,
+			zaxis[0], 				zaxis[1], 				zaxis[2],			0.0f,
+			0.0f,						0.0f,						0.0f,					1.0f
+		);
+
+		//Intrinsic rotation
+		m = raw_rotation * m; 
+		
+		forward = m*Vector4(0.0f, 0.0f, -1.0f, 0.0f);
+		up = m*Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+	}
+	calculate_vector = false;
 }
 
 const Vector3 & Camera::GetPosition() {
@@ -127,10 +167,12 @@ const Vector3 & Camera::GetPosition() {
 }
 
 const Vector3 & Camera::GetForwardVector()  {
+	CalculateVectors();
 	return forward;
 }
 
 const Vector3 & Camera::GetUpVector() {
+	CalculateVectors();
 	return up;
 }
 
