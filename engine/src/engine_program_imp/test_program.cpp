@@ -50,7 +50,6 @@ public:
 	virtual bool Initialize(){
 		printf("Initialize test program.\n");
 		//Create and set depth stencil buffer
-		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		
 		//Set depth buffer
@@ -59,7 +58,6 @@ public:
 		Texture2D::Option::SetAsDepthStencilBuffer(&ds_option, renderer_setting.window_width, renderer_setting.window_height);
 		ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
-		pipeline->SetDepthStencilBuffer(ds_buffer);
 		
 		camera.SetPosition(Vector3(40.0f, 1.0, 0.0f));
 		camera.SetForwardVector(Vector3(-1.0f, 0.0f, 0.0f));
@@ -77,7 +75,6 @@ public:
 	}
 	
 	void CreateColorProgram() {
-		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		
@@ -227,10 +224,6 @@ public:
 	
 	void UpdateCamera(float delta) {
 		InputSystem &is = *Engine::GetSingleton()->GetInputSystem();
-		
-		int mouse_x = is.GetMouseX();
-		int mouse_y = is.GetMouseY();
-		const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		float delta_x = is.GetMouseXMove();
 		float delta_y = is.GetMouseYMove();
 
@@ -259,6 +252,7 @@ public:
 	
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		pipeline->SetDepthStencilBuffer(ds_buffer);
 		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 		pipeline->ClearRenderTarget(manager->GetBackBuffer(), black);
 		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);

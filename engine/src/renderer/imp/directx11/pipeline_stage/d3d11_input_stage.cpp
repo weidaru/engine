@@ -41,8 +41,10 @@ void D3D11InputStage::Clear() {
 	vbs.clear();
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
 	topology = GraphicPipeline::TRIANGLE_LIST;
-	if(input_layout)
+	if(input_layout) {
 		input_layout->Release();
+		input_layout = 0;
+	}
 }
 
 void D3D11InputStage::SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue) {
