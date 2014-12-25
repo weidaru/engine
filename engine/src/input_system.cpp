@@ -52,12 +52,14 @@ T Clamp(T value, const T &floor, const T &ceiling) {
 }
 
 void InputSystem::SetMousePosition(int x, int y) {
-	const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	mouse_x = Clamp(x, 0, (int)rs.window_width);
-	mouse_y = Clamp(y, 0, (int)rs.window_height);
-	RECT rect;
-	GetWindowRect((HWND)hwnd, &rect);
-	SetCursorPos( rect.left+mouse_x, rect.top+mouse_y);
+	if(GetForegroundWindow() == hwnd) {
+		const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+		mouse_x = Clamp(x, 0, (int)rs.window_width);
+		mouse_y = Clamp(y, 0, (int)rs.window_height);
+		RECT rect;
+		GetWindowRect((HWND)hwnd, &rect);
+		SetCursorPos( rect.left+mouse_x, rect.top+mouse_y);
+	}
 }
 
 void InputSystem::SetMousePositionPercent(float x, float y) {
@@ -79,18 +81,20 @@ int InputSystem::GetMouseYMove() const {
 } 
 
 void InputSystem::OneFrame(float delta) {
-	CHECK(GetKeyboardState(&current[0]))<<GetLastError();
-	POINT p;
-	GetCursorPos(&p);
-	RECT rect;
-	GetWindowRect((HWND)hwnd, &rect);
-	int old_x = mouse_x;
-	mouse_x = p.x-rect.left;
-	int old_y = mouse_y;
-	mouse_y = p.y-rect.top;
+	if(GetForegroundWindow() == hwnd) {
+		CHECK(GetKeyboardState(&current[0]))<<GetLastError();
+		POINT p;
+		GetCursorPos(&p);
+		RECT rect;
+		GetWindowRect((HWND)hwnd, &rect);
+		int old_x = mouse_x;
+		mouse_x = p.x-rect.left;
+		int old_y = mouse_y;
+		mouse_y = p.y-rect.top;
 
-	mouse_x_delta = (float)(mouse_x-old_x);
-	mouse_y_delta = (float)(mouse_y-old_y);
+		mouse_x_delta = mouse_x-old_x;
+		mouse_y_delta = mouse_y-old_y;
+	}
 }
 
 bool InputSystem::IsMouseButtonDown(MouseButton button) const {

@@ -15,21 +15,10 @@ public:
 	
 	void Reset();
 	
-	/**
-	 * Turn around x axis relative to current frame. Positive is counter-clock-wise;
-	 */
-	void TurnAroundLocalX(float angle);
+	void TurnUp(float angle);
 	
-		/**
-	 * Turn around y axis relative to current frame. Positive is counter-clock-wise.
-	 */
-	void TurnAroundLocalY(float angle);
+	void TurnRight(float angle);
 	
-	/**
-	 * Turn around z axis relative to current frame. Positive is counter-clock-wise;
-	 * This one is most likely unused.
-	 */
-	void TurnAroundLocalZ(float angle);
 	
 	const Matrix4x4 & GetViewMatrix();
 	const Vector3 & GetPosition();
@@ -58,7 +47,7 @@ private:
 	Vector3 forward, forward_raw;
 	Vector3 up, up_raw;
 	
-	float alpha, beta, gamma;
+	float alpha, beta;
 
 	Matrix4x4 matrix;
 	bool calculate_vector;

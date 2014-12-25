@@ -26,28 +26,20 @@ void Camera::Reset() {
 	up_raw.Set(0.0f, 1.0f, 0.0f);
 	alpha = 0.0f;
 	beta = 0.0f;
-	gamma = 0.0f;
 	matrix.SetIdentity();
 	calculate_vector = true;
 	calculate_matrix = true;
 }
 
-void Camera::TurnAroundLocalX(float angle) {
+void Camera::TurnUp(float angle) {
 	alpha += angle;
 	alpha = Clamp(alpha, -PI/2.0f, PI/2.0f);
 	calculate_vector = true;
 	calculate_matrix = true;
 }
 
-void Camera::TurnAroundLocalY(float angle) {
-	beta += angle;
-	calculate_vector = true;
-	calculate_matrix = true;
-}
-
-void Camera::TurnAroundLocalZ(float angle) {
-	gamma += angle;
-	gamma = Clamp(gamma, -PI/2.0f, PI/2.0f);
+void Camera::TurnRight(float angle) {
+	beta -= angle;
 	calculate_vector = true;
 	calculate_matrix = true;
 }
@@ -135,18 +127,17 @@ const Matrix4x4 & Camera::GetViewMatrix() {
 void Camera::CalculateVectors() {
 	if(calculate_vector) {
 		Matrix4x4 m, temp;
-		m.SetRotationX(alpha);
-		temp.SetRotationY(beta);
+		temp.SetRotationX(alpha);
 		m *= temp;
-		temp.SetRotationZ(gamma);
+		temp.SetRotationY(beta);
 		m *= temp;
 		//No need to normalize as the matrix is rotation only.
 
 		Vector3 zaxis = forward_raw;
 		Vector3 xaxis = up_raw.Cross(zaxis);
 		Vector3 yaxis = up_raw;
-		Matrix4x4 raw_rotation;
-		raw_rotation.Set(
+		Matrix4x4 inv_basis;
+		inv_basis.Set(
 			xaxis[0],  				xaxis[1], 				xaxis[2],			0.0f,
 			yaxis[0],				yaxis[1], 				yaxis[2],			0.0f,
 			zaxis[0], 				zaxis[1], 				zaxis[2],			0.0f,
@@ -154,7 +145,7 @@ void Camera::CalculateVectors() {
 		);
 
 		//Intrinsic rotation
-		m = raw_rotation * m; 
+		m = inv_basis * m; 
 		
 		forward = m*Vector4(0.0f, 0.0f, -1.0f, 0.0f);
 		up = m*Vector4(0.0f, 1.0f, 0.0f, 0.0f);
