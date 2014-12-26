@@ -133,21 +133,22 @@ void Camera::CalculateVectors() {
 		m *= temp;
 		//No need to normalize as the matrix is rotation only.
 
-		Vector3 zaxis = forward_raw;
+		Vector3 zaxis = -1.0f * forward_raw;
 		Vector3 xaxis = up_raw.Cross(zaxis);
 		Vector3 yaxis = up_raw;
-		Matrix4x4 inv_basis;
-		inv_basis.Set(
-			xaxis[0],  				xaxis[1], 				xaxis[2],			0.0f,
-			yaxis[0],				yaxis[1], 				yaxis[2],			0.0f,
-			zaxis[0], 				zaxis[1], 				zaxis[2],			0.0f,
+		Matrix4x4 basis;
+		basis.Set(
+			xaxis[0],  				yaxis[0], 				zaxis[0],			0.0f,
+			xaxis[1],				yaxis[1], 				zaxis[1],			0.0f,
+			xaxis[2], 				yaxis[2], 				zaxis[2],			0.0f,
 			0.0f,						0.0f,						0.0f,					1.0f
 		);
 
 		//Intrinsic rotation
-		m = inv_basis * m; 
+		m = basis * m; 
 		
-		forward = m*Vector4(0.0f, 0.0f, -1.0f, 0.0f);
+		forward = m*Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+		forward = -1.0f * forward;
 		up = m*Vector4(0.0f, 1.0f, 0.0f, 0.0f);
 	}
 	calculate_vector = false;

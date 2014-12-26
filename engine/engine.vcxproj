@@ -16,6 +16,7 @@
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\engine_program.h" />
     <ClInclude Include="src\input_system.h" />
+    <ClInclude Include="src\renderer\all.h" />
     <ClInclude Include="src\renderer\blend_option.h" />
     <ClInclude Include="src\renderer\constant_buffer.h" />
     <ClInclude Include="src\renderer\depth_stencil_option.h" />
@@ -68,6 +69,7 @@
     <ClCompile Include="src\asset\pixel_map.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\engine_program.cpp" />
+    <ClCompile Include="src\engine_program_imp\instancing_test.cpp" />
     <ClCompile Include="src\engine_program_imp\test_program.cpp" />
     <ClCompile Include="src\generate\generated_type_info.cpp" />
     <ClCompile Include="src\input_system.cpp" />

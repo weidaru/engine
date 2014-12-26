@@ -36,14 +36,14 @@ private:
 
 #define AddBeforeMain(P) \
 namespace add_before_main{ \
-struct AddBeforeMain_P { \
-	AddBeforeMain_P() { \
+struct AddBeforeMain_##P { \
+	AddBeforeMain_##P() { \
 		P *program = new P; \
 		Engine::GetSingleton()->GetEngineProgramManager()->Add(program); \
 	} \
-	static AddBeforeMain_P bind; \
+	static AddBeforeMain_##P bind; \
 }; \
-AddBeforeMain_P AddBeforeMain_P::bind; \
+AddBeforeMain_##P AddBeforeMain_##P::bind; \
 }
 
 #endif		//ENGINE_PROGRAM_H_

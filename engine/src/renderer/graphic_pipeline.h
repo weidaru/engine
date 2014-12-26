@@ -44,8 +44,12 @@ public:
 	virtual void ResetPrimitiveTopology() = 0;
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
-	virtual void SetVertexBuffers(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
+
+	virtual void ResetVertexBuffers() = 0;
+	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index) = 0;
+
+	virtual void ResetIndexBuffer() = 0;
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
 

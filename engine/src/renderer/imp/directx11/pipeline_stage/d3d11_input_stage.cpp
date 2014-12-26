@@ -54,9 +54,9 @@ void D3D11InputStage::ResetVertexBuffers() {
 	
 	if(input_layout) {
 		input_layout->Release();
-		input_layout = 0;
-		first_instance_count  = -1;
 	}
+	input_layout = 0;
+	first_instance_count  = 0;
 }
 
 void D3D11InputStage::SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue) {
@@ -122,20 +122,40 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	new_input = false;
 }
 
-void D3D11InputStage::Flush() {
+void D3D11InputStage::Flush(unsigned int vertex_count, unsigned int instance_count) {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	if(ib) {
-		context->DrawIndexed(ib->GetElementCount(), 0, 0);
-	} else {
-		unsigned int index = -1;
-		for(unsigned int i=0; i<vbs.size(); i++) {
-			if(vbs[i].vb) {
-				index = i;
-				break;
+	if(vertex_count == 0) {
+		if(ib!=0) {
+			vertex_count = ib->GetElementCount();
+		} else {
+			for(unsigned int i=0; i<vbs.size(); i++) {
+				if(vbs[i].vb) {
+					vertex_count=vbs[i].vb->GetElementCount();
+					break;
+				}
 			}
 		}
-		if(index != -1)
-			context->Draw(vbs[index].vb->GetElementCount(), 0);	
+
+	}
+		
+	if(instance_count == 0) {
+		instance_count = first_instance_count;
+	}
+
+	if(vertex_count !=0 ) {
+		if(ib!=0) {
+			if(instance_count == 0) {
+				context->DrawIndexed(vertex_count, 0, 0);
+			} else {
+				context->DrawIndexedInstanced(vertex_count, instance_count,0,0,0);
+			}
+		} else{
+			if(instance_count == 0) {
+				context->Draw(vertex_count, 0);
+			} else {
+				context->DrawInstanced(vertex_count, instance_count, 0, 0);
+			}
+		}
 	}
 }
 
@@ -170,15 +190,18 @@ bool D3D11InputStage::VBCompare(const std::vector<VBInfo>::iterator lhs, const s
 	return lhs->start_index < rhs->start_index; 
 }
 
-s2string D3D11InputStage::DumpVertexBufferInfo(const std::vector<VBInfo> infos) {
+s2string D3D11InputStage::DumpVertexBufferInfo(const std::vector<VBInfo> &infos) {
 	char buffer[1024*8];
 	char *head = buffer;
 	for(unsigned int i=0; i<infos.size(); i++) {
-		if(infos[i].vb)
-			head += sprintf_s(head, 1024*8, "VertexBuffer %d, start at input %d, ends at input %d.\n", 
-											i, 
-											infos[i].start_index, 
-											infos[i].start_index+infos[i].vb->GetElementCount()-1);
+		if(infos[i].vb) {
+			unsigned int start = infos[i].start_index;
+			unsigned int end = start+infos[i].vb->GetElementMemberCount()-1;
+
+			head += sprintf_s(head, 1024*8-(head-buffer), "VertexBuffer %d, start at input %d, ends at input %d.\n", 
+											i, start, end);
+		}
+			
 	}
 	return s2string(buffer);
 }
@@ -202,7 +225,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	if(input_layout) {
 		input_layout->Release();
 		input_layout = 0;
-		first_instance_count = -1;
+		first_instance_count = 0;
 	}
 	
 	if(shader == 0) {
@@ -251,9 +274,9 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 		}
 	}
 	if(head < size) {
-		CHECK(false)<<"Some shader tail inputs are not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
+		CHECK(false)<<"Some shader tail inputs are not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs)<<"Last input index is "<<size-1;
 	} else if(head > size) {
-		CHECK(false)<<"Vertex buffer overflows input. Dumping:\n"<<DumpVertexBufferInfo(vbs);
+		CHECK(false)<<"Vertex buffer overflows input. Dumping:\n"<<DumpVertexBufferInfo(vbs)<<"Last input index is "<<size-1;
 	}
 	
 	std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin();
@@ -273,9 +296,9 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	
 	//Find the first input parameter bound as D3D11_INPUT_PER_INSTANCE_DATA and 
 	//remember its corresponding vertex buffer element count
-	for(unsigned int=0; i<size; i++) {
+	for(unsigned int i=0; i<size; i++) {
 		if(descs[i].InputSlotClass == D3D11_INPUT_PER_INSTANCE_DATA) {
-			 first_instance_count = vbs[desc[i].InputSlot].vb->GetElementCount();
+			first_instance_count = vbs[descs[i].InputSlot].vb->GetElementCount();
 			
 			break;
 		}

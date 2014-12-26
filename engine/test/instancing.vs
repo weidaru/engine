@@ -22,7 +22,7 @@ PixelInputType main(VertexInputType input)
     PixelInputType output;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position.xyz = input.position.xyz + instance_pos.xyz;
+    output.position.xyz = input.position.xyz + input.instance_pos.xyz;
 	output.position.w = 1.0f;
 	output.position = mul(world, output.position);
 	output.position = mul(view, output.position);

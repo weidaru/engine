@@ -54,14 +54,14 @@ public:
 	bool Validate(const D3D11VertexShader &shader, s2string *message) const;
 	//Given an not NULL reflect, the input layout will be recomputed.
 	void Setup(const D3D11VertexShader *shader);
-	void Flush(unsigned int );
+	void Flush(unsigned int vertex_count, unsigned int instance_count);
 	
 private:
 	void SetInput();
 	void SetInputLayout(const D3D11VertexShader *shader);
 	
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
-	s2string DumpVertexBufferInfo(const std::vector<VBInfo> infos);
+	s2string DumpVertexBufferInfo(const std::vector<VBInfo> &infos);
 
 	D3D11InputStage(const D3D11InputStage &);
 	D3D11InputStage & operator=(const D3D11InputStage &);
@@ -75,7 +75,7 @@ private:
 	GraphicPipeline::PrimitiveTopology topology;
 	
 	ID3D11InputLayout *input_layout;
-	int first_instance_count;
+	unsigned int first_instance_count;
 	
 	const D3D11VertexShader *old_shader;
 };
