@@ -23,23 +23,29 @@ namespace s2 {
 
 D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager) 
 		: manager(_manager){
-	Clear();
+	Reset();
 }
 
 D3D11OutputStage::~D3D11OutputStage() {
-	Clear();
+	Reset();
 }
 
-void D3D11OutputStage::Clear() {
-	new_output = true;
-	rts.clear();
-	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT, 0);
+void D3D11OutputStage::Reset() {
+	ResetRenderTargets();
+	ResetDepthStencilBuffer();
 }
 
 void D3D11OutputStage::ResetRenderTargets() {
+	new_output = true;
+	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	for(unsigned int i=0; i<rts.size(); i++) {
 		rts[i] = 0;
 	}
+}
+
+void D3D11OutputStage::ResetDepthStencilBuffer() {
+	new_output = true;
+	ds = 0;
 }
 
 void D3D11OutputStage::SetRenderTarget(unsigned int index, D3D11Texture2D *target) {

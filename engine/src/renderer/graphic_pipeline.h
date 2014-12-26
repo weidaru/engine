@@ -41,9 +41,10 @@ public:
 
 public:
 	//Input
+	virtual void ResetPrimitiveTopology() = 0;
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
-	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
+	virtual void SetVertexBuffers(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index) = 0;
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
@@ -56,20 +57,26 @@ public:
 	 *
 	 * Shaders passed in as pointers which means any change to shaders will affect the pipeline.
 	 */
+	virtual void ResetVertexShader() = 0;
 	virtual void SetVertexShader(VertexShader *vs) = 0;
 	virtual VertexShader * GetVertexShader() = 0;
+	
+	virtual void ResetPixelShader() = 0;
 	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() = 0;
 	
 	//Rasterization
+	virtual void ResetRasterizationOption() = 0;
 	virtual void SetRasterizationOption(const RasterizationOption &option) = 0;
 	virtual const RasterizationOption & GetRasterizationOption() const = 0;
 
 	//DepthStencil
+	virtual void ResetDepthStencilOption() = 0;
 	virtual void SetDepthStencilOption(const DepthStencilOption &option) = 0;
 	virtual const DepthStencilOption & GetDepthStencilOption() const = 0;
 	
 	//Blend
+	virtual void ResetBlendOption() = 0;
 	virtual void SetBlendOption(const BlendOption &option) = 0;
 	virtual const BlendOption & GetBlendOption() const = 0;
 	
@@ -87,6 +94,7 @@ public:
 	#endif
 	}
 	
+	virtual void ResetDepthStencilBuffer() = 0;
 	virtual void SetDepthStencilBuffer(Texture2D *buffer) = 0;
 	virtual Resource* GetDepthStencilBuffer() = 0;
 	template <typename T>
@@ -99,14 +107,18 @@ public:
 	#endif
 	}
 	
-	virtual void Clear() = 0;
+	virtual void Reset() = 0;
 	
 	//Validate whether each stage is settled properly.
 	virtual bool Validate(s2string *error) const = 0;
 	
 	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]) = 0;
 	virtual void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
-	virtual void Draw() = 0;
+	
+	//With vertex_count and instance_count be zero, the draw call will figure out these 2 numbers by itself.
+	//For instance_count, it will pick the size of first available vertex buffer which is considered as instance buffer.
+	//For vertex_count, it will go to index buffer first, if no luck, pick the size of first available vertex buffer.
+	virtual void Draw(unsigned int vertex_count=0, unsigned int instance_count=0) = 0;
 };
 
 }

@@ -19,13 +19,14 @@ public:
 	D3D11OutputStage(D3D11GraphicResourceManager *_manager);
 	~D3D11OutputStage();
 	
-	void ResetRenderTargets();
 	void SetRenderTarget(unsigned int index, D3D11Texture2D *target);
 	Resource * GetRenderTarget(unsigned int index);
 	void SetDepthStencilBuffer(D3D11Texture2D *buffer);
 	Resource * GetDepthStencilBuffer();
 	
-	void Clear();
+	void Reset();
+	void ResetRenderTargets();
+	void ResetDepthStencilBuffer();
 	
 	void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
 	void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil);

@@ -40,34 +40,80 @@ D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 	Clear();
 }
 
-void D3D11GraphicPipeline::Clear() {
+void D3D11GraphicPipeline::Reset() {
+	Clear();
+}
+
+void D3D11GraphicPipeline::Clear() {	
+	ResetPrimitiveTopology();
+	ResetVertexBuffers();
+	ResetIndexBuffer();
+	ResetVertexShader();
+	ResetPixelShader();
+
+	ResetRasterizationOption();
+	ResetDepthStencilOption();
+	ResetBlendOption();
+	
+	input_stage.Reset();
+	output_stage.Reset();
+}
+
+void D3D11GraphicPipeline::ResetPrimitiveTopology() {
+	input_stage.ResetPrimitiveTopology();
+}
+
+void D3D11GraphicPipeline::ResetVertexBuffers() {
+	input_stage.ResetVertexBuffers();
+}
+
+void D3D11GraphicPipeline::ResetIndexBuffer() {
+	SetIndexBuffer(0);
+}
+
+void D3D11GraphicPipeline::ResetVertexShader() {
+	SetVertexShader(0);
+}
+
+void D3D11GraphicPipeline::ResetPixelShader() {
+	SetPixelShader(0);
+}
+
+void D3D11GraphicPipeline::ResetRasterizationOption() {
 	if(rast_state)
 		rast_state->Release();
 	new_rast=true;
 	rast_state=0;
-	{
-		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-		RasterizationOption option;
-		option.viewports.clear();
-		option.viewports.push_back(RasterizationOption::Rectangle(0.0f, 0.0f, 
-									(float)renderer_setting.window_width, (float)renderer_setting.window_height));
-		SetRasterizationOption(option);
-	}
-	
+	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	RasterizationOption option;
+	option.viewports.clear();
+	option.viewports.push_back(RasterizationOption::Rectangle(0.0f, 0.0f, 
+								(float)renderer_setting.window_width, (float)renderer_setting.window_height));
+	SetRasterizationOption(option);
+}
+
+void D3D11GraphicPipeline::ResetDepthStencilOption() {
 	if(ds_state)
 		ds_state->Release();
 	new_ds=true;
 	ds_state=0; 
 	SetDepthStencilOption(DepthStencilOption());
-	
+}
+
+void D3D11GraphicPipeline::ResetBlendOption() {
 	if(blend_state)
 		blend_state->Release();
 	new_blend=true;
 	blend_state=0;
 	SetBlendOption(BlendOption());
-	
-	input_stage.Clear();
-	output_stage.Clear();
+}
+
+void D3D11GraphicPipeline::ResetRenderTargets() {
+	output_stage.ResetRenderTargets();
+}
+
+void D3D11GraphicPipeline::ResetDepthStencilBuffer() {
+	output_stage.ResetDepthStencilBuffer();
 }
 
 void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
@@ -253,10 +299,6 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 	return blend_opt;
 }
 
-void D3D11GraphicPipeline::ResetRenderTargets() {
-	output_stage.ResetRenderTargets();
-}
-
 void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
 	output_stage.SetRenderTarget(index, NiceCast(D3D11Texture2D *, target));
 }
@@ -333,7 +375,7 @@ void D3D11GraphicPipeline::ClearDepthStencilBuffer(Texture2D *texture, bool clea
 }
 	
 	
-void D3D11GraphicPipeline::Draw() {
+void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
 	//Setup input
 	if(vs)
 		input_stage.Setup(vs);
@@ -368,7 +410,7 @@ void D3D11GraphicPipeline::Draw() {
 	}
 	
 	//Flush data in input stage and start drawing.
-	input_stage.Flush();
+	input_stage.Flush(vertex_count, instance_count);
 }
 
 

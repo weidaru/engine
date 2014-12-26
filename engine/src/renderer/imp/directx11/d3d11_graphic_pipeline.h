@@ -28,29 +28,38 @@ public:
 	virtual ~D3D11GraphicPipeline();
 	
 	//Input
+	virtual void ResetPrimitiveTopology();
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue);
 	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
+	virtual void ResetVertexBuffers();
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
 	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
+	virtual void ResetIndexBuffer();
 	virtual void SetIndexBuffer(IndexBuffer *buf);
 	virtual D3D11IndexBuffer * GetIndexBuffer();
 	
 	//Shaders
+	virtual void ResetVertexShader();
 	virtual void SetVertexShader(VertexShader *shader);
 	virtual VertexShader * GetVertexShader();
+	
+	virtual void ResetPixelShader();
 	virtual void SetPixelShader(PixelShader *shader);
 	virtual PixelShader * GetPixelShader();
 	
 	//Rasterization
+	virtual void ResetRasterizationOption();
 	virtual void SetRasterizationOption(const RasterizationOption &option);
 	virtual const RasterizationOption & GetRasterizationOption() const;
 
 	//DepthStencil
+	virtual void ResetDepthStencilOption();
 	virtual void SetDepthStencilOption(const DepthStencilOption &option);
 	virtual const DepthStencilOption & GetDepthStencilOption() const;
 	
 	//Blend
+	virtual void ResetBlendOption();
 	virtual void SetBlendOption(const BlendOption &option);
 	virtual const BlendOption & GetBlendOption() const;
 	
@@ -58,16 +67,18 @@ public:
 	virtual void ResetRenderTargets();
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
 	virtual Resource * GetRenderTarget(unsigned int index);
+	virtual void ResetDepthStencilBuffer();
 	virtual void SetDepthStencilBuffer(Texture2D *buffer);
 	virtual Resource * GetDepthStencilBuffer();
 	
-	virtual void Clear();
+	virtual void Reset();
+	void Clear();
 	
 	virtual bool Validate(s2string *_error) const;
 
 	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
 	virtual void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	virtual void Draw();
+	virtual void Draw(unsigned int vertex_count=0, unsigned int instance_count=0);
 	
 	
 private:

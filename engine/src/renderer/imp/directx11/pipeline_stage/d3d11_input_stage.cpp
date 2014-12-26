@@ -27,23 +27,35 @@ namespace s2 {
 
 D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
 			: 	manager(_manager), input_layout(0) {
-	Clear();
+	Reset();
 }
 
 D3D11InputStage::~D3D11InputStage() {
-	Clear();
+	Reset();
 }
 
-void D3D11InputStage::Clear() {
+void D3D11InputStage::Reset() {
+	ResetPrimitiveTopology();
+	ResetVertexBuffers();
+}
+
+void D3D11InputStage::ResetPrimitiveTopology() {
+	SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
+}
+
+void D3D11InputStage::ResetVertexBuffers() {
 	new_input = true;
 	old_shader = 0;
 	ib = 0;
-	vbs.clear();
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
-	topology = GraphicPipeline::TRIANGLE_LIST;
+	for(unsigned int i=0; i<vbs.size(); i++) {
+		vbs[i].Reset();
+	}
+	
 	if(input_layout) {
 		input_layout->Release();
 		input_layout = 0;
+		first_instance_count  = -1;
 	}
 }
 
@@ -104,7 +116,7 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 		SetInput();
 	}
 	if(shader != old_shader || new_input) {
-		SetInputLayout(*shader);
+		SetInputLayout(shader);
 	}
 	old_shader  = shader;
 	new_input = false;
@@ -186,12 +198,20 @@ typedef struct D3D11_INPUT_ELEMENT_DESC {
 	UINT                       InstanceDataStepRate;			//From VBInfo
 } D3D11_INPUT_ELEMENT_DESC;
 */
-void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
-	const D3D11ShaderReflection &reflect = shader.GetReflection();
+void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	if(input_layout) {
 		input_layout->Release();
 		input_layout = 0;
+		first_instance_count = -1;
 	}
+	
+	if(shader == 0) {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		context->IASetInputLayout(0);
+		return;
+	}
+	
+	const D3D11ShaderReflection &reflect = shader->GetReflection();
 		
 	unsigned int size = reflect.GetInputSize();
 	D3D11_INPUT_ELEMENT_DESC *descs = new D3D11_INPUT_ELEMENT_DESC[size];
@@ -251,10 +271,20 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader &shader) {
 		offset += p.size;
 	}
 	
+	//Find the first input parameter bound as D3D11_INPUT_PER_INSTANCE_DATA and 
+	//remember its corresponding vertex buffer element count
+	for(unsigned int=0; i<size; i++) {
+		if(descs[i].InputSlotClass == D3D11_INPUT_PER_INSTANCE_DATA) {
+			 first_instance_count = vbs[desc[i].InputSlot].vb->GetElementCount();
+			
+			break;
+		}
+	}
+	
 	ID3D11Device *device = manager->GetDevice();
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	HRESULT result = 1;
-	result = device->CreateInputLayout(descs, size, shader.GetBlob()->GetBufferPointer(), shader.GetBlob()->GetBufferSize(), &input_layout);
+	result = device->CreateInputLayout(descs, size, shader->GetBlob()->GetBufferPointer(), shader->GetBlob()->GetBufferSize(), &input_layout);
 	CHECK(!FAILED(result))<<"Fail to create input layout error "<<::GetLastError();
 	context->IASetInputLayout(input_layout);
 	delete descs;

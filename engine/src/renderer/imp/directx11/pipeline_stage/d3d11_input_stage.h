@@ -25,7 +25,11 @@ private:
 		D3D11VertexBuffer *vb;
 		
 		VBInfo() {
-			start_index = -1;
+			Reset();
+		}
+		
+		void Reset() {
+			start_index = 0;
 			vb = 0;
 		}
 	};
@@ -42,16 +46,19 @@ public:
 	void SetIndexBuffer(D3D11IndexBuffer *buf);
 	D3D11IndexBuffer * GetIndexBuffer();
 
-	void Clear();
+	void Reset();
+	void ResetPrimitiveTopology();
+	void ResetVertexBuffers();
+	
 	//Validate input stage with vertex shader, set message to NULL if you don't care.
 	bool Validate(const D3D11VertexShader &shader, s2string *message) const;
 	//Given an not NULL reflect, the input layout will be recomputed.
 	void Setup(const D3D11VertexShader *shader);
-	void Flush();
+	void Flush(unsigned int );
 	
 private:
 	void SetInput();
-	void SetInputLayout(const D3D11VertexShader &shader);
+	void SetInputLayout(const D3D11VertexShader *shader);
 	
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
 	s2string DumpVertexBufferInfo(const std::vector<VBInfo> infos);
@@ -66,7 +73,9 @@ private:
 	D3D11IndexBuffer *ib;
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
+	
 	ID3D11InputLayout *input_layout;
+	int first_instance_count;
 	
 	const D3D11VertexShader *old_shader;
 };
