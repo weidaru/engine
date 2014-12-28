@@ -41,15 +41,12 @@ public:
 
 public:
 	//Input
-	virtual void ResetPrimitiveTopology() = 0;
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
 
-	virtual void ResetVertexBuffers() = 0;
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index) = 0;
 
-	virtual void ResetIndexBuffer() = 0;
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
 
@@ -61,31 +58,25 @@ public:
 	 *
 	 * Shaders passed in as pointers which means any change to shaders will affect the pipeline.
 	 */
-	virtual void ResetVertexShader() = 0;
 	virtual void SetVertexShader(VertexShader *vs) = 0;
 	virtual VertexShader * GetVertexShader() = 0;
 	
-	virtual void ResetPixelShader() = 0;
 	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() = 0;
 	
 	//Rasterization
-	virtual void ResetRasterizationOption() = 0;
 	virtual void SetRasterizationOption(const RasterizationOption &option) = 0;
 	virtual const RasterizationOption & GetRasterizationOption() const = 0;
 
 	//DepthStencil
-	virtual void ResetDepthStencilOption() = 0;
 	virtual void SetDepthStencilOption(const DepthStencilOption &option) = 0;
 	virtual const DepthStencilOption & GetDepthStencilOption() const = 0;
 	
 	//Blend
-	virtual void ResetBlendOption() = 0;
 	virtual void SetBlendOption(const BlendOption &option) = 0;
 	virtual const BlendOption & GetBlendOption() const = 0;
 	
 	//Output
-	virtual void ResetRenderTargets() = 0;
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target) = 0;
 	virtual Resource * GetRenderTarget(unsigned int index) = 0;
 	template <typename T>
@@ -98,7 +89,6 @@ public:
 	#endif
 	}
 	
-	virtual void ResetDepthStencilBuffer() = 0;
 	virtual void SetDepthStencilBuffer(Texture2D *buffer) = 0;
 	virtual Resource* GetDepthStencilBuffer() = 0;
 	template <typename T>
@@ -110,8 +100,6 @@ public:
 		return dynamic_cast<T *>(res);
 	#endif
 	}
-	
-	virtual void Reset() = 0;
 	
 	//Validate whether each stage is settled properly.
 	virtual bool Validate(s2string *error) const = 0;

@@ -2,11 +2,12 @@
 #define D3D11_SHADER_HELPER_h
 
 #include <vector>
-#include <utility>
+#include <map>
 
 #include "utils/s2string.h"
 
 struct ID3D11DeviceContext;
+struct ID3D11ShaderResourceView;
 
 namespace s2 {
 
@@ -62,8 +63,17 @@ private:
 };
 
 class ShaderResourceContainer {
+public:
+	typedef std::vector<std::pair<unsigned int, Resource *> > BindingVector;
+
 private:
-	typedef std::vector<std::pair<unsigned int , Resource *> > ShaderResourceVector;
+	struct Info {
+		unsigned int reflect_index;
+		Resource *resource;
+		ID3D11ShaderResourceView *view;
+	};
+
+	typedef std::vector<Info> ShaderResourceVector;
 
 public:
 	ShaderResourceContainer(D3D11ShaderReflection *_reflect);
@@ -72,6 +82,11 @@ public:
 	D3D11Texture2D * GetTexture2D(const s2string &name, s2string *error);
 	
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	
+	/**
+	 * New bindings since last draw call.
+	 */
+	BindingVector GetNewBindings() const;
 	
 	
 private:

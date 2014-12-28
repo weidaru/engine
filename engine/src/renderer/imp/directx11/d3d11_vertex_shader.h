@@ -15,12 +15,7 @@ typedef ID3D10Blob ID3DBlob;
 namespace s2 {
 
 class D3D11GraphicResourceManager;
-class D3D11ConstantBuffer;
-class D3D11VertexBuffer;
-class D3D11IndexBuffer;
 class D3D11ShaderReflection;
-class D3D11Sampler;
-
 class ConstantBufferContainer;
 class SamplerContainer;
 class ShaderResourceContainer;
@@ -43,6 +38,9 @@ public:
 	void Setup();
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() const { return blob;}
+	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }
+	const SamplerContainer & GetSamplerContainer() const { return *sampler_container; }
+	const ShaderResourceContainer & GetShaderResourceContainer() const { return *sr_container; }
 	
 protected:
 	//That is everything in constant buffer, in the sense of Directx 11.

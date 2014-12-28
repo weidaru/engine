@@ -51,7 +51,7 @@ public:
 		ds_buffer->Initialize(ds_option);
 		
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\instancing.vs", "main"))
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\instancing.vs", "main"))
 				<<vs->GetLastError();
 		
 		{
@@ -68,7 +68,7 @@ public:
 		
 		
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\instancing.ps", "main"))
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\instancing.ps", "main"))
 				<<ps->GetLastError();
 		
 		position_buffer = manager->CreateVertexBuffer();
@@ -76,7 +76,7 @@ public:
 		index_buffer = manager->CreateIndexBuffer();
 		{
 			Model model;
-			CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\cube.obj")) << model.GetLastError();
+			CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\cube.obj")) << model.GetLastError();
 			
 			{
 				InstancingTestPosition *positions = 0;
@@ -169,7 +169,6 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->ResetRenderTargets();
 		pipeline->SetDepthStencilBuffer(ds_buffer);
 		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
 		pipeline->SetVertexShader(vs);

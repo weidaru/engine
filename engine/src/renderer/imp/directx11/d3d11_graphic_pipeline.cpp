@@ -10,11 +10,13 @@
 #include "d3d11_graphic_pipeline.h"
 
 #include <stdio.h>
+#include <set>
 
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_shader_helper.h"
 
 #include "engine.h"
 
@@ -32,88 +34,37 @@ D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager
 		rast_state(0),
 		ds_state(0),
 		blend_state(0),
-		output_stage(_manager) {
-	Clear();
-}
-
-D3D11GraphicPipeline::~D3D11GraphicPipeline() {
-	Clear();
-}
-
-void D3D11GraphicPipeline::Reset() {
-	Clear();
-}
-
-void D3D11GraphicPipeline::Clear() {	
-	ResetPrimitiveTopology();
-	ResetVertexBuffers();
-	ResetIndexBuffer();
-	ResetVertexShader();
-	ResetPixelShader();
-
-	ResetRasterizationOption();
-	ResetDepthStencilOption();
-	ResetBlendOption();
-	
-	input_stage.Reset();
-	output_stage.Reset();
-}
-
-void D3D11GraphicPipeline::ResetPrimitiveTopology() {
-	input_stage.ResetPrimitiveTopology();
-}
-
-void D3D11GraphicPipeline::ResetVertexBuffers() {
-	input_stage.ResetVertexBuffers();
-}
-
-void D3D11GraphicPipeline::ResetIndexBuffer() {
-	SetIndexBuffer(0);
-}
-
-void D3D11GraphicPipeline::ResetVertexShader() {
-	SetVertexShader(0);
-}
-
-void D3D11GraphicPipeline::ResetPixelShader() {
-	SetPixelShader(0);
-}
-
-void D3D11GraphicPipeline::ResetRasterizationOption() {
-	if(rast_state)
-		rast_state->Release();
-	new_rast=true;
-	rast_state=0;
+		output_stage(_manager),
+		active_vs_srs(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ), 
+		active_ps_srs(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ), 
+		active_rts(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT){
 	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 	RasterizationOption option;
 	option.viewports.clear();
 	option.viewports.push_back(RasterizationOption::Rectangle(0.0f, 0.0f, 
 								(float)renderer_setting.window_width, (float)renderer_setting.window_height));
 	SetRasterizationOption(option);
+	
+	SetDepthStencilOption(DepthStencilOption());
+	
+	SetBlendOption(BlendOption());
 }
 
-void D3D11GraphicPipeline::ResetDepthStencilOption() {
+D3D11GraphicPipeline::~D3D11GraphicPipeline() {
+	if(rast_state)
+		rast_state->Release();
+	new_rast=true;
+	rast_state=0;
+	
 	if(ds_state)
 		ds_state->Release();
 	new_ds=true;
 	ds_state=0; 
-	SetDepthStencilOption(DepthStencilOption());
-}
-
-void D3D11GraphicPipeline::ResetBlendOption() {
+	
 	if(blend_state)
 		blend_state->Release();
 	new_blend=true;
 	blend_state=0;
-	SetBlendOption(BlendOption());
-}
-
-void D3D11GraphicPipeline::ResetRenderTargets() {
-	output_stage.ResetRenderTargets();
-}
-
-void D3D11GraphicPipeline::ResetDepthStencilBuffer() {
-	output_stage.ResetDepthStencilBuffer();
 }
 
 void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
@@ -125,7 +76,7 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 }
 
 void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) {
-	input_stage.SetVertexBuffer(index, start_input_index, NiceCast(D3D11VertexBuffer *, buf));
+	input_stage.SetVertexBuffer(index, start_input_index, buf);
 }
 
 D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
@@ -133,7 +84,7 @@ D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, un
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
-	input_stage.SetIndexBuffer(NiceCast(D3D11IndexBuffer *, _buf));
+	input_stage.SetIndexBuffer( _buf);
 }
 
 D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
@@ -142,6 +93,9 @@ D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
 
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
 	vs = NiceCast(D3D11VertexShader *, shader);
+	if(shader) {
+		CHECK(vs)<<"Shader cannot be cast to D3D11VertexShader";
+	}
 }
 
 VertexShader * D3D11GraphicPipeline::GetVertexShader() {
@@ -150,6 +104,9 @@ VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 
 void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 	ps = NiceCast(D3D11PixelShader *, shader);
+	if(shader) {
+		CHECK(ps)<<"Shader cannot be cast to D3D11PixelShader";
+	}
 }
 
 PixelShader * D3D11GraphicPipeline::GetPixelShader() {
@@ -300,7 +257,7 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 }
 
 void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
-	output_stage.SetRenderTarget(index, NiceCast(D3D11Texture2D *, target));
+	output_stage.SetRenderTarget(index, target);
 }
 
 Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
@@ -308,7 +265,7 @@ Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
 }
 
 void D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
-	output_stage.SetDepthStencilBuffer(NiceCast(D3D11Texture2D *, buffer));
+	output_stage.SetDepthStencilBuffer(buffer);
 }
 
 Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
@@ -374,21 +331,158 @@ void D3D11GraphicPipeline::ClearDepthStencilBuffer(Texture2D *texture, bool clea
 	output_stage.ClearDepthStencilBuffer(texture, clear_depth, depth , clear_stencil, stencil);
 }
 	
+namespace {
+
+typedef std::vector<std::pair<unsigned int, Resource *> > BindingVec;
+
+bool Contains(const BindingVec &vec, Resource *resource) {
+	for(unsigned int i=0; i<vec.size(); i++) {
+		if(vec[i].second == resource) {
+			return true;
+		}
+	}
+	return false;
+}
+
+}
+
+D3D11GraphicPipeline::BindingMap::BindingMap(unsigned int size) {
+	vec.resize(size, 0);
+}
+
+bool D3D11GraphicPipeline::BindingMap::Contains(unsigned int index) {
+	return vec[index] == 0;
+}
+
+bool D3D11GraphicPipeline::BindingMap::Contains(Resource *resource) {
+	return map.find(resource) != map.end();
+}
+
+D3D11GraphicPipeline::BindingMap & D3D11GraphicPipeline::BindingMap::Remove(unsigned int index) {
+	if(Contains(index)) {
+		map.erase(vec[index]);
+		vec[index] = 0;
+	}
+	return *this;
+}
+
+D3D11GraphicPipeline::BindingMap & D3D11GraphicPipeline::BindingMap::Remove(Resource *resource) {
+	if(Contains(resource)) {
+		vec[map[resource]] = 0;
+		map.erase(resource);
+	}
+	return *this;
+}
+
+D3D11GraphicPipeline::BindingMap & D3D11GraphicPipeline::BindingMap::Add(unsigned int index, Resource *resource) {
+	CHECK(resource)<<"Resource should not be 0";
+	vec[index] = resource;
+	map[resource] = index;
+	return *this;
+}
+
+Resource * D3D11GraphicPipeline::BindingMap::GetResource(unsigned int index) {
+	return vec[index];
+}
+
+unsigned int D3D11GraphicPipeline::BindingMap::GetIndex(Resource *resource) {
+	CHECK(Contains(resource))<<"Resource is not in map";
+	return map[resource];
+}
 	
 void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
+	//Find all new bindings.
+	BindingVec new_rts;
+	BindingVec new_vs_srs;
+	BindingVec new_ps_srs;
+	
+	new_rts = output_stage.GetNewRenderTargetBindings();
+	if(vs) {
+		new_vs_srs = vs->GetShaderResourceContainer().GetNewBindings();
+	}
+	if(ps) {
+		new_ps_srs = ps->GetShaderResourceContainer().GetNewBindings();
+	}
+	
+	ID3D11DeviceContext *context =  manager->GetDeviceContext();
+	
+	std::vector<BindingVec *> shader_sr_vectors;
+	shader_sr_vectors.push_back(&new_vs_srs);
+	shader_sr_vectors.push_back(&new_ps_srs);
+	
+	//See whether we need to clear some old render target
+	for(unsigned int i=0; i<shader_sr_vectors.size(); i++) {
+		ShaderResourceContainer::BindingVector &vec = *shader_sr_vectors[i];
+		for(unsigned int j=0; j<vec.size(); j++) {
+			Resource *resource = vec[j].second;
+			if(active_rts.Contains(resource) && Contains(new_rts, resource)==false) {
+				SetRenderTarget(active_rts.GetIndex(resource), 0);
+			} else if(Contains(new_rts, resource)) {
+				LOG(ERROR)<<"Bind resource "<<resource->GetIDAndName()<<
+					" as  both  shader resource and render target will result in undefined behaviour.";
+			}
+		}	
+	}
+
+	//See whether we need to clear some old shader resources.
+	for(unsigned int i=0; i<new_rts.size(); i++) {
+		Resource *resource = new_rts[i].second;
+		if(active_vs_srs.Contains(resource)&& Contains(new_vs_srs, resource)==false) {
+			ID3D11ShaderResourceView *view = 0;
+			context->VSSetShaderResources(active_vs_srs.GetIndex(resource), 1, &view);
+		}
+		if(active_ps_srs.Contains(resource) && Contains(new_ps_srs, resource)==false) {
+			ID3D11ShaderResourceView *view = 0;
+			context->PSSetShaderResources(active_ps_srs.GetIndex(resource), 1, &view);
+		}
+	}
+	
+	//Refresh the new rt bindings.
+	new_rts = output_stage.GetNewRenderTargetBindings();
+	
+	//Push new bindings to active bindings.
+	std::vector<BindingVec *> new_things;
+	new_things.push_back(&new_rts);
+	new_things.push_back(&new_vs_srs);
+	new_things.push_back(&new_ps_srs);
+	std::vector<BindingMap *> old_things;
+	old_things.push_back(&active_rts);
+	old_things.push_back(&active_vs_srs);
+	old_things.push_back(&active_ps_srs);
+	CHECK(new_things.size() == old_things.size());
+	
+	for(unsigned int i=0; i<new_things.size(); i++) {
+		BindingVec &new_thing = *new_things[i];
+		BindingMap &old_thing = *old_things[i];
+		for(unsigned int j=0; j<new_thing.size(); j++) {
+			Resource *rt = new_thing[j].second;
+			unsigned int index = new_thing[j].first;
+			if(rt) {
+				old_thing.Add(index, rt);
+			} else {
+				old_thing.Remove(index);
+			}
+		}	
+	}
+	
 	//Setup input
-	if(vs)
+	if(vs) {
 		input_stage.Setup(vs);
+	}
 
 	//Setup output
 	output_stage.Setup();
-
+	
 	if(vs) {
 		vs->Setup();
+	} else {
+		context->VSSetShader(0, 0, 0);
 	}
 	
 	if(ps) {
 		ps->Setup();
+	} else {
+		context->PSSetShader(0, 0, 0);
 	}
 	
 	//Setup rasterization option.

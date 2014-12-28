@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+struct ID3D11RenderTargetView;
+struct ID3D11DepthStencilView; 
+
 namespace s2 {
 
 class D3D11Texture2D;
@@ -16,22 +19,52 @@ class D3D11GraphicResourceManager;
  */
 class D3D11OutputStage {
 public:
+	typedef std::vector<std::pair<unsigned int, Resource * > > RTBindingVector;
+
+private:
+	struct  RTInfo {
+		Resource *resource;
+		ID3D11RenderTargetView *view;
+		bool is_new;
+		
+		RTInfo() {
+			resource = 0;
+			view = 0;
+			is_new = false;
+		}
+	};
+	
+	struct  DSInfo {
+		Resource *resource;
+		ID3D11DepthStencilView *view;
+		bool is_new;
+		
+		DSInfo() {
+			resource = 0;
+			view = 0;
+			is_new = false;
+		}
+	};
+
+public:
 	D3D11OutputStage(D3D11GraphicResourceManager *_manager);
 	~D3D11OutputStage();
 	
-	void SetRenderTarget(unsigned int index, D3D11Texture2D *target);
+	void SetRenderTarget(unsigned int index, Texture2D *target);
 	Resource * GetRenderTarget(unsigned int index);
-	void SetDepthStencilBuffer(D3D11Texture2D *buffer);
+	unsigned int GetRenderTargetCapacity() const;
+	void SetDepthStencilBuffer(Texture2D *buffer);
 	Resource * GetDepthStencilBuffer();
-	
-	void Reset();
-	void ResetRenderTargets();
-	void ResetDepthStencilBuffer();
-	
+
 	void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
 	void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil);
 	
 	void Setup();
+	
+	/**
+	 * New render target bindings since last draw call.
+	 */
+	RTBindingVector GetNewRenderTargetBindings() const;
 	
 private:
 	void SetOutput();
@@ -39,10 +72,8 @@ private:
 private:
 	D3D11GraphicResourceManager *manager;
 
-	bool new_output;
-	std::vector<D3D11Texture2D *> rts;
-	D3D11Texture2D *ds;
-	
+	std::vector<RTInfo> rts;
+	DSInfo ds;
 };
 
 

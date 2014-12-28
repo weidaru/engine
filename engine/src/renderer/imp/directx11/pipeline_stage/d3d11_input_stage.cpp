@@ -26,37 +26,21 @@
 namespace s2 {
 
 D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
-			: 	manager(_manager), input_layout(0) {
-	Reset();
-}
-
-D3D11InputStage::~D3D11InputStage() {
-	Reset();
-}
-
-void D3D11InputStage::Reset() {
-	ResetPrimitiveTopology();
-	ResetVertexBuffers();
-}
-
-void D3D11InputStage::ResetPrimitiveTopology() {
+			: 	manager(_manager){
 	SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-}
-
-void D3D11InputStage::ResetVertexBuffers() {
 	new_input = true;
 	old_shader = 0;
 	ib = 0;
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
-	for(unsigned int i=0; i<vbs.size(); i++) {
-		vbs[i].Reset();
-	}
-	
+	input_layout = 0;
+	first_instance_count  = 0;
+}
+
+D3D11InputStage::~D3D11InputStage() {
 	if(input_layout) {
 		input_layout->Release();
 	}
 	input_layout = 0;
-	first_instance_count  = 0;
 }
 
 void D3D11InputStage::SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue) {
@@ -68,20 +52,29 @@ GraphicPipeline::PrimitiveTopology D3D11InputStage::GetPrimitiveTopology() {
 	return topology;
 }
 
-void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, D3D11VertexBuffer *_buf) {
+void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *_buf) {
+	D3D11VertexBuffer *buffer = NiceCast(D3D11VertexBuffer *, _buf);
+	if(_buf) {
+		CHECK(buffer)<<"Cannot cast buf to D3D11VertexBuffer";
+	}
 	new_input = true;
 	vbs[index].start_index = start_input_index;
-	vbs[index].vb = _buf;
+	vbs[index].vb = buffer;
 }
 
 D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
-	CHECK(false)<<"Disable for now";
-	return 0;
+	*start_input_index = vbs[index].start_index;
+	return vbs[index].vb;
 }
 
-void D3D11InputStage::SetIndexBuffer(D3D11IndexBuffer *_buf) {
+void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf) {
+	D3D11IndexBuffer *buffer = NiceCast(D3D11IndexBuffer *, _buf);
+	if(_buf) {
+		CHECK(buffer)<<"Cannot cast buf to D3D11IndexBuffer";
+	}
+
 	new_input = true;
-	ib = _buf;
+	ib = buffer;
 }
 
 D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer() {
@@ -94,20 +87,28 @@ void D3D11InputStage::SetInput() {
 	context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
 	
 	//Set vertex buffer.
+	ID3D11Buffer **buffers = new ID3D11Buffer *[vbs.size()];
+	unsigned int *strides = new unsigned int[vbs.size()];
+	unsigned int *offsets = new unsigned int[vbs.size()];
 	for(unsigned i=0; i<vbs.size(); i++) {
-		if(vbs[i].vb == 0) {
-			continue;
-		}
 		D3D11VertexBuffer *vb = vbs[i].vb;
-		unsigned int stride = vbs[i].vb->GetElementBytewidth();
-		unsigned int offset = 0;
-		ID3D11Buffer *buffer = vb->GetInternal();
-		context->IASetVertexBuffers(i, 1, &buffer, &stride, &offset);
+		if(vb) {
+			strides[i] = vbs[i].vb->GetElementBytewidth();
+			offsets[i] = 0;
+			buffers[i] = vb->GetInternal();
+		} else {
+			strides[i] = 0;
+			offsets[i] = 0;
+			buffers[i] = 0;
+		}
 	}
+	context->IASetVertexBuffers(0, vbs.size(), buffers, strides, offsets);
 	
 	//Set index buffer
 	if(ib) {
 		context->IASetIndexBuffer(ib->GetInternal(), DXGI_FORMAT_R32_UINT, 0);
+	} else {
+		context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
 	}
 }
 

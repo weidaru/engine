@@ -41,14 +41,10 @@ public:
 	void SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue);
 	GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
-	void SetVertexBuffer(unsigned int index, unsigned int start_input_index, D3D11VertexBuffer *buf);
+	void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
 	D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
-	void SetIndexBuffer(D3D11IndexBuffer *buf);
+	void SetIndexBuffer(IndexBuffer *buf);
 	D3D11IndexBuffer * GetIndexBuffer();
-
-	void Reset();
-	void ResetPrimitiveTopology();
-	void ResetVertexBuffers();
 	
 	//Validate input stage with vertex shader, set message to NULL if you don't care.
 	bool Validate(const D3D11VertexShader &shader, s2string *message) const;

@@ -138,7 +138,7 @@ bool D3D11PixelShader::SetSampler(const s2string &name, Sampler *sampler) {
 	return sampler_container->SetSampler(name, sampler, &error);
 }
 
-Sampler * D3D11PixelShader::GetSampler(const s2string &name) {
+D3D11Sampler * D3D11PixelShader::GetSampler(const s2string &name) {
 	Check();
 	return sampler_container->GetSampler(name, &error);
 }
@@ -149,7 +149,7 @@ bool D3D11PixelShader::SetTexture2D(const s2string &name, Texture2D *texture) {
 	return sr_container->SetTexture2D(name, texture, &error);
 }
 
-Texture2D * D3D11PixelShader::GetTexture2D(const s2string &name) {
+D3D11Texture2D * D3D11PixelShader::GetTexture2D(const s2string &name) {
 	Check();
 	return sr_container->GetTexture2D(name, &error);
 }

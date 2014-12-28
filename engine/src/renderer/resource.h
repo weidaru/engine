@@ -12,6 +12,7 @@ public:
 	
 	unsigned int 			GetID() const;
 	s2string 				GetName() const;
+	s2string				GetIDAndName() const;
 	/**
 	 * Yes, name can change. Use it for debug.
 	 */

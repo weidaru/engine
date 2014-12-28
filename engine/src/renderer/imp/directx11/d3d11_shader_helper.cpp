@@ -186,8 +186,9 @@ ShaderResourceContainer::ShaderResourceContainer(D3D11ShaderReflection *_reflect
 	shader_resources.resize(reflect->GetShaderResourceSize());
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(i);
-		shader_resources[i].first = i;
-		shader_resources[i].second = 0;
+		shader_resources[i].reflect_index = i;
+		shader_resources[i].resource = 0;
+		shader_resources[i].view = 0;
 	}
 }
 
@@ -209,8 +210,12 @@ bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *_tex
 		return false;
 	}
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
-		if(shader_resources[i].first == reflect_index) {
-			shader_resources[i].second = texture;
+		if(shader_resources[i].reflect_index == reflect_index) {
+			shader_resources[i].resource = texture;
+			if(texture) {
+				shader_resources[i].view = texture->GetShaderResourceView();
+				CHECK(shader_resources[i].view) << "D3D11Texture2D is not created as a shader resource.";
+			}
 			return true;
 		}
 	}
@@ -230,30 +235,28 @@ D3D11Texture2D * ShaderResourceContainer::GetTexture2D(const s2string &name, s2s
 		return 0;
 	}
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
-		if(shader_resources[i].first == reflect_index) {
-			return NiceCast(D3D11Texture2D *, shader_resources[i].second);
+		if(shader_resources[i].reflect_index == reflect_index) {
+			return NiceCast(D3D11Texture2D *, shader_resources[i].resource);
 		}
 	}
 	CHECK(false);
 	return 0;
 }
 
+ShaderResourceContainer::BindingVector ShaderResourceContainer::GetNewBindings() const {
+	BindingVector result;
+	for(unsigned int i=0; i<shader_resources.size(); i++) {
+		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
+		result.push_back(std::make_pair(info.slot_index, shader_resources[i].resource));
+	}
+	return result;
+}
+
 void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
-		if(shader_resources[i].second == 0) {
-			continue;
-		}
-		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].first);
-		ID3D11ShaderResourceView *view = 0;
-		switch(info.type) {
-			case D3D11ShaderReflection::TEXTURE:
-				view = NiceCast(D3D11Texture2D *, shader_resources[i].second)->GetShaderResourceView();
-				break;
-			default:
-				CHECK(false)<<"Unknown shader resource type "<<info.type;
-				break;
-		}
-		CHECK(view)<<"View should be set.";
+		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
+		ID3D11ShaderResourceView *view = shader_resources[i].view;
+
 		switch(shader_type) {
 			case D3D11ShaderHelper::VERTEX:
 				context->VSSetShaderResources(info.slot_index, 1, &view);

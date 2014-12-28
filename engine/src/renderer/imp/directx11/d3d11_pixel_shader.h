@@ -3,6 +3,7 @@
 
 #include "renderer/pixel_shader.h"
 #include "d3d11_texture2d.h"
+#include "d3d11_sampler.h"
 
 #include <vector>
 
@@ -13,14 +14,10 @@ typedef ID3D10Blob ID3DBlob;
 namespace s2 {
 
 class D3D11GraphicResourceManager;
-class D3D11ConstantBuffer;
-class D3D11Texture2D;
 class D3D11ShaderReflection;
-class D3D11Sampler;
 class ConstantBufferContainer;
 class SamplerContainer;
 class ShaderResourceContainer;
-
 
 class D3D11PixelShader : public PixelShader {
 public:
@@ -31,9 +28,9 @@ public:
 	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size);
 	
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
-	virtual Sampler * GetSampler(const s2string &name);
+	virtual D3D11Sampler * GetSampler(const s2string &name);
 	virtual bool SetTexture2D(const s2string &name, Texture2D *texure);
-	virtual Texture2D * GetTexture2D(const s2string &name);
+	virtual D3D11Texture2D * GetTexture2D(const s2string &name);
 	
 	virtual const s2string & GetLastError() { return error; }
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
@@ -41,6 +38,9 @@ public:
 	
 	/*****************D3D11 exclusive.******************/
 	void Setup();
+	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }
+	const SamplerContainer & GetSamplerContainer() const { return *sampler_container; }
+	const ShaderResourceContainer & GetShaderResourceContainer() const { return *sr_container; }
 	
 protected:
 	//That is everything in constant buffer, in the sense of Directx 11.

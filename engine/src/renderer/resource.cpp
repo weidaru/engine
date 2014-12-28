@@ -2,7 +2,7 @@
 
 namespace s2 {
 
-Resource::Resource () : id(++GetCurrentID()) {}
+Resource::Resource () : id(++GetCurrentID()), name("") {}
 
 Resource::~Resource() {}
 
@@ -17,6 +17,12 @@ s2string Resource::GetName() const {
 Resource & Resource::SetName(const s2string &new_name) {
 	name = new_name;
 	return *this;
+}
+
+s2string Resource::GetIDAndName() const {
+	s2string result;
+	S2StringFormat(&result, "[%d (%s)]", id, name.c_str());
+	return result;
 }
 
 unsigned int & Resource::GetCurrentID() {

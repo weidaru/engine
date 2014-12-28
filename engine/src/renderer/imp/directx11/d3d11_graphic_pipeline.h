@@ -12,6 +12,8 @@
 #include "pipeline_stage/d3d11_input_stage.h"
 #include "pipeline_stage/d3d11_output_stage.h"
 
+#include <map>
+
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
@@ -28,52 +30,41 @@ public:
 	virtual ~D3D11GraphicPipeline();
 	
 	//Input
-	virtual void ResetPrimitiveTopology();
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue);
 	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
-	virtual void ResetVertexBuffers();
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
 	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
-	virtual void ResetIndexBuffer();
+
 	virtual void SetIndexBuffer(IndexBuffer *buf);
 	virtual D3D11IndexBuffer * GetIndexBuffer();
 	
 	//Shaders
-	virtual void ResetVertexShader();
 	virtual void SetVertexShader(VertexShader *shader);
 	virtual VertexShader * GetVertexShader();
 	
-	virtual void ResetPixelShader();
 	virtual void SetPixelShader(PixelShader *shader);
 	virtual PixelShader * GetPixelShader();
 	
 	//Rasterization
-	virtual void ResetRasterizationOption();
 	virtual void SetRasterizationOption(const RasterizationOption &option);
 	virtual const RasterizationOption & GetRasterizationOption() const;
 
 	//DepthStencil
-	virtual void ResetDepthStencilOption();
 	virtual void SetDepthStencilOption(const DepthStencilOption &option);
 	virtual const DepthStencilOption & GetDepthStencilOption() const;
 	
 	//Blend
-	virtual void ResetBlendOption();
 	virtual void SetBlendOption(const BlendOption &option);
 	virtual const BlendOption & GetBlendOption() const;
 	
 	//Output
-	virtual void ResetRenderTargets();
 	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
 	virtual Resource * GetRenderTarget(unsigned int index);
-	virtual void ResetDepthStencilBuffer();
+	
 	virtual void SetDepthStencilBuffer(Texture2D *buffer);
 	virtual Resource * GetDepthStencilBuffer();
-	
-	virtual void Reset();
-	void Clear();
-	
+
 	virtual bool Validate(s2string *_error) const;
 
 	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
@@ -107,6 +98,30 @@ private:
 	ID3D11BlendState *blend_state;
 	
 	D3D11OutputStage output_stage;
+	
+	struct BindingMap {
+		std::map<Resource *, unsigned int> map;
+		std::vector<Resource *> vec;
+		
+		BindingMap(unsigned int size);
+		
+		bool Contains(unsigned int index);
+		bool Contains(Resource *resource);
+		
+		BindingMap & Remove(unsigned int index);
+		BindingMap & Remove(Resource *resource);
+		
+		BindingMap & Add(unsigned int index, Resource *resource);
+		
+		Resource * GetResource(unsigned int index);
+		unsigned int GetIndex(Resource *); 
+	};
+	
+	
+	BindingMap active_vs_srs;
+	BindingMap active_ps_srs;
+	BindingMap active_rts;
+	
 };
 
 

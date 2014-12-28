@@ -80,7 +80,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.vs", "main")) <<
+		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.vs", "main")) <<
 			vs->GetLastError();
 		{
 			Matrix4x4 identity;
@@ -98,12 +98,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\gouraud.ps", "main")) <<
+		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.ps", "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -143,14 +143,14 @@ public:
 	void CreateTextureProgram() {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		
+		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+
 		//Create texture.
 		Texture2D::Option tex_option;
 		texture = manager->CreateTexture2D();
-		PixelMap checkerboard;
-		checkerboard.Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\image\\checkerboard.png",
-											PixelMap::R8G8B8A8);
-		checkerboard.PopulateTexture2DOption(&tex_option);
+		tex_option.output_bind = TextureEnum::RENDER_TARGET;
+		tex_option.width = renderer_setting.window_width;
+		tex_option.height = renderer_setting.window_height;
 		texture->Initialize(tex_option);
 		
 		//Create sampler
@@ -160,12 +160,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("C:\\Users\\zhiwshen\\Documents\\GitHub\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", texture);
@@ -190,8 +190,8 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->ResetRenderTargets();
 		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
+		pipeline->SetRenderTarget(1, texture);
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
 		pipeline->SetVertexBuffer(0, 0, vb);
@@ -212,7 +212,6 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		pipeline->ResetRenderTargets();
 		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
 		pipeline->SetVertexShader(tex_vs);
 		pipeline->SetPixelShader(tex_ps);
@@ -253,9 +252,11 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		pipeline->SetDepthStencilBuffer(ds_buffer);
-		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		float black[4] = {0.0f, 0.0f, .0f, 1.0f};
 		pipeline->ClearRenderTarget(manager->GetBackBuffer(), black);
 		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
+		float red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+		pipeline->ClearRenderTarget(texture, red);
 		DrawNormal(delta);
 		DrawTexture(delta);
 	}
