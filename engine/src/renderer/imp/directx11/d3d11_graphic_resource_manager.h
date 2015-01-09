@@ -95,7 +95,7 @@ private:
 	std::map<unsigned int, Texture1D *> tex1d_map;
 	std::map<unsigned int, D3D11Texture2D *> tex2d_map;
 	std::map<unsigned int, Texture3D *> tex3d_map;
-	std::map<unsigned int, Sampler *> sampler_map;
+	std::map<unsigned int, D3D11Sampler *> sampler_map;
 	std::map<unsigned int, D3D11VertexShader *> vs_map;
 	std::map<unsigned int, D3D11PixelShader *> ps_map;
 };

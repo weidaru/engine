@@ -117,39 +117,30 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);
 }
 
-D3D11VertexBuffer * D3D11GraphicResourceManager::CreateVertexBuffer() {
-	D3D11VertexBuffer *buffer = new D3D11VertexBuffer(this);
-	vb_map[buffer->GetID()] = buffer;
-	return buffer;
+#define Mangle(type) D3D11##type
+
+#define ResourceImp(Type, name) \
+Mangle(Type) * D3D11GraphicResourceManager::Create##Type() { \
+	Mangle(Type) *temp = new Mangle(Type)(this); \
+	name[temp->GetID()] = temp; \
+	return buffer; \
+} \
+void D3D11GraphicResourceManager::Remove##Type(unsigned int id) { \
+	if(name.find(id) != name.end()) {\
+		delete name[id];\
+		name.erase(id)\
+	} \
+} \
+Mangle(Type) * D3D11GraphicResourceManager::Get##Type(unsigned int id) { \
+	if(name.find(id) == name.end()) { \
+		return 0; \
+	} else { \
+		return name[id]; \
+	} \
 }
 
-D3D11VertexBuffer * D3D11GraphicResourceManager::GetVertexBuffer(unsigned int id) {
-	return vb_map[id];
-}
-
-void D3D11GraphicResourceManager::RemoveVertexBuffer(unsigned int id) {
-	if(vb_map.find(id) != vb_map.end()) {
-		delete vb_map[id];
-		vb_map.erase(id);
-	}
-}
-	
-D3D11IndexBuffer * D3D11GraphicResourceManager::CreateIndexBuffer() {
-	D3D11IndexBuffer *buffer = new D3D11IndexBuffer(this);
-	ib_map[buffer->GetID()] = buffer;
-	return buffer;
-}
-
-D3D11IndexBuffer * D3D11GraphicResourceManager::GetIndexBuffer(unsigned int id) {
-	return ib_map[id];
-}
-
-void D3D11GraphicResourceManager::RemoveIndexBuffer(unsigned int id) {
-	if(ib_map.find(id) != ib_map.end()) {
-		delete ib_map[id];
-		ib_map.erase(id);
-	}
-}
+ResourceImp(VertexBuffer, vb_map)
+ResourceImp(IndexBuffer, ib_map)
 	
 Texture1D * D3D11GraphicResourceManager::CreateTexture1D() {
 	CHECK(false)<<"Disabled.";
@@ -164,23 +155,9 @@ Texture1D * D3D11GraphicResourceManager::GetTexture1D(unsigned int id) {
 void D3D11GraphicResourceManager::RemoveTexture1D(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
+
+ResourceImp(Texture2D, tex2d_map)
 	
-D3D11Texture2D * D3D11GraphicResourceManager::CreateTexture2D() {
-	D3D11Texture2D *texture = new D3D11Texture2D(this);
-	tex2d_map[texture->GetID()] = texture;
-	return texture;
-}
-
-D3D11Texture2D * D3D11GraphicResourceManager::GetTexture2D(unsigned int id) {
-	return tex2d_map[id];
-}
-
-void D3D11GraphicResourceManager::RemoveTexture2D(unsigned int id) {
-	if(tex2d_map.find(id) != tex2d_map.end()) {
-		delete tex2d_map[id];
-		tex2d_map.erase(id);
-	}
-}
 
 D3D11Texture2D * D3D11GraphicResourceManager::GetBackBuffer() {
 	return back_buffer;
@@ -199,56 +176,10 @@ Texture3D * D3D11GraphicResourceManager::GetTexture3D(unsigned int id) {
 void D3D11GraphicResourceManager::RemoveTexture3D(unsigned int id) {
 	CHECK(false)<<"Disabled.";
 }
-	
-D3D11Sampler * D3D11GraphicResourceManager::CreateSampler() {
-	D3D11Sampler *sampler = new D3D11Sampler(this);
-	sampler_map[sampler->GetID()] = sampler;
-	return sampler;
-}
 
-D3D11Sampler * D3D11GraphicResourceManager::GetSampler(unsigned int id) {
-	CHECK(false)<<"Disabled.";
-	return 0;
-}
-
-void D3D11GraphicResourceManager::RemoveSampler(unsigned int id) {
-	CHECK(false)<<"Disabled.";
-}
-
-D3D11VertexShader * D3D11GraphicResourceManager::CreateVertexShader() {
-	D3D11VertexShader *shader = new D3D11VertexShader(this);
-	vs_map[shader->GetID()] = shader;
-	return shader;
-}
-
-D3D11VertexShader * D3D11GraphicResourceManager::GetVertexShader(unsigned int id) {
-	return vs_map[id];
-}
-
-void D3D11GraphicResourceManager::RemoveVertexShader(unsigned int id) {
-	if(vs_map.find(id) != vs_map.end()) {
-		delete vs_map[id];
-		vs_map.erase(id);
-	}
-}
-
-D3D11PixelShader * D3D11GraphicResourceManager::CreatePixelShader() {
-	D3D11PixelShader *shader = new D3D11PixelShader(this);
-	ps_map[shader->GetID()] = shader;
-	return shader;
-}
-
-D3D11PixelShader * D3D11GraphicResourceManager::GetPixelShader(unsigned int id) {
-	return ps_map[id];
-}
-
-void D3D11GraphicResourceManager::RemovePixelShader(unsigned int id) {
-	if(ps_map.find(id) != ps_map.end()) {
-		delete ps_map[id];
-		ps_map.erase(id);
-	}
-}
-
+ResourceImp(Sampler, sampler_map)
+ResourceImp(VertexShader, vs_map)
+ResourceImp(PixelShader, ps_map)
 }
 
 
