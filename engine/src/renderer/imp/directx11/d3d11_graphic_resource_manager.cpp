@@ -39,7 +39,7 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(Texture1D, tex1d_map);
 	MapClean(D3D11Texture2D, tex2d_map);
 	MapClean(Texture3D, tex3d_map);
-	MapClean(Sampler, sampler_map);
+	MapClean(D3D11Sampler, sampler_map);
 	MapClean(D3D11VertexShader, vs_map);
 	MapClean(D3D11PixelShader, ps_map);
 }
@@ -123,12 +123,12 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 Mangle(Type) * D3D11GraphicResourceManager::Create##Type() { \
 	Mangle(Type) *temp = new Mangle(Type)(this); \
 	name[temp->GetID()] = temp; \
-	return buffer; \
+	return temp; \
 } \
 void D3D11GraphicResourceManager::Remove##Type(unsigned int id) { \
-	if(name.find(id) != name.end()) {\
-		delete name[id];\
-		name.erase(id)\
+	if(name.find(id) != name.end()) { \
+		delete name[id]; \
+		name.erase(id); \
 	} \
 } \
 Mangle(Type) * D3D11GraphicResourceManager::Get##Type(unsigned int id) { \

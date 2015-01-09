@@ -127,9 +127,9 @@ const Matrix4x4 & Camera::GetViewMatrix() {
 void Camera::CalculateVectors() {
 	if(calculate_vector) {
 		Matrix4x4 m, temp;
-		temp.SetRotationX(alpha);
-		m *= temp;
 		temp.SetRotationY(beta);
+		m *= temp;
+		temp.SetRotationX(alpha);
 		m *= temp;
 		//No need to normalize as the matrix is rotation only.
 
