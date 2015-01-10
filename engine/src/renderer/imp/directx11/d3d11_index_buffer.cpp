@@ -35,7 +35,7 @@ void D3D11IndexBuffer::Clear() {
 	mapped = 0;
 }
 
-void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, GeneralEnum::MapBehavior map_behavior) {
+void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, RendererEnum::MapBehavior map_behavior) {
 	Clear();
 	ele_count = element_count;
 	D3D11_BUFFER_DESC desc;
@@ -62,7 +62,7 @@ unsigned int D3D11IndexBuffer::GetElementCount() const {
 	return ele_count;
 }
 
-GeneralEnum::MapBehavior D3D11IndexBuffer::GetMapBehavior() const {
+RendererEnum::MapBehavior D3D11IndexBuffer::GetMapBehavior() const {
 	CHECK(ib)<<"Index buffer is not initialized.";
 	return mapped->GetMapBehavior();
 }
@@ -90,7 +90,7 @@ void D3D11IndexBuffer::UnMap() {
 
 void D3D11IndexBuffer::Update(unsigned int index, const InputType *data, unsigned int array_size) {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	CHECK(mapped->GetMapBehavior() == GeneralEnum::MAP_WRITE_OCCASIONAL)<<
+	CHECK(mapped->GetMapBehavior() == RendererEnum::MAP_WRITE_OCCASIONAL)<<
 				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
 	
 	D3D11_BOX dest;

@@ -13,7 +13,7 @@ Texture3D::Option::Option(){
 	output_bind = TextureEnum::NOT_OUTPUT;
 	input_bind = TextureEnum::SHADER_RESOURCE;
 	sample_size = 1;
-	map_behavior = GeneralEnum::MAP_FORBIDDEN;
+	map_behavior = RendererEnum::MAP_FORBIDDEN;
 }
 
 }

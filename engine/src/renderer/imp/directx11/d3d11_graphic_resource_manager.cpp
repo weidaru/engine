@@ -111,7 +111,7 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	bf_desc.array_size = 1;
 	bf_desc.format = TextureEnum::R8G8B8A8_UNORM;
 	bf_desc.sample_size = 1;
-	bf_desc.map_behavior = GeneralEnum::MAP_FORBIDDEN;
+	bf_desc.map_behavior = RendererEnum::MAP_FORBIDDEN;
 	bf_desc.output_bind = TextureEnum::RENDER_TARGET;
 	bf_desc.input_bind = TextureEnum::NOT_INPUT;
 	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);

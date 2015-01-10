@@ -1,9 +1,9 @@
-#ifndef GENERAL_ENUM_H_
-#define GENERAL_ENUM_H_
+#ifndef RENDERER_ENUM_H_
+#define RENDERER_ENUM_H_
 
 namespace s2 {
 
-struct GeneralEnum {
+struct RendererEnum {
 	enum MapBehavior {
 		MAP_FORBIDDEN,
 		MAP_WRITE_OCCASIONAL,
@@ -15,4 +15,4 @@ struct GeneralEnum {
 
 }
 
-#endif		//GENERAL_ENUM_H_
+#endif		//RENDERER_ENUM_H_

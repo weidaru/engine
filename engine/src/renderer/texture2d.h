@@ -3,7 +3,7 @@
 
 #include "resource.h"
 #include "texture_enum.h"
-#include "general_enum.h"
+#include "renderer_enum.h"
 
 namespace s2 {
 
@@ -16,7 +16,7 @@ public:
 		unsigned int 	array_size;
 		TextureEnum::TextureFormat 	format;
 		unsigned int 	sample_size;			//This is only useful for render target
-		GeneralEnum::MapBehavior map_behavior;
+		RendererEnum::MapBehavior map_behavior;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
 		void *data;

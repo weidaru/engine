@@ -9,27 +9,27 @@
 
 namespace s2 {
 
-void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, GeneralEnum::MapBehavior map_behavior) {
+void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, RendererEnum::MapBehavior map_behavior) {
 	desc->ByteWidth = byte_width;
 	switch(map_behavior) {
-		case GeneralEnum::MAP_FORBIDDEN:
+		case RendererEnum::MAP_FORBIDDEN:
 			desc->Usage = D3D11_USAGE_IMMUTABLE;
 			desc->CPUAccessFlags = 0;
 			break;
-		case GeneralEnum::MAP_WRITE_OCCASIONAL:
+		case RendererEnum::MAP_WRITE_OCCASIONAL:
 			desc->Usage = D3D11_USAGE_DEFAULT;
 			desc->CPUAccessFlags = 0;
 			break;
-		case GeneralEnum::MAP_WRITE_FREQUENT:
+		case RendererEnum::MAP_WRITE_FREQUENT:
 			desc->Usage = D3D11_USAGE_DYNAMIC;
 			desc->CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			break;
-		case GeneralEnum::MAP_READ:
+		case RendererEnum::MAP_READ:
 			desc->Usage = D3D11_USAGE_STAGING;
 			desc->CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 			break;
 		
-		case GeneralEnum::MAP_READ_WRITE:
+		case RendererEnum::MAP_READ_WRITE:
 			desc->Usage = D3D11_USAGE_STAGING;
 			desc->CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
 			break;

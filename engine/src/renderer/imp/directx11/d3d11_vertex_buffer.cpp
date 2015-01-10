@@ -39,7 +39,7 @@ void D3D11VertexBuffer::Clear() {
 }
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int element_member_count,
-													unsigned int per_ele_size, const void *data, GeneralEnum::MapBehavior map_behavior) {
+													unsigned int per_ele_size, const void *data, RendererEnum::MapBehavior map_behavior) {
 	Clear();
 	CHECK(element_count>0 && per_ele_size>0)<<"element count and element bytewidth must not be 0";
 	
@@ -51,6 +51,7 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 	D3D11_BUFFER_DESC desc;
 	D3D11ResourceHelper::SetBufferDesc(&desc, per_ele_size*element_count, map_behavior);
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	desc.Usage = D3D11_USAGE_DEFAULT;
 	
 	HRESULT result = 1;
 	if(data) {
@@ -66,7 +67,7 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 	mapped = new D3D11MappedResource(manager, vb, map_behavior);
 }
 
-void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, GeneralEnum::MapBehavior _map_behavior) {
+void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, RendererEnum::MapBehavior _map_behavior) {
 	type_name = type_info.GetName();
 	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, _map_behavior);
 }
@@ -81,7 +82,7 @@ unsigned int D3D11VertexBuffer::GetElementBytewidth() const {
 	return ele_bytewidth;
 }
 
-GeneralEnum::MapBehavior D3D11VertexBuffer::GetMapBehavior() const {
+RendererEnum::MapBehavior D3D11VertexBuffer::GetMapBehavior() const {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	return mapped->GetMapBehavior();
 }
@@ -117,7 +118,7 @@ const void * D3D11VertexBuffer::Read(unsigned int index, unsigned int element_by
 void D3D11VertexBuffer::Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	CHECK(element_bytewidth == GetElementBytewidth())<<"Element size mismatch.";
-	CHECK(mapped->GetMapBehavior() == GeneralEnum::MAP_WRITE_OCCASIONAL)<<
+	CHECK(mapped->GetMapBehavior() == RendererEnum::MAP_WRITE_OCCASIONAL)<<
 				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
 	
 	D3D11_BOX dest;

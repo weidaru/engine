@@ -4,7 +4,7 @@
 #include "resource.h"
 #include "utils/s2string.h"
 #include "texture_enum.h"
-#include "general_enum.h"
+#include "renderer_enum.h"
 
 namespace s2 {
 
@@ -17,7 +17,7 @@ public:
 		TextureEnum::TextureFormat format;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
-		GeneralEnum::MapBehavior map_behavior;
+		RendererEnum::MapBehavior map_behavior;
 		void *data;
 		
 		Option();

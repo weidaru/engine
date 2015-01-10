@@ -96,8 +96,8 @@ public:
 					colors[i].data[2] = (float(rand()%100))/100.0f;	
 				}
 
-				position_buffer->Initialize(size, positions, GeneralEnum::MAP_FORBIDDEN);
-				color_buffer->Initialize(size, colors, GeneralEnum::MAP_FORBIDDEN);
+				position_buffer->Initialize(size, positions, RendererEnum::MAP_FORBIDDEN);
+				color_buffer->Initialize(size, colors, RendererEnum::MAP_FORBIDDEN);
 				delete[] positions;
 				delete[] colors;
 			}
@@ -112,7 +112,7 @@ public:
 					indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
 					indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
 				}
-				index_buffer->Initialize(size, indices, GeneralEnum::MAP_FORBIDDEN);
+				index_buffer->Initialize(size, indices, RendererEnum::MAP_FORBIDDEN);
 				delete[] indices;
 			}
 		}
@@ -125,7 +125,7 @@ public:
 				positions[i].data[1] = (float)5*i;
 				positions[i].data[2] = (float)5*i;
 			}
-			instance_buffer->Initialize(10, positions, GeneralEnum::MAP_FORBIDDEN);
+			instance_buffer->Initialize(10, positions, RendererEnum::MAP_FORBIDDEN);
 		}	
 		
 		

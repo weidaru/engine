@@ -121,7 +121,7 @@ public:
 			}
 
 			vb = manager->CreateVertexBuffer();
-			vb->Initialize(size, vertices, GeneralEnum::MAP_WRITE_OCCASIONAL);
+			vb->Initialize(size, vertices, RendererEnum::MAP_WRITE_OCCASIONAL);
 			delete[] vertices;
 		}
 		
@@ -135,7 +135,7 @@ public:
 				indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
 			}
 			ib = manager->CreateIndexBuffer();
-			ib->Initialize(size, indices, GeneralEnum::MAP_FORBIDDEN);
+			ib->Initialize(size, indices, RendererEnum::MAP_FORBIDDEN);
 			delete[] indices;
 		}
 	}
@@ -178,12 +178,12 @@ public:
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}}
 		};
 		tex_vb = manager->CreateVertexBuffer();
-		tex_vb->Initialize(4, vertices, GeneralEnum::MAP_WRITE_OCCASIONAL);
+		tex_vb->Initialize(4, vertices, RendererEnum::MAP_WRITE_OCCASIONAL);
 		
 		//Set index buffer
 		IndexBuffer::InputType indices[6] = {0,1,2, 0,2,3};
 		tex_ib = manager->CreateIndexBuffer();
-		tex_ib->Initialize(6, indices, GeneralEnum::MAP_FORBIDDEN);
+		tex_ib->Initialize(6, indices, RendererEnum::MAP_FORBIDDEN);
 	}
 	
 	void DrawNormal(float delta) {

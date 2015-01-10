@@ -4,17 +4,26 @@
 #include "resource.h"
 #include "utils/s2string.h"
 #include "utils/type_info.h"
-#include "general_enum.h"
+#include "renderer_enum.h"
 
 namespace s2 {
 
 class VertexBuffer : public Resource {
 public:
+	struct Option {
+		unsigned int element_count;
+		unsigned int element_member_count;
+		unsigned int per_ele_size;
+		RendererEnum::MapBehavior map_behavior;
+
+	};
+
+public:
 	virtual 						~VertexBuffer() {}
 	virtual void 				Initialize(	unsigned int element_count,unsigned int element_member_count,
-													unsigned int per_ele_size, const void *data, GeneralEnum::MapBehavior map_behavior)= 0;
+													unsigned int per_ele_size, const void *data, RendererEnum::MapBehavior map_behavior)= 0;
 	template <typename T>
-	void Initialize(unsigned int element_count, const T *data, GeneralEnum::MapBehavior map_behavior) {
+	void Initialize(unsigned int element_count, const T *data, RendererEnum::MapBehavior map_behavior) {
 		Initialize(element_count, TypeInfoManager::GetSingleton()->Get<T>(), (const void *)data, map_behavior );
 	}
 	virtual unsigned int 	GetElementCount() const = 0;
@@ -25,7 +34,7 @@ public:
 	//will return empty string.
 	virtual s2string 			GetElementTypeName() const { return ""; }
 	
-	virtual GeneralEnum::MapBehavior GetMapBehavior() const = 0;
+	virtual RendererEnum::MapBehavior GetMapBehavior() const = 0;
 	virtual void Map(bool is_partial_map) = 0;
 	virtual void UnMap() = 0;
 	
@@ -52,7 +61,7 @@ public:
 protected:
 	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
 	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const = 0;
-	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, GeneralEnum::MapBehavior map_behavior) = 0;
+	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, RendererEnum::MapBehavior map_behavior) = 0;
 	virtual void Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
 };
 

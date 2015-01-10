@@ -20,7 +20,7 @@
     <ClInclude Include="src\renderer\blend_option.h" />
     <ClInclude Include="src\renderer\constant_buffer.h" />
     <ClInclude Include="src\renderer\depth_stencil_option.h" />
-    <ClInclude Include="src\renderer\general_enum.h" />
+    <ClInclude Include="src\renderer\renderer_enum.h" />
     <ClInclude Include="src\renderer\graphic_pipeline.h" />
     <ClInclude Include="src\renderer\graphic_resource_manager.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_constant_buffer.h" />

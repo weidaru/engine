@@ -15,7 +15,7 @@
 namespace s2 {
 
 D3D11MappedResource::D3D11MappedResource(
-		D3D11GraphicResourceManager *_manager, ID3D11Resource *_resource, GeneralEnum::MapBehavior _map_behavior) 
+		D3D11GraphicResourceManager *_manager, ID3D11Resource *_resource, RendererEnum::MapBehavior _map_behavior) 
 			: 	manager(_manager), resource(_resource), map_behavior(_map_behavior){
 	CHECK_NOTNULL(_manager);
 	CHECK_NOTNULL(_resource);
@@ -31,16 +31,16 @@ void D3D11MappedResource::Clear() {
 
 void D3D11MappedResource::Map(bool is_partial_map, unsigned int _subresource_index) {
 	subresource_index = _subresource_index;
-	CHECK(map_behavior != GeneralEnum::MAP_FORBIDDEN) << 
+	CHECK(map_behavior != RendererEnum::MAP_FORBIDDEN) << 
 					"Not able to map as map_behavior is indicated as MAP_FORBIDDEN ";
-	CHECK(map_behavior != GeneralEnum::MAP_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for MAP_WRITE_OCASSIONAL";
+	CHECK(map_behavior != RendererEnum::MAP_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for MAP_WRITE_OCASSIONAL";
 	
 	D3D11_MAP map_type = D3D11_MAP_WRITE_DISCARD;
-	if(map_behavior == GeneralEnum::MAP_WRITE_FREQUENT) {
+	if(map_behavior == RendererEnum::MAP_WRITE_FREQUENT) {
 		map_type = is_partial_map ? D3D11_MAP_WRITE_NO_OVERWRITE  : D3D11_MAP_WRITE_DISCARD;
-	} else if(map_behavior == GeneralEnum::MAP_READ) {
+	} else if(map_behavior == RendererEnum::MAP_READ) {
 		map_type = D3D11_MAP_READ;
-	} else if(map_behavior == GeneralEnum::MAP_READ_WRITE) {
+	} else if(map_behavior == RendererEnum::MAP_READ_WRITE) {
 		map_type = D3D11_MAP_READ_WRITE;
 	}
 	D3D11_MAPPED_SUBRESOURCE subresource;
@@ -54,13 +54,13 @@ void D3D11MappedResource::Map(bool is_partial_map, unsigned int _subresource_ind
 
 void D3D11MappedResource::Write(unsigned int offset, const void *data, unsigned int size) {
 	CHECK(subresource_index != -1) << "Must call Map before Write.";
-	CHECK(map_behavior != GeneralEnum::MAP_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for MAP_WRITE_OCASSIONAL";
+	CHECK(map_behavior != RendererEnum::MAP_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for MAP_WRITE_OCASSIONAL";
 	memcpy(mapped_data, data, size);
 }
 
 const void * D3D11MappedResource::Read() {
 	CHECK(subresource_index != -1) << "Must call Map before Read.";
-	CHECK(map_behavior==GeneralEnum::MAP_READ||map_behavior==GeneralEnum::MAP_READ_WRITE)<<
+	CHECK(map_behavior==RendererEnum::MAP_READ||map_behavior==RendererEnum::MAP_READ_WRITE)<<
 				"map behavior must be MAP_READ or MAP_READ_WRITE inorder to read.";
 	return mapped_data;
 }
