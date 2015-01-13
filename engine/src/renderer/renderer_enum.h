@@ -4,12 +4,10 @@
 namespace s2 {
 
 struct RendererEnum {
-	enum MapBehavior {
-		MAP_FORBIDDEN,
-		MAP_WRITE_OCCASIONAL,
-		MAP_WRITE_FREQUENT,
-		MAP_READ,
-		MAP_READ_WRITE
+	enum ResourceWrite {
+		IMMUTABLE,
+		CPU_WRITE_OCCASIONAL,
+		CPU_WRITE_FREQUENT
 	};
 };
 

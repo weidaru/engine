@@ -16,10 +16,10 @@ class D3D11IndexBuffer : public IndexBuffer {
 public:
 	D3D11IndexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11IndexBuffer();
-	virtual void Initialize(unsigned int element_count, const InputType *data, RendererEnum::MapBehavior map_behavior);
+	virtual void Initialize(unsigned int element_count, const InputType *data, RendererEnum::ResourceWrite resource_write);
 	virtual unsigned int GetElementCount() const;
 	
-	virtual RendererEnum::MapBehavior GetMapBehavior() const;
+	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
 	virtual void Map(bool is_partial_map);
 	virtual void Write(unsigned int index, const InputType *data, unsigned int array_size);
 	virtual const IndexBuffer::InputType * Read(unsigned int index) const;

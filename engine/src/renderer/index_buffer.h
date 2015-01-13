@@ -13,14 +13,13 @@ public:
 
 public:
 	virtual 					~IndexBuffer() {}
-	virtual void 			Initialize(unsigned int element_count, const InputType *data, RendererEnum::MapBehavior map_behavior) = 0;
+	virtual void 			Initialize(unsigned int element_count, const InputType *data, RendererEnum::ResourceWrite resource_write) = 0;
 	virtual unsigned int GetElementCount() const = 0;
 	
-	virtual RendererEnum::MapBehavior GetMapBehavior() const = 0;
-	virtual void Map(bool is_partial_map) = 0;
+	virtual RendererEnum::ResourceWrite GetResourceWrite() const = 0;
+	virtual void WriteMap(bool is_partial_map) = 0;
 	virtual void Write(unsigned int index, const InputType *data, unsigned int array_size) = 0;
-	virtual const IndexBuffer::InputType * Read(unsigned int index) const = 0;
-	virtual void UnMap() = 0;
+	virtual void WriteUnmap() = 0;
 	
 	virtual void Update(unsigned int index, const InputType *data, unsigned int array_size) = 0;
 };

@@ -15,13 +15,16 @@ public:
 	D3D11VertexBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11VertexBuffer();
 	virtual void Initialize(	unsigned int element_count, unsigned int element_member_count,
-									unsigned int per_ele_size, const void *data, RendererEnum::MapBehavior map_behavior);
+									unsigned int per_ele_size, const void *data, 
+									RendererEnum::ResourceWrite resource_write,
+									Binding binding);
 	virtual unsigned int GetElementCount() const;
 	virtual unsigned int GetElementBytewidth() const;
 	virtual unsigned int GetElementMemberCount() const;
 	virtual s2string GetElementTypeName() const { return type_name; }
 
-	virtual RendererEnum::MapBehavior GetMapBehavior() const;
+	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
+	virtual VertexBuffer::Binding GetBinding() const;
 	virtual void Map(bool is_partial_map);
 	virtual void UnMap();
 	
@@ -32,7 +35,8 @@ private:
 	void Clear();
 
 protected:
-	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, RendererEnum::MapBehavior map_behavior);
+	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, 
+									RendererEnum::ResourceWrite resource_write, Binding binding);
 	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
 	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const;
 	virtual void Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
@@ -46,6 +50,7 @@ private:
 	s2string type_name;
 	
 	D3D11MappedResource *mapped;
+	Binding binding;
 };
 
 }

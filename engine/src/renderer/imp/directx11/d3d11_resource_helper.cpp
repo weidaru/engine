@@ -7,31 +7,27 @@
 #include <d3d11.h>
 #undef ERROR
 
+#include <glog/logging.h>
+
 namespace s2 {
 
-void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, RendererEnum::MapBehavior map_behavior) {
+void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, RendererEnum::ResourceWrite resource_write) {
 	desc->ByteWidth = byte_width;
-	switch(map_behavior) {
-		case RendererEnum::MAP_FORBIDDEN:
+	switch(resource_write) {
+		case RendererEnum::IMMUTABLE:
 			desc->Usage = D3D11_USAGE_IMMUTABLE;
 			desc->CPUAccessFlags = 0;
 			break;
-		case RendererEnum::MAP_WRITE_OCCASIONAL:
+		case RendererEnum::CPU_WRITE_OCCASIONAL:
 			desc->Usage = D3D11_USAGE_DEFAULT;
 			desc->CPUAccessFlags = 0;
 			break;
-		case RendererEnum::MAP_WRITE_FREQUENT:
+		case RendererEnum::CPU_WRITE_FREQUENT:
 			desc->Usage = D3D11_USAGE_DYNAMIC;
 			desc->CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			break;
-		case RendererEnum::MAP_READ:
-			desc->Usage = D3D11_USAGE_STAGING;
-			desc->CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-			break;
-		
-		case RendererEnum::MAP_READ_WRITE:
-			desc->Usage = D3D11_USAGE_STAGING;
-			desc->CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+		default:
+			CHECK(false)<<"Unknown ResourceWrite flag";
 			break;
 	}
 

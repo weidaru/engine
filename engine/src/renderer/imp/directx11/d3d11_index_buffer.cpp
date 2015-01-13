@@ -35,11 +35,11 @@ void D3D11IndexBuffer::Clear() {
 	mapped = 0;
 }
 
-void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, RendererEnum::MapBehavior map_behavior) {
+void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *data, RendererEnum::ResourceWrite resource_write) {
 	Clear();
 	ele_count = element_count;
 	D3D11_BUFFER_DESC desc;
-	D3D11ResourceHelper::SetBufferDesc(&desc, sizeof(InputType)*element_count, map_behavior);
+	D3D11ResourceHelper::SetBufferDesc(&desc, sizeof(InputType)*element_count, resource_write);
 	
 	desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	
@@ -54,7 +54,7 @@ void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *d
 	
 	CHECK(!FAILED(result)) <<"Cannot create index buffer. Error code: " << ::GetLastError();
 	
-	mapped = new D3D11MappedResource(manager, ib, map_behavior);
+	mapped = new D3D11MappedResource(manager, ib, resource_write);
 }
 
 unsigned int D3D11IndexBuffer::GetElementCount() const {
@@ -62,9 +62,9 @@ unsigned int D3D11IndexBuffer::GetElementCount() const {
 	return ele_count;
 }
 
-RendererEnum::MapBehavior D3D11IndexBuffer::GetMapBehavior() const {
+RendererEnum::ResourceWrite D3D11IndexBuffer::GetResourceWrite() const {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	return mapped->GetMapBehavior();
+	return mapped->GetResourceWrite();
 }
 
 void D3D11IndexBuffer::Map(bool is_partial_map) {
@@ -90,8 +90,8 @@ void D3D11IndexBuffer::UnMap() {
 
 void D3D11IndexBuffer::Update(unsigned int index, const InputType *data, unsigned int array_size) {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	CHECK(mapped->GetMapBehavior() == RendererEnum::MAP_WRITE_OCCASIONAL)<<
-				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
+	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
+				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 	
 	D3D11_BOX dest;
 	dest.left = index*sizeof(InputType);

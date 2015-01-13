@@ -11,7 +11,7 @@ namespace s2 {
 
 class D3D11ResourceHelper {
 public:
-	static void SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, RendererEnum::MapBehavior map_behavior);
+	static void SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, RendererEnum::ResourceWrite resource_write);
 };
 
 }

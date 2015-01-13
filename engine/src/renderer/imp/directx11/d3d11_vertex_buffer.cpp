@@ -39,19 +39,30 @@ void D3D11VertexBuffer::Clear() {
 }
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int element_member_count,
-													unsigned int per_ele_size, const void *data, RendererEnum::MapBehavior map_behavior) {
+													unsigned int per_ele_size, const void *data, 
+													RendererEnum::ResourceWrite resource_write,
+													Binding _binding) {
 	Clear();
 	CHECK(element_count>0 && per_ele_size>0)<<"element count and element bytewidth must not be 0";
 	
 	ele_count = element_count;
 	ele_member_count = element_member_count;
 	ele_bytewidth = per_ele_size;
-	map_behavior = map_behavior;
+	binding = _binding;
 	
 	D3D11_BUFFER_DESC desc;
-	D3D11ResourceHelper::SetBufferDesc(&desc, per_ele_size*element_count, map_behavior);
+	D3D11ResourceHelper::SetBufferDesc(&desc, per_ele_size*element_count, resource_write);
 	desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	desc.Usage = D3D11_USAGE_DEFAULT;
+	if((binding&VERTEX_BUFFER) == 0) {
+		LOG(ERROR)<<"Vertex Buffer is not bind as normal usage. Bind it automatically.";
+	}
+	if((binding&SHADER_RESOURCE) != 0) { 
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	}
+	if((binding&STREAM_OUT) != 0) {
+		desc.BindFlags = D3D11_BIND_STREAM_OUTPUT;
+		CHECK(resource_write != IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
+	}
 	
 	HRESULT result = 1;
 	if(data) {
@@ -64,12 +75,14 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 	
 	CHECK(!FAILED(result))<<"Cannot create vertex buffer. Error code: " <<::GetLastError();
 	
-	mapped = new D3D11MappedResource(manager, vb, map_behavior);
+	mapped = new D3D11MappedResource(manager, vb, resource_write);
 }
 
-void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, RendererEnum::MapBehavior _map_behavior) {
+void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, 
+												RendererEnum::ResourceWrite resource_write,
+												Binding _binding) {
 	type_name = type_info.GetName();
-	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, _map_behavior);
+	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, resource_write, _binding);
 }
 
 unsigned int D3D11VertexBuffer::GetElementCount() const {
@@ -82,9 +95,14 @@ unsigned int D3D11VertexBuffer::GetElementBytewidth() const {
 	return ele_bytewidth;
 }
 
-RendererEnum::MapBehavior D3D11VertexBuffer::GetMapBehavior() const {
+RendererEnum::ResourceWrite D3D11VertexBuffer::GetResourceWrite() const {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
-	return mapped->GetMapBehavior();
+	return mapped->GetResourceWrite();
+}
+
+VertexBuffer::Binding D3D11VertexBuffer::GetBinding() const {
+	CHECK(vb)<<"Vertex buffer is not initialized.";
+	return binding;
 }
 
 unsigned int D3D11VertexBuffer::GetElementMemberCount() const {
@@ -118,8 +136,8 @@ const void * D3D11VertexBuffer::Read(unsigned int index, unsigned int element_by
 void D3D11VertexBuffer::Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	CHECK(element_bytewidth == GetElementBytewidth())<<"Element size mismatch.";
-	CHECK(mapped->GetMapBehavior() == RendererEnum::MAP_WRITE_OCCASIONAL)<<
-				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
+	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
+				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 	
 	D3D11_BOX dest;
 	dest.left = index*element_bytewidth;

@@ -57,7 +57,7 @@ void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetV
 	rt_view = _rt_view;
 	option = _option;
 	
-	mapped = new D3D11MappedResource(manager, tex, _option.map_behavior);
+	mapped = new D3D11MappedResource(manager, tex, _option.resource_write);
 }
 
 void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
@@ -156,19 +156,19 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 	
 	desc.CPUAccessFlags = 0;
-	if(_option.map_behavior == RendererEnum::MAP_WRITE_FREQUENT) {
+	if(_option.resource_write == RendererEnum::CPU_WRITE_FREQUENT) {
 		desc.Usage =  D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	} else if(_option.map_behavior == RendererEnum::MAP_WRITE_OCCASIONAL) {
+	} else if(_option.resource_write == RendererEnum::CPU_WRITE_OCCASIONAL) {
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
-	} else if(_option.map_behavior == RendererEnum::MAP_READ) {
+	} else if(_option.resource_write == RendererEnum::MAP_READ) {
 		desc.Usage = D3D11_USAGE_STAGING;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	} else if(_option.map_behavior == RendererEnum::MAP_WRITE_FREQUENT) {
+	} else if(_option.resource_write == RendererEnum::CPU_WRITE_FREQUENT) {
 		desc.Usage = D3D11_USAGE_STAGING;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
-	} else if(_option.map_behavior == RendererEnum::MAP_FORBIDDEN) {
+	} else if(_option.resource_write == RendererEnum::IMMUTABLE) {
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.CPUAccessFlags = 0;
 	} else {
@@ -239,8 +239,8 @@ void D3D11Texture2D::Update(
 			unsigned int top, unsigned int bottom,
 			const void *data) {
 	CHECK(tex)<<"Texture2D is not initialized.";
-	CHECK(mapped->GetMapBehavior() == RendererEnum::MAP_WRITE_OCCASIONAL)<<
-				"Only MAP_WRITE_OCCASIONAL is allowed to update.";
+	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
+				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 	unsigned int ele_size = TextureEnum::GetFormatSize(option.format);
 	D3D11_BOX dest;
 	dest.left = left*ele_size;

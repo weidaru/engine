@@ -18,7 +18,7 @@ public:
 		unsigned int 	array_size;
 		TextureEnum::TextureFormat 	format;
 		unsigned int 	sample_size;
-		RendererEnum::MapBehavior map_behavior;
+		RendererEnum::ResourceWrite resource_write;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
 		void *data;
@@ -30,16 +30,20 @@ public:
 	virtual ~Texture3D() {}
 	virtual void Initialize(const Option &option) = 0;
 	virtual const Texture3D::Option & GetOption() const = 0;		
-	virtual void Map(bool is_partial_map, unsigned int mip_index, unsigned array_index) = 0;
+	
+	virtual void WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index) = 0;
 	virtual void Write(unsigned int row, unsigned int col, unsigned int depth, const void *data, unsigned int size) = 0;
-	virtual const void * Read(unsigned int row, unsigned int col, unsigned int depth) const = 0;
-	virtual void UnMap() = 0;
+	virtual void WriteUnmap() = 0;
 	
 	virtual void Update(
 			unsigned int left, unsigned int right,
 			unsigned int top, unsigned int bottom,
 			unsigned int front, unsigned int back,
 			const void *data) = 0;
+			
+	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
+	virtual void Read(unsigned int row, unsigned int col, unsigned int depth) = 0;
+	virtual void ReadUnmap() = 0;
 };
 
 }
