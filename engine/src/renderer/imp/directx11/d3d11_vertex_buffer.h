@@ -25,8 +25,10 @@ public:
 
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
 	virtual VertexBuffer::Binding GetBinding() const;
-	virtual void Map(bool is_partial_map);
-	virtual void UnMap();
+	virtual void WriteMap(bool is_partial_map);
+	virtual void WriteUnmap();
+	virtual void ReadMap(bool wipe_cache);
+	virtual void ReadUnmap();
 	
 	/**************D3D11 exclusive************/
 	ID3D11Buffer * GetInternal() { return vb; }

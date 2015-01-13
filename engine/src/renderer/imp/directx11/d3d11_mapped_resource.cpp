@@ -21,9 +21,14 @@ D3D11MappedResource::D3D11MappedResource(
 	CHECK_NOTNULL(_resource);
 	mapped_data = 0;
 	write_index = -1;
+	write_row_pitch = 0;
+	write_depth_pitch = 0;
+	
 	staging_resource = 0;
 	staging_data = 0;
 	read_index = -1;
+	read_row_pitch = 0;
+	read_depth_pitch = 0;
 }
 
 D3D11MappedResource::~D3D11MappedResource() {
@@ -49,6 +54,8 @@ void D3D11MappedResource::WriteMap(bool is_partial_map, unsigned int subresource
 	HRESULT result = 1;
 	result = context->Map(resource, write_index, map_type, 0, &subresource);
 	mapped_data = subresource.pData;
+	write_row_pitch = subresource.RowPitch;
+	write_depth_pitch = subresource.DepthPitch;
 	CHECK(!FAILED(result))<<"Fail to map resource. Error code "<<::GetLastError();
 }
 
@@ -62,8 +69,9 @@ void D3D11MappedResource::WriteUnmap() {
 	CHECK(mapped_data) << "Must call WriteMap before WriteUnmap.";
 	context->Unmap(resource , write_index);
 	mapped_data = 0;
-	is_write_mapped = false; 
 	write_index = -1;
+	write_row_pitch = 0;
+	write_depth_pitch = 0;
 }
 
 void D3D11MappedResource::ReadMap(unsigned int subresource_index, bool wipe_cache) {
@@ -72,12 +80,14 @@ void D3D11MappedResource::ReadMap(unsigned int subresource_index, bool wipe_cach
 	CHECK(staging_resource)<<"staging_resource must be set before mapping";
 	CHECK(staging_data)<<"Cannot map a resource twice in a row. Call ReadUnmap first";
 	if(wipe_cache) {
-		context->CopyResource(staging_resource, source);
+		context->CopyResource(staging_resource, resource);
 	}
 	HRESULT result = 1;
 	D3D11_MAPPED_SUBRESOURCE subresource;
 	result = context->Map(staging_resource, read_index, D3D11_MAP_READ, 0, &subresource);
 	staging_data = subresource.pData;
+	read_row_pitch = subresource.RowPitch;
+	read_depth_pitch = subresource.DepthPitch;
 	CHECK(!FAILED(result))<<"Fail to map resource. Error code "<<::GetLastError();
 }
 
@@ -85,11 +95,12 @@ void D3D11MappedResource::ReadUnmap() {
 	CHECK(staging_data) << "Must call ReadMap before ReadUnmap.";
 	context->Unmap(staging_resource, read_index);
 	staging_data = 0;
-	is_write_mapped = false; 
 	read_index = -1;
+	read_row_pitch = 0;
+	read_depth_pitch = 0;
 }
 
-const void * D3D11MappedResource::Read() {
+const void * D3D11MappedResource::Read() const {
 	CHECK(staging_data) << "Must call WriteMap before WriteUnmap.";
 	return staging_data;
 }

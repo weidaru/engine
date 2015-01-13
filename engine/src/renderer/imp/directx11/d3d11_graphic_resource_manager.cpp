@@ -92,7 +92,11 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	swap_chain_desc.Flags = 0;
 
 	D3D_FEATURE_LEVEL  feature_level = D3D_FEATURE_LEVEL_11_0;
-	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &feature_level, 1, 
+	UINT creation_flags = 0;
+#ifndef NDEBUG
+	creation_flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creation_flags, &feature_level, 1, 
 		D3D11_SDK_VERSION, &swap_chain_desc, &swap_chain, &device, NULL, &context);
 	CHECK(!FAILED(result))<<"Cannot create device and swap chain. Error " << ::GetLastError();
 

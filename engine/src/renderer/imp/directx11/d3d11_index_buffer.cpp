@@ -54,7 +54,7 @@ void D3D11IndexBuffer::Initialize(unsigned int element_count, const InputType *d
 	
 	CHECK(!FAILED(result)) <<"Cannot create index buffer. Error code: " << ::GetLastError();
 	
-	mapped = new D3D11MappedResource(manager, ib, resource_write);
+	mapped = new D3D11MappedResource(manager->GetDeviceContext(), ib, resource_write);
 }
 
 unsigned int D3D11IndexBuffer::GetElementCount() const {
@@ -67,25 +67,19 @@ RendererEnum::ResourceWrite D3D11IndexBuffer::GetResourceWrite() const {
 	return mapped->GetResourceWrite();
 }
 
-void D3D11IndexBuffer::Map(bool is_partial_map) {
+void D3D11IndexBuffer::WriteMap(bool is_partial_map) {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	mapped->Map(is_partial_map, 0);
+	mapped->WriteMap(is_partial_map, 0);
 }
 
 void D3D11IndexBuffer::Write(unsigned int index, const InputType *data, unsigned int array_size) {
 	CHECK(ib)<<"Index buffer is not initialized.";
 	mapped->Write(index*sizeof(InputType), (const void *)data, array_size*sizeof(InputType));
-	
 }
 
-const IndexBuffer::InputType * D3D11IndexBuffer::Read(unsigned int index) const {
+void D3D11IndexBuffer::WriteUnmap() {
 	CHECK(ib)<<"Index buffer is not initialized.";
-	return (const InputType *)((const char *)mapped->Read()+index*sizeof(InputType));
-}
-
-void D3D11IndexBuffer::UnMap() {
-	CHECK(ib)<<"Index buffer is not initialized.";
-	mapped->UnMap();
+	mapped->WriteUnmap();
 }
 
 void D3D11IndexBuffer::Update(unsigned int index, const InputType *data, unsigned int array_size) {

@@ -36,7 +36,7 @@ public:
 	virtual void WriteUnmap() = 0;
 	
 	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
-	virtual void * Read(unsigned int row, unsigned int col) = 0;
+	virtual const void * Read(unsigned int row, unsigned int col) const = 0;
 	virtual void ReadUnmap() = 0;
 	
 	virtual void Update(

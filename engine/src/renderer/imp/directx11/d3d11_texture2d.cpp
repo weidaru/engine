@@ -57,7 +57,26 @@ void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetV
 	rt_view = _rt_view;
 	option = _option;
 	
-	mapped = new D3D11MappedResource(manager, tex, _option.resource_write);
+	mapped = new D3D11MappedResource(manager->GetDeviceContext(), tex, _option.resource_write);
+}
+
+namespace {
+
+void SetDesc(const Texture2D::Option &option, D3D11_TEXTURE2D_DESC *_desc) {
+	D3D11_TEXTURE2D_DESC &desc = *_desc;
+	
+	desc.Width = option.width;
+	desc.Height = option.height;
+	desc.MipLevels = option.mip_level;
+	desc.ArraySize = option.array_size;
+	desc.Format = D3D11EnumConverter::TextureFormatToDXGIFormat(option.format);
+	
+	desc.SampleDesc.Count = option.sample_size;
+	desc.SampleDesc.Quality = option.sample_size>1?D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
+	
+	desc.MiscFlags = 0;
+}
+
 }
 
 void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
@@ -65,19 +84,13 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	
 	option = _option;
 	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = _option.width;
-	desc.Height = _option.height;
-	desc.MipLevels = _option.mip_level;
-	desc.ArraySize = _option.array_size;
-	desc.Format = D3D11EnumConverter::TextureFormatToDXGIFormat(_option.format);
-	
-	desc.SampleDesc.Count = _option.sample_size;
-	desc.SampleDesc.Quality = _option.sample_size>1?D3D11_STANDARD_MULTISAMPLE_PATTERN : 0;
+	SetDesc(option, &desc);
 	
 	D3D11_RENDER_TARGET_VIEW_DESC *rtv_desc=0;
 	D3D11_DEPTH_STENCIL_VIEW_DESC *dsv_desc=0;
 	D3D11_SHADER_RESOURCE_VIEW_DESC *srv_desc = 0;
 	desc.BindFlags = 0;
+
 	if(_option.output_bind == TextureEnum::RENDER_TARGET) {
 		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 		rtv_desc = new D3D11_RENDER_TARGET_VIEW_DESC;
@@ -162,20 +175,12 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	} else if(_option.resource_write == RendererEnum::CPU_WRITE_OCCASIONAL) {
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
-	} else if(_option.resource_write == RendererEnum::MAP_READ) {
-		desc.Usage = D3D11_USAGE_STAGING;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	} else if(_option.resource_write == RendererEnum::CPU_WRITE_FREQUENT) {
-		desc.Usage = D3D11_USAGE_STAGING;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 	} else if(_option.resource_write == RendererEnum::IMMUTABLE) {
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.CPUAccessFlags = 0;
 	} else {
 		CHECK(false)<<"Not supported.";
 	}
-	
-	desc.MiscFlags = 0;
 	
 	HRESULT result=1;
 	{
@@ -208,26 +213,50 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 }
 
-void D3D11Texture2D::Map(bool is_partial_map, unsigned int mip_index, unsigned array_index) {
+void D3D11Texture2D::WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index) {
 	CHECK(tex)<<"Texture2D is not initialized.";
-	mapped->Map(is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
+	mapped->WriteMap(is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
+}
+
+void D3D11Texture2D::WriteUnmap() {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	mapped->WriteUnmap();
 }
 
 void D3D11Texture2D::Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) {
 	CHECK(tex)<<"Texture2D is not initialized.";
 	
-	mapped->Write((row*option.width+col)*TextureEnum::GetFormatSize(option.format), data, size);
+	mapped->Write(mapped->GetWriteRowPitch()+col*TextureEnum::GetFormatSize(option.format), data, size);
+}
+
+void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache) {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	if(mapped->GetStagingResource() == 0) {
+		D3D11_TEXTURE2D_DESC desc;
+		SetDesc(option, &desc);
+		desc.BindFlags = 0;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		
+		HRESULT result = 1;
+		ID3D11Texture2D *staging_resource;
+		result = manager->GetDevice()->CreateTexture2D(&desc, 0, &staging_resource);
+		CHECK(!FAILED(result))<<"Cannot create stagng resource. Error"<<::GetLastError;
+	}
+	
+	mapped->ReadMap(D3D11CalcSubresource(mip_index, array_index, option.mip_level), wipe_cache);
+}
+
+void D3D11Texture2D::ReadUnmap() {
+	CHECK(tex)<<"Texture2D is not initialized.";
+	mapped->ReadUnmap();
 }
 
 const void * D3D11Texture2D::Read(unsigned int row, unsigned int col) const {
 	CHECK(tex)<<"Texture2D is not initialized.";
-	return (const char *)mapped->Read() + (row*option.width+col)*TextureEnum::GetFormatSize(option.format);
+	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*TextureEnum::GetFormatSize(option.format);
 }
 
-void D3D11Texture2D::UnMap() {
-	CHECK(tex)<<"Texture2D is not initialized.";
-	mapped->UnMap();
-}
+
 
 const Texture2D::Option & D3D11Texture2D::GetOption() const {
 	CHECK(tex)<<"Texture2D is not initialized.";

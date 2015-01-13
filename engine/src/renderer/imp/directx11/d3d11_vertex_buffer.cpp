@@ -61,7 +61,7 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 	}
 	if((binding&STREAM_OUT) != 0) {
 		desc.BindFlags = D3D11_BIND_STREAM_OUTPUT;
-		CHECK(resource_write != IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
+		CHECK(resource_write != RendererEnum::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
 	}
 	
 	HRESULT result = 1;
@@ -75,7 +75,7 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 	
 	CHECK(!FAILED(result))<<"Cannot create vertex buffer. Error code: " <<::GetLastError();
 	
-	mapped = new D3D11MappedResource(manager, vb, resource_write);
+	mapped = new D3D11MappedResource(manager->GetDeviceContext(), vb, resource_write);
 }
 
 void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, 
@@ -110,14 +110,14 @@ unsigned int D3D11VertexBuffer::GetElementMemberCount() const {
 	return ele_member_count;
 }
 
-void D3D11VertexBuffer::Map(bool is_partial_map) {
+void D3D11VertexBuffer::WriteMap(bool is_partial_map) {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
-	mapped->Map(is_partial_map, 0);
+	mapped->WriteMap(is_partial_map, 0);
 }
 
-void D3D11VertexBuffer::UnMap() {
+void D3D11VertexBuffer::WriteUnmap() {
 	CHECK(vb)<<"Vertex buffer is not initialized.";
-	mapped->UnMap();
+	mapped->WriteUnmap();
 }
 
 void D3D11VertexBuffer::Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
@@ -131,6 +131,32 @@ const void * D3D11VertexBuffer::Read(unsigned int index, unsigned int element_by
 	CHECK(vb)<<"Vertex buffer is not initialized.";
 	CHECK(element_bytewidth == GetElementBytewidth())<<"Element size mismatch.";
 	return (const char *)mapped->Read() + index*element_bytewidth;
+}
+
+void D3D11VertexBuffer::ReadMap(bool wipe_cache) {
+	CHECK(vb)<<"Vertex buffer is not initialized.";
+	//Create the staging resource if not present.
+	if(mapped->GetStagingResource() == 0) {
+		D3D11_BUFFER_DESC desc;
+		desc.ByteWidth = ele_bytewidth*ele_count;
+		desc.Usage = D3D11_USAGE_STAGING;
+		desc.BindFlags = 0;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		desc.MiscFlags = 0;
+		desc.StructureByteStride = 0;		
+		
+		HRESULT result = 1;
+		ID3D11Buffer *staging_resource;
+		result = manager->GetDevice()->CreateBuffer(&desc, 0, &staging_resource);
+		CHECK(!FAILED(result))<<"Cannot create staging resource. Error "<<::GetLastError();
+		mapped->SetStagingResource(staging_resource);
+	}
+	mapped->ReadMap(0, wipe_cache);
+}
+
+void D3D11VertexBuffer::ReadUnmap() {
+	CHECK(vb)<<"Vertex buffer is not initialized.";
+	mapped->ReadUnmap();
 }
 
 void D3D11VertexBuffer::Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {

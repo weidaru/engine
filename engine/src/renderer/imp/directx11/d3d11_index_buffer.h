@@ -20,10 +20,9 @@ public:
 	virtual unsigned int GetElementCount() const;
 	
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
-	virtual void Map(bool is_partial_map);
+	virtual void WriteMap(bool is_partial_map);
 	virtual void Write(unsigned int index, const InputType *data, unsigned int array_size);
-	virtual const IndexBuffer::InputType * Read(unsigned int index) const;
-	virtual void UnMap();
+	virtual void WriteUnmap();
 	
 	virtual void Update(unsigned int index, const InputType *data, unsigned int array_size);
 	
@@ -39,7 +38,6 @@ private:
 	unsigned int ele_count;
 
 	D3D11MappedResource *mapped;
-	
 };
 
 }

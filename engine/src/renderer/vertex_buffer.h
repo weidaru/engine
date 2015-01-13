@@ -50,10 +50,10 @@ public:
 		this->Update(index, (const void *)data, array_size, sizeof(T));
 	}
 	
-	virtual void ReadMap() = 0;
+	virtual void ReadMap(bool wipe_cache=true) = 0;
 	virtual void ReadUnmap() = 0;
 	template <typename T>
-	T * Read(unsigned int index) {
+	const T * Read(unsigned int index) const {
 		return this->Read(index, sizeof(T));
 	}
 	

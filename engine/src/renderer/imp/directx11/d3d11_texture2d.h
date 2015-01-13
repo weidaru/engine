@@ -24,10 +24,13 @@ public:
 	virtual void Initialize(const Option &_option);
 	virtual const Texture2D::Option & GetOption() const;
 	
-	virtual void Map(bool is_partial_map, unsigned int mip_index, unsigned array_index);
+	virtual void WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index);
 	virtual void Write(unsigned int row, unsigned int col,  const void *data, unsigned int size);
+	virtual void WriteUnmap();
+	
+	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache);
 	virtual const void * Read(unsigned int row, unsigned int col) const;
-	virtual void UnMap();
+	virtual void ReadUnmap();
 	
 	virtual void Update(
 			unsigned int left, unsigned int right,
