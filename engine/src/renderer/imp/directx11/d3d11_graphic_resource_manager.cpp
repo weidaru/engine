@@ -1,6 +1,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dx11.lib")
+
 
 #include "d3d11_graphic_resource_manager.h"
 
@@ -42,6 +42,19 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(D3D11Sampler, sampler_map);
 	MapClean(D3D11VertexShader, vs_map);
 	MapClean(D3D11PixelShader, ps_map);
+
+	context->Release();
+	delete back_buffer;
+	swap_chain->Release();
+
+	//Report memory leak.
+	ID3D11Debug* debug;
+	device->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&debug));
+	debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	debug->Release();
+
+	device->Release();
+	
 }
 
 void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(

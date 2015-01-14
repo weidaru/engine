@@ -1,5 +1,5 @@
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dx11.lib")
+
 #pragma comment(lib, "D3DCompiler.lib")
 
 #include "d3d11_pixel_shader.h"

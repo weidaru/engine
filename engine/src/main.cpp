@@ -34,6 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	
 	engine->Initialize("Hello World", renderer_setting);
 	engine->Run();
+	engine->Shutdown();
 
 	return 0;
 }

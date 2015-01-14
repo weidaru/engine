@@ -38,7 +38,7 @@ Engine::Engine()
 
 }
 
-Engine::~Engine() {
+void Engine::Shutdown() {
 	if(window_name == PISSED_STR)
 		return;
 		
@@ -104,8 +104,9 @@ void Engine::Stop() {
 	stop = true;
 }
 
-void Engine::Initialize(const s2string &window_name, const RendererSetting &renderer_setting) {
-	InitWindow(window_name, renderer_setting.window_width, renderer_setting.window_height, renderer_setting.full_screen);
+void Engine::Initialize(const s2string &_window_name, const RendererSetting &renderer_setting) {
+	InitWindow(_window_name, renderer_setting.window_width, renderer_setting.window_height, renderer_setting.full_screen);
+	window_name = _window_name;
 	D3D11Context * context = new D3D11Context();
 	renderer_context = context;
 	context->SetSetting(renderer_setting);

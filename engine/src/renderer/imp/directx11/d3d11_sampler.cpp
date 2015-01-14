@@ -1,5 +1,5 @@
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dx11.lib")
+
 
 #include "d3d11_sampler.h"
 #include "d3d11_graphic_resource_manager.h"
@@ -76,7 +76,7 @@ void D3D11Sampler::Initialize(const Option &_option) {
 	D3D11_SAMPLER_DESC desc;
 
 	if(option.max_anisotropy > 0) {
-		if(_option.compare_func == UNDEFINED) {
+		if(_option.compare_func == NEVER) {
 			desc.MaxAnisotropy = _option.max_anisotropy;
 			desc.Filter = D3D11_FILTER_ANISOTROPIC;
 		} else {
@@ -87,13 +87,13 @@ void D3D11Sampler::Initialize(const Option &_option) {
 		desc.MaxAnisotropy = 1;
 		if(option.min_mag_filter == NEAREST) {
 			if(option.mip_filter == NEAREST) {
-				if(option.compare_func == UNDEFINED) {
+				if (option.compare_func == NEVER) {
 					desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT ;
 				} else {
 					desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 				}
 			} else if(option.mip_filter == LINEAR) {
-				if(option.compare_func == UNDEFINED) {
+				if (option.compare_func == NEVER) {
 					desc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR ;
 				} else {
 					desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR;
@@ -103,13 +103,13 @@ void D3D11Sampler::Initialize(const Option &_option) {
 			}
 		} else if (option.min_mag_filter == LINEAR) {
 			if(option.mip_filter == NEAREST) {
-				if(option.compare_func == UNDEFINED) {
+				if (option.compare_func == NEVER) {
 					desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT ;
 				} else {
 					desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 				}
 			} else if(option.mip_filter == LINEAR) {
-				if(option.compare_func == UNDEFINED) {
+				if (option.compare_func == NEVER) {
 					desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR ;
 				} else {
 					desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;

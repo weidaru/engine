@@ -1,6 +1,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dx11.lib")
+
 
 #include "d3d11_texture2d.h"
 

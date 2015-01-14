@@ -21,7 +21,6 @@ public:
 	};
 	
 	enum ComparisonFunc {
-		UNDEFINED,
 		NEVER,
 		ALWAYS,
 		EQUAL,

@@ -16,8 +16,8 @@ class InputSystem;
 class Engine : public Singleton<Engine>  {
 public:
 	Engine();
-	~Engine();
 	
+	void Shutdown();
 	void Initialize(const s2string &window_name, const RendererSetting &renderer_setting);
 
 	void Run();
