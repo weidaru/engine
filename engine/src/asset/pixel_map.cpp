@@ -60,6 +60,7 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 		CHECK(false)<<"Unsupported format";
 		break;
 	}
+	return true;
 }
 
 void PixelMap::Clear() {
