@@ -98,6 +98,8 @@ void ConstantBufferContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 			case D3D11ShaderHelper::PIXEL:
 				context->PSSetConstantBuffers(cbs[i].first, 1, &buffer);
 				break;
+			case D3D11ShaderHelper::GEOMETRY:
+				context->GSSetConstantBuffers(cbs[i].first, 1, &buffer);
 			default:
 				CHECK(false)<<"Unknown shader_type "<<shader_type;
 				break;
@@ -172,6 +174,9 @@ void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::Sh
 				break;
 			case D3D11ShaderHelper::PIXEL:
 				context->PSSetSamplers(samplers[i].first, 1, &state);
+				break;
+			case D3D11ShaderHelper::GEOMETRY:
+				context->GSSetSamplers(samplers[i].first, 1, &state);
 				break;
 			default:
 				CHECK(false)<<"Unknown shader_type "<<shader_type;
@@ -263,6 +268,9 @@ void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 				break;
 			case D3D11ShaderHelper::PIXEL:
 				context->PSSetShaderResources(info.slot_index, 1, &view);
+				break;
+			case D3D11ShaderHelper::GEOMETRY:
+				context->GSSetShaderResources(info.slot_index, 1, &view);
 				break;
 			default:
 				CHECK(false)<<"Unknown shader_type "<<shader_type;

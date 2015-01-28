@@ -10,10 +10,11 @@
 #include "d3d11_graphic_pipeline.h"
 
 #include <stdio.h>
-#include <set>
+#include <functional>
 
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
+#include "d3d11_geometry_shader.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_shader_helper.h"
@@ -111,6 +112,17 @@ void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 
 PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 	return ps;
+}
+
+void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
+	gs = NiceCast(D3D11GeometryShader *, shader);
+	if (shader) {
+		CHECK(gs) <<"Shader cannot be cast to D3D11GeometryShader";
+	}
+}
+
+GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
+	return gs;
 }
 
 namespace {
@@ -389,81 +401,97 @@ unsigned int D3D11GraphicPipeline::BindingMap::GetIndex(Resource *resource) {
 	CHECK(Contains(resource))<<"Resource is not in map";
 	return map[resource];
 }
-	
-void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
+
+void D3D11GraphicPipeline::BindingMap::Update(const std::vector<std::pair<unsigned int, Resource *> > &new_things) {
+	for (unsigned int j = 0; j < new_things.size(); j++) {
+		Resource *rt = new_things[j].second;
+		unsigned int index = new_things[j].first;
+		if (rt) {
+			Add(index, rt);
+		}
+		else {
+			Remove(index);
+		}
+	}
+}
+
+void D3D11GraphicPipeline::ResolveShaderResourceRenderTargetConflict() {
+	//Refactor the whole thing using std::function.
+
 	//Find all new bindings.
 	BindingVec new_rts;
 	BindingVec new_vs_srs;
 	BindingVec new_ps_srs;
-	
+	BindingVec new_gs_srs;
+
 	new_rts = output_stage.GetNewRenderTargetBindings();
-	if(vs) {
+	if (vs) {
 		new_vs_srs = vs->GetShaderResourceContainer().GetNewBindings();
 	}
-	if(ps) {
+	if (ps) {
 		new_ps_srs = ps->GetShaderResourceContainer().GetNewBindings();
 	}
-	
-	ID3D11DeviceContext *context =  manager->GetDeviceContext();
-	
+	if (gs) {
+		new_gs_srs = ps->GetShaderResourceContainer().GetNewBindings();
+	}
+
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+
 	std::vector<BindingVec *> shader_sr_vectors;
 	shader_sr_vectors.push_back(&new_vs_srs);
 	shader_sr_vectors.push_back(&new_ps_srs);
-	
+	shader_sr_vectors.push_back(&new_gs_srs);
+
 	//See whether we need to clear some old render target
-	for(unsigned int i=0; i<shader_sr_vectors.size(); i++) {
+	for (unsigned int i = 0; i<shader_sr_vectors.size(); i++) {
 		ShaderResourceContainer::BindingVector &vec = *shader_sr_vectors[i];
-		for(unsigned int j=0; j<vec.size(); j++) {
+		for (unsigned int j = 0; j<vec.size(); j++) {
 			Resource *resource = vec[j].second;
-			if(active_rts.Contains(resource) && Contains(new_rts, resource)==false) {
+			if (active_rts.Contains(resource) && Contains(new_rts, resource) == false) {
 				SetRenderTarget(active_rts.GetIndex(resource), 0);
-			} else if(Contains(new_rts, resource)) {
-				LOG(ERROR)<<"Bind resource "<<resource->GetIDAndName()<<
+			}
+			else if (Contains(new_rts, resource)) {
+				LOG(ERROR) << "Bind resource " << resource->GetIDAndName() <<
 					" as  both  shader resource and render target will result in undefined behaviour.";
 			}
-		}	
+		}
 	}
 
 	//See whether we need to clear some old shader resources.
-	for(unsigned int i=0; i<new_rts.size(); i++) {
+	for (unsigned int i = 0; i<new_rts.size(); i++) {
 		Resource *resource = new_rts[i].second;
-		if(active_vs_srs.Contains(resource)&& Contains(new_vs_srs, resource)==false) {
+		if (active_vs_srs.Contains(resource) && Contains(new_vs_srs, resource) == false) {
 			ID3D11ShaderResourceView *view = 0;
 			context->VSSetShaderResources(active_vs_srs.GetIndex(resource), 1, &view);
 		}
-		if(active_ps_srs.Contains(resource) && Contains(new_ps_srs, resource)==false) {
+		if (active_ps_srs.Contains(resource) && Contains(new_ps_srs, resource) == false) {
 			ID3D11ShaderResourceView *view = 0;
 			context->PSSetShaderResources(active_ps_srs.GetIndex(resource), 1, &view);
 		}
 	}
-	
+
 	//Refresh the new rt bindings.
 	new_rts = output_stage.GetNewRenderTargetBindings();
-	
+
 	//Push new bindings to active bindings.
-	std::vector<BindingVec *> new_things;
-	new_things.push_back(&new_rts);
-	new_things.push_back(&new_vs_srs);
-	new_things.push_back(&new_ps_srs);
-	std::vector<BindingMap *> old_things;
-	old_things.push_back(&active_rts);
-	old_things.push_back(&active_vs_srs);
-	old_things.push_back(&active_ps_srs);
-	CHECK(new_things.size() == old_things.size());
+	active_rts.Update(new_rts);
+	active_vs_srs.Update(new_vs_srs);
+	active_ps_srs.Update(new_ps_srs);
+	active_gs_srs.Update(new_gs_srs);
+}
+
+void D3D11GraphicPipeline::ResolveVertexBufferStreamOutConflict() {
+
+}
+
+void D3D11GraphicPipeline::ReolsveShaderResourceStreamOutConflict() {
+
+}
 	
-	for(unsigned int i=0; i<new_things.size(); i++) {
-		BindingVec &new_thing = *new_things[i];
-		BindingMap &old_thing = *old_things[i];
-		for(unsigned int j=0; j<new_thing.size(); j++) {
-			Resource *rt = new_thing[j].second;
-			unsigned int index = new_thing[j].first;
-			if(rt) {
-				old_thing.Add(index, rt);
-			} else {
-				old_thing.Remove(index);
-			}
-		}	
-	}
+void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
+	ResolveShaderResourceRenderTargetConflict();
+	ResolveVertexBufferStreamOutConflict();
+	ReolsveShaderResourceStreamOutConflict();
 	
 	//Setup input
 	if(vs) {

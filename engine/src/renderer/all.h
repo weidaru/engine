@@ -1,5 +1,5 @@
-#ifndef ALL_H_
-#define ALL_H_
+#ifndef RENDERER_ALL_H_
+#define RENDERER_ALL_H_
 
 #include "blend_option.h"
 #include "depth_stencil_option.h"
@@ -19,4 +19,4 @@
 #include "vertex_shader.h"
 
 
-#endif	ALL_H_
+#endif	RENDERER_ALL_H_

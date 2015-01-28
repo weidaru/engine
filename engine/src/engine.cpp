@@ -96,7 +96,7 @@ void Engine::Run() {
 void Engine::OneFrame(float delta) {
 	//Only run test program for now.
 	input_system->OneFrame(delta);
-	program_manager->Get("test")->OneFrame(delta);
+	program_manager->Get("instancing_test")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 
@@ -178,14 +178,6 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 	RECT clip;
 	GetWindowRect(hwnd, &clip);
 	ClipCursor(&clip);
-
-	//Register mouse HID
-	RAWINPUTDEVICE Rid[1];
-    Rid[0].usUsagePage = (USHORT) 0x01; 
-    Rid[0].usUsage = (USHORT) 0x02; 
-    Rid[0].dwFlags = RIDEV_INPUTSINK;   
-    Rid[0].hwndTarget = hwnd;
-    CHECK(RegisterRawInputDevices(Rid, 1, sizeof(Rid[0])));
 }
 
 }

@@ -21,6 +21,7 @@ struct ID3D11BlendState;
 namespace s2 {
 class D3D11VertexShader;
 class D3D11PixelShader;
+class D3D11GeometryShader;
 class D3D11GraphicResourceManager;
 class D3D11Texture2D;
 
@@ -45,6 +46,9 @@ public:
 	
 	virtual void SetPixelShader(PixelShader *shader);
 	virtual PixelShader * GetPixelShader();
+
+	virtual void SetGeometryShader(GeometryShader *gs);
+	virtual GeometryShader * GetGeometryShader();
 	
 	//Rasterization
 	virtual void SetRasterizationOption(const RasterizationOption &option);
@@ -84,6 +88,7 @@ private:
 	
 	D3D11VertexShader *vs;
 	D3D11PixelShader *ps;
+	D3D11GeometryShader *gs;
 	
 	RasterizationOption rast_opt;
 	bool new_rast;
@@ -115,12 +120,18 @@ private:
 		
 		Resource * GetResource(unsigned int index);
 		unsigned int GetIndex(Resource *); 
+
+		void Update(const std::vector<std::pair<unsigned int, Resource *> > &new_things);
 	};
-	
-	
+
 	BindingMap active_vs_srs;
 	BindingMap active_ps_srs;
+	BindingMap active_gs_srs;
 	BindingMap active_rts;
+	void ResolveShaderResourceRenderTargetConflict();
+	//TODO: Implement them
+	void ResolveVertexBufferStreamOutConflict();
+	void ReolsveShaderResourceStreamOutConflict();
 	
 };
 

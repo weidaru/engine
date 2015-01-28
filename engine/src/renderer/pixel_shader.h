@@ -6,12 +6,8 @@
 #include "utils/type_info.h"
 
 namespace s2 {
-class ConstantBuffer;
 class Sampler;
-class DepthStencilBuffer;
-class Texture1D;
 class Texture2D;
-class Texture3D;
 
 class PixelShader : public Resource {
 public:

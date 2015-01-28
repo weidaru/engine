@@ -11,6 +11,7 @@ class VertexBuffer;
 class IndexBuffer;
 class VertexShader;
 class PixelShader;
+class GeometryShader;
 
 class GraphicResourceManager {
 public:
@@ -56,6 +57,11 @@ public:
 	virtual PixelShader * 		CreatePixelShader() = 0;
 	virtual PixelShader *		GetPixelShader(unsigned int id) = 0;
 	virtual void 					RemovePixelShader(unsigned int id) = 0;
+
+	//GeometryShader
+	virtual GeometryShader * CreateGeometryShader() = 0;
+	virtual GeometryShader * GetGeometryShader(unsigned int id) = 0;
+	virtual void RemoveGeometryShader(unsigned int id) = 0;
 	
 };
 

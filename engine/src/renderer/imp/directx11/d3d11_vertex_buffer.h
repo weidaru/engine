@@ -35,6 +35,7 @@ public:
 	
 private:
 	void Clear();
+	void Check() const;
 
 protected:
 	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data, 

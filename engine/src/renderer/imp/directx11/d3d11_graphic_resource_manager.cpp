@@ -42,6 +42,7 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(D3D11Sampler, sampler_map);
 	MapClean(D3D11VertexShader, vs_map);
 	MapClean(D3D11PixelShader, ps_map);
+	MapClean(D3D11GeometryShader, gs_map);
 
 	context->Release();
 	delete back_buffer;
@@ -197,6 +198,7 @@ void D3D11GraphicResourceManager::RemoveTexture3D(unsigned int id) {
 ResourceImp(Sampler, sampler_map)
 ResourceImp(VertexShader, vs_map)
 ResourceImp(PixelShader, ps_map)
+ResourceImp(GeometryShader, gs_map)
 }
 
 

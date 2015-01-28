@@ -38,6 +38,10 @@ void D3D11VertexBuffer::Clear() {
 	}
 }
 
+void D3D11VertexBuffer::Check() const {
+	CHECK(vb) << "Vertex buffer is not initialized.";
+}
+
 void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int element_member_count,
 													unsigned int per_ele_size, const void *data, 
 													RendererEnum::ResourceWrite resource_write,
@@ -57,10 +61,10 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, unsigned int elem
 		LOG(ERROR)<<"Vertex Buffer is not bind as normal usage. Bind it automatically.";
 	}
 	if((binding&SHADER_RESOURCE) != 0) { 
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 	}
 	if((binding&STREAM_OUT) != 0) {
-		desc.BindFlags = D3D11_BIND_STREAM_OUTPUT;
+		desc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
 		CHECK(resource_write != RendererEnum::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
 	}
 	
@@ -86,55 +90,55 @@ void D3D11VertexBuffer::Initialize(unsigned int element_count, const TypeInfo &t
 }
 
 unsigned int D3D11VertexBuffer::GetElementCount() const {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	return ele_count;
 }
 
 unsigned int D3D11VertexBuffer::GetElementBytewidth() const {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	return ele_bytewidth;
 }
 
 RendererEnum::ResourceWrite D3D11VertexBuffer::GetResourceWrite() const {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	return mapped->GetResourceWrite();
 }
 
 VertexBuffer::Binding D3D11VertexBuffer::GetBinding() const {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	return binding;
 }
 
 unsigned int D3D11VertexBuffer::GetElementMemberCount() const {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	return ele_member_count;
 }
 
 void D3D11VertexBuffer::WriteMap(bool is_partial_map) {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	mapped->WriteMap(is_partial_map, 0);
 }
 
 void D3D11VertexBuffer::WriteUnmap() {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	mapped->WriteUnmap();
 }
 
 void D3D11VertexBuffer::Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	CHECK(element_bytewidth == GetElementBytewidth())<<"Element size mismatch.";
 	
 	mapped->Write(index*element_bytewidth, data, array_size*element_bytewidth);
 }
 
 const void * D3D11VertexBuffer::Read(unsigned int index, unsigned int element_bytewidth) const {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	CHECK(element_bytewidth == GetElementBytewidth())<<"Element size mismatch.";
 	return (const char *)mapped->Read() + index*element_bytewidth;
 }
 
 void D3D11VertexBuffer::ReadMap(bool wipe_cache) {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	//Create the staging resource if not present.
 	if(mapped->GetStagingResource() == 0) {
 		D3D11_BUFFER_DESC desc;
@@ -155,12 +159,12 @@ void D3D11VertexBuffer::ReadMap(bool wipe_cache) {
 }
 
 void D3D11VertexBuffer::ReadUnmap() {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	mapped->ReadUnmap();
 }
 
 void D3D11VertexBuffer::Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
-	CHECK(vb)<<"Vertex buffer is not initialized.";
+	Check();
 	CHECK(element_bytewidth == GetElementBytewidth())<<"Element size mismatch.";
 	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
 				"Only CPU_WRITE_OCCASIONAL is allowed to update.";

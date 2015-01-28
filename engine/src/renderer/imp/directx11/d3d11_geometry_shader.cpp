@@ -1,8 +1,7 @@
 #pragma comment(lib, "d3d11.lib")
-
 #pragma comment(lib, "D3DCompiler.lib")
 
-#include "d3d11_pixel_shader.h"
+#include "d3d11_geometry_shader.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <d3d11.h>
@@ -10,7 +9,6 @@
 #undef ERROR
 
 #include <glog/logging.h>
-#include <stdio.h>
 
 #include "d3d11_constant_buffer.h"
 #include "d3d11_graphic_resource_manager.h"
@@ -19,48 +17,45 @@
 
 namespace s2 {
 
-D3D11PixelShader::D3D11PixelShader(D3D11GraphicResourceManager *_manager)
-			: 	manager(_manager), shader(0), reflect(0), blob(0), 
-				cb_container(0), sampler_container(0), sr_container(0) {
+D3D11GeometryShader::D3D11GeometryShader(D3D11GraphicResourceManager *_manager) :
+		manager(_manager), shader(0), reflect(0), blob(0),
+		cb_container(0), sampler_container(0), sr_container(0){
 
 }
 
-D3D11PixelShader::~D3D11PixelShader() {
+void D3D11GeometryShader::Check() {
+	CHECK(shader)<<"Shader is not initialized.";
+}
+
+D3D11GeometryShader::~D3D11GeometryShader() {
 	Clear();
 }
 
-void D3D11PixelShader::Check() {
-	CHECK(shader)<<"Pixel shader is not initialized.";
-}
-
-void D3D11PixelShader::Clear() {
+void D3D11GeometryShader::Clear() {
 	delete sr_container;
 	sr_container = 0;
 
 	delete sampler_container;
 	sampler_container = 0;
-	
+
 	delete cb_container;
 	cb_container = 0;
-	
+
 	delete reflect;
 	reflect = 0;
-	
-	if(blob) {
+
+	if (blob) {
 		blob->Release();
-		blob =0;
+		blob = 0;
 	}
-	
-	if(shader) {
+
+	if (shader) {
 		shader->Release();
 		shader = 0;
 	}
 }
 
-/**
- * 
- */
-bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_point) {
+bool D3D11GeometryShader::Initialize(const s2string &path, const s2string &entry_point) {
 	Clear();
 
 	//Just compile from file for now and always pack it as row major matrix.
@@ -69,12 +64,12 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	flag |= D3DCOMPILE_DEBUG;
 #endif
 	ID3DBlob* shader_blob = 0;
-    ID3DBlob* error_blob = 0;
+	ID3DBlob* error_blob = 0;
 	HRESULT result = 1;
-	
+
 	{
 		FILE* file = fopen(path.c_str(), "rb");
-		if(!file) {
+		if (!file) {
 			S2StringFormat(&error, "Cannot open file %s", path.c_str());
 			return false;
 		}
@@ -83,90 +78,88 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 		fseek(file, 0, SEEK_SET);
 		char *buffer = new char[size];
 		fread(buffer, size, 1, file);
-		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "ps_5_0", flag, 0, &shader_blob, &error_blob);
+		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "gs_5_0", flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}
-	if(FAILED(result)) {
-		error  =(char *)(error_blob ? error_blob->GetBufferPointer() : "Fail to retrive error message.");
-		if(shader_blob)
+	if (FAILED(result)) {
+		error = (char *)(error_blob ? error_blob->GetBufferPointer() : "Fail to retrive error message.");
+		if (shader_blob)
 			shader_blob->Release();
-		if(error_blob)
+		if (error_blob)
 			error_blob->Release();
 		return false;
-	} 
+	}
 	manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
 	//Setup reflection and constant buffer.
 	reflect = new D3D11ShaderReflection(path, shader_blob);
 	blob = shader_blob;
-	if(error_blob)
+	if (error_blob)
 		error_blob->Release();
-	
+
 	//Setup constant buffers
 	cb_container = new ConstantBufferContainer(manager, reflect);
-	
+
 	//Setup samplers.
 	sampler_container = new SamplerContainer(reflect);
-	
+
 	//Setup shader resources.
 	sr_container = new ShaderResourceContainer(reflect);
-	
+
 	return true;
 }
 
-bool D3D11PixelShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
+bool D3D11GeometryShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
 	Check();
 	return cb_container->SetUniform(name, value, size, &error);
 }
 
-bool D3D11PixelShader::SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) {
+bool D3D11GeometryShader::SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) {
 	Check();
-	return cb_container->SetUniform(name, cpp_type, value,  &error);
+	return cb_container->SetUniform(name, cpp_type, value, &error);
 }
 
-bool D3D11PixelShader::SetSampler(const s2string &name, Sampler *sampler) {
+bool D3D11GeometryShader::SetSampler(const s2string &name, Sampler *sampler) {
 	Check();
 	return sampler_container->SetSampler(name, sampler, &error);
 }
 
-D3D11Sampler * D3D11PixelShader::GetSampler(const s2string &name) {
+D3D11Sampler * D3D11GeometryShader::GetSampler(const s2string &name) {
 	Check();
 	return sampler_container->GetSampler(name, &error);
 }
 
-
-bool D3D11PixelShader::SetTexture2D(const s2string &name, Texture2D *texture) {
+bool D3D11GeometryShader::SetTexture2D(const s2string &name, Texture2D *resource) {
 	Check();
-	return sr_container->SetTexture2D(name, texture, &error);
+	return sr_container->SetTexture2D(name, resource, &error);
 }
 
-D3D11Texture2D * D3D11PixelShader::GetTexture2D(const s2string &name) {
+D3D11Texture2D * D3D11GeometryShader::GetTexture2D(const s2string &name) {
 	Check();
 	return sr_container->GetTexture2D(name, &error);
 }
-	
-void D3D11PixelShader::Setup() {
-	if(shader) {
+
+const s2string & D3D11GeometryShader::GetLastError() {
+	return error;
+}
+
+void D3D11GeometryShader::Setup() {
+	if (shader) {
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::PIXEL;
-		
-		context->PSSetShader(shader, 0, 0);
-		
+
+		context->GSSetShader(shader, 0, 0);
+
 		//Set constant buffer.
 		cb_container->Setup(context, type);
-		
+
 		//Set sampler
 		sampler_container->Setup(context, type);
-		
+
 		//Set shader resources.
 		sr_container->Setup(context, type);
 	}
 }
 
 }
-
-
-
-
-
 
 

@@ -22,7 +22,7 @@ class Texture2D;
 class Resource;
 
 struct D3D11ShaderHelper {
-	enum ShaderType {VERTEX, PIXEL};
+	enum ShaderType {VERTEX, PIXEL, GEOMETRY};
 };
 
 class ConstantBufferContainer{

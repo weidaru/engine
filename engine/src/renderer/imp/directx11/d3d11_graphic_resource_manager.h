@@ -9,6 +9,7 @@
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
 #include "d3d11_sampler.h"
+#include "d3d11_geometry_shader.h"
 
 #include <map>
 
@@ -68,6 +69,11 @@ public:
 	virtual D3D11PixelShader * CreatePixelShader();
 	virtual D3D11PixelShader * GetPixelShader(unsigned int id);
 	virtual void RemovePixelShader(unsigned int id);
+
+	//GeometryShader
+	virtual D3D11GeometryShader * CreateGeometryShader();
+	virtual D3D11GeometryShader * GetGeometryShader(unsigned int id);
+	virtual void RemoveGeometryShader(unsigned int id);
 	
 	/****************D3D11 exclusive*****************/
 public:
@@ -98,6 +104,7 @@ private:
 	std::map<unsigned int, D3D11Sampler *> sampler_map;
 	std::map<unsigned int, D3D11VertexShader *> vs_map;
 	std::map<unsigned int, D3D11PixelShader *> ps_map;
+	std::map<unsigned int, D3D11GeometryShader *> gs_map;
 };
 
 

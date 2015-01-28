@@ -63,6 +63,9 @@ public:
 	
 	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() = 0;
+
+	virtual void SetGeometryShader(GeometryShader *gs) = 0;
+	virtual GeometryShader * GetGeometryShader() = 0;
 	
 	//Rasterization
 	virtual void SetRasterizationOption(const RasterizationOption &option) = 0;
