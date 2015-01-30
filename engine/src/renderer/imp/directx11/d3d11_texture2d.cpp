@@ -211,6 +211,8 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		CHECK(!FAILED(result))<<"Cannot create shader resource view. Error " << ::GetLastError();
 		delete srv_desc;
 	}
+
+	mapped = new D3D11MappedResource(manager->GetDeviceContext(), tex, _option.resource_write);
 }
 
 void D3D11Texture2D::WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index) {
@@ -241,6 +243,7 @@ void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool 
 		ID3D11Texture2D *staging_resource;
 		result = manager->GetDevice()->CreateTexture2D(&desc, 0, &staging_resource);
 		CHECK(!FAILED(result))<<"Cannot create stagng resource. Error"<<::GetLastError;
+		mapped->SetStagingResource(staging_resource);
 	}
 	
 	mapped->ReadMap(D3D11CalcSubresource(mip_index, array_index, option.mip_level), wipe_cache);

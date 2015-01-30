@@ -78,7 +78,7 @@ void D3D11MappedResource::ReadMap(unsigned int subresource_index, bool wipe_cach
 	//Copy resource to staging resource.
 	read_index = subresource_index;
 	CHECK(staging_resource)<<"staging_resource must be set before mapping";
-	CHECK(staging_data)<<"Cannot map a resource twice in a row. Call ReadUnmap first";
+	CHECK(staging_data==0)<<"Cannot map a resource twice in a row. Call ReadUnmap first";
 	if(wipe_cache) {
 		context->CopyResource(staging_resource, resource);
 	}

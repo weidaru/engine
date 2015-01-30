@@ -147,6 +147,7 @@ public:
 
 		//Create texture.
 		Texture2D::Option tex_option;
+		tex_option.format = TextureEnum::R32G32B32A32_FLOAT;
 		texture = manager->CreateTexture2D();
 		tex_option.output_bind = TextureEnum::RENDER_TARGET;
 		tex_option.width = renderer_setting.window_width;
