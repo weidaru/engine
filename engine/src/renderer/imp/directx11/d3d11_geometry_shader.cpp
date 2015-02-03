@@ -89,7 +89,7 @@ bool D3D11GeometryShader::Initialize(const s2string &path, const s2string &entry
 			error_blob->Release();
 		return false;
 	}
-	manager->GetDevice()->CreatePixelShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
+	manager->GetDevice()->CreateGeometryShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
 	//Setup reflection and constant buffer.
 	reflect = new D3D11ShaderReflection(path, shader_blob);
 	blob = shader_blob;

@@ -11,6 +11,7 @@
 
 #include "pipeline_stage/d3d11_input_stage.h"
 #include "pipeline_stage/d3d11_output_stage.h"
+#include "resource_conflict_resolver.h"
 
 #include <map>
 
@@ -103,36 +104,9 @@ private:
 	ID3D11BlendState *blend_state;
 	
 	D3D11OutputStage output_stage;
-	
-	struct BindingMap {
-		std::map<Resource *, unsigned int> map;
-		std::vector<Resource *> vec;
-		
-		BindingMap(unsigned int size);
-		
-		bool Contains(unsigned int index);
-		bool Contains(Resource *resource);
-		
-		BindingMap & Remove(unsigned int index);
-		BindingMap & Remove(Resource *resource);
-		
-		BindingMap & Add(unsigned int index, Resource *resource);
-		
-		Resource * GetResource(unsigned int index);
-		unsigned int GetIndex(Resource *); 
 
-		void Update(const std::vector<std::pair<unsigned int, Resource *> > &new_things);
-	};
+	ResourceConflictResolver sr_rt_resolver;
 
-	BindingMap active_vs_srs;
-	BindingMap active_ps_srs;
-	BindingMap active_gs_srs;
-	BindingMap active_rts;
-	void ResolveShaderResourceRenderTargetConflict();
-	//TODO: Implement them
-	void ResolveVertexBufferStreamOutConflict();
-	void ReolsveShaderResourceStreamOutConflict();
-	
 };
 
 

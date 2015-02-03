@@ -12,6 +12,7 @@ namespace s2 {
 class GraphicResourceManger;
 class VertexShader;
 class PixelShader;
+class GeometryShader;
 class VertexBuffer;
 class IndexBuffer;
 class Texture2D;

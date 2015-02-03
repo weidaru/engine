@@ -32,13 +32,40 @@ namespace s2 {
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager)
 	: 	manager(_manager), 
 		input_stage(_manager),
-		rast_state(0),
-		ds_state(0),
-		blend_state(0),
-		output_stage(_manager),
-		active_vs_srs(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ), 
-		active_ps_srs(D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ), 
-		active_rts(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT){
+		vs(0), ps(0), gs(0),
+		rast_state(0), ds_state(0), blend_state(0),
+		output_stage(_manager) {
+
+	auto * context = manager->GetDeviceContext();
+	auto error_on_fail = [](int, Resource *resource) {LOG(ERROR) << "Bind resource " << resource->GetIDAndName()
+		<< " as  both  shader resource and render target will result in undefined behaviour."; };
+
+	sr_rt_resolver.AddToGroup0(
+		D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT,
+		[this](){ if (this->vs) { return this->vs->GetShaderResourceContainer().GetNewBindings(); } else { return BindingVec(); } },
+		[context](int index, Resource *){ ID3D11ShaderResourceView *view = 0; context->VSSetShaderResources(index, 1, &view);},
+		error_on_fail
+	);
+	sr_rt_resolver.AddToGroup0(
+		D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT,
+		[this](){ if (this->ps) { return this->ps->GetShaderResourceContainer().GetNewBindings(); } else { return BindingVec(); }},
+		[context](int index, Resource *){ID3D11ShaderResourceView *view = 0; context->PSSetShaderResources(index, 1, &view); },
+		error_on_fail
+	);
+	sr_rt_resolver.AddToGroup0(
+		D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT,
+		[this](){ if (this->gs) { return this->gs->GetShaderResourceContainer().GetNewBindings(); } else { return BindingVec(); } },
+		[context](int index, Resource *){ID3D11ShaderResourceView *view = 0; context->GSSetShaderResources(index, 1, &view); },
+		error_on_fail
+	);
+
+	sr_rt_resolver.AddToGroup1(
+		D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
+		[this]() {return this->output_stage.GetNewRenderTargetBindings(); },
+		[this](int index, Resource *) {return this->SetRenderTarget(index, 0); },
+		error_on_fail
+	);
+
 	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 	RasterizationOption option;
 	option.viewports.clear();
@@ -342,157 +369,11 @@ void D3D11GraphicPipeline::ClearRenderTarget(Texture2D *texture, const float rgb
 void D3D11GraphicPipeline::ClearDepthStencilBuffer(Texture2D *texture, bool clear_depth, float depth, bool clear_stencil, int stencil) {
 	output_stage.ClearDepthStencilBuffer(texture, clear_depth, depth , clear_stencil, stencil);
 }
-	
-namespace {
 
-typedef std::vector<std::pair<unsigned int, Resource *> > BindingVec;
-
-bool Contains(const BindingVec &vec, Resource *resource) {
-	for(unsigned int i=0; i<vec.size(); i++) {
-		if(vec[i].second == resource) {
-			return true;
-		}
-	}
-	return false;
-}
-
-}
-
-D3D11GraphicPipeline::BindingMap::BindingMap(unsigned int size) {
-	vec.resize(size, 0);
-}
-
-bool D3D11GraphicPipeline::BindingMap::Contains(unsigned int index) {
-	return vec[index] == 0;
-}
-
-bool D3D11GraphicPipeline::BindingMap::Contains(Resource *resource) {
-	return map.find(resource) != map.end();
-}
-
-D3D11GraphicPipeline::BindingMap & D3D11GraphicPipeline::BindingMap::Remove(unsigned int index) {
-	if(Contains(index)) {
-		map.erase(vec[index]);
-		vec[index] = 0;
-	}
-	return *this;
-}
-
-D3D11GraphicPipeline::BindingMap & D3D11GraphicPipeline::BindingMap::Remove(Resource *resource) {
-	if(Contains(resource)) {
-		vec[map[resource]] = 0;
-		map.erase(resource);
-	}
-	return *this;
-}
-
-D3D11GraphicPipeline::BindingMap & D3D11GraphicPipeline::BindingMap::Add(unsigned int index, Resource *resource) {
-	CHECK(resource)<<"Resource should not be 0";
-	vec[index] = resource;
-	map[resource] = index;
-	return *this;
-}
-
-Resource * D3D11GraphicPipeline::BindingMap::GetResource(unsigned int index) {
-	return vec[index];
-}
-
-unsigned int D3D11GraphicPipeline::BindingMap::GetIndex(Resource *resource) {
-	CHECK(Contains(resource))<<"Resource is not in map";
-	return map[resource];
-}
-
-void D3D11GraphicPipeline::BindingMap::Update(const std::vector<std::pair<unsigned int, Resource *> > &new_things) {
-	for (unsigned int j = 0; j < new_things.size(); j++) {
-		Resource *rt = new_things[j].second;
-		unsigned int index = new_things[j].first;
-		if (rt) {
-			Add(index, rt);
-		}
-		else {
-			Remove(index);
-		}
-	}
-}
-
-void D3D11GraphicPipeline::ResolveShaderResourceRenderTargetConflict() {
-	//Refactor the whole thing using std::function.
-
-	//Find all new bindings.
-	BindingVec new_rts;
-	BindingVec new_vs_srs;
-	BindingVec new_ps_srs;
-	BindingVec new_gs_srs;
-
-	new_rts = output_stage.GetNewRenderTargetBindings();
-	if (vs) {
-		new_vs_srs = vs->GetShaderResourceContainer().GetNewBindings();
-	}
-	if (ps) {
-		new_ps_srs = ps->GetShaderResourceContainer().GetNewBindings();
-	}
-	if (gs) {
-		new_gs_srs = ps->GetShaderResourceContainer().GetNewBindings();
-	}
+void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
+	sr_rt_resolver.Resolve();
 
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
-
-	std::vector<BindingVec *> shader_sr_vectors;
-	shader_sr_vectors.push_back(&new_vs_srs);
-	shader_sr_vectors.push_back(&new_ps_srs);
-	shader_sr_vectors.push_back(&new_gs_srs);
-
-	//See whether we need to clear some old render target
-	for (unsigned int i = 0; i<shader_sr_vectors.size(); i++) {
-		ShaderResourceContainer::BindingVector &vec = *shader_sr_vectors[i];
-		for (unsigned int j = 0; j<vec.size(); j++) {
-			Resource *resource = vec[j].second;
-			if (active_rts.Contains(resource) && Contains(new_rts, resource) == false) {
-				SetRenderTarget(active_rts.GetIndex(resource), 0);
-			}
-			else if (Contains(new_rts, resource)) {
-				LOG(ERROR) << "Bind resource " << resource->GetIDAndName() <<
-					" as  both  shader resource and render target will result in undefined behaviour.";
-			}
-		}
-	}
-
-	//See whether we need to clear some old shader resources.
-	for (unsigned int i = 0; i<new_rts.size(); i++) {
-		Resource *resource = new_rts[i].second;
-		if (active_vs_srs.Contains(resource) && Contains(new_vs_srs, resource) == false) {
-			ID3D11ShaderResourceView *view = 0;
-			context->VSSetShaderResources(active_vs_srs.GetIndex(resource), 1, &view);
-		}
-		if (active_ps_srs.Contains(resource) && Contains(new_ps_srs, resource) == false) {
-			ID3D11ShaderResourceView *view = 0;
-			context->PSSetShaderResources(active_ps_srs.GetIndex(resource), 1, &view);
-		}
-	}
-
-	//Refresh the new rt bindings.
-	new_rts = output_stage.GetNewRenderTargetBindings();
-
-	//Push new bindings to active bindings.
-	active_rts.Update(new_rts);
-	active_vs_srs.Update(new_vs_srs);
-	active_ps_srs.Update(new_ps_srs);
-	active_gs_srs.Update(new_gs_srs);
-}
-
-void D3D11GraphicPipeline::ResolveVertexBufferStreamOutConflict() {
-
-}
-
-void D3D11GraphicPipeline::ReolsveShaderResourceStreamOutConflict() {
-
-}
-	
-void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
-	ResolveShaderResourceRenderTargetConflict();
-	ResolveVertexBufferStreamOutConflict();
-	ReolsveShaderResourceStreamOutConflict();
-	
 	//Setup input
 	if(vs) {
 		input_stage.Setup(vs);
@@ -534,8 +415,6 @@ void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance
 	//Flush data in input stage and start drawing.
 	input_stage.Flush(vertex_count, instance_count);
 }
-
-
 }
 
 

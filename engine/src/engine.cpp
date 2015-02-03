@@ -96,7 +96,7 @@ void Engine::Run() {
 void Engine::OneFrame(float delta) {
 	//Only run test program for now.
 	input_system->OneFrame(delta);
-	program_manager->Get("instancing_test")->OneFrame(delta);
+	program_manager->Get("test")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 
