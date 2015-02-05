@@ -21,9 +21,31 @@ public:
 		TextureEnum::InputBind input_bind;
 		void *data;
 		
-		Option();
+		Option() {
+			width = 0;
+			height = 0;
+			mip_level = 1;
+			array_size = 1;
+			format = TextureEnum::R8G8B8A8_UNORM;
+			output_bind = TextureEnum::NOT_OUTPUT;
+			input_bind = TextureEnum::SHADER_RESOURCE;
+			sample_size = 1;
+			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			data = 0;
+		}
 		
-		static void SetAsDepthStencilBuffer(Option *option, unsigned int width, unsigned int height);
+		static void SetAsDepthStencilBuffer(Option *option, unsigned int width, unsigned int height) {
+			option->width = width;
+			option->height = height;
+			option->mip_level = 1;
+			option->array_size = 1;
+			option->format = TextureEnum::D24_UNORM_S8_UINT;
+			option->output_bind = TextureEnum::DEPTH_STENCIL;
+			option->input_bind = TextureEnum::NOT_INPUT;
+			option->sample_size = 1;
+			option->resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			option->data = 0;
+		}
 	};
 
 public:

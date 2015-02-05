@@ -12,7 +12,7 @@ class EngineProgram {
 public:
 	virtual ~EngineProgram() {}
 	virtual bool Initialize() = 0;
-	virtual const s2string & GetName() = 0;
+	virtual s2string GetName() const = 0;
 	virtual void OneFrame(float delta) = 0;
 };
 

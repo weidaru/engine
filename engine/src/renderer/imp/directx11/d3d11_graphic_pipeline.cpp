@@ -388,6 +388,12 @@ void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance
 		context->VSSetShader(0, 0, 0);
 	}
 	
+	if (gs) {
+		gs->Setup();
+	} else {
+		context->GSSetShader(0,0,0);
+	}
+
 	if(ps) {
 		ps->Setup();
 	} else {

@@ -47,7 +47,7 @@ struct RasterizationOption {
 	RasterizationOption() {
 		enable_scissor = false;
 		fill_mode = SOLID;
-		cull_mode = NONE;
+		cull_mode = BACK;
 		face_orient = COUNTER_CLOCKWISE;
 	}
 };

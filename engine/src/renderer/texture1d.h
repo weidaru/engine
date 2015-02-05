@@ -20,7 +20,15 @@ public:
 		RendererEnum::ResourceWrite resource_write;
 		void *data;
 		
-		Option();
+		Option() {
+			width = 0;
+			mip_level = 1;
+			array_size = 1;
+			format = TextureEnum::R8G8B8A8_UNORM;
+			output_bind = TextureEnum::NOT_OUTPUT;
+			input_bind = TextureEnum::SHADER_RESOURCE;
+			resource_write = RendererEnum::IMMUTABLE;
+		}
 	};
 
 public:

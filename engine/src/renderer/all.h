@@ -3,6 +3,7 @@
 
 #include "blend_option.h"
 #include "depth_stencil_option.h"
+#include "geometry_shader.h"
 #include "graphic_pipeline.h"
 #include "graphic_resource_manager.h"
 #include "index_buffer.h"

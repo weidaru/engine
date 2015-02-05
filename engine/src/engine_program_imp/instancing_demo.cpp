@@ -3,6 +3,7 @@
 
 #include "renderer/all.h"
 #include "asset/model.h"
+#include "asset/asset_path.h"
 #include "scene/camera.h"
 #include "input_system.h"
 
@@ -30,14 +31,14 @@ struct InstancingTestInstancePosition {
 namespace s2 {
 
 
-class InstancingTest : public EngineProgram {
+class InstancingDemo : public EngineProgram {
 public:
-	InstancingTest()
+	InstancingDemo()
 		: position_buffer(0), color_buffer(0), instance_buffer(0), index_buffer(0), vs(0), ps(0), ds_buffer(0) {
 		
 	}
 	
-	virtual ~InstancingTest() { }
+	virtual ~InstancingDemo() { }
 	
 	virtual bool Initialize() {
 		camera.SetPosition(Vector3(20.0f, 20.0f, 75.0f));
@@ -51,7 +52,7 @@ public:
 		ds_buffer->Initialize(ds_option);
 		
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\instancing.vs", "main"))
+		CHECK(vs->Initialize(ResolveAssetPath("instancing.vs"), "main"))
 				<<vs->GetLastError();
 		
 		{
@@ -68,7 +69,7 @@ public:
 		
 		
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\instancing.ps", "main"))
+		CHECK(ps->Initialize(ResolveAssetPath("instancing.ps"), "main"))
 				<<ps->GetLastError();
 		
 		position_buffer = manager->CreateVertexBuffer();
@@ -76,7 +77,7 @@ public:
 		index_buffer = manager->CreateIndexBuffer();
 		{
 			Model model;
-			CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\cube.obj")) << model.GetLastError();
+			CHECK(model.Initialize(ResolveAssetPath("model/cube.obj"))) << model.GetLastError();
 			
 			{
 				InstancingTestPosition *positions = 0;
@@ -133,9 +134,8 @@ public:
 		return true;
 	}
 	
-	virtual const s2string & GetName() {
-		static s2string name="instancing_test";
-		return name;
+	virtual s2string GetName() const {
+		return "InstancingDemo";
 	}
 
 	void UpdateCamera(float delta) {
@@ -198,7 +198,7 @@ private:
 	Camera camera;
 };
 
-AddBeforeMain(InstancingTest)
+AddBeforeMain(InstancingDemo)
 
 
 }

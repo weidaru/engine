@@ -16,6 +16,7 @@
 
 #include "asset/model.h"
 #include "asset/pixel_map.h"
+#include "asset/asset_path.h"
 
 #include "scene/camera.h"
 #include "input_system.h"
@@ -39,14 +40,14 @@ struct TextureVertex {
 
 namespace s2 {
 
-class TestProgram : public EngineProgram {
+class RenderToTargetDemo : public EngineProgram {
 public:
-	TestProgram():
+	RenderToTargetDemo() :
 		ds_buffer(0), texture(0),
 		vb(0), ib(0), vs(0), ps(0), rotate(0.0f),
 		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0){}
 
-	virtual ~TestProgram() {}
+	virtual ~RenderToTargetDemo() {}
 	virtual bool Initialize(){
 		printf("Initialize test program.\n");
 		//Create and set depth stencil buffer
@@ -69,9 +70,8 @@ public:
 		return true;
 	}
 	
-	virtual const s2string & GetName() {
-		static s2string name="test";
-		return name;
+	virtual s2string GetName() const {
+		return "RenderToTargetDemo";
 	}
 	
 	void CreateColorProgram() {
@@ -80,7 +80,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.vs", "main")) <<
+		CHECK(vs->Initialize(ResolveAssetPath("gouraud.vs"), "main")) <<
 			vs->GetLastError();
 		{
 			Matrix4x4 identity;
@@ -98,12 +98,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize("D:\\github_repository\\engine\\engine\\test\\gouraud.ps", "main")) <<
+		CHECK(ps->Initialize(ResolveAssetPath("gouraud.ps"), "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize("D:\\github_repository\\engine\\engine\\test\\model\\bunny.obj")) << model.GetLastError();
+		CHECK(model.Initialize(ResolveAssetPath("model/bunny.obj"))) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -161,12 +161,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.vs", "main")) <<
+		CHECK(tex_vs->Initialize(ResolveAssetPath("texture.vs"), "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize("D:\\github_repository\\engine\\engine\\test\\texture.ps", "main")) <<
+		CHECK(tex_ps->Initialize(ResolveAssetPath("texture.ps"), "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetTexture2D("shader_texture", texture);
@@ -182,7 +182,7 @@ public:
 		tex_vb->Initialize(4, vertices, RendererEnum::CPU_WRITE_OCCASIONAL);
 		
 		//Set index buffer
-		IndexBuffer::InputType indices[6] = {0,1,2, 0,2,3};
+		IndexBuffer::InputType indices[6] = {0,2,1, 0,3,2};
 		tex_ib = manager->CreateIndexBuffer();
 		tex_ib->Initialize(6, indices, RendererEnum::IMMUTABLE);
 	}
@@ -281,7 +281,7 @@ private:
 	Camera camera;
 };
 
-AddBeforeMain(TestProgram)
+AddBeforeMain(RenderToTargetDemo)
 
 }
 

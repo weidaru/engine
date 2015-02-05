@@ -267,17 +267,17 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	for(std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin(); it != pool.end(); it++) {
 		const VBInfo &vbinfo = **it;
 		if(head < vbinfo.start_index) {
-			CHECK(false)<<"Shader input "<<head<<" is not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
+			LOG(FATAL)<<"Shader input "<<head<<" is not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
 		} else if(head > vbinfo.start_index) {
-			CHECK(false)<<"Shader input "<<head<<" is covered by multiple vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
+			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		} else {
 			head = vbinfo.start_index + vbinfo.vb->GetElementMemberCount();
 		}
 	}
 	if(head < size) {
-		CHECK(false)<<"Some shader tail inputs are not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs)<<"Last input index is "<<size-1;
+		LOG(FATAL) << "Some shader tail inputs are not covered by vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 	} else if(head > size) {
-		CHECK(false)<<"Vertex buffer overflows input. Dumping:\n"<<DumpVertexBufferInfo(vbs)<<"Last input index is "<<size-1;
+		LOG(FATAL) << "Vertex buffer overflows input. Dumping:\n" << DumpVertexBufferInfo(vbs);
 	}
 	
 	std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin();

@@ -145,7 +145,7 @@ const s2string & D3D11GeometryShader::GetLastError() {
 void D3D11GeometryShader::Setup() {
 	if (shader) {
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
-		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::PIXEL;
+		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::GEOMETRY;
 
 		context->GSSetShader(shader, 0, 0);
 
