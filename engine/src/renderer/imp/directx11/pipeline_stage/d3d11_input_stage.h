@@ -21,7 +21,7 @@ class D3D11GraphicResourceManager;
 class D3D11InputStage {
 private:
 	struct VBInfo {
-		unsigned int start_index;
+		int start_index;
 		D3D11VertexBuffer *vb;
 		
 		VBInfo() {
@@ -29,7 +29,7 @@ private:
 		}
 		
 		void Reset() {
-			start_index = 0;
+			start_index = -1;
 			vb = 0;
 		}
 	};
@@ -66,6 +66,7 @@ private:
 	D3D11GraphicResourceManager *manager;
 	
 	bool new_input;
+	bool new_input_layout;
 	D3D11IndexBuffer *ib;
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;

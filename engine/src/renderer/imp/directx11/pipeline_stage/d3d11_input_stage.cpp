@@ -29,6 +29,7 @@ D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
 			: 	manager(_manager){
 	SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
 	new_input = true;
+	new_input_layout = true;
 	old_shader = 0;
 	ib = 0;
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
@@ -44,7 +45,6 @@ D3D11InputStage::~D3D11InputStage() {
 }
 
 void D3D11InputStage::SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue) {
-	new_input = true;
 	topology = newvalue;
 }
 
@@ -57,9 +57,13 @@ void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_inp
 	if(_buf) {
 		CHECK(buffer)<<"Cannot cast buf to D3D11VertexBuffer";
 	}
-	new_input = true;
-	vbs[index].start_index = start_input_index;
-	vbs[index].vb = buffer;
+	
+	if (vbs[index].start_index != start_input_index || vbs[index].vb != buffer) {
+		new_input_layout = true;
+		new_input = true;
+		vbs[index].start_index = start_input_index;
+		vbs[index].vb = buffer;
+	}
 }
 
 D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
@@ -73,8 +77,10 @@ void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf) {
 		CHECK(buffer)<<"Cannot cast buf to D3D11IndexBuffer";
 	}
 
-	new_input = true;
-	ib = buffer;
+	if (ib != buffer) {
+		ib = buffer;
+		new_input = true;
+	}
 }
 
 D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer() {
@@ -116,10 +122,11 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	if(new_input)  {
 		SetInput();
 	}
-	if(shader != old_shader || new_input) {
+	if (shader != old_shader || new_input_layout) {
 		SetInputLayout(shader);
 	}
 	old_shader  = shader;
+	new_input_layout = false;
 	new_input = false;
 }
 
@@ -136,7 +143,6 @@ void D3D11InputStage::Flush(unsigned int vertex_count, unsigned int instance_cou
 				}
 			}
 		}
-
 	}
 		
 	if(instance_count == 0) {
@@ -257,7 +263,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	
 	std::vector<std::vector<VBInfo>::iterator> pool;
 	for(std::vector<VBInfo>::iterator it=vbs.begin(); it!=vbs.end(); it++) {
-		if(it->vb)
+		if(it->vb && it->start_index>=0)
 			pool.push_back(it);
 	}
 	
@@ -266,9 +272,9 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	unsigned int head = 0;
 	for(std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin(); it != pool.end(); it++) {
 		const VBInfo &vbinfo = **it;
-		if(head < vbinfo.start_index) {
+		if(head < (unsigned int)vbinfo.start_index) {
 			LOG(FATAL)<<"Shader input "<<head<<" is not covered by vertex buffer. Dumping:\n"<<DumpVertexBufferInfo(vbs);
-		} else if(head > vbinfo.start_index) {
+		} else if(head > (unsigned int)vbinfo.start_index) {
 			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		} else {
 			head = vbinfo.start_index + vbinfo.vb->GetElementMemberCount();
@@ -312,7 +318,12 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	CHECK(!FAILED(result))<<"Fail to create input layout error "<<::GetLastError();
 	context->IASetInputLayout(input_layout);
 	delete descs;
+
+	//Set all the start_index to be -1 so that it will needs to be refreshed inorder to create new input layout.
+	for (auto it = vbs.begin(); it != vbs.end(); it++) {
+		if (it->vb && it->start_index >= 0) {
+			it->start_index = -1;
+		}
+	}
 }
-
-
 }

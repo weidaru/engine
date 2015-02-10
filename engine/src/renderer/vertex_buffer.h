@@ -32,8 +32,7 @@ public:
 	virtual unsigned int 	GetElementBytewidth() const = 0;
 	virtual unsigned int 	GetElementMemberCount() const = 0;
 	//VertexBuffer with raw data, not initialized or initialized through 
-	//void Initialize(unsigned int size, const void *data, bool is_dynamic)
-	//will return empty string.
+	//will return have "" TypeName.
 	virtual s2string 			GetElementTypeName() const { return ""; }
 	
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const = 0;
