@@ -48,11 +48,6 @@ public:
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index) = 0;
 
-	virtual void SetStreamOut(StreamOut *stream_out) = 0;
-	virtual void SetStreamOut(VertexBuffer *stream_out) = 0;
-	virtual StreamOut * GetStreamOut() = 0;
-	virtual VertexBuffer * GetStreamOutAsVertexBuffer() = 0;
-
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
 

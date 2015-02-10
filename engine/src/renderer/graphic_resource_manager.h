@@ -8,7 +8,6 @@ class Texture2D;
 class Texture3D;
 class Sampler;
 class VertexBuffer;
-class StreamOut;
 class IndexBuffer;
 class VertexShader;
 class PixelShader;
@@ -23,11 +22,6 @@ public:
 	virtual VertexBuffer * 		GetVertexBuffer(unsigned int id) = 0;
 	virtual void 					RemoveVertexBuffer(unsigned int id) = 0;
 	
-	//StreamOut
-	virtual StreamOut *		CreateStreamOut() = 0;
-	virtual StreamOut *		GetStreamOut(unsigned int id) = 0;
-	virtual void					RemoveStreamOut(unsigned int id) = 0;
-
 	//IndexBuffer
 	virtual IndexBuffer *		CreateIndexBuffer() = 0;
 	virtual IndexBuffer * 		GetIndexBuffer(unsigned int id) = 0;

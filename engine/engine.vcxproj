@@ -23,7 +23,6 @@
     <ClInclude Include="src\renderer\depth_stencil_option.h" />
     <ClInclude Include="src\renderer\geometry_shader.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_geometry_shader.h" />
-    <ClInclude Include="src\renderer\imp\directx11\d3d11_stream_out.h" />
     <ClInclude Include="src\renderer\imp\directx11\resource_conflict_resolver.h" />
     <ClInclude Include="src\renderer\renderer_enum.h" />
     <ClInclude Include="src\renderer\graphic_pipeline.h" />
@@ -54,7 +53,6 @@
     <ClInclude Include="src\renderer\renderer_context.h" />
     <ClInclude Include="src\renderer\resource.h" />
     <ClInclude Include="src\renderer\sampler.h" />
-    <ClInclude Include="src\renderer\stream_out.h" />
     <ClInclude Include="src\renderer\texture1d.h" />
     <ClInclude Include="src\renderer\texture2d.h" />
     <ClInclude Include="src\renderer\texture3d.h" />
@@ -94,7 +92,6 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_sampler.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_shader_helper.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_shader_reflection.cpp" />
-    <ClCompile Include="src\renderer\imp\directx11\d3d11_stream_out.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_texture2d.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp" />

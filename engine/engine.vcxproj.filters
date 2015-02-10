@@ -225,12 +225,6 @@
     <ClInclude Include="src\asset\asset_path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderer\stream_out.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\renderer\imp\directx11\d3d11_stream_out.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\utils\type_info.cpp">
@@ -347,9 +341,6 @@
     </ClCompile>
     <ClCompile Include="src\engine_program_imp\render_to_target_demo.cpp">
       <Filter>Source Files\engine_program_imp</Filter>
-    </ClCompile>
-    <ClCompile Include="src\renderer\imp\directx11\d3d11_stream_out.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
