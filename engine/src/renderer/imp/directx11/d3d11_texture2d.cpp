@@ -1,7 +1,6 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 
-
 #include "d3d11_texture2d.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -19,42 +18,29 @@ namespace s2 {
 
 
 D3D11Texture2D::D3D11Texture2D(D3D11GraphicResourceManager *_manager) 
-		: manager(_manager), tex(0), ds_view(0), rt_view(0), sr_view(0), mapped(0) {
-	CHECK(_manager != 0)<<"Manager should never be NULL";
+		:	manager(_manager), tex(0), mapped(0),
+			render_target(0), depth_stencil(0), shader_resource(0){
+	CHECK_NOTNULL(_manager);
 }
 
 D3D11Texture2D::~D3D11Texture2D() {
-	Clear();
+	delete shader_resource;
+	delete depth_stencil;
+	delete render_target;
+	delete mapped;
+	tex->Release();
 }
 
-void D3D11Texture2D::Clear() {
-	if(tex) {
-		tex->Release();
-		tex = 0;
-	}
-	if(ds_view) {
-		ds_view->Release();
-		ds_view = 0;
-	}
-	if(rt_view) {
-		rt_view->Release();
-		rt_view = 0;
-	}
-	if(sr_view) {
-		sr_view->Release();
-		sr_view = 0;
-	}
-	delete mapped;
-	mapped = 0;
+void D3D11Texture2D::Check() const {
+	CHECK(tex) << "Texture2D is not initialized.";
 }
+
 
 void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetView *_rt_view,const Option &_option) {
 	CHECK(_tex && _rt_view)<<"Parameters must not be NULL";
-
-	Clear();
 	
 	tex = _tex;
-	rt_view = _rt_view;
+	render_target = new D3D11RenderTarget(this, _rt_view);
 	option = _option;
 	
 	mapped = new D3D11MappedResource(manager->GetDeviceContext(), tex, _option.resource_write);
@@ -80,8 +66,8 @@ void SetDesc(const Texture2D::Option &option, D3D11_TEXTURE2D_DESC *_desc) {
 }
 
 void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
-	Clear();
-	
+	CHECK(tex==0)<<"Cannot initalize twice.";
+
 	option = _option;
 	D3D11_TEXTURE2D_DESC desc;
 	SetDesc(option, &desc);
@@ -197,18 +183,24 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 	
 	if(rtv_desc) {
+		ID3D11RenderTargetView *rt_view = 0;
 		result = manager->GetDevice()->CreateRenderTargetView(tex, rtv_desc, &rt_view);
 		CHECK(!FAILED(result))<<"Cannot create render target view. Error " << ::GetLastError();
+		render_target = new D3D11RenderTarget(this, rt_view);
 		delete rtv_desc;
 	}
 	if(dsv_desc) {
+		ID3D11DepthStencilView *ds_view = 0;
 		result = manager->GetDevice()->CreateDepthStencilView(tex, dsv_desc, &ds_view);
 		CHECK(!FAILED(result))<<"Cannot create depth stencil view. Error " << ::GetLastError();
+		depth_stencil = new  D3D11DepthStencil(this, ds_view);
 		delete dsv_desc;
 	}
 	if(srv_desc) {
+		ID3D11ShaderResourceView *sr_view = 0;
 		result = manager->GetDevice()->CreateShaderResourceView(tex, srv_desc, &sr_view);
 		CHECK(!FAILED(result))<<"Cannot create shader resource view. Error " << ::GetLastError();
+		shader_resource = new D3D11ShaderResource(this, sr_view);
 		delete srv_desc;
 	}
 
@@ -216,23 +208,23 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 }
 
 void D3D11Texture2D::WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index) {
-	CHECK(tex)<<"Texture2D is not initialized.";
+	Check();
 	mapped->WriteMap(is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
 }
 
 void D3D11Texture2D::WriteUnmap() {
-	CHECK(tex)<<"Texture2D is not initialized.";
+	Check();
 	mapped->WriteUnmap();
 }
 
 void D3D11Texture2D::Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) {
-	CHECK(tex)<<"Texture2D is not initialized.";
+	Check();
 	
 	mapped->Write(mapped->GetWriteRowPitch()+col*TextureEnum::GetFormatSize(option.format), data, size);
 }
 
-void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache) {
-	CHECK(tex)<<"Texture2D is not initialized.";
+void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache) const {
+	Check();
 	if(mapped->GetStagingResource() == 0) {
 		D3D11_TEXTURE2D_DESC desc;
 		SetDesc(option, &desc);
@@ -249,20 +241,18 @@ void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool 
 	mapped->ReadMap(D3D11CalcSubresource(mip_index, array_index, option.mip_level), wipe_cache);
 }
 
-void D3D11Texture2D::ReadUnmap() {
-	CHECK(tex)<<"Texture2D is not initialized.";
+void D3D11Texture2D::ReadUnmap() const {
+	Check();
 	mapped->ReadUnmap();
 }
 
 const void * D3D11Texture2D::Read(unsigned int row, unsigned int col) const {
-	CHECK(tex)<<"Texture2D is not initialized.";
+	Check();
 	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*TextureEnum::GetFormatSize(option.format);
 }
 
-
-
 const Texture2D::Option & D3D11Texture2D::GetOption() const {
-	CHECK(tex)<<"Texture2D is not initialized.";
+	Check();
 	return option;
 }
 
@@ -270,7 +260,7 @@ void D3D11Texture2D::Update(
 			unsigned int left, unsigned int right,
 			unsigned int top, unsigned int bottom,
 			const void *data) {
-	CHECK(tex)<<"Texture2D is not initialized.";
+	Check();
 	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
 				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 	unsigned int ele_size = TextureEnum::GetFormatSize(option.format);
@@ -285,6 +275,24 @@ void D3D11Texture2D::Update(
 	manager->GetDeviceContext()->UpdateSubresource(
 		tex, 0, &dest, (const void *)data, option.width*ele_size, 0 
 	);
+}
+
+D3D11RenderTarget * D3D11Texture2D::AsRenderTarget() const {
+	CHECK(render_target != 0) << "Texture is not created as render target";
+
+	return render_target;
+}
+
+D3D11DepthStencil * D3D11Texture2D::AsDepthStencil() const {
+	CHECK(depth_stencil != 0) << "Texture is not created as depth stencil";
+
+	return depth_stencil;
+}
+
+D3D11ShaderResource * D3D11Texture2D::AsShaderResource() const {
+	CHECK(shader_resource != 0) << "Texture is not created as shader resource";
+
+	return shader_resource;
 }
 
 

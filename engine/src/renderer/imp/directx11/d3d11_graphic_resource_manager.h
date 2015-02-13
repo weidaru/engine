@@ -4,8 +4,7 @@
 #include "renderer/graphic_resource_manager.h"
 
 #include "d3d11_texture2d.h"
-#include "d3d11_vertex_buffer.h"
-#include "d3d11_index_buffer.h"
+#include "d3d11_buffer.h"
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
 #include "d3d11_sampler.h"
@@ -29,15 +28,10 @@ public:
 												void *hwnd, bool enable_vsync, bool full_screen);
 	virtual ~D3D11GraphicResourceManager();
 	
-	//VertexBuffer
-	virtual D3D11VertexBuffer * CreateVertexBuffer();
-	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int id);
-	virtual void RemoveVertexBuffer(unsigned int id);
-	
-	//IndexBuffer
-	virtual D3D11IndexBuffer * CreateIndexBuffer();
-	virtual D3D11IndexBuffer * GetIndexBuffer(unsigned int id);
-	virtual void RemoveIndexBuffer(unsigned int id);
+	//Buffer
+	virtual D3D11Buffer * CreateBuffer();
+	virtual D3D11Buffer * GetBuffer(unsigned int id);
+	virtual void RemoveBuffer(unsigned int id);
 	
 	//Texture1D
 	virtual Texture1D * CreateTexture1D();
@@ -96,8 +90,7 @@ private:
 	IDXGISwapChain *swap_chain;
 	D3D11Texture2D * back_buffer;				//This go with the swap_chain
 	
-	std::map<unsigned int, D3D11VertexBuffer *> vb_map;
-	std::map<unsigned int, D3D11IndexBuffer *> ib_map;
+	std::map<unsigned int, D3D11Buffer *> buffer_map;
 	std::map<unsigned int, Texture1D *> tex1d_map;
 	std::map<unsigned int, D3D11Texture2D *> tex2d_map;
 	std::map<unsigned int, Texture3D *> tex3d_map;

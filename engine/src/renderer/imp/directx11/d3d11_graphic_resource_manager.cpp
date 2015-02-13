@@ -34,8 +34,7 @@ for(std::map<unsigned int, Type *>::iterator it=name.begin(); it!=name.end(); it
 name.clear()
 
 D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
-	MapClean(D3D11VertexBuffer, vb_map);
-	MapClean(D3D11IndexBuffer, ib_map);
+	MapClean(D3D11Buffer, buffer_map);
 	MapClean(Texture1D, tex1d_map);
 	MapClean(D3D11Texture2D, tex2d_map);
 	MapClean(Texture3D, tex3d_map);
@@ -157,8 +156,7 @@ Mangle(Type) * D3D11GraphicResourceManager::Get##Type(unsigned int id) { \
 	} \
 }
 
-ResourceImp(VertexBuffer, vb_map)
-ResourceImp(IndexBuffer, ib_map)
+ResourceImp(Buffer, buffer_map)
 	
 Texture1D * D3D11GraphicResourceManager::CreateTexture1D() {
 	CHECK(false)<<"Disabled.";

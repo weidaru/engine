@@ -9,8 +9,7 @@
 #include <algorithm>
 
 #include "d3d11_input_stage.h"
-#include "renderer/imp/directx11/d3d11_vertex_buffer.h"
-#include "renderer/imp/directx11/d3d11_index_buffer.h"
+#include "renderer/imp/directx11/d3d11_buffer.h"
 #include "renderer/imp/directx11/d3d11_vertex_shader.h"
 #include "renderer/imp/directx11/d3d11_shader_reflection.h"
 #include "renderer/imp/directx11/d3d11_graphic_resource_manager.h"
@@ -99,9 +98,9 @@ void D3D11InputStage::SetInput() {
 	for(unsigned i=0; i<vbs.size(); i++) {
 		D3D11VertexBuffer *vb = vbs[i].vb;
 		if(vb) {
-			strides[i] = vbs[i].vb->GetElementBytewidth();
+			strides[i] = vbs[i].vb->GetResource()->GetElementBytewidth();
 			offsets[i] = 0;
-			buffers[i] = vb->GetInternal();
+			buffers[i] = vb->GetBuffer();
 		} else {
 			strides[i] = 0;
 			offsets[i] = 0;
@@ -112,7 +111,7 @@ void D3D11InputStage::SetInput() {
 	
 	//Set index buffer
 	if(ib) {
-		context->IASetIndexBuffer(ib->GetInternal(), DXGI_FORMAT_R32_UINT, 0);
+		context->IASetIndexBuffer(ib->GetBuffer(), DXGI_FORMAT_R32_UINT, 0);
 	} else {
 		context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
 	}
@@ -134,11 +133,11 @@ void D3D11InputStage::Flush(unsigned int vertex_count, unsigned int instance_cou
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	if(vertex_count == 0) {
 		if(ib!=0) {
-			vertex_count = ib->GetElementCount();
+			vertex_count = ib->GetResource()->GetElementCount();
 		} else {
 			for(unsigned int i=0; i<vbs.size(); i++) {
 				if(vbs[i].vb) {
-					vertex_count=vbs[i].vb->GetElementCount();
+					vertex_count=vbs[i].vb->GetResource()->GetElementCount();
 					break;
 				}
 			}
@@ -203,7 +202,7 @@ s2string D3D11InputStage::DumpVertexBufferInfo(const std::vector<VBInfo> &infos)
 	for(unsigned int i=0; i<infos.size(); i++) {
 		if(infos[i].vb) {
 			unsigned int start = infos[i].start_index;
-			unsigned int end = start+infos[i].vb->GetElementMemberCount()-1;
+			unsigned int end = start+infos[i].vb->GetResource()->GetElementMemberCount()-1;
 
 			head += sprintf_s(head, 1024*8-(head-buffer), "VertexBuffer %d, start at input %d, ends at input %d.\n", 
 											i, start, end);
@@ -277,7 +276,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 		} else if(head > (unsigned int)vbinfo.start_index) {
 			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		} else {
-			head = vbinfo.start_index + vbinfo.vb->GetElementMemberCount();
+			head = vbinfo.start_index + vbinfo.vb->GetResource()->GetElementMemberCount();
 		}
 	}
 	if(head < size) {
@@ -289,13 +288,13 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	std::vector<std::vector<VBInfo>::iterator>::iterator it=pool.begin();
 	unsigned int offset = 0;
 	for(unsigned int i=0; i<size; i++) {
-		if((**it).start_index + (**it).vb->GetElementMemberCount()-1 < i) {
+		if((**it).start_index + (**it).vb->GetResource()->GetElementMemberCount()-1 < i) {
 			it++;
 			offset = 0;
 		}
 		const D3D11ShaderReflection::Parameter &p = reflect.GetInput(i);
 		const VBInfo &vbinfo = **it;
-		CHECK(i<=(vbinfo.start_index+vbinfo.vb->GetElementMemberCount()));
+		CHECK(i<=(vbinfo.start_index+vbinfo.vb->GetResource()->GetElementMemberCount()));
 		descs[i].InputSlot = *it - vbs.begin();
 		descs[i].AlignedByteOffset = offset;
 		offset += p.size;
@@ -305,7 +304,7 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	//remember its corresponding vertex buffer element count
 	for(unsigned int i=0; i<size; i++) {
 		if(descs[i].InputSlotClass == D3D11_INPUT_PER_INSTANCE_DATA) {
-			first_instance_count = vbs[descs[i].InputSlot].vb->GetElementCount();
+			first_instance_count = vbs[descs[i].InputSlot].vb->GetResource()->GetElementCount();
 			
 			break;
 		}

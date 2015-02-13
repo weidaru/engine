@@ -17,6 +17,8 @@ class VertexBuffer;
 class IndexBuffer;
 class Texture2D;
 class Resource;
+class RenderTarget;
+class DepthStencil;
 struct RasterizationOption;
 struct DepthStencilOption;
 struct BlendOption; 
@@ -81,35 +83,17 @@ public:
 	virtual const BlendOption & GetBlendOption() const = 0;
 	
 	//Output
-	virtual void SetRenderTarget(unsigned int index, Texture2D *target) = 0;
-	virtual Resource * GetRenderTarget(unsigned int index) = 0;
-	template <typename T>
-	T * GetRenderTarget(unsigned int index) {
-		Resource * res = GetRenderTarget(index);
-	#ifdef NDEBUG
-		return static_cast<T *>(res);
-	#else
-		return dynamic_cast<T *>(res);
-	#endif
-	}
+	virtual void SetRenderTarget(unsigned int index, RenderTarget *target) = 0;
+	virtual RenderTarget * GetRenderTarget(unsigned int index) = 0;
 	
-	virtual void SetDepthStencilBuffer(Texture2D *buffer) = 0;
-	virtual Resource* GetDepthStencilBuffer() = 0;
-	template <typename T>
-	T * GetDepthStencilBuffer(unsigned int index) {
-		Resource * res = GetDepthStencilBuffer(index);
-	#ifdef NDEBUG
-		return static_cast<T *>(res);
-	#else
-		return dynamic_cast<T *>(res);
-	#endif
-	}
+	virtual void SetDepthStencil(DepthStencil *buffer) = 0;
+	virtual DepthStencil* GetDepthStencil() = 0;
 	
 	//Validate whether each stage is settled properly.
 	virtual bool Validate(s2string *error) const = 0;
 	
-	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]) = 0;
-	virtual void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
+	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) = 0;
+	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	
 	//With vertex_count and instance_count be zero, the draw call will figure out these 2 numbers by itself.
 	//For instance_count, it will pick the size of first available vertex buffer which is considered as instance buffer.

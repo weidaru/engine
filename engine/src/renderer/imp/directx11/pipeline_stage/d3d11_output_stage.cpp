@@ -12,6 +12,7 @@
 #include "renderer/imp/directx11/d3d11_graphic_resource_manager.h"
 #include "renderer/imp/directx11/d3d11_context.h"
 #include "renderer/imp/directx11/d3d11_texture2d.h"
+#include "renderer/imp/directx11/d3d11_resource_view.h"
 
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
@@ -29,56 +30,43 @@ D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager)
 D3D11OutputStage::~D3D11OutputStage() {
 }
 
-void D3D11OutputStage::SetRenderTarget(unsigned int index, Texture2D *_target) {
-	D3D11Texture2D * target = NiceCast(D3D11Texture2D *, _target);
+void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target) {
+	D3D11RenderTarget * target = NiceCast(D3D11RenderTarget *, _target);
 	if(_target != 0) {
-		CHECK(target)<<"target cannot be cast to D3D11Texture2D";
+		CHECK(target)<<"target cannot be cast to D3D11RenderTarget";
 	}
 	if(target) {
 		for(unsigned int i=0; i<rts.size(); i++) {
-			if(rts[i].resource == target) {
-				rts[i].resource = 0;
+			if(rts[i].render_target == target) {
+				rts[i].render_target = 0;
 				rts[i].is_new = true;
 			}
 		}
 	}
 	
-	rts[index].resource = target;
+	rts[index].render_target = target;
 	rts[index].is_new = true;
-	if(target) {
-		rts[index].view = target->GetRenderTargetView();
-		CHECK(rts[index].view)<<"D3D11Texture2D "<<target->GetIDAndName()<<" is not created as render target";
-	} else {
-		rts[index].view = 0;
-		
-	}
 }
 
-Resource * D3D11OutputStage::GetRenderTarget(unsigned int index) {
-	return rts[index].resource;
+D3D11RenderTarget * D3D11OutputStage::GetRenderTarget(unsigned int index) {
+	return rts[index].render_target;
 }
 
 unsigned int D3D11OutputStage::GetRenderTargetCapacity() const {
 	return rts.size();
 }
 
-void D3D11OutputStage::SetDepthStencilBuffer(Texture2D *_buffer) {
-	D3D11Texture2D * buffer = NiceCast(D3D11Texture2D *, _buffer);
-	if(_buffer != 0) {
-		CHECK(buffer)<<"buffer cannot be cast to D3D11Texture2D";
+void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
+	D3D11DepthStencil * depth_stencil = NiceCast(D3D11DepthStencil *, _depth_stencil);
+	if (depth_stencil != 0) {
+		CHECK(depth_stencil) << "buffer cannot be cast to D3D11DepthStencil";
 	}
-	ds.resource = buffer;
+	ds.depth_stencil = depth_stencil;
 	ds.is_new = true;
-	if(buffer) {
-		ds.view = buffer->GetDepthStencilView();
-		CHECK(ds.view)<<"D3D11Texture2D "<<buffer->GetIDAndName()<<" is not created as depth stencil";
-	} else {
-		ds.view = 0;
-	}
 }
 
-Resource* D3D11OutputStage::GetDepthStencilBuffer() {
-	return ds.resource;
+D3D11DepthStencil * D3D11OutputStage::GetDepthStencil() {
+	return ds.depth_stencil;
 }
 
 void D3D11OutputStage::Setup() {
@@ -91,27 +79,37 @@ D3D11OutputStage::RTBindingVector D3D11OutputStage::GetNewRenderTargetBindings()
 		if(rts[i].is_new == false) {
 			continue;
 		}
-		result.push_back(std::make_pair(i, rts[i].resource));
+		Resource *resource = 0;
+		if (rts[i].render_target) {
+			resource = rts[i].render_target->GetResource();
+		}
+		result.push_back(std::make_pair(i, resource));
 	}
 	return result;
 }
 
-void D3D11OutputStage::ClearRenderTarget(Texture2D *_texture, const float rgba[4]) {
+void D3D11OutputStage::ClearRenderTarget(RenderTarget *_target, const float rgba[4]) {
+	D3D11RenderTarget * target = NiceCast(D3D11RenderTarget *, _target);
+	if (_target != 0) {
+		CHECK(target) << "target cannot be cast to D3D11RenderTarget";
+	}
+
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	D3D11Texture2D *texture = NiceCast(D3D11Texture2D *, _texture);
-	CHECK(texture->GetRenderTargetView()) << "Texture is not bound as RenderTarget, cannot clear.";
-	context->ClearRenderTargetView(texture->GetRenderTargetView(),rgba);
+	context->ClearRenderTargetView(target->GetRenderTargetView(), rgba);
 }
 
-void D3D11OutputStage::ClearDepthStencilBuffer(Texture2D *_buffer, bool clear_depth, float depth, bool clear_stencil, int stencil) {
+void D3D11OutputStage::ClearDepthStencil(DepthStencil *_depth_stencil, bool clear_depth, float depth, bool clear_stencil, int stencil) {
+	D3D11DepthStencil * depth_stencil = NiceCast(D3D11DepthStencil *, _depth_stencil);
+	if (depth_stencil != 0) {
+		CHECK(depth_stencil) << "buffer cannot be cast to D3D11DepthStencil";
+	}
+
 	if(clear_depth|| clear_stencil) {
 		unsigned int flag = clear_depth ? D3D11_CLEAR_DEPTH:0;
 		flag |= clear_stencil ? D3D11_CLEAR_STENCIL:0;
 		
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
-		D3D11Texture2D *buffer = NiceCast(D3D11Texture2D *, _buffer);
-		CHECK(buffer->GetDepthStencilView()) << "Texture is not bound as DepthStencil, cannot clear";
-		context->ClearDepthStencilView(buffer->GetDepthStencilView(), flag, depth, (UINT8)stencil);
+		context->ClearDepthStencilView(depth_stencil->GetDepthStencilView(), flag, depth, (UINT8)stencil);
 	}
 }
 
@@ -119,14 +117,19 @@ void D3D11OutputStage::SetOutput() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[rts.size()];
 	for(unsigned int i=0; i<rts.size(); i++) {
-		if(rts[i].resource != 0) {
-			array[i] = rts[i].view;
+		if(rts[i].render_target != 0) {
+			array[i] = rts[i].render_target->GetRenderTargetView();
 		} else {
 			array[i] = 0;
 		}
 		rts[i].is_new = false;
 	}
-	context->OMSetRenderTargets(rts.size(), array, ds.view);
+	if (ds.depth_stencil) {
+		context->OMSetRenderTargets(rts.size(), array, ds.depth_stencil->GetDepthStencilView());
+	} else {
+		context->OMSetRenderTargets(rts.size(), array, 0);
+	}
+	
 	ds.is_new = false;
 	delete[] array;
 }

@@ -5,6 +5,7 @@
 #include "utils/s2string.h"
 #include "texture_enum.h"
 #include "renderer_enum.h"
+#include "resource_view.h"
 
 namespace s2 {
 
@@ -45,6 +46,10 @@ public:
 	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
 	virtual void * Read(unsigned int index) = 0;
 	virtual void ReadUnmap() = 0;
+
+	virtual const RenderTarget & AsRenderTarget() const = 0;
+	virtual const DepthStencil & AsDepthStencil() const = 0;
+	virtual const ShaderResource & AsShaderResource() const = 0;
 };
 
 }

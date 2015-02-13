@@ -6,8 +6,8 @@
 #include "renderer/depth_stencil_option.h"
 #include "renderer/blend_option.h"
 
-#include "d3d11_vertex_buffer.h"
-#include "d3d11_index_buffer.h"
+#include "d3d11_buffer.h"
+#include "d3d11_resource_view.h"
 
 #include "pipeline_stage/d3d11_input_stage.h"
 #include "pipeline_stage/d3d11_output_stage.h"
@@ -64,16 +64,16 @@ public:
 	virtual const BlendOption & GetBlendOption() const;
 	
 	//Output
-	virtual void SetRenderTarget(unsigned int index, Texture2D *target);
-	virtual Resource * GetRenderTarget(unsigned int index);
+	virtual void SetRenderTarget(unsigned int index, RenderTarget *target);
+	virtual D3D11RenderTarget * GetRenderTarget(unsigned int index);
 	
-	virtual void SetDepthStencilBuffer(Texture2D *buffer);
-	virtual Resource * GetDepthStencilBuffer();
+	virtual void SetDepthStencil(DepthStencil *buffer);
+	virtual D3D11DepthStencil * GetDepthStencil();
 
 	virtual bool Validate(s2string *_error) const;
 
-	virtual void ClearRenderTarget(Texture2D *texture, const float rgba[4]);
-	virtual void ClearDepthStencilBuffer(Texture2D *buffer, bool clear_depth, float depth, bool clear_stencil, int stencil);
+	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
+	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
 	virtual void Draw(unsigned int vertex_count=0, unsigned int instance_count=0);
 	
 	

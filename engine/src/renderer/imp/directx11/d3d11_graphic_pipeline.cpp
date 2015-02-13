@@ -295,19 +295,19 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 	return blend_opt;
 }
 
-void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, Texture2D *target) {
+void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, RenderTarget *target) {
 	output_stage.SetRenderTarget(index, target);
 }
 
-Resource * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
+D3D11RenderTarget * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
 	return output_stage.GetRenderTarget(index);
 }
 
-void D3D11GraphicPipeline::SetDepthStencilBuffer(Texture2D *buffer) {
+void D3D11GraphicPipeline::SetDepthStencilBuffer(DepthStencil *buffer) {
 	output_stage.SetDepthStencilBuffer(buffer);
 }
 
-Resource* D3D11GraphicPipeline::GetDepthStencilBuffer() {
+D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencilBuffer() {
 	return output_stage.GetDepthStencilBuffer();
 }
 
@@ -362,12 +362,12 @@ bool D3D11GraphicPipeline::Validate(s2string *error) const {
 	return true;
 }
 
-void D3D11GraphicPipeline::ClearRenderTarget(Texture2D *texture, const float rgba[4]) {
-	output_stage.ClearRenderTarget(texture, rgba);
+void D3D11GraphicPipeline::ClearRenderTarget(RenderTarget *rt, const float rgba[4]) {
+	output_stage.ClearRenderTarget(rt, rgba);
 }
 
-void D3D11GraphicPipeline::ClearDepthStencilBuffer(Texture2D *texture, bool clear_depth, float depth, bool clear_stencil, int stencil) {
-	output_stage.ClearDepthStencilBuffer(texture, clear_depth, depth , clear_stencil, stencil);
+void D3D11GraphicPipeline::ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) {
+	output_stage.ClearDepthStencil(ds, clear_depth, depth , clear_stencil, stencil);
 }
 
 void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {

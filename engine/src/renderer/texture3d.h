@@ -55,6 +55,10 @@ public:
 	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
 	virtual void Read(unsigned int row, unsigned int col, unsigned int depth) = 0;
 	virtual void ReadUnmap() = 0;
+
+	virtual const RenderTarget & AsRenderTarget() const = 0;
+	virtual const DepthStencil & AsDepthStencil() const = 0;
+	virtual const ShaderResource & AsShaderResource() const = 0;
 };
 
 }

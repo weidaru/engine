@@ -7,6 +7,10 @@
 
 namespace s2 {
 
+class RenderTarget;
+class DepthStencil;
+class ShaderResource;
+
 class Texture2D : public Resource {
 public:
 	struct Option {
@@ -57,14 +61,18 @@ public:
 	virtual void Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) = 0;
 	virtual void WriteUnmap() = 0;
 	
-	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
+	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) const = 0;
 	virtual const void * Read(unsigned int row, unsigned int col) const = 0;
-	virtual void ReadUnmap() = 0;
+	virtual void ReadUnmap() const = 0;
 	
 	virtual void Update(
 			unsigned int left, unsigned int right,
 			unsigned int top, unsigned int bottom,
 			const void *data) = 0;
+
+	virtual RenderTarget * AsRenderTarget() const = 0;
+	virtual DepthStencil * AsDepthStencil() const = 0;
+	virtual ShaderResource * AsShaderResource() const = 0;
 };
 
 }
