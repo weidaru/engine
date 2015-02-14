@@ -11,6 +11,8 @@ namespace s2 {
 
 class Buffer : public Resource {
 public:
+	typedef unsigned int IndexBufferElementType;
+
 	enum Binding {
 		INDEX_BUFFER = 0x1,
 		VERTEX_BUFFER = 0x2,
@@ -23,22 +25,54 @@ public:
 		//DEPTH_STENCIL = 0x300
 	};
 
+	struct Option {
+		unsigned int element_count;
+		unsigned int element_member_count;
+		unsigned int element_bytewidth;
+		void * data;
+		s2string element_typename;
+		RendererEnum::Format format;
+		RendererEnum::ResourceWrite resource_write;
+		Binding binding;
+
+		Option() {
+			element_count = 0;
+			element_member_count = 0;
+			element_bytewidth = 0;
+			data = 0;
+			format = RendererEnum::R8G8B8A8_UNORM;
+			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			binding = VERTEX_BUFFER;
+		}
+
+		template<typename T>
+		void Initialize(unsigned int size, T *_data=0) {
+			const TypeInfo &type_info =  TypeInfoManager::GetSingleton()->Get<T>();
+			element_count = size;
+			element_member_count = type_info.GetMemberSize();
+			element_bytewidth = type_info.GetSize();
+			element_typename = type_info.GetName();
+			data = _data;
+		}
+		
+		void InitializeAsIndexBuffer(unsigned int size, IndexBufferElementType *_data=0) {
+			element_count = size;
+			element_member_count = 1;
+			element_bytewidth = sizeof(IndexBufferElementType);
+			element_typename = "unsigned int";
+			binding = INDEX_BUFFER;
+			data = _data;
+		}
+
+	};
+
 public:
 	virtual 						~Buffer() {}
 	/**
 	 * TODO: Really don't like such long list of parameter, refactor!!!!
 	 */
-	virtual void 				Initialize(unsigned int element_count, unsigned int element_member_count,
-												unsigned int per_ele_size, const void *data,
-												RendererEnum::ResourceWrite resource_write = RendererEnum::CPU_WRITE_OCCASIONAL,
-												Binding binding = VERTEX_BUFFER) = 0;
+	virtual void 				Initialize(const Option &option) = 0;
 
-	template <typename T>
-	void Initialize(unsigned int element_count, const T *data,
-						RendererEnum::ResourceWrite resource_write = RendererEnum::CPU_WRITE_OCCASIONAL,
-						Binding binding = VERTEX_BUFFER) {
-						Initialize(element_count, TypeInfoManager::GetSingleton()->Get<T>(), (const void *)data, resource_write, binding);
-					}
 	virtual unsigned int 	GetElementCount() const = 0;
 	virtual unsigned int 	GetElementBytewidth() const = 0;
 	virtual unsigned int 	GetElementMemberCount() const = 0;
@@ -67,17 +101,13 @@ public:
 		return this->Read(index, sizeof(T));
 	}
 
+	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
+	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const = 0;
+	virtual void Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
+
 	virtual IndexBuffer * AsIndexBuffer() const = 0;
 	virtual VertexBuffer * AsVertexBuffer() const = 0;
 	virtual StreamOut * AsStreamOut() const = 0;
-
-protected:
-	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
-	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const = 0;
-	virtual void Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data,
-		RendererEnum::ResourceWrite resource_write = RendererEnum::CPU_WRITE_OCCASIONAL,
-		Binding binding = VERTEX_BUFFER) = 0;
-	virtual void Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
 };
 
 }

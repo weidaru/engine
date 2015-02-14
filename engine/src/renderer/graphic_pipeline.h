@@ -98,6 +98,7 @@ public:
 	//With vertex_count and instance_count be zero, the draw call will figure out these 2 numbers by itself.
 	//For instance_count, it will pick the size of first available vertex buffer which is considered as instance buffer.
 	//For vertex_count, it will go to index buffer first, if no luck, pick the size of first available vertex buffer.
+	//TODO: Not sure always daring from start is a good assumption to make, revisit this.
 	virtual void Draw(unsigned int vertex_count=0, unsigned int instance_count=0) = 0;
 };
 

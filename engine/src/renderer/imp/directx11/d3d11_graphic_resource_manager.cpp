@@ -126,7 +126,7 @@ void D3D11GraphicResourceManager::InitDeviceAndContextAndSwapchain(
 	bf_desc.height = window_height;
 	bf_desc.mip_level= 1;
 	bf_desc.array_size = 1;
-	bf_desc.format = TextureEnum::R8G8B8A8_UNORM;
+	bf_desc.format = RendererEnum::R8G8B8A8_UNORM;
 	bf_desc.sample_size = 1;
 	bf_desc.resource_write = RendererEnum::IMMUTABLE;
 	bf_desc.output_bind = TextureEnum::RENDER_TARGET;

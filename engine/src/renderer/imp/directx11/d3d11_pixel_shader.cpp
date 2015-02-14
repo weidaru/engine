@@ -26,42 +26,32 @@ D3D11PixelShader::D3D11PixelShader(D3D11GraphicResourceManager *_manager)
 }
 
 D3D11PixelShader::~D3D11PixelShader() {
-	Clear();
+	delete sr_container;
+
+	delete sampler_container;
+
+	delete cb_container;
+
+	delete reflect;
+
+	if (blob) {
+		blob->Release();
+	}
+
+	if (shader) {
+		shader->Release();
+	}
 }
 
 void D3D11PixelShader::Check() {
 	CHECK(shader)<<"Pixel shader is not initialized.";
 }
 
-void D3D11PixelShader::Clear() {
-	delete sr_container;
-	sr_container = 0;
-
-	delete sampler_container;
-	sampler_container = 0;
-	
-	delete cb_container;
-	cb_container = 0;
-	
-	delete reflect;
-	reflect = 0;
-	
-	if(blob) {
-		blob->Release();
-		blob =0;
-	}
-	
-	if(shader) {
-		shader->Release();
-		shader = 0;
-	}
-}
-
 /**
  * 
  */
 bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_point) {
-	Clear();
+	CHECK(shader == 0) << "Cannot initialize twice.";
 
 	//Just compile from file for now and always pack it as row major matrix.
 	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
@@ -134,14 +124,14 @@ D3D11Sampler * D3D11PixelShader::GetSampler(const s2string &name) {
 }
 
 
-bool D3D11PixelShader::SetTexture2D(const s2string &name, Texture2D *texture) {
+bool D3D11PixelShader::SetShaderResource(const s2string &name, ShaderResource *shader_resource) {
 	Check();
-	return sr_container->SetTexture2D(name, texture, &error);
+	return sr_container->SetShaderResource(name, shader_resource, &error);
 }
 
-D3D11Texture2D * D3D11PixelShader::GetTexture2D(const s2string &name) {
+D3D11ShaderResource * D3D11PixelShader::GetShaderResource(const s2string &name) {
 	Check();
-	return sr_container->GetTexture2D(name, &error);
+	return sr_container->GetShaderResource(name, &error);
 }
 	
 void D3D11PixelShader::Setup() {

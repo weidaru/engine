@@ -192,16 +192,15 @@ ShaderResourceContainer::ShaderResourceContainer(D3D11ShaderReflection *_reflect
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(i);
 		shader_resources[i].reflect_index = i;
-		shader_resources[i].resource = 0;
-		shader_resources[i].view = 0;
+		shader_resources[i].shader_resource = 0;
 	}
 }
 
-bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *_texture, s2string *error) {
-	D3D11Texture2D *texture = 0;
-	if(_texture != 0) {
-		texture = NiceCast(D3D11Texture2D*, _texture);
-		CHECK(texture) << "Cannot cast texture to D3D11Texture2D";
+bool ShaderResourceContainer::SetShaderResource(const s2string &name, ShaderResource *_shader_resource, s2string *error) {
+	D3D11ShaderResource *shader_resource = 0;
+	if (_shader_resource != 0) {
+		shader_resource = NiceCast(D3D11ShaderResource*, _shader_resource);
+		CHECK(shader_resource) << "Cannot cast shader resource to D3D11ShaderResource";
 	}
 	
 	if(!reflect->HasShaderResource(name)) {
@@ -216,11 +215,7 @@ bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *_tex
 	}
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		if(shader_resources[i].reflect_index == reflect_index) {
-			shader_resources[i].resource = texture;
-			if(texture) {
-				shader_resources[i].view = texture->GetShaderResourceView();
-				CHECK(shader_resources[i].view) << "D3D11Texture2D is not created as a shader resource.";
-			}
+			shader_resources[i].shader_resource = shader_resource;
 			return true;
 		}
 	}
@@ -228,7 +223,7 @@ bool ShaderResourceContainer::SetTexture2D(const s2string &name, Texture2D *_tex
 	return false;
 }
 
-D3D11Texture2D * ShaderResourceContainer::GetTexture2D(const s2string &name, s2string *error) {
+D3D11ShaderResource * ShaderResourceContainer::GetShaderResource(const s2string &name, s2string *error) {
 	if(!reflect->HasShaderResource(name)) {
 		S2StringFormat(error, "Cannot find shader resource %s", name);
 		return 0;
@@ -241,7 +236,7 @@ D3D11Texture2D * ShaderResourceContainer::GetTexture2D(const s2string &name, s2s
 	}
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		if(shader_resources[i].reflect_index == reflect_index) {
-			return NiceCast(D3D11Texture2D *, shader_resources[i].resource);
+			return shader_resources[i].shader_resource;
 		}
 	}
 	CHECK(false);
@@ -252,7 +247,11 @@ ShaderResourceContainer::BindingVector ShaderResourceContainer::GetNewBindings()
 	BindingVector result;
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
-		result.push_back(std::make_pair(info.slot_index, shader_resources[i].resource));
+		Resource *resource = 0;
+		if (shader_resources[i].shader_resource) {
+			resource = shader_resources[i].shader_resource->GetResource();
+		}
+		result.push_back(std::make_pair(info.slot_index, resource));
 	}
 	return result;
 }
@@ -260,7 +259,10 @@ ShaderResourceContainer::BindingVector ShaderResourceContainer::GetNewBindings()
 void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
-		ID3D11ShaderResourceView *view = shader_resources[i].view;
+		ID3D11ShaderResourceView *view = 0;
+		if (shader_resources[i].shader_resource) {
+			view = shader_resources[i].shader_resource->GetShaderResourceView();
+		}
 
 		switch(shader_type) {
 			case D3D11ShaderHelper::VERTEX:

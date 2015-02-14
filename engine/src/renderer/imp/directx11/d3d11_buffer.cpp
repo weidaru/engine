@@ -17,7 +17,6 @@ namespace s2 {
 
 D3D11Buffer::D3D11Buffer(D3D11GraphicResourceManager *_manager)
 	:	manager(_manager), buffer(0), mapped(0),
-		ele_count(0), ele_member_count(0), ele_bytewidth(0),
 		index_buffer(0), vertex_buffer(0), stream_out(0) {
 }
 
@@ -33,35 +32,28 @@ void D3D11Buffer::Check() const {
 	CHECK(buffer) << "Vertex buffer is not initialized.";
 }
 
-void D3D11Buffer::Initialize(	unsigned int element_count, unsigned int element_member_count,
-											unsigned int per_ele_size, const void *data,
-											RendererEnum::ResourceWrite resource_write,
-											Binding _binding) {
+void D3D11Buffer::Initialize(const Option &_option) {
+	option = _option;
 	CHECK(buffer == 0) << "Cannot initialize a buffer twice.";
-	CHECK(element_count>0 && per_ele_size>0) << "element count and element bytewidth must not be 0";
-
-	ele_count = element_count;
-	ele_member_count = element_member_count;
-	ele_bytewidth = per_ele_size;
-	binding = _binding;
+	CHECK(option.element_count>0 && option.element_bytewidth>0) << "element count and element bytewidth must not be 0";
 
 	D3D11_BUFFER_DESC desc;
-	D3D11ResourceHelper::SetBufferDesc(&desc, per_ele_size*element_count, resource_write);
+	D3D11ResourceHelper::SetBufferDesc(&desc, option.element_count * option.element_bytewidth, option.resource_write);
 	desc.BindFlags = 0;
-	if ((binding & 0xF) == VERTEX_BUFFER) {
+	if ((option.binding & 0xF) == VERTEX_BUFFER) {
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	} else if ((binding & 0xF) == INDEX_BUFFER) {
+	} else if ((option.binding & 0xF) == INDEX_BUFFER) {
 		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	}
-	if ((binding&0xF0) == STREAM_OUT) {
+	if ((option.binding & 0xF0) == STREAM_OUT) {
 		desc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
-		CHECK(resource_write != RendererEnum::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
+		CHECK(option.resource_write != RendererEnum::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
 	}
 
 	HRESULT result = 1;
-	if (data) {
+	if (option.data) {
 		D3D11_SUBRESOURCE_DATA subresource;
-		subresource.pSysMem = data;
+		subresource.pSysMem = option.data;
 		result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &buffer);
 	}
 	else {
@@ -70,34 +62,27 @@ void D3D11Buffer::Initialize(	unsigned int element_count, unsigned int element_m
 
 	CHECK(!FAILED(result)) << "Cannot create vertex buffer. Error code: " << ::GetLastError();
 
-	mapped = new D3D11MappedResource(manager->GetDeviceContext(), buffer, resource_write);
+	mapped = new D3D11MappedResource(manager->GetDeviceContext(), buffer, option.resource_write);
 
 	//Create all the views.
-	if ((binding & 0xF) == VERTEX_BUFFER) {
+	if ((option.binding & 0xF) == VERTEX_BUFFER) {
 		vertex_buffer = new D3D11VertexBuffer(this);
-	} else if ((binding & 0xF) == INDEX_BUFFER) {
+	} else if ((option.binding & 0xF) == INDEX_BUFFER) {
 		index_buffer = new D3D11IndexBuffer(this);
 	} 
-	if ((binding & 0xF0) == STREAM_OUT) {
+	if ((option.binding & 0xF0) == STREAM_OUT) {
 		stream_out = new D3D11StreamOut(this);
 	}
 }
 
-void D3D11Buffer::Initialize(unsigned int element_count, const TypeInfo &type_info, const void *data,
-	RendererEnum::ResourceWrite resource_write,
-	Binding _binding) {
-	type_name = type_info.GetName();
-	this->Initialize(element_count, type_info.GetMemberSize(), type_info.GetSize(), data, resource_write, _binding);
-}
-
 unsigned int D3D11Buffer::GetElementCount() const {
 	Check();
-	return ele_count;
+	return option.element_count;
 }
 
 unsigned int D3D11Buffer::GetElementBytewidth() const {
 	Check();
-	return ele_bytewidth;
+	return option.element_bytewidth;
 }
 
 RendererEnum::ResourceWrite D3D11Buffer::GetResourceWrite() const {
@@ -107,12 +92,17 @@ RendererEnum::ResourceWrite D3D11Buffer::GetResourceWrite() const {
 
 Buffer::Binding D3D11Buffer::GetBinding() const {
 	Check();
-	return binding;
+	return option.binding;
 }
 
 unsigned int D3D11Buffer::GetElementMemberCount() const {
 	Check();
-	return ele_member_count;
+	return option.element_member_count;
+}
+
+s2string D3D11Buffer::GetElementTypeName() const {
+	Check();
+	return option.element_typename;
 }
 
 void D3D11Buffer::WriteMap(bool is_partial_map) {
@@ -143,7 +133,7 @@ void D3D11Buffer::ReadMap(bool wipe_cache) const {
 	//Create the staging resource if not present.
 	if (mapped->GetStagingResource() == 0) {
 		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = ele_bytewidth*ele_count;
+		desc.ByteWidth = option.element_bytewidth*option.element_count;
 		desc.Usage = D3D11_USAGE_STAGING;
 		desc.BindFlags = 0;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
@@ -182,17 +172,17 @@ void D3D11Buffer::Update(unsigned int index, const void *data, unsigned int arra
 		buffer, 0, &dest, data, 0, 0);
 }
 
-D3D11IndexBuffer * D3D11Buffer::AsIndexBuffer() const {
+IndexBuffer * D3D11Buffer::AsIndexBuffer() const {
 	CHECK(index_buffer != 0)<<"Buffer is not binded as index buffer";
 	return index_buffer;
 }
 
-D3D11VertexBuffer * D3D11Buffer::AsVertexBuffer() const {
+VertexBuffer * D3D11Buffer::AsVertexBuffer() const {
 	CHECK(vertex_buffer != 0) << "Buffer is not binded as vertex buffer";
 	return vertex_buffer;
 }
 
-D3D11StreamOut * D3D11Buffer::AsStreamOut() const {
+StreamOut * D3D11Buffer::AsStreamOut() const {
 	CHECK(stream_out != 0) << "Buffer is not binded as stream out";
 	return stream_out;
 }

@@ -28,35 +28,23 @@ void D3D11GeometryShader::Check() {
 }
 
 D3D11GeometryShader::~D3D11GeometryShader() {
-	Clear();
-}
-
-void D3D11GeometryShader::Clear() {
 	delete sr_container;
-	sr_container = 0;
-
 	delete sampler_container;
-	sampler_container = 0;
-
 	delete cb_container;
-	cb_container = 0;
 
 	delete reflect;
-	reflect = 0;
 
 	if (blob) {
 		blob->Release();
-		blob = 0;
 	}
 
 	if (shader) {
 		shader->Release();
-		shader = 0;
 	}
 }
 
 bool D3D11GeometryShader::Initialize(const s2string &path, const s2string &entry_point) {
-	Clear();
+	CHECK(shader == 0) << "Cannot initialize twice";
 
 	//Just compile from file for now and always pack it as row major matrix.
 	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
@@ -128,14 +116,14 @@ D3D11Sampler * D3D11GeometryShader::GetSampler(const s2string &name) {
 	return sampler_container->GetSampler(name, &error);
 }
 
-bool D3D11GeometryShader::SetTexture2D(const s2string &name, Texture2D *resource) {
+bool D3D11GeometryShader::SetShaderResource(const s2string &name, ShaderResource *shader_resource) {
 	Check();
-	return sr_container->SetTexture2D(name, resource, &error);
+	return sr_container->SetShaderResource(name, shader_resource, &error);
 }
 
-D3D11Texture2D * D3D11GeometryShader::GetTexture2D(const s2string &name) {
+D3D11ShaderResource * D3D11GeometryShader::GetShaderResource(const s2string &name) {
 	Check();
-	return sr_container->GetTexture2D(name, &error);
+	return sr_container->GetShaderResource(name, &error);
 }
 
 const s2string & D3D11GeometryShader::GetLastError() {

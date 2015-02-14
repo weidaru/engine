@@ -78,7 +78,7 @@ void PixelMap::PopulateTexture2DOption(Texture2D::Option *option) {
 	option->height = GetHeight();
 	switch(format) {
 	case R8G8B8A8:
-		option->format = TextureEnum::R8G8B8A8_UNORM;
+		option->format = RendererEnum::R8G8B8A8_UNORM;
 		break;
 	default :
 		CHECK(false)<<"Unsupported format "<<format;

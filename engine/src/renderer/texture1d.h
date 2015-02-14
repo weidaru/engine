@@ -15,7 +15,7 @@ public:
 		unsigned int width;
 		unsigned int mip_level;			//0 is full mipmap.
 		unsigned int array_size;
-		TextureEnum::TextureFormat format;
+		RendererEnum::Format format;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
 		RendererEnum::ResourceWrite resource_write;
@@ -25,7 +25,7 @@ public:
 			width = 0;
 			mip_level = 1;
 			array_size = 1;
-			format = TextureEnum::R8G8B8A8_UNORM;
+			format = RendererEnum::R8G8B8A8_UNORM;
 			output_bind = TextureEnum::NOT_OUTPUT;
 			input_bind = TextureEnum::SHADER_RESOURCE;
 			resource_write = RendererEnum::IMMUTABLE;

@@ -6,7 +6,7 @@
 #include "geometry_shader.h"
 #include "graphic_pipeline.h"
 #include "graphic_resource_manager.h"
-#include "index_buffer.h"
+#include "buffer.h"
 #include "pixel_shader.h"
 #include "rasterization_option.h"
 #include "renderer_context.h"
@@ -16,7 +16,6 @@
 #include "texture2d.h"
 #include "texture3d.h"
 #include "texture_enum.h"
-#include "vertex_buffer.h"
 #include "vertex_shader.h"
 
 

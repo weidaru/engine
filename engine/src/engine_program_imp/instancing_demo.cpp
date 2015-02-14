@@ -72,9 +72,9 @@ public:
 		CHECK(ps->Initialize(ResolveAssetPath("instancing.ps"), "main"))
 				<<ps->GetLastError();
 		
-		position_buffer = manager->CreateVertexBuffer();
-		color_buffer = manager->CreateVertexBuffer();
-		index_buffer = manager->CreateIndexBuffer();
+		position_buffer = manager->CreateBuffer();
+		color_buffer = manager->CreateBuffer();
+		index_buffer = manager->CreateBuffer();
 		{
 			Model model;
 			CHECK(model.Initialize(ResolveAssetPath("model/cube.obj"))) << model.GetLastError();
@@ -96,9 +96,14 @@ public:
 					colors[i].data[1] = (float(rand()%100))/100.0f;
 					colors[i].data[2] = (float(rand()%100))/100.0f;	
 				}
+				Buffer::Option option;
+				option.Initialize(size, positions);
+				option.resource_write = RendererEnum::IMMUTABLE;
 
-				position_buffer->Initialize(size, positions, RendererEnum::IMMUTABLE);
-				color_buffer->Initialize(size, colors, RendererEnum::IMMUTABLE);
+				position_buffer->Initialize(option);
+				option.Initialize(size, colors);
+				option.resource_write = RendererEnum::IMMUTABLE;
+				color_buffer->Initialize(option);
 				delete[] positions;
 				delete[] colors;
 			}
@@ -107,18 +112,21 @@ public:
 			{
 				//Create IndexBuffer
 				unsigned int size = model.GetTriangleSize()*3;
-				IndexBuffer::InputType *indices = new IndexBuffer::InputType[size];
+				Buffer::IndexBufferElementType *indices = new Buffer::IndexBufferElementType[size];
 				for(unsigned int i=0; i<model.GetTriangleSize(); i++) {
 					indices[i*3] = model.GetTriangleVertexIndex(i, 0);
 					indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
 					indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
 				}
-				index_buffer->Initialize(size, indices, RendererEnum::IMMUTABLE);
+				Buffer::Option option;
+				option.InitializeAsIndexBuffer(size, indices);
+				option.resource_write = RendererEnum::IMMUTABLE;
+				index_buffer->Initialize(option);
 				delete[] indices;
 			}
 		}
 		
-		instance_buffer = manager->CreateVertexBuffer();
+		instance_buffer = manager->CreateBuffer();
 		{
 			InstancingTestInstancePosition positions[10];
 			for(unsigned int i=0; i<10; i++) {
@@ -126,11 +134,12 @@ public:
 				positions[i].data[1] = (float)5*i;
 				positions[i].data[2] = (float)5*i;
 			}
-			instance_buffer->Initialize(10, positions, RendererEnum::IMMUTABLE);
+			Buffer::Option option;
+			option.Initialize(10, positions);
+			option.resource_write = RendererEnum::IMMUTABLE;
+			instance_buffer->Initialize(option);
 		}	
-		
-		
-		
+
 		return true;
 	}
 	
@@ -169,18 +178,18 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->SetDepthStencilBuffer(ds_buffer);
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
+		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(2, 0, position_buffer);
-		pipeline->SetVertexBuffer(0, 1, color_buffer);
-		pipeline->SetVertexBuffer(1, 2, instance_buffer);
-		pipeline->SetIndexBuffer(index_buffer);
+		pipeline->SetVertexBuffer(2, 0, position_buffer->AsVertexBuffer());
+		pipeline->SetVertexBuffer(0, 1, color_buffer->AsVertexBuffer());
+		pipeline->SetVertexBuffer(1, 2, instance_buffer->AsVertexBuffer());
+		pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
 		
 		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->ClearRenderTarget(manager->GetBackBuffer(), black);
-		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
+		pipeline->ClearRenderTarget(manager->GetBackBuffer()->AsRenderTarget(), black);
+		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
 
 		vs->SetUniform("view", camera.GetViewMatrix());
 
@@ -188,9 +197,9 @@ public:
 	}
 	
 private:
-	VertexBuffer *position_buffer, *color_buffer;
-	VertexBuffer *instance_buffer;
-	IndexBuffer *index_buffer;
+	Buffer *position_buffer, *color_buffer;
+	Buffer *instance_buffer;
+	Buffer *index_buffer;
 	VertexShader *vs;
 	PixelShader *ps;
 	Texture2D *ds_buffer;

@@ -14,7 +14,7 @@ struct TypeInfoBind {
 template <typename T>
 struct TypeInfoBind<T *> {
 	static s2string GetName() {
-		return pointer_typename;
+		return kPointerTypename;
 	}
 };
 

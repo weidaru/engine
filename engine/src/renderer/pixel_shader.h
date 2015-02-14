@@ -7,7 +7,7 @@
 
 namespace s2 {
 class Sampler;
-class Texture2D;
+class ShaderResource;
 
 class PixelShader : public Resource {
 public:
@@ -22,8 +22,8 @@ public:
 	
 	virtual bool 						SetSampler(const s2string &name, Sampler *sampler) = 0;
 	virtual Sampler * 				GetSampler(const s2string &name) = 0;
-	virtual bool 						SetTexture2D(const s2string &name, Texture2D *resource) = 0;
-	virtual Texture2D *			GetTexture2D(const s2string &name) = 0;
+	virtual bool 						SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
+	virtual ShaderResource *			GetShaderResource(const s2string &name) = 0;
 
 	virtual const s2string &		GetLastError() = 0;
 	

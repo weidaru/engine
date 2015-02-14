@@ -1,8 +1,9 @@
 #ifndef RESOURCE_VIEW_H_
 #define RESOURCE_VIEW_H_
 
+#include "resource.h"
+
 namespace s2 {
-class Resource;
 
 class RenderTarget {
 public:

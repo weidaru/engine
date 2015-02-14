@@ -6,13 +6,10 @@
 #include "utils/type_info.h"
 
 namespace s2 {
-class ConstantBuffer;
 class Sampler;
 class VertexBuffer;
 class IndexBuffer;
-class Texture1D;
-class Texture2D;
-class Texture3D;
+class	ShaderResource;
 
 class VertexShader : public Resource {
 public:
@@ -29,8 +26,8 @@ public:
 	
 	virtual bool 					SetSampler(const s2string &name, Sampler *sampler) = 0;
 	virtual Sampler * 			GetSampler(const s2string &name) = 0;
-	virtual bool 					SetTexture2D(const s2string &name, Texture2D *resource) = 0;
-	virtual Texture2D *		GetTexture2D(const s2string &name) = 0;
+	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
+	virtual ShaderResource *		GetShaderResource(const s2string &name) = 0;
 	
 	virtual const s2string &	GetLastError() = 0;
 	

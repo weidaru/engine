@@ -2,7 +2,7 @@
 #define D3D11_VERTEX_SHADER_H_
 
 #include "d3d11_sampler.h"
-#include "d3d11_texture2d.h"
+#include "d3d11_resource_view.h"
 
 #include "renderer/vertex_shader.h"
 
@@ -29,8 +29,8 @@ public:
 	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size);
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
 	virtual D3D11Sampler* GetSampler(const s2string &name);
-	virtual bool SetTexture2D(const s2string &name, Texture2D *resource);
-	virtual D3D11Texture2D * GetTexture2D(const s2string &name);
+	virtual bool SetShaderResource(const s2string &name, ShaderResource *resource);
+	virtual D3D11ShaderResource * GetShaderResource(const s2string &name);
 	
 	virtual const s2string & GetLastError() { return error; } 
 	
@@ -48,7 +48,6 @@ protected:
 	
 private:
 	void Check();
-	void Clear();
 
 private:
 	D3D11GraphicResourceManager *manager;

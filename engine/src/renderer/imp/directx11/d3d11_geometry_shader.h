@@ -2,8 +2,9 @@
 #define D3D11_GEOMETRY_SHADER_H_
 
 #include "renderer/geometry_shader.h"
-#include "d3d11_texture2d.h"
 #include "d3d11_sampler.h"
+
+#include "d3d11_resource_view.h"
 
 struct ID3D11GeometryShader;
 struct ID3D10Blob;
@@ -26,8 +27,8 @@ public:
 
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
 	virtual D3D11Sampler * GetSampler(const s2string &name);
-	virtual bool SetTexture2D(const s2string &name, Texture2D *resource);
-	virtual D3D11Texture2D * GetTexture2D(const s2string &name);
+	virtual bool SetShaderResource(const s2string &name, ShaderResource *shader_resource);
+	virtual D3D11ShaderResource* GetShaderResource(const s2string &name);
 
 	virtual const s2string & GetLastError();
 
@@ -44,7 +45,6 @@ protected:
 
 private:
 	void Check();
-	void Clear();
 
 private:
 	D3D11GraphicResourceManager *manager;

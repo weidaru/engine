@@ -16,9 +16,9 @@ class D3D11GraphicResourceManager;
 class D3D11ConstantBuffer;
 class D3D11ShaderReflection;
 class D3D11Sampler;
-class D3D11Texture2D;
+class D3D11ShaderResource;
+class ShaderResource;
 class Sampler;
-class Texture2D;
 class Resource;
 
 struct D3D11ShaderHelper {
@@ -69,8 +69,7 @@ public:
 private:
 	struct Info {
 		unsigned int reflect_index;
-		Resource *resource;
-		ID3D11ShaderResourceView *view;
+		D3D11ShaderResource *shader_resource;
 	};
 
 	typedef std::vector<Info> ShaderResourceVector;
@@ -78,8 +77,8 @@ private:
 public:
 	ShaderResourceContainer(D3D11ShaderReflection *_reflect);
 
-	bool SetTexture2D(const s2string &name, Texture2D *_texture, s2string *error);
-	D3D11Texture2D * GetTexture2D(const s2string &name, s2string *error);
+	bool SetShaderResource(const s2string &name, ShaderResource *_shader_resource, s2string *error);
+	D3D11ShaderResource * GetShaderResource(const s2string &name, s2string *error);
 	
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	

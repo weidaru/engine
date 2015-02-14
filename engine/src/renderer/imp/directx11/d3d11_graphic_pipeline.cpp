@@ -303,12 +303,12 @@ D3D11RenderTarget * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
 	return output_stage.GetRenderTarget(index);
 }
 
-void D3D11GraphicPipeline::SetDepthStencilBuffer(DepthStencil *buffer) {
-	output_stage.SetDepthStencilBuffer(buffer);
+void D3D11GraphicPipeline::SetDepthStencil(DepthStencil *buffer) {
+	output_stage.SetDepthStencil(buffer);
 }
 
-D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencilBuffer() {
-	return output_stage.GetDepthStencilBuffer();
+D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
+	return output_stage.GetDepthStencil();
 }
 
 void D3D11GraphicPipeline::SetupRasterizationOption() {

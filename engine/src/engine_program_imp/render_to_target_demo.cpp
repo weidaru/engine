@@ -3,16 +3,7 @@
 #include "engine_program.h"
 #include "engine.h"
 
-#include "renderer/rasterization_option.h"
-#include "renderer/graphic_pipeline.h"
-#include "renderer/graphic_resource_manager.h"
-#include "renderer/texture2d.h"
-#include "renderer/vertex_shader.h"
-#include "renderer/pixel_shader.h"
-#include "renderer/vertex_buffer.h"
-#include "renderer/index_buffer.h"
-#include "renderer/texture_enum.h"
-#include "renderer/sampler.h"
+#include "renderer/all.h"
 
 #include "asset/model.h"
 #include "asset/pixel_map.h"
@@ -120,22 +111,27 @@ public:
 				vertices[i].normal[2] = v.nz;
 			}
 
-			vb = manager->CreateVertexBuffer();
-			vb->Initialize(size, vertices, RendererEnum::CPU_WRITE_OCCASIONAL);
+			vb = manager->CreateBuffer();
+			Buffer::Option option;
+			option.Initialize(size, vertices);
+			vb->Initialize(option);
 			delete[] vertices;
 		}
 		
 		{
 			//Create IndexBuffer
 			unsigned int size = model.GetTriangleSize()*3;
-			IndexBuffer::InputType *indices = new IndexBuffer::InputType[size];
+			Buffer::IndexBufferElementType*indices = new Buffer::IndexBufferElementType[size];
 			for(unsigned int i=0; i<model.GetTriangleSize(); i++) {
 				indices[i*3] = model.GetTriangleVertexIndex(i, 0);
 				indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
 				indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
 			}
-			ib = manager->CreateIndexBuffer();
-			ib->Initialize(size, indices, RendererEnum::IMMUTABLE);
+			ib = manager->CreateBuffer();
+			Buffer::Option option;
+			option.InitializeAsIndexBuffer(size, indices);
+			option.resource_write = RendererEnum::IMMUTABLE;
+			ib->Initialize(option);
 			delete[] indices;
 		}
 	}
@@ -147,7 +143,7 @@ public:
 
 		//Create texture.
 		Texture2D::Option tex_option;
-		tex_option.format = TextureEnum::R32G32B32A32_FLOAT;
+		tex_option.format = RendererEnum::R32G32B32A32_FLOAT;
 		texture = manager->CreateTexture2D();
 		tex_option.output_bind = TextureEnum::RENDER_TARGET;
 		tex_option.width = renderer_setting.window_width;
@@ -169,7 +165,7 @@ public:
 		CHECK(tex_ps->Initialize(ResolveAssetPath("texture.ps"), "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
-		tex_ps->SetTexture2D("shader_texture", texture);
+		tex_ps->SetShaderResource("shader_texture", texture->AsShaderResource());
 		
 		//Set vertex buffer
 		TextureVertex vertices[4] = {
@@ -178,25 +174,29 @@ public:
 			{{1.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}, 
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}}
 		};
-		tex_vb = manager->CreateVertexBuffer();
-		tex_vb->Initialize(4, vertices, RendererEnum::CPU_WRITE_OCCASIONAL);
+		tex_vb = manager->CreateBuffer();
+		Buffer::Option buffer_option;
+		buffer_option.Initialize(4, vertices);
+		tex_vb->Initialize(buffer_option);
 		
 		//Set index buffer
-		IndexBuffer::InputType indices[6] = {0,2,1, 0,3,2};
-		tex_ib = manager->CreateIndexBuffer();
-		tex_ib->Initialize(6, indices, RendererEnum::IMMUTABLE);
+		Buffer::IndexBufferElementType indices[6] = {0,2,1, 0,3,2};
+		tex_ib = manager->CreateBuffer();
+		buffer_option.InitializeAsIndexBuffer(6, indices);
+		buffer_option.resource_write = RendererEnum::IMMUTABLE;
+		tex_ib->Initialize(buffer_option);
 	}
 	
 	void DrawNormal(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
-		pipeline->SetRenderTarget(1, texture);
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTarget(1, texture->AsRenderTarget());
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(0, 0, vb);
-		pipeline->SetIndexBuffer(ib);
+		pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+		pipeline->SetIndexBuffer(ib->AsIndexBuffer());
 		
 		rotate += delta*PI/2.0f;
 		rotate = rotate>2*PI ? rotate-2*PI : rotate;
@@ -213,11 +213,11 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer());
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
 		pipeline->SetVertexShader(tex_vs);
 		pipeline->SetPixelShader(tex_ps);
-		pipeline->SetVertexBuffer(0, 0, tex_vb);
-		pipeline->SetIndexBuffer(tex_ib);
+		pipeline->SetVertexBuffer(0, 0, tex_vb->AsVertexBuffer());
+		pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
 
 		pipeline->Draw();
 	}
@@ -252,12 +252,12 @@ public:
 	
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		pipeline->SetDepthStencilBuffer(ds_buffer);
+		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
 		float black[4] = {0.0f, 0.0f, .0f, 1.0f};
-		pipeline->ClearRenderTarget(manager->GetBackBuffer(), black);
-		pipeline->ClearDepthStencilBuffer(ds_buffer, true, 1.0f, true, 0);
+		pipeline->ClearRenderTarget(manager->GetBackBuffer()->AsRenderTarget(), black);
+		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
 		float red[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->ClearRenderTarget(texture, red);
+		pipeline->ClearRenderTarget(texture->AsRenderTarget(), red);
 		DrawNormal(delta);
 		DrawTexture(delta);
 	}
@@ -266,14 +266,14 @@ private:
 	Texture2D *ds_buffer;
 	Texture2D *texture;
 	
-	VertexBuffer *vb;
-	IndexBuffer *ib;
+	Buffer *vb;
+	Buffer *ib;
 	VertexShader *vs;
 	PixelShader *ps;
 	float rotate;
 	
-	VertexBuffer *tex_vb;
-	IndexBuffer *tex_ib;
+	Buffer *tex_vb;
+	Buffer *tex_ib;
 	VertexShader *tex_vs;
 	PixelShader *tex_ps;
 	Sampler *sampler;

@@ -173,7 +173,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		if(_option.data) {
 			D3D11_SUBRESOURCE_DATA data;
 			data.pSysMem = _option.data;
-			data.SysMemPitch = _option.width*TextureEnum::GetFormatSize(_option.format);
+			data.SysMemPitch = _option.width*RendererEnum::GetFormatSize(_option.format);
 			result = manager->GetDevice()->CreateTexture2D(&desc, &data, &tex);
 		} else {
 			result = manager->GetDevice()->CreateTexture2D(&desc, 0, &tex);
@@ -220,7 +220,7 @@ void D3D11Texture2D::WriteUnmap() {
 void D3D11Texture2D::Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) {
 	Check();
 	
-	mapped->Write(mapped->GetWriteRowPitch()+col*TextureEnum::GetFormatSize(option.format), data, size);
+	mapped->Write(mapped->GetWriteRowPitch() + col*RendererEnum::GetFormatSize(option.format), data, size);
 }
 
 void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache) const {
@@ -248,7 +248,7 @@ void D3D11Texture2D::ReadUnmap() const {
 
 const void * D3D11Texture2D::Read(unsigned int row, unsigned int col) const {
 	Check();
-	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*TextureEnum::GetFormatSize(option.format);
+	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*RendererEnum::GetFormatSize(option.format);
 }
 
 const Texture2D::Option & D3D11Texture2D::GetOption() const {
@@ -263,7 +263,7 @@ void D3D11Texture2D::Update(
 	Check();
 	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
 				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
-	unsigned int ele_size = TextureEnum::GetFormatSize(option.format);
+	unsigned int ele_size = RendererEnum::GetFormatSize(option.format);
 	D3D11_BOX dest;
 	dest.left = left*ele_size;
 	dest.right = right*ele_size;
