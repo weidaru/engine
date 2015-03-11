@@ -15,24 +15,38 @@ class D3D11ShaderReflection;
 class D3D11GraphicResourceManager;
 
 //TODO: Let it grow indefinitely for now. Things like LRU could be implemented later.
+struct D3D11InputLayout {
+	ID3D11InputLayout *layout;
+	unsigned int first_instance_count;
+
+	D3D11InputLayout() : layout(0), first_instance_count(0) {}
+	~D3D11InputLayout();
+};
+
+struct VBBinding {
+	unsigned int index;
+	int start_index;
+	const D3D11VertexBuffer *vb;
+};
+
+struct InputState {
+	std::vector<VBBinding> vb_state;
+	const D3D11VertexShader *vs;
+};
+
+struct InputStateCompare {
+	bool operator()(const InputState &lhs, const InputState &rhs) const;
+};
+
 class D3D11InputLayoutManager {
 public:
-	struct VBBinding {
-		unsigned int index;
-		int start_index;
-		const D3D11VertexBuffer *vb;
-	};
+	~D3D11InputLayoutManager();
 
-	struct InputState {
-		std::vector<VBBinding> vb_state;
-		const D3D11VertexShader *vs;
-	};
-
-	void Put(const InputState &state, ID3D11InputLayout *new_layout);
-	ID3D11InputLayout *Get(const InputState &state);
+	void Put(const InputState &state,  D3D11InputLayout *new_layout);
+	D3D11InputLayout *Get(const InputState &state);
 
 private:
-	std::map<InputState, ID3D11InputLayout *> input_layouts;
+	std::map<InputState, D3D11InputLayout *, InputStateCompare> input_layouts;
 };
 
 
@@ -69,15 +83,16 @@ public:
 	//Given an not NULL reflect, the input layout will be recomputed.
 	void Setup(const D3D11VertexShader *shader);
 	void Flush(unsigned int vertex_count, unsigned int instance_count);
+	void Refresh();
 	
 private:
 	void SetInput();
-	void SetInputLayout(const D3D11VertexShader *shader);
+	D3D11InputLayout * CreateInputLayout(const D3D11VertexShader *shader);
 	
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
 	s2string DumpVertexBufferInfo(const std::vector<VBInfo> &infos);
 
-	void BuildState(const D3D11VertexShader *shader, D3D11InputLayoutManager::InputState *state) const;
+	void BuildState(const D3D11VertexShader *shader, InputState *state) const;
 
 	D3D11InputStage(const D3D11InputStage &);
 	D3D11InputStage & operator=(const D3D11InputStage &);
@@ -89,10 +104,8 @@ private:
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
 	
-	ID3D11InputLayout *input_layout;
-	unsigned int first_instance_count;
-	
-	const D3D11VertexShader *old_shader;
+	D3D11InputLayoutManager input_layout_manager;
+	unsigned int current_first_instance_count;
 };
 
 

@@ -52,6 +52,7 @@ public:
 	void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
 	
 	void Setup();
+	void Refresh();
 	
 	/**
 	 * New render target bindings since last draw call.

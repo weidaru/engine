@@ -73,16 +73,17 @@ public:
 		
 		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 		pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
-		pipeline->SetDepthStencil(0);
-		pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
-		pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
-		pipeline->SetIndexBuffer(0);
-		pipeline->SetVertexShader(vs);
-		pipeline->SetPixelShader(ps);
-		pipeline->SetGeometryShader(gs);
-		pipeline->SetRenderTarget(0, bf->AsRenderTarget());
-
-		pipeline->Draw();
+		pipeline->Start();
+			pipeline->SetDepthStencil(0);
+			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
+			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+			pipeline->SetIndexBuffer(0);
+			pipeline->SetVertexShader(vs);
+			pipeline->SetPixelShader(ps);
+			pipeline->SetGeometryShader(gs);
+			pipeline->SetRenderTarget(0, bf->AsRenderTarget());
+			pipeline->Draw();
+		pipeline->End();
 	}
 
 private:

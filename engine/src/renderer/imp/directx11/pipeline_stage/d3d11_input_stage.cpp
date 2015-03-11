@@ -24,12 +24,46 @@
 
 namespace s2 {
 
+D3D11InputLayout::~D3D11InputLayout() {
+	if (layout) {
+		layout->Release();
+	}
+}
 
-void D3D11InputLayoutManager::Put(const InputState &state, ID3D11InputLayout *new_layout) {
+bool InputStateCompare::operator()(const InputState &lhs, const InputState &rhs) const {
+	if (lhs.vs != rhs.vs) {
+		return lhs.vs < rhs.vs;
+	}
+	if (lhs.vb_state.size() != rhs.vb_state.size()) {
+		return lhs.vb_state.size() < rhs.vb_state.size();
+	}
+	for (unsigned int i = 0; i < lhs.vb_state.size(); i++) {
+		const VBBinding &lhs_binding = lhs.vb_state[i];
+		const VBBinding &rhs_binding = rhs.vb_state[i];
+		if (lhs_binding.vb != rhs_binding.vb) {
+			return lhs_binding.vb < rhs_binding.vb;
+		}
+		if (lhs_binding.index != rhs_binding.index) {
+			return lhs_binding.index < rhs_binding.index;
+		}
+		if (lhs_binding.start_index != rhs_binding.start_index) {
+			return lhs_binding.start_index < rhs_binding.start_index;
+		}
+	}
+	return false;
+}
+
+D3D11InputLayoutManager::~D3D11InputLayoutManager() {
+	for (auto it = input_layouts.begin(); it != input_layouts.end(); it++) {
+		delete it->second;
+	}
+}
+
+void D3D11InputLayoutManager::Put(const InputState &state, D3D11InputLayout *new_layout) {
 	input_layouts.insert(std::make_pair(state, new_layout));
 }
 
-ID3D11InputLayout * D3D11InputLayoutManager::Get(const InputState &state) {
+D3D11InputLayout * D3D11InputLayoutManager::Get(const InputState &state) {
 	if (input_layouts.find(state) == input_layouts.end()) {
 		return 0;
 	} else {
@@ -37,21 +71,16 @@ ID3D11InputLayout * D3D11InputLayoutManager::Get(const InputState &state) {
 	}
 }
 
+
+
 D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
 			: 	manager(_manager){
 	SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-	old_shader = 0;
 	ib = 0;
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
-	input_layout = 0;
-	first_instance_count  = 0;
 }
 
 D3D11InputStage::~D3D11InputStage() {
-	if(input_layout) {
-		input_layout->Release();
-	}
-	input_layout = 0;
 }
 
 void D3D11InputStage::SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue) {
@@ -87,7 +116,6 @@ void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf) {
 
 	if (ib != buffer) {
 		ib = buffer;
-		new_input = true;
 	}
 }
 
@@ -127,22 +155,34 @@ void D3D11InputStage::SetInput() {
 }
 
 void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
-	if(new_input)  {
-		SetInput();
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+
+	SetInput();
+
+	if (shader != 0) {
+		InputState state;
+		BuildState(shader, &state);
+		D3D11InputLayout *input_layout = input_layout_manager.Get(state);
+		if (input_layout == 0) {
+			int first_instance_count = -1;
+			input_layout = CreateInputLayout(shader);
+			input_layout_manager.Put(state, input_layout);
+		}
+		
+		context->IASetInputLayout(input_layout->layout);
+		current_first_instance_count = input_layout->first_instance_count;
 	}
-	if (shader != old_shader || new_input_layout) {
-		SetInputLayout(shader);
+	else {
+		context->IASetInputLayout(0);
+		current_first_instance_count = 0;
 	}
-	old_shader  = shader;
-	new_input_layout = false;
-	new_input = false;
 }
 
-void D3D11InputStage::BuildState(const D3D11VertexShader *shader, D3D11InputLayoutManager::InputState *state) const {
+void D3D11InputStage::BuildState(const D3D11VertexShader *shader, InputState *state) const {
 	state->vs = shader;
 	for (auto it = vbs.begin(); it != vbs.end(); it++) {
 		if (it->vb != 0 && it->start_index >= 0) {
-			D3D11InputLayoutManager::VBBinding binding;
+			VBBinding binding;
 			binding.index = it-vbs.begin();
 			binding.start_index = it->start_index;
 			binding.vb = it->vb;
@@ -167,7 +207,7 @@ void D3D11InputStage::Flush(unsigned int vertex_count, unsigned int instance_cou
 	}
 		
 	if(instance_count == 0) {
-		instance_count = first_instance_count;
+		instance_count = current_first_instance_count;
 	}
 
 	if(vertex_count !=0 ) {
@@ -249,18 +289,8 @@ typedef struct D3D11_INPUT_ELEMENT_DESC {
 	UINT                       InstanceDataStepRate;			//From VBInfo
 } D3D11_INPUT_ELEMENT_DESC;
 */
-void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
-	if(input_layout) {
-		input_layout->Release();
-		input_layout = 0;
-		first_instance_count = 0;
-	}
-	
-	if(shader == 0) {
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
-		context->IASetInputLayout(0);
-		return;
-	}
+D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *shader) {
+	D3D11InputLayout *input_layout = new D3D11InputLayout;
 	
 	const D3D11ShaderReflection &reflect = shader->GetReflection();
 		
@@ -326,20 +356,22 @@ void D3D11InputStage::SetInputLayout(const D3D11VertexShader *shader) {
 	//remember its corresponding vertex buffer element count
 	for(unsigned int i=0; i<size; i++) {
 		if(descs[i].InputSlotClass == D3D11_INPUT_PER_INSTANCE_DATA) {
-			first_instance_count = vbs[descs[i].InputSlot].vb->GetResource()->GetElementCount();
+			input_layout->first_instance_count = vbs[descs[i].InputSlot].vb->GetResource()->GetElementCount();
 			
 			break;
 		}
 	}
 	
 	ID3D11Device *device = manager->GetDevice();
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	HRESULT result = 1;
-	result = device->CreateInputLayout(descs, size, shader->GetBlob()->GetBufferPointer(), shader->GetBlob()->GetBufferSize(), &input_layout);
+	result = device->CreateInputLayout(descs, size, shader->GetBlob()->GetBufferPointer(), shader->GetBlob()->GetBufferSize(), &(input_layout->layout));
 	CHECK(!FAILED(result))<<"Fail to create input layout error "<<::GetLastError();
-	context->IASetInputLayout(input_layout);
 	delete descs;
 
+	return input_layout;
+}
+
+void D3D11InputStage::Refresh() {
 	//Set all the start_index to be -1 so that it will needs to be refreshed inorder to create new input layout.
 	for (auto it = vbs.begin(); it != vbs.end(); it++) {
 		if (it->vb && it->start_index >= 0) {

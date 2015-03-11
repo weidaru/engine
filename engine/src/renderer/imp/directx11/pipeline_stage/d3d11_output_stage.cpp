@@ -122,7 +122,7 @@ void D3D11OutputStage::SetOutput() {
 		} else {
 			array[i] = 0;
 		}
-		rts[i].is_new = false;
+		
 	}
 	if (ds.depth_stencil) {
 		context->OMSetRenderTargets(rts.size(), array, ds.depth_stencil->GetDepthStencilView());
@@ -130,8 +130,16 @@ void D3D11OutputStage::SetOutput() {
 		context->OMSetRenderTargets(rts.size(), array, 0);
 	}
 	
-	ds.is_new = false;
+	
 	delete[] array;
+}
+
+void D3D11OutputStage::Refresh() {
+	for (unsigned int i = 0; i < rts.size(); i++){
+		rts[i].is_new = false;
+	}
+	
+	ds.is_new = false;
 }
 
 

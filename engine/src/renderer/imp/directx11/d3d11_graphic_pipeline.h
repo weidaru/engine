@@ -74,15 +74,19 @@ public:
 
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	virtual void Draw(unsigned int vertex_count=0, unsigned int instance_count=0);
-	
-	
+	virtual void ResolveConflict();
+	virtual void Draw(unsigned int vertex_count = 0, unsigned int instance_count = 0);
+	virtual void Start();
+	virtual void End();
+
 private:
 	void SetupRasterizationOption();
 	void SetupDepthStencilOption();
 	void SetupBlendOption();
+	void Check();
 	
 private:
+	bool active;
 	D3D11GraphicResourceManager *manager;
 	
 	D3D11InputStage input_stage; 

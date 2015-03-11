@@ -191,35 +191,41 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetRenderTarget(1, texture->AsRenderTarget());
-		pipeline->SetVertexShader(vs);
-		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
-		pipeline->SetIndexBuffer(ib->AsIndexBuffer());
-		
-		rotate += delta*PI/2.0f;
-		rotate = rotate>2*PI ? rotate-2*PI : rotate;
+		rotate += delta*PI / 2.0f;
+		rotate = rotate>2 * PI ? rotate - 2 * PI : rotate;
 		Matrix4x4 rotation_mat;
 		rotation_mat.SetRotationY(rotate);
 		vs->SetUniform("world", rotation_mat);
-
 		vs->SetUniform("view", camera.GetViewMatrix());
 
-		pipeline->Draw();
+		pipeline->Start();
+			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
+			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+			pipeline->SetRenderTarget(1, texture->AsRenderTarget());
+			pipeline->SetVertexShader(vs);
+			pipeline->SetPixelShader(ps);
+			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+			pipeline->SetIndexBuffer(ib->AsIndexBuffer());
+			pipeline->ResolveConflict();
+			pipeline->Draw();
+		pipeline->End();
 	}
 	
 	void DrawTexture(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetVertexShader(tex_vs);
-		pipeline->SetPixelShader(tex_ps);
-		pipeline->SetVertexBuffer(0, 0, tex_vb->AsVertexBuffer());
-		pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
 
-		pipeline->Draw();
+		pipeline->Start();
+			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
+			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+			pipeline->SetVertexShader(tex_vs);
+			pipeline->SetPixelShader(tex_ps);
+			pipeline->SetVertexBuffer(0, 0, tex_vb->AsVertexBuffer());
+			pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
+			pipeline->ResolveConflict();
+			pipeline->Draw();
+		pipeline->End();
 	}
 	
 	void UpdateCamera(float delta) {
@@ -252,7 +258,6 @@ public:
 	
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
 		float black[4] = {0.0f, 0.0f, .0f, 1.0f};
 		pipeline->ClearRenderTarget(manager->GetBackBuffer()->AsRenderTarget(), black);
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);

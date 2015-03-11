@@ -100,6 +100,18 @@ public:
 	//For vertex_count, it will go to index buffer first, if no luck, pick the size of first available vertex buffer.
 	//TODO: Not sure always daring from start is a good assumption to make, revisit this.
 	virtual void Draw(unsigned int vertex_count=0, unsigned int instance_count=0) = 0;
+
+	virtual void ResolveConflict() = 0;
+
+	/**
+	 * A state machine may always be in a state that only part of the attributes is concerned by the user.
+	 * The Start and End function defineds those attributes  which defineds an execution block.
+	 * It explicitly define all the resources that will be used in the draw call so that the pipeline will figure out
+	 * some configuration automatically. For example, in the sense of directx, it will figure out the inputlayout 
+	 * based on input inside the Start End pair.
+	 */
+	virtual void Start() = 0;
+	virtual void End() = 0;
 };
 
 }

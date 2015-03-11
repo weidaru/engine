@@ -178,22 +178,22 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetVertexShader(vs);
-		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(2, 0, position_buffer->AsVertexBuffer());
-		pipeline->SetVertexBuffer(0, 1, color_buffer->AsVertexBuffer());
-		pipeline->SetVertexBuffer(1, 2, instance_buffer->AsVertexBuffer());
-		pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
-		
-		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+		float black[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		pipeline->ClearRenderTarget(manager->GetBackBuffer()->AsRenderTarget(), black);
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
-
 		vs->SetUniform("view", camera.GetViewMatrix());
 
-		pipeline->Draw();
+		pipeline->Start();
+			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
+			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+			pipeline->SetVertexShader(vs);
+			pipeline->SetPixelShader(ps);
+			pipeline->SetVertexBuffer(2, 0, position_buffer->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, 1, color_buffer->AsVertexBuffer());
+			pipeline->SetVertexBuffer(1, 2, instance_buffer->AsVertexBuffer());
+			pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
+			pipeline->Draw();
+		pipeline->End();
 	}
 	
 private:
