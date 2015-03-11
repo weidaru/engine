@@ -24,11 +24,22 @@
 
 namespace s2 {
 
+
+void D3D11InputLayoutManager::Put(const InputState &state, ID3D11InputLayout *new_layout) {
+	input_layouts.insert(std::make_pair(state, new_layout));
+}
+
+ID3D11InputLayout * D3D11InputLayoutManager::Get(const InputState &state) {
+	if (input_layouts.find(state) == input_layouts.end()) {
+		return 0;
+	} else {
+		return input_layouts[state];
+	}
+}
+
 D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
 			: 	manager(_manager){
 	SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-	new_input = true;
-	new_input_layout = true;
 	old_shader = 0;
 	ib = 0;
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
@@ -58,8 +69,6 @@ void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_inp
 	}
 	
 	if (vbs[index].start_index != start_input_index || vbs[index].vb != buffer) {
-		new_input_layout = true;
-		new_input = true;
 		vbs[index].start_index = start_input_index;
 		vbs[index].vb = buffer;
 	}
@@ -127,6 +136,19 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	old_shader  = shader;
 	new_input_layout = false;
 	new_input = false;
+}
+
+void D3D11InputStage::BuildState(const D3D11VertexShader *shader, D3D11InputLayoutManager::InputState *state) const {
+	state->vs = shader;
+	for (auto it = vbs.begin(); it != vbs.end(); it++) {
+		if (it->vb != 0 && it->start_index >= 0) {
+			D3D11InputLayoutManager::VBBinding binding;
+			binding.index = it-vbs.begin();
+			binding.start_index = it->start_index;
+			binding.vb = it->vb;
+			state->vb_state.push_back(binding);
+		}
+	}
 }
 
 void D3D11InputStage::Flush(unsigned int vertex_count, unsigned int instance_count) {

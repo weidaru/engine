@@ -14,10 +14,28 @@ class D3D11VertexShader;
 class D3D11ShaderReflection;
 class D3D11GraphicResourceManager;
 
+//TODO: Let it grow indefinitely for now. Things like LRU could be implemented later.
+class D3D11InputLayoutManager {
+public:
+	struct VBBinding {
+		unsigned int index;
+		int start_index;
+		const D3D11VertexBuffer *vb;
+	};
 
-/**
- * TODO: Use D3D11 type directly instead of more general ones.
- */
+	struct InputState {
+		std::vector<VBBinding> vb_state;
+		const D3D11VertexShader *vs;
+	};
+
+	void Put(const InputState &state, ID3D11InputLayout *new_layout);
+	ID3D11InputLayout *Get(const InputState &state);
+
+private:
+	std::map<InputState, ID3D11InputLayout *> input_layouts;
+};
+
+
 class D3D11InputStage {
 private:
 	struct VBInfo {
@@ -59,14 +77,14 @@ private:
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
 	s2string DumpVertexBufferInfo(const std::vector<VBInfo> &infos);
 
+	void BuildState(const D3D11VertexShader *shader, D3D11InputLayoutManager::InputState *state) const;
+
 	D3D11InputStage(const D3D11InputStage &);
 	D3D11InputStage & operator=(const D3D11InputStage &);
 	
 private:
 	D3D11GraphicResourceManager *manager;
 	
-	bool new_input;
-	bool new_input_layout;
 	D3D11IndexBuffer *ib;
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
