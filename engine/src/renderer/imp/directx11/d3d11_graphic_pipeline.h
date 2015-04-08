@@ -9,8 +9,8 @@
 #include "d3d11_buffer.h"
 #include "d3d11_resource_view.h"
 
-#include "pipeline_stage/d3d11_input_stage.h"
-#include "pipeline_stage/d3d11_output_stage.h"
+#include "d3d11_input_stage.h"
+#include "d3d11_output_stage.h"
 #include "resource_conflict_resolver.h"
 
 #include <map>

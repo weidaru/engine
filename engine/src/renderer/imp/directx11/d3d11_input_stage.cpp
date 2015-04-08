@@ -9,11 +9,11 @@
 #include <algorithm>
 
 #include "d3d11_input_stage.h"
-#include "renderer/imp/directx11/d3d11_buffer.h"
-#include "renderer/imp/directx11/d3d11_vertex_shader.h"
-#include "renderer/imp/directx11/d3d11_shader_reflection.h"
-#include "renderer/imp/directx11/d3d11_graphic_resource_manager.h"
-#include "renderer/imp/directx11/d3d11_enum_converter.h"
+#include "d3d11_buffer.h"
+#include "d3d11_vertex_shader.h"
+#include "d3d11_shader_reflection.h"
+#include "d3d11_graphic_resource_manager.h"
+#include "d3d11_enum_converter.h"
 
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)

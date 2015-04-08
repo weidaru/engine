@@ -25,6 +25,8 @@
     <ClInclude Include="src\renderer\geometry_shader.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_buffer.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_geometry_shader.h" />
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_input_stage.h" />
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_output_stage.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_resource_view.h" />
     <ClInclude Include="src\renderer\imp\directx11\resource_conflict_resolver.h" />
     <ClInclude Include="src\renderer\renderer_enum.h" />
@@ -87,7 +89,9 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_geometry_shader.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_graphic_pipeline.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_graphic_resource_manager.cpp" />
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_input_stage.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_mapped_resource.cpp" />
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_output_stage.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_pixel_shader.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_resource_helper.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_resource_view.cpp" />
@@ -96,8 +100,6 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_shader_reflection.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_texture2d.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp" />
-    <ClCompile Include="src\renderer\imp\directx11\pipeline_stage\d3d11_input_stage.cpp" />
-    <ClCompile Include="src\renderer\imp\directx11\pipeline_stage\d3d11_output_stage.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\resource_conflict_resolver.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\shader_typeinfo_manager.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\video_card_info.cpp" />

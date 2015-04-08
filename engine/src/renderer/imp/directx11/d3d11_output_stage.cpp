@@ -9,10 +9,10 @@
 
 #include "d3d11_output_stage.h"
 
-#include "renderer/imp/directx11/d3d11_graphic_resource_manager.h"
-#include "renderer/imp/directx11/d3d11_context.h"
-#include "renderer/imp/directx11/d3d11_texture2d.h"
-#include "renderer/imp/directx11/d3d11_resource_view.h"
+#include "d3d11_graphic_resource_manager.h"
+#include "d3d11_context.h"
+#include "d3d11_texture2d.h"
+#include "d3d11_resource_view.h"
 
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
