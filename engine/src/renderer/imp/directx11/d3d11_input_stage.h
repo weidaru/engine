@@ -13,8 +13,8 @@ class D3D11IndexBuffer;
 class D3D11VertexShader;
 class D3D11ShaderReflection;
 class D3D11GraphicResourceManager;
+class D3D11DrawingState;
 
-//TODO: Let it grow indefinitely for now. Things like LRU could be implemented later.
 struct D3D11InputLayout {
 	ID3D11InputLayout *layout;
 	unsigned int first_instance_count;
@@ -28,27 +28,6 @@ struct VBBinding {
 	int start_index;
 	const D3D11VertexBuffer *vb;
 };
-
-struct InputState {
-	std::vector<VBBinding> vb_state;
-	const D3D11VertexShader *vs;
-};
-
-struct InputStateCompare {
-	bool operator()(const InputState &lhs, const InputState &rhs) const;
-};
-
-class D3D11InputLayoutManager {
-public:
-	~D3D11InputLayoutManager();
-
-	void Put(const InputState &state,  D3D11InputLayout *new_layout);
-	D3D11InputLayout *Get(const InputState &state);
-
-private:
-	std::map<InputState, D3D11InputLayout *, InputStateCompare> input_layouts;
-};
-
 
 class D3D11InputStage {
 private:
@@ -82,6 +61,8 @@ public:
 	bool Validate(const D3D11VertexShader &shader, s2string *message) const;
 	//Given an not NULL reflect, the input layout will be recomputed.
 	void Setup(const D3D11VertexShader *shader);
+	void Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state);
+
 	void Flush(unsigned int vertex_count, unsigned int instance_count);
 	void Refresh();
 	
@@ -91,8 +72,6 @@ private:
 	
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
 	s2string DumpVertexBufferInfo(const std::vector<VBInfo> &infos);
-
-	void BuildState(const D3D11VertexShader *shader, InputState *state) const;
 
 	D3D11InputStage(const D3D11InputStage &);
 	D3D11InputStage & operator=(const D3D11InputStage &);
@@ -104,7 +83,6 @@ private:
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
 	
-	D3D11InputLayoutManager input_layout_manager;
 	unsigned int current_first_instance_count;
 };
 

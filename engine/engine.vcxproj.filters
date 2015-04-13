@@ -231,6 +231,12 @@
     <ClInclude Include="src\renderer\imp\directx11\d3d11_output_stage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderer\drawing_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_drawing_state.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\utils\type_info.cpp">
@@ -346,6 +352,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\renderer\imp\directx11\d3d11_output_stage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_drawing_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -17,6 +17,7 @@
 #include "texture3d.h"
 #include "texture_enum.h"
 #include "vertex_shader.h"
+#include "drawing_state.h"
 
 
 #endif	RENDERER_ALL_H_

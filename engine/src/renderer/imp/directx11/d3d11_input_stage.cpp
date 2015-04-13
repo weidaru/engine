@@ -14,6 +14,7 @@
 #include "d3d11_shader_reflection.h"
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_enum_converter.h"
+#include "d3d11_drawing_state.h"
 
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
@@ -29,48 +30,6 @@ D3D11InputLayout::~D3D11InputLayout() {
 		layout->Release();
 	}
 }
-
-bool InputStateCompare::operator()(const InputState &lhs, const InputState &rhs) const {
-	if (lhs.vs != rhs.vs) {
-		return lhs.vs < rhs.vs;
-	}
-	if (lhs.vb_state.size() != rhs.vb_state.size()) {
-		return lhs.vb_state.size() < rhs.vb_state.size();
-	}
-	for (unsigned int i = 0; i < lhs.vb_state.size(); i++) {
-		const VBBinding &lhs_binding = lhs.vb_state[i];
-		const VBBinding &rhs_binding = rhs.vb_state[i];
-		if (lhs_binding.vb != rhs_binding.vb) {
-			return lhs_binding.vb < rhs_binding.vb;
-		}
-		if (lhs_binding.index != rhs_binding.index) {
-			return lhs_binding.index < rhs_binding.index;
-		}
-		if (lhs_binding.start_index != rhs_binding.start_index) {
-			return lhs_binding.start_index < rhs_binding.start_index;
-		}
-	}
-	return false;
-}
-
-D3D11InputLayoutManager::~D3D11InputLayoutManager() {
-	for (auto it = input_layouts.begin(); it != input_layouts.end(); it++) {
-		delete it->second;
-	}
-}
-
-void D3D11InputLayoutManager::Put(const InputState &state, D3D11InputLayout *new_layout) {
-	input_layouts.insert(std::make_pair(state, new_layout));
-}
-
-D3D11InputLayout * D3D11InputLayoutManager::Get(const InputState &state) {
-	if (input_layouts.find(state) == input_layouts.end()) {
-		return 0;
-	} else {
-		return input_layouts[state];
-	}
-}
-
 
 
 D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
@@ -160,14 +119,9 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	SetInput();
 
 	if (shader != 0) {
-		InputState state;
-		BuildState(shader, &state);
-		D3D11InputLayout *input_layout = input_layout_manager.Get(state);
-		if (input_layout == 0) {
-			int first_instance_count = -1;
-			input_layout = CreateInputLayout(shader);
-			input_layout_manager.Put(state, input_layout);
-		}
+		D3D11InputLayout *input_layout = 0;
+		int first_instance_count = -1;
+		input_layout = CreateInputLayout(shader);
 		
 		context->IASetInputLayout(input_layout->layout);
 		current_first_instance_count = input_layout->first_instance_count;
@@ -178,16 +132,28 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 	}
 }
 
-void D3D11InputStage::BuildState(const D3D11VertexShader *shader, InputState *state) const {
-	state->vs = shader;
-	for (auto it = vbs.begin(); it != vbs.end(); it++) {
-		if (it->vb != 0 && it->start_index >= 0) {
-			VBBinding binding;
-			binding.index = it-vbs.begin();
-			binding.start_index = it->start_index;
-			binding.vb = it->vb;
-			state->vb_state.push_back(binding);
+void D3D11InputStage::Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state) {
+	CHECK_NOTNULL (draw_state);
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	SetInput();
+
+	if (shader != 0) {
+		D3D11InputLayout *input_layout = 0;
+		int first_instance_count = -1;
+		if (draw_state->GetInputLayout()) {
+			input_layout = draw_state->GetInputLayout();
+		} else {
+			input_layout = CreateInputLayout(shader);
 		}
+		
+		context->IASetInputLayout(input_layout->layout);
+		current_first_instance_count = input_layout->first_instance_count;
+
+		draw_state->SetInputLayout(input_layout);
+	}
+	else {
+		context->IASetInputLayout(0);
+		current_first_instance_count = 0;
 	}
 }
 

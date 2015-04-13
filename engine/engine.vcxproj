@@ -22,8 +22,10 @@
     <ClInclude Include="src\renderer\buffer.h" />
     <ClInclude Include="src\renderer\constant_buffer.h" />
     <ClInclude Include="src\renderer\depth_stencil_option.h" />
+    <ClInclude Include="src\renderer\drawing_state.h" />
     <ClInclude Include="src\renderer\geometry_shader.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_buffer.h" />
+    <ClInclude Include="src\renderer\imp\directx11\d3d11_drawing_state.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_geometry_shader.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_input_stage.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_output_stage.h" />
@@ -85,6 +87,7 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_constant_buffer.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_context.cpp" />
+    <ClCompile Include="src\renderer\imp\directx11\d3d11_drawing_state.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_enum_converter.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_geometry_shader.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_graphic_pipeline.cpp" />

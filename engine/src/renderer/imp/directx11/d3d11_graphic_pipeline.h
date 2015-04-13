@@ -11,6 +11,7 @@
 
 #include "d3d11_input_stage.h"
 #include "d3d11_output_stage.h"
+#include "d3d11_drawing_state.h"
 #include "resource_conflict_resolver.h"
 
 #include <map>
@@ -75,7 +76,7 @@ public:
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
 	virtual void ResolveConflict();
-	virtual void Draw(unsigned int vertex_count = 0, unsigned int instance_count = 0);
+	virtual void Draw(DrawingState **state=0, unsigned int vertex_count = 0, unsigned int instance_count = 0);
 	virtual void Start();
 	virtual void End();
 

@@ -387,12 +387,26 @@ void D3D11GraphicPipeline::ClearDepthStencil(DepthStencil *ds, bool clear_depth,
 	output_stage.ClearDepthStencil(ds, clear_depth, depth , clear_stencil, stencil);
 }
 
-void D3D11GraphicPipeline::Draw(unsigned int vertex_count, unsigned int instance_count) {
+void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count, unsigned int instance_count) {
 	Check();
+	D3D11DrawingState *state = 0;
+	if (_state) {
+		state = NiceCast(D3D11DrawingState *, *_state);
+		if (*_state) {
+			CHECK(state) << "Cannot cast state to D3D11 DrawState";
+		}
+		state = state == 0 ? new D3D11DrawingState : state;
+		*_state = state;
+	}
+
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	//Setup input
 	if(vs) {
-		input_stage.Setup(vs);
+		if (state == 0) {
+			input_stage.Setup(vs);
+		} else {
+			input_stage.Setup(vs, state);
+		}
 	}
 
 	//Setup output
