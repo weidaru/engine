@@ -84,6 +84,7 @@ private:
 	GraphicPipeline::PrimitiveTopology topology;
 	
 	unsigned int current_first_instance_count;
+	ID3D11InputLayout *owned_layout;
 };
 
 

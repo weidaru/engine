@@ -18,6 +18,8 @@ class SamplerContainer;
 class ShaderResourceContainer;
 
 class D3D11GeometryShader : public GeometryShader {
+private:
+
 public:
 	D3D11GeometryShader(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11GeometryShader();
@@ -35,7 +37,8 @@ public:
 	/*****************D3D11 exclusive.******************/
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() { return blob; }
-	void Setup();
+	void Setup(ID3D11GeometryShader *stream_out_shader = 0);
+	
 	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }
 	const SamplerContainer & GetSamplerContainer() const { return *sampler_container; }
 	const ShaderResourceContainer & GetShaderResourceContainer() const { return *sr_container; }
@@ -50,6 +53,7 @@ private:
 	D3D11GraphicResourceManager *manager;
 
 	ID3D11GeometryShader  *shader;
+
 	D3D11ShaderReflection *reflect;
 	ID3DBlob *blob;
 	s2string error;

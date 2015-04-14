@@ -13,6 +13,10 @@
 #include "d3d11_context.h"
 #include "d3d11_texture2d.h"
 #include "d3d11_resource_view.h"
+#include "d3d11_geometry_shader.h"
+#include "d3d11_shader_reflection.h"
+
+#include <algorithm>
 
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
@@ -23,8 +27,9 @@
 namespace s2 {
 
 D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager) 
-		: manager(_manager){
+	: manager(_manager), rasterized_stream(-1){
 	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
+	stream_outs.resize(D3D11_SO_STREAM_COUNT);
 }
 
 D3D11OutputStage::~D3D11OutputStage() {
@@ -37,19 +42,19 @@ void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target
 	}
 	if(target) {
 		for(unsigned int i=0; i<rts.size(); i++) {
-			if(rts[i].render_target == target) {
-				rts[i].render_target = 0;
+			if(rts[i].data == target) {
+				rts[i].data = 0;
 				rts[i].is_new = true;
 			}
 		}
 	}
 	
-	rts[index].render_target = target;
+	rts[index].data = target;
 	rts[index].is_new = true;
 }
 
 D3D11RenderTarget * D3D11OutputStage::GetRenderTarget(unsigned int index) {
-	return rts[index].render_target;
+	return rts[index].data;
 }
 
 unsigned int D3D11OutputStage::GetRenderTargetCapacity() const {
@@ -58,19 +63,174 @@ unsigned int D3D11OutputStage::GetRenderTargetCapacity() const {
 
 void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 	D3D11DepthStencil * depth_stencil = NiceCast(D3D11DepthStencil *, _depth_stencil);
-	if (depth_stencil != 0) {
+	if (_depth_stencil != 0) {
 		CHECK(depth_stencil) << "buffer cannot be cast to D3D11DepthStencil";
 	}
-	ds.depth_stencil = depth_stencil;
+	ds.data = depth_stencil;
 	ds.is_new = true;
 }
 
 D3D11DepthStencil * D3D11OutputStage::GetDepthStencil() {
-	return ds.depth_stencil;
+	return ds.data;
 }
 
-void D3D11OutputStage::Setup() {
+void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *_stream_out) {
+	D3D11StreamOut * stream_out = NiceCast(D3D11StreamOut *, _stream_out);
+	if (_stream_out != 0) {
+		CHECK(stream_out) << "stream out cannot be cast to D3D11StreamOut";
+	}
+	stream_outs[index].data = stream_out;
+	stream_outs[index].start_output_index = start_output_index;
+}
+
+D3D11StreamOut * D3D11OutputStage::GetStreamOut(unsigned int index, unsigned int *start_input_index) {
+	if (start_input_index) {
+		*start_input_index = stream_outs[index].start_output_index;
+	}
+
+	return stream_outs[index].data;
+}
+
+
+bool D3D11OutputStage::SOCompare(const std::vector<SOInfo>::iterator lhs, const std::vector<SOInfo>::iterator rhs) {
+	return lhs->start_output_index < rhs->start_output_index;
+}
+
+ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11GeometryShader *gs){
+	const D3D11ShaderReflection &reflect = gs->GetReflection();
+	D3D11_SO_DECLARATION_ENTRY *entries = new D3D11_SO_DECLARATION_ENTRY[reflect.GetOutputSize()];
+
+	unsigned int size = reflect.GetOutputSize();
+
+	for (unsigned int i = 0; i < size; i++) {
+		D3D11_SO_DECLARATION_ENTRY &entry = entries[i];
+		const D3D11ShaderReflection::Parameter output_param = reflect.GetOutput(i);
+
+		entry.Stream = output_param.stream;
+		entry.SemanticName = output_param.semantic.c_str();
+		entry.SemanticIndex = output_param.semantic_index;
+		entry.StartComponent = 0;
+		entry.ComponentCount = output_param.size / TypeInfoManager::GetSingleton()->Get(output_param.type_name).GetSize();
+		CHECK(entry.Stream >= 0);
+	}
+
+	std::vector<std::vector<SOInfo>::iterator> pool;
+	for (auto it = stream_outs.begin(); it != stream_outs.end(); it++) {
+		if (it->data  && it->start_output_index >= 0)
+			pool.push_back(it);
+	}
+
+	std::sort(pool.begin(), pool.end(), SOCompare);
+
+	unsigned int head = 0;
+	for (auto it = pool.begin(); it != pool.end(); it++) {
+		const SOInfo &info = **it;
+		if (head < (unsigned int)info.start_output_index) {
+			LOG(FATAL) << "Shader input " << head << " is not covered by vertex buffer. Dumping:\n" << DumpStreamOutInfo(stream_outs);
+		}
+		else if (head >(unsigned int)info.start_output_index) {
+			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpStreamOutInfo(stream_outs);
+		}
+		else {
+			head = info.start_output_index + info.data->GetResource()->GetElementMemberCount();
+		}
+	}
+	if (head < size) {
+		LOG(FATAL) << "Some shader tail inputs are not covered by vertex buffer. Dumping:\n" << DumpStreamOutInfo(stream_outs);
+	}
+	else if (head > size) {
+		LOG(FATAL) << "Vertex buffer overflows input. Dumping:\n" << DumpStreamOutInfo(stream_outs);
+	}
+
+	auto it = pool.begin();
+	unsigned int offset = 0;
+	for (unsigned int i = 0; i<size; i++) {
+		if ((**it).start_output_index + (**it).data->GetResource()->GetElementMemberCount() - 1 < i) {
+			it++;
+		}
+		const D3D11ShaderReflection::Parameter &p = reflect.GetOutput(i);
+		const SOInfo &info = **it;
+		CHECK(i <= (info.start_output_index + info.data->GetResource()->GetElementMemberCount()));
+		entries[i].OutputSlot = *it - stream_outs.begin();
+	}
+
+	unsigned int *strides = new unsigned int[stream_outs.size()];
+	for (unsigned int i = 0; i < stream_outs.size(); i++) {
+		strides[i] = 0;
+	}
+
+	unsigned real_rasterized_stream;
+	if (rasterized_stream < 0) {
+		real_rasterized_stream = D3D11_SO_NO_RASTERIZED_STREAM;
+	} else {
+		real_rasterized_stream = rasterized_stream;
+	}
+
+	ID3D11GeometryShader *raw_streamout_geometry_shader;
+	HRESULT result = 1;
+	result = manager->GetDevice()->CreateGeometryShaderWithStreamOutput(
+		gs->GetBlob()->GetBufferPointer(),
+		gs->GetBlob()->GetBufferSize(),
+		entries,
+		size,
+		strides,
+		stream_outs.size(),
+		real_rasterized_stream,
+		0,
+		&raw_streamout_geometry_shader
+		);
+	CHECK(!FAILED(result)) << "Fail to create streamout geometry shader error " << ::GetLastError();
+
+	delete strides;
+	delete[] entries;
+
+	return raw_streamout_geometry_shader;
+}
+
+
+s2string D3D11OutputStage::DumpStreamOutInfo(const std::vector<SOInfo> &infos) {
+	char buffer[1024 * 8];
+	char *head = buffer;
+	for (unsigned int i = 0; i<infos.size(); i++) {
+		if (infos[i].data) {
+			unsigned int start = infos[i].start_output_index;
+			unsigned int end = start + infos[i].data->GetResource()->GetElementMemberCount() - 1;
+
+			head += sprintf_s(head, 1024 * 8 - (head - buffer), "StreamOut %d, start at input %d, ends at input %d.\n",
+				i, start, end);
+		}
+
+	}
+	return s2string(buffer);
+}
+
+ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs) {
 	SetOutput();
+	ID3D11GeometryShader *raw_stream_out_shader = 0;
+
+	if (gs) {
+		raw_stream_out_shader = BuildStreamOutGeometryShader(gs);
+	}
+
+	return raw_stream_out_shader;
+}
+
+ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state) {
+	SetOutput();
+	
+	if (gs && draw_state->GetStreamOutGeometryShader() == 0) {
+		draw_state->SetStreamOutGeometryShader(BuildStreamOutGeometryShader(gs));
+	} 
+
+	return draw_state->GetStreamOutGeometryShader();
+}
+
+void D3D11OutputStage::SetRasterizedStream(int index) {
+	rasterized_stream = index;
+}
+
+int D3D11OutputStage::GetRasterizedStream() {
+	return rasterized_stream;
 }
 
 D3D11OutputStage::RTBindingVector D3D11OutputStage::GetNewRenderTargetBindings() const {
@@ -80,8 +240,8 @@ D3D11OutputStage::RTBindingVector D3D11OutputStage::GetNewRenderTargetBindings()
 			continue;
 		}
 		Resource *resource = 0;
-		if (rts[i].render_target) {
-			resource = rts[i].render_target->GetResource();
+		if (rts[i].data) {
+			resource = rts[i].data->GetResource();
 		}
 		result.push_back(std::make_pair(i, resource));
 	}
@@ -117,20 +277,19 @@ void D3D11OutputStage::SetOutput() {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	ID3D11RenderTargetView **array = new ID3D11RenderTargetView *[rts.size()];
 	for(unsigned int i=0; i<rts.size(); i++) {
-		if(rts[i].render_target != 0) {
-			array[i] = rts[i].render_target->GetRenderTargetView();
+		if(rts[i].data != 0) {
+			array[i] = rts[i].data->GetRenderTargetView();
 		} else {
 			array[i] = 0;
 		}
 		
 	}
-	if (ds.depth_stencil) {
-		context->OMSetRenderTargets(rts.size(), array, ds.depth_stencil->GetDepthStencilView());
+	if (ds.data) {
+		context->OMSetRenderTargets(rts.size(), array, ds.data->GetDepthStencilView());
 	} else {
 		context->OMSetRenderTargets(rts.size(), array, 0);
 	}
-	
-	
+
 	delete[] array;
 }
 

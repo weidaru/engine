@@ -130,13 +130,17 @@ const s2string & D3D11GeometryShader::GetLastError() {
 	return error;
 }
 
-void D3D11GeometryShader::Setup() {
+void D3D11GeometryShader::Setup(ID3D11GeometryShader *stream_out_shader) {
 	if (shader) {
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::GEOMETRY;
 
-		context->GSSetShader(shader, 0, 0);
-
+		if (stream_out_shader) {
+			context->GSSetShader(stream_out_shader, 0, 0);
+		} else {
+			context->GSSetShader(shader, 0, 0);
+		}
+		
 		//Set constant buffer.
 		cb_container->Setup(context, type);
 

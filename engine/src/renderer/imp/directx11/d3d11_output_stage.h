@@ -2,6 +2,9 @@
 #define D3D11_OUTPUT_STAGE_H_
 
 #include <stdint.h>
+#include "utils/s2string.h"
+
+struct ID3D11GeometryShader;
 
 namespace s2 {
 
@@ -10,8 +13,12 @@ class Resource;
 class D3D11GraphicResourceManager;
 class D3D11RenderTarget;
 class D3D11DepthStencil;
+class D3D11StreamOut;
+class D3D11GeometryShader;
 class RenderTarget;
 class DepthStencil;
+class StreamOut;
+class D3D11DrawingState;
 
 class D3D11OutputStage {
 public:
@@ -19,22 +26,30 @@ public:
 
 private:
 	struct  RTInfo {
-		D3D11RenderTarget *render_target;
+		D3D11RenderTarget *data;
 		bool is_new;
 		
 		RTInfo() {
-			render_target = 0;
+			data = 0;
 			is_new = false;
 		}
 	};
-	
 	struct  DSInfo {
-		D3D11DepthStencil *depth_stencil;
+		D3D11DepthStencil *data;
 		bool is_new;
-		
+
 		DSInfo() {
-			depth_stencil = 0;
+			data = 0;
 			is_new = false;
+		}
+	};
+	struct  SOInfo {
+		D3D11StreamOut *data;
+		int start_output_index;
+
+		SOInfo() {
+			data = 0;
+			start_output_index = -1;
 		}
 	};
 
@@ -45,13 +60,21 @@ public:
 	void SetRenderTarget(unsigned int index, RenderTarget *target);
 	D3D11RenderTarget * GetRenderTarget(unsigned int index);
 	unsigned int GetRenderTargetCapacity() const;
+
 	void SetDepthStencil(DepthStencil *buffer);
 	D3D11DepthStencil * GetDepthStencil();
 
+	void SetStreamOut(unsigned int index, unsigned int start_outputput_index, StreamOut *stream_out);
+	D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *start_output_index);
+
+	void SetRasterizedStream(int index);
+	int GetRasterizedStream();
+
 	void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	
-	void Setup();
+
+	ID3D11GeometryShader * Setup(D3D11GeometryShader *gs);
+	ID3D11GeometryShader * Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state);
 	void Refresh();
 	
 	/**
@@ -61,12 +84,18 @@ public:
 	
 private:
 	void SetOutput();
+	ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11GeometryShader *gs);
+	static bool D3D11OutputStage::SOCompare(const std::vector<SOInfo>::iterator lhs, const std::vector<SOInfo>::iterator rhs);
+	s2string DumpStreamOutInfo(const std::vector<SOInfo> &infos);
 	
 private:
 	D3D11GraphicResourceManager *manager;
 
-	std::vector<RTInfo> rts;
+	std::vector<RTInfo > rts;
 	DSInfo ds;
+
+	std::vector<SOInfo> stream_outs;
+	int rasterized_stream;
 };
 
 

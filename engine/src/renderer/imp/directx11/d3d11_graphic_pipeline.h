@@ -37,7 +37,7 @@ public:
 	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
-	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
+	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index=0);
 
 	virtual void SetIndexBuffer(IndexBuffer *buf);
 	virtual D3D11IndexBuffer * GetIndexBuffer();
@@ -70,6 +70,11 @@ public:
 	
 	virtual void SetDepthStencil(DepthStencil *buffer);
 	virtual D3D11DepthStencil * GetDepthStencil();
+
+	virtual void SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *stream_out);
+	virtual D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *start_output_index=0);
+	virtual void SetRasterizedStream(int index);
+	virtual int GetRasterizedStream();
 
 	virtual bool Validate(s2string *_error) const;
 

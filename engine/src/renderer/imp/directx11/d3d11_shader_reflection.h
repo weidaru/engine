@@ -54,6 +54,8 @@ public:
 		unsigned int size;		
 		s2string semantic;
 		unsigned int semantic_index;
+
+		int stream;						//Will be set to >=0 if that parameter is an output of a geometry shader.
 	};
 	
 	struct Sampler {

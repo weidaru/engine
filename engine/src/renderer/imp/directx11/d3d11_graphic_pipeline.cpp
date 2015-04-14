@@ -328,6 +328,24 @@ D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
 	return output_stage.GetDepthStencil();
 }
 
+void D3D11GraphicPipeline::SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *stream_out) {
+	Check();
+	output_stage.SetStreamOut(index, start_output_index, stream_out);
+}
+
+D3D11StreamOut * D3D11GraphicPipeline::GetStreamOut(unsigned int index, unsigned int *start_output_index) {
+	return output_stage.GetStreamOut(index, start_output_index);
+}
+
+void D3D11GraphicPipeline::SetRasterizedStream(int index) {
+	Check();
+	output_stage.SetRasterizedStream(index);
+}
+
+int D3D11GraphicPipeline::GetRasterizedStream() {
+	return output_stage.GetRasterizedStream();
+}
+
 void D3D11GraphicPipeline::SetupRasterizationOption() {
 	CHECK(rast_state);
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
@@ -410,7 +428,13 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 	}
 
 	//Setup output
-	output_stage.Setup();
+	ID3D11GeometryShader *raw_stream_out_shader = 0;
+	if (state == 0) {
+		raw_stream_out_shader = output_stage.Setup(gs);
+	} else {
+		raw_stream_out_shader = output_stage.Setup(gs, state);
+	}
+	
 	
 	if(vs) {
 		vs->Setup();
@@ -419,7 +443,7 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 	}
 	
 	if (gs) {
-		gs->Setup();
+		gs->Setup(raw_stream_out_shader);
 	} else {
 		context->GSSetShader(0,0,0);
 	}

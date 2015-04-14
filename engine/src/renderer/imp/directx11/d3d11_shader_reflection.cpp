@@ -104,6 +104,7 @@ void D3D11ShaderReflection::PopulateInputs(const D3D11_SHADER_DESC &desc) {
 		p.size = GetUsedComponentSize(in_desc.Mask);
 		p.semantic = in_desc.SemanticName;
 		p.semantic_index = in_desc.SemanticIndex;
+		p.stream = -1;
 	}
 }
 
@@ -120,6 +121,7 @@ void D3D11ShaderReflection::PopulateOutputs(const D3D11_SHADER_DESC &desc) {
 		p.size = GetUsedComponentSize(out_desc.Mask);
 		p.semantic = out_desc.SemanticName;
 		p.semantic_index = out_desc.SemanticIndex;
+		p.stream = out_desc.Stream;
 	}
 }
 

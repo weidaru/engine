@@ -20,6 +20,7 @@ class Resource;
 class RenderTarget;
 class DepthStencil;
 class DrawingState;
+class StreamOut;
 struct RasterizationOption;
 struct DepthStencilOption;
 struct BlendOption; 
@@ -49,7 +50,7 @@ public:
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
 
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
-	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index) = 0;
+	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index=0) = 0;
 
 	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
 	virtual IndexBuffer * GetIndexBuffer() = 0;
@@ -89,6 +90,13 @@ public:
 	
 	virtual void SetDepthStencil(DepthStencil *buffer) = 0;
 	virtual DepthStencil* GetDepthStencil() = 0;
+
+	//Stream Out will always go before render  target if set.
+	virtual void SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *stream_out) = 0;
+	virtual StreamOut * GetStreamOut(unsigned int index, unsigned int *start_output_index=0) = 0;
+	//negative index means no stream get rasterized.
+	virtual void SetRasterizedStream(int index) = 0;
+	virtual int GetRasterizedStream() = 0;
 	
 	//Validate whether each stage is settled properly.
 	virtual bool Validate(s2string *error) const = 0;
