@@ -204,9 +204,6 @@
     <ClInclude Include="src\renderer\imp\directx11\d3d11_geometry_shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\renderer\imp\directx11\resource_conflict_resolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\asset\asset_path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -330,9 +327,6 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_geometry_shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\renderer\imp\directx11\resource_conflict_resolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\engine_program_imp\geometry_shader_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -357,5 +351,11 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_drawing_state.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine_program_imp\stream_out_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test\streamout.gs" />
   </ItemGroup>
 </Project>

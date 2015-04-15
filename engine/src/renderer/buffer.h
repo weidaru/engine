@@ -33,7 +33,7 @@ public:
 		s2string element_typename;
 		RendererEnum::Format format;
 		RendererEnum::ResourceWrite resource_write;
-		Binding binding;
+		unsigned int binding;
 
 		Option() {
 			element_count = 0;
@@ -81,7 +81,7 @@ public:
 	virtual s2string 			GetElementTypeName() const { return ""; }
 
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const = 0;
-	virtual Buffer::Binding GetBinding() const = 0;
+	virtual unsigned int GetBinding() const = 0;
 
 	virtual void WriteMap(bool is_partial_map) = 0;
 	virtual void WriteUnmap() = 0;

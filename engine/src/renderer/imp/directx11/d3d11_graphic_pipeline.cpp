@@ -37,36 +37,6 @@ D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager
 		rast_state(0), ds_state(0), blend_state(0),
 		output_stage(_manager) {
 
-	auto * context = manager->GetDeviceContext();
-	auto error_on_fail = [](int, Resource *resource) {LOG(ERROR) << "Bind resource " << resource->GetIDAndName()
-		<< " as  both  shader resource and render target will result in undefined behaviour."; };
-
-	sr_rt_resolver.AddToGroup0(
-		D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT,
-		[this](){ if (this->vs) { return this->vs->GetShaderResourceContainer().GetNewBindings(); } else { return BindingVec(); } },
-		[context](int index, Resource *){ ID3D11ShaderResourceView *view = 0; context->VSSetShaderResources(index, 1, &view);},
-		error_on_fail
-	);
-	sr_rt_resolver.AddToGroup0(
-		D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT,
-		[this](){ if (this->ps) { return this->ps->GetShaderResourceContainer().GetNewBindings(); } else { return BindingVec(); }},
-		[context](int index, Resource *){ID3D11ShaderResourceView *view = 0; context->PSSetShaderResources(index, 1, &view); },
-		error_on_fail
-	);
-	sr_rt_resolver.AddToGroup0(
-		D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT,
-		[this](){ if (this->gs) { return this->gs->GetShaderResourceContainer().GetNewBindings(); } else { return BindingVec(); } },
-		[context](int index, Resource *){ID3D11ShaderResourceView *view = 0; context->GSSetShaderResources(index, 1, &view); },
-		error_on_fail
-	);
-
-	sr_rt_resolver.AddToGroup1(
-		D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
-		[this]() {return this->output_stage.GetNewRenderTargetBindings(); },
-		[this](int index, Resource *) {return this->SetRenderTarget(index, 0); },
-		error_on_fail
-	);
-
 	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 	RasterizationOption option;
 	option.viewports.clear();
@@ -328,13 +298,13 @@ D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
 	return output_stage.GetDepthStencil();
 }
 
-void D3D11GraphicPipeline::SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *stream_out) {
+void D3D11GraphicPipeline::SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out) {
 	Check();
-	output_stage.SetStreamOut(index, start_output_index, stream_out);
+	output_stage.SetStreamOut(index, stream_index, stream_out);
 }
 
-D3D11StreamOut * D3D11GraphicPipeline::GetStreamOut(unsigned int index, unsigned int *start_output_index) {
-	return output_stage.GetStreamOut(index, start_output_index);
+D3D11StreamOut * D3D11GraphicPipeline::GetStreamOut(unsigned int index, unsigned int *stream_index) {
+	return output_stage.GetStreamOut(index, stream_index);
 }
 
 void D3D11GraphicPipeline::SetRasterizedStream(int index) {
@@ -418,23 +388,25 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 	}
 
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	//Setup input
-	if(vs) {
-		if (state == 0) {
-			input_stage.Setup(vs);
-		} else {
-			input_stage.Setup(vs, state);
-		}
-	}
 
 	//Setup output
 	ID3D11GeometryShader *raw_stream_out_shader = 0;
 	if (state == 0) {
 		raw_stream_out_shader = output_stage.Setup(gs);
-	} else {
+	}
+	else {
 		raw_stream_out_shader = output_stage.Setup(gs, state);
 	}
-	
+
+	//Setup input
+	if (vs) {
+		if (state == 0) {
+			input_stage.Setup(vs);
+		}
+		else {
+			input_stage.Setup(vs, state);
+		}
+	}
 	
 	if(vs) {
 		vs->Setup();
@@ -484,10 +456,6 @@ void D3D11GraphicPipeline::Start() {
 
 void D3D11GraphicPipeline::End() {
 	active = false;
-}
-
-void D3D11GraphicPipeline::ResolveConflict() {
-	sr_rt_resolver.Resolve();
 }
 
 }

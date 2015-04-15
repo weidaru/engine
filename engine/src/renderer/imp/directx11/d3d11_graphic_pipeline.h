@@ -12,8 +12,6 @@
 #include "d3d11_input_stage.h"
 #include "d3d11_output_stage.h"
 #include "d3d11_drawing_state.h"
-#include "resource_conflict_resolver.h"
-
 #include <map>
 
 struct ID3D11RasterizerState;
@@ -71,8 +69,8 @@ public:
 	virtual void SetDepthStencil(DepthStencil *buffer);
 	virtual D3D11DepthStencil * GetDepthStencil();
 
-	virtual void SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *stream_out);
-	virtual D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *start_output_index=0);
+	virtual void SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out);
+	virtual D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *stream_index = 0);
 	virtual void SetRasterizedStream(int index);
 	virtual int GetRasterizedStream();
 
@@ -80,7 +78,6 @@ public:
 
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	virtual void ResolveConflict();
 	virtual void Draw(DrawingState **state=0, unsigned int vertex_count = 0, unsigned int instance_count = 0);
 	virtual void Start();
 	virtual void End();
@@ -114,8 +111,6 @@ private:
 	ID3D11BlendState *blend_state;
 	
 	D3D11OutputStage output_stage;
-
-	ResourceConflictResolver sr_rt_resolver;
 
 };
 

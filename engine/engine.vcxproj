@@ -30,7 +30,6 @@
     <ClInclude Include="src\renderer\imp\directx11\d3d11_input_stage.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_output_stage.h" />
     <ClInclude Include="src\renderer\imp\directx11\d3d11_resource_view.h" />
-    <ClInclude Include="src\renderer\imp\directx11\resource_conflict_resolver.h" />
     <ClInclude Include="src\renderer\renderer_enum.h" />
     <ClInclude Include="src\renderer\graphic_pipeline.h" />
     <ClInclude Include="src\renderer\graphic_resource_manager.h" />
@@ -81,6 +80,7 @@
     <ClCompile Include="src\engine_program_imp\geometry_shader_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\instancing_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\render_to_target_demo.cpp" />
+    <ClCompile Include="src\engine_program_imp\stream_out_demo.cpp" />
     <ClCompile Include="src\generate\generated_type_info.cpp" />
     <ClCompile Include="src\input_system.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -103,7 +103,6 @@
     <ClCompile Include="src\renderer\imp\directx11\d3d11_shader_reflection.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_texture2d.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\d3d11_vertex_shader.cpp" />
-    <ClCompile Include="src\renderer\imp\directx11\resource_conflict_resolver.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\shader_typeinfo_manager.cpp" />
     <ClCompile Include="src\renderer\imp\directx11\video_card_info.cpp" />
     <ClCompile Include="src\renderer\resource.cpp" />
@@ -113,6 +112,9 @@
     <ClCompile Include="src\utils\s2string.cpp" />
     <ClCompile Include="src\utils\type_info.cpp" />
     <ClCompile Include="src\utils\vector3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test\streamout.gs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E576F8B0-FD63-4150-B73D-597D14F5C6D0}</ProjectGuid>

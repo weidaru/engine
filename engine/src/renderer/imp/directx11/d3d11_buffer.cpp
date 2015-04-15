@@ -90,7 +90,7 @@ RendererEnum::ResourceWrite D3D11Buffer::GetResourceWrite() const {
 	return mapped->GetResourceWrite();
 }
 
-Buffer::Binding D3D11Buffer::GetBinding() const {
+unsigned int D3D11Buffer::GetBinding() const {
 	Check();
 	return option.binding;
 }

@@ -45,11 +45,11 @@ private:
 	};
 	struct  SOInfo {
 		D3D11StreamOut *data;
-		int start_output_index;
+		int stream_index;
 
 		SOInfo() {
 			data = 0;
-			start_output_index = -1;
+			stream_index = -1;
 		}
 	};
 
@@ -64,8 +64,8 @@ public:
 	void SetDepthStencil(DepthStencil *buffer);
 	D3D11DepthStencil * GetDepthStencil();
 
-	void SetStreamOut(unsigned int index, unsigned int start_outputput_index, StreamOut *stream_out);
-	D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *start_output_index);
+	void SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out);
+	D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *stream_index);
 
 	void SetRasterizedStream(int index);
 	int GetRasterizedStream();
@@ -85,7 +85,6 @@ public:
 private:
 	void SetOutput();
 	ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11GeometryShader *gs);
-	static bool D3D11OutputStage::SOCompare(const std::vector<SOInfo>::iterator lhs, const std::vector<SOInfo>::iterator rhs);
 	s2string DumpStreamOutInfo(const std::vector<SOInfo> &infos);
 	
 private:

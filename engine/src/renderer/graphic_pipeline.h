@@ -92,8 +92,8 @@ public:
 	virtual DepthStencil* GetDepthStencil() = 0;
 
 	//Stream Out will always go before render  target if set.
-	virtual void SetStreamOut(unsigned int index, unsigned int start_output_index, StreamOut *stream_out) = 0;
-	virtual StreamOut * GetStreamOut(unsigned int index, unsigned int *start_output_index=0) = 0;
+	virtual void SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out) = 0;
+	virtual StreamOut * GetStreamOut(unsigned int index, unsigned int *stream_index = 0) = 0;
 	//negative index means no stream get rasterized.
 	virtual void SetRasterizedStream(int index) = 0;
 	virtual int GetRasterizedStream() = 0;
@@ -109,8 +109,6 @@ public:
 	//For vertex_count, it will go to index buffer first, if no luck, pick the size of first available vertex buffer.
 	//TODO: Not sure always daring from start is a good assumption to make, revisit this.
 	virtual void Draw(DrawingState **state = 0, unsigned int vertex_count = 0, unsigned int instance_count = 0) = 0;
-
-	virtual void ResolveConflict() = 0;
 
 	/**
 	 * A state machine may always be in a state that only part of the attributes is concerned by the user.

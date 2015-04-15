@@ -24,7 +24,7 @@ public:
 	virtual s2string GetElementTypeName() const;
 
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
-	virtual Buffer::Binding GetBinding() const;
+	virtual unsigned int GetBinding() const;
 	virtual void WriteMap(bool is_partial_map);
 	virtual void WriteUnmap();
 	virtual void ReadMap(bool wipe_cache) const;
