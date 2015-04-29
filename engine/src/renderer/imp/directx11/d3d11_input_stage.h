@@ -67,7 +67,6 @@ public:
 	void Refresh();
 	
 private:
-	void SetInput();
 	D3D11InputLayout * CreateInputLayout(const D3D11VertexShader *shader);
 	
 	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);

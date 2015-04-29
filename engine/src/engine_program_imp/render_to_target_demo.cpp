@@ -199,11 +199,11 @@ public:
 		vs->SetUniform("view", camera.GetViewMatrix());
 
 		pipeline->Start();
+			pipeline->SetVertexShader(vs);
+			pipeline->SetPixelShader(ps);
 			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
 			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetRenderTarget(1, texture->AsRenderTarget());
-			pipeline->SetVertexShader(vs);
-			pipeline->SetPixelShader(ps);
 			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(ib->AsIndexBuffer());
 			pipeline->Draw(&normal_draw_state);
@@ -216,11 +216,11 @@ public:
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 		pipeline->Start();
-			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetRenderTarget(1, 0);
+			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
 			pipeline->SetVertexShader(tex_vs);
 			pipeline->SetPixelShader(tex_ps);
+			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetVertexBuffer(0, 0, tex_vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
 			pipeline->Draw(&rtt_draw_state);

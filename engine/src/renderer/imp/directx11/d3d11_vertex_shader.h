@@ -36,6 +36,7 @@ public:
 	
 	/*****************D3D11 exclusive.******************/
 	void Setup();
+	void Unbind();
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() const { return blob;}
 	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }

@@ -36,6 +36,7 @@ public:
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() { return blob; }
 	void Setup();
+	void Unbind();
 	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }
 	const SamplerContainer & GetSamplerContainer() const { return *sampler_container; }
 	const ShaderResourceContainer & GetShaderResourceContainer() const { return *sr_container; }

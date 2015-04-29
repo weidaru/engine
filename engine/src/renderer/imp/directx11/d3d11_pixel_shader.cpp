@@ -152,6 +152,16 @@ void D3D11PixelShader::Setup() {
 	}
 }
 
+void D3D11PixelShader::Unbind() {
+	if (shader) {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::PIXEL;
+		cb_container->Unbind(context, type);
+		sampler_container->Unbind(context, type);
+		sr_container->Unbind(context, type);
+	}
+}
+
 }
 
 

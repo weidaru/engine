@@ -154,6 +154,16 @@ void D3D11VertexShader::Setup() {
 	}
 }
 
+void D3D11VertexShader::Unbind() {
+	if (shader) {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::VERTEX;
+		cb_container->Unbind(context, type);
+		sampler_container->Unbind(context, type);
+		sr_container->Unbind(context, type);
+	}
+}
+
 }
 
 

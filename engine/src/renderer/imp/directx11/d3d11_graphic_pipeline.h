@@ -99,15 +99,12 @@ private:
 	D3D11GeometryShader *gs;
 	
 	RasterizationOption rast_opt;
-	bool new_rast;
 	ID3D11RasterizerState *rast_state;
 	
 	DepthStencilOption ds_opt;
-	bool new_ds;
 	ID3D11DepthStencilState *ds_state;
 	
 	BlendOption blend_opt;
-	bool new_blend;
 	ID3D11BlendState *blend_state;
 	
 	D3D11OutputStage output_stage;

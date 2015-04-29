@@ -38,6 +38,7 @@ public:
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() { return blob; }
 	void Setup(ID3D11GeometryShader *stream_out_shader = 0);
+	void Unbind();
 	
 	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }
 	const SamplerContainer & GetSamplerContainer() const { return *sampler_container; }

@@ -37,6 +37,7 @@ public:
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	void Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -55,6 +56,7 @@ public:
 	D3D11Sampler* GetSampler(const s2string &name, s2string *error);
 	
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	void Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -81,6 +83,7 @@ public:
 	D3D11ShaderResource * GetShaderResource(const s2string &name, s2string *error);
 	
 	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	void Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
 	
 	/**
 	 * New bindings since last draw call.

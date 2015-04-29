@@ -77,13 +77,8 @@ public:
 	ID3D11GeometryShader * Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state);
 	void Refresh();
 	
-	/**
-	 * New render target bindings since last draw call.
-	 */
-	RTBindingVector GetNewRenderTargetBindings() const;
 	
 private:
-	void SetOutput();
 	ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11GeometryShader *gs);
 	s2string DumpStreamOutInfo(const std::vector<SOInfo> &infos);
 	

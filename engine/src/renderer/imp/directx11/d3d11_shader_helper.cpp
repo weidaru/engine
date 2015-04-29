@@ -107,6 +107,29 @@ void ConstantBufferContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 	}
 }
 
+void ConstantBufferContainer::Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+	for (unsigned int i = 0; i<cbs.size(); i++) {
+		D3D11ConstantBuffer *cb = cbs[i].second;
+		if (cb == 0) {
+			continue;
+		}
+		ID3D11Buffer *buffer = 0;
+		switch (shader_type) {
+		case D3D11ShaderHelper::VERTEX:
+			context->VSSetConstantBuffers(cbs[i].first, 1, &buffer);
+			break;
+		case D3D11ShaderHelper::PIXEL:
+			context->PSSetConstantBuffers(cbs[i].first, 1, &buffer);
+			break;
+		case D3D11ShaderHelper::GEOMETRY:
+			context->GSSetConstantBuffers(cbs[i].first, 1, &buffer);
+		default:
+			CHECK(false) << "Unknown shader_type " << shader_type;
+			break;
+		}
+	}
+}
+
 
 SamplerContainer::SamplerContainer(D3D11ShaderReflection *_reflect) 
 		: reflect(_reflect){
@@ -181,6 +204,30 @@ void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::Sh
 			default:
 				CHECK(false)<<"Unknown shader_type "<<shader_type;
 				break;
+		}
+	}
+}
+
+void SamplerContainer::Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+	for (unsigned int i = 0; i<samplers.size(); i++) {
+		D3D11Sampler *sampler = samplers[i].second;
+		if (sampler == 0) {
+			continue;
+		}
+		ID3D11SamplerState *state = 0;
+		switch (shader_type) {
+		case D3D11ShaderHelper::VERTEX:
+			context->VSSetSamplers(samplers[i].first, 1, &state);
+			break;
+		case D3D11ShaderHelper::PIXEL:
+			context->PSSetSamplers(samplers[i].first, 1, &state);
+			break;
+		case D3D11ShaderHelper::GEOMETRY:
+			context->GSSetSamplers(samplers[i].first, 1, &state);
+			break;
+		default:
+			CHECK(false) << "Unknown shader_type " << shader_type;
+			break;
 		}
 	}
 }
@@ -277,6 +324,28 @@ void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 			default:
 				CHECK(false)<<"Unknown shader_type "<<shader_type;
 				break;
+		}
+	}
+}
+
+void ShaderResourceContainer::Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+	for (unsigned int i = 0; i<shader_resources.size(); i++) {
+		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
+		ID3D11ShaderResourceView *view = 0;
+
+		switch (shader_type) {
+		case D3D11ShaderHelper::VERTEX:
+			context->VSSetShaderResources(info.slot_index, 1, &view);
+			break;
+		case D3D11ShaderHelper::PIXEL:
+			context->PSSetShaderResources(info.slot_index, 1, &view);
+			break;
+		case D3D11ShaderHelper::GEOMETRY:
+			context->GSSetShaderResources(info.slot_index, 1, &view);
+			break;
+		default:
+			CHECK(false) << "Unknown shader_type " << shader_type;
+			break;
 		}
 	}
 }

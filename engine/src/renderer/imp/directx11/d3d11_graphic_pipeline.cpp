@@ -57,17 +57,14 @@ void D3D11GraphicPipeline::Check() {
 D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 	if(rast_state)
 		rast_state->Release();
-	new_rast=true;
 	rast_state=0;
 	
 	if(ds_state)
 		ds_state->Release();
-	new_ds=true;
 	ds_state=0; 
 	
 	if(blend_state)
 		blend_state->Release();
-	new_blend=true;
 	blend_state=0;
 }
 
@@ -100,9 +97,18 @@ D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
 
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
 	Check();
+	if (vs) {
+		vs->Unbind();
+	}
 	vs = NiceCast(D3D11VertexShader *, shader);
 	if(shader) {
 		CHECK(vs)<<"Shader cannot be cast to D3D11VertexShader";
+	}
+	if (vs) {
+		vs->Setup();
+	} else {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		context->VSSetShader(0, 0, 0);
 	}
 }
 
@@ -112,9 +118,18 @@ VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 
 void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 	Check();
+	if (ps) {
+		ps->Unbind();
+	}
 	ps = NiceCast(D3D11PixelShader *, shader);
 	if(shader) {
 		CHECK(ps)<<"Shader cannot be cast to D3D11PixelShader";
+	}
+	if (ps) {
+		ps->Setup();
+	} else {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		context->PSSetShader(0, 0, 0);
 	}
 }
 
@@ -124,9 +139,18 @@ PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 
 void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
 	Check();
+	if (gs) {
+		gs->Unbind();
+	}
 	gs = NiceCast(D3D11GeometryShader *, shader);
 	if (shader) {
 		CHECK(gs) <<"Shader cannot be cast to D3D11GeometryShader";
+	}
+	if (gs) {
+		gs->Setup();
+	} else {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		context->GSSetShader(0, 0, 0);
 	}
 }
 
@@ -247,7 +271,7 @@ void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &opt
 	if(rast_state)
 		rast_state->Release();
 	rast_state = ParseRasterizationOption(manager->GetDevice(), rast_opt);
-	new_rast = true;
+	SetupRasterizationOption();
 }
 
 const RasterizationOption & D3D11GraphicPipeline::GetRasterizationOption() const {
@@ -260,7 +284,7 @@ void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &optio
 	if(ds_state)
 		ds_state->Release();
 	ds_state = ParseDepthStencilOption(manager->GetDevice(), ds_opt);
-	new_ds = true;
+	SetupDepthStencilOption();
 }
 
 const DepthStencilOption & D3D11GraphicPipeline::GetDepthStencilOption() const {
@@ -273,7 +297,7 @@ void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
 	if(blend_state)
 		blend_state->Release();
 	blend_state = ParseBlendOption(manager->GetDevice(), blend_opt);
-	new_blend = true;
+	SetupBlendOption();
 }
 
 const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
@@ -389,7 +413,7 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 
-	//Setup output
+	//Setup output 
 	ID3D11GeometryShader *raw_stream_out_shader = 0;
 	if (state == 0) {
 		raw_stream_out_shader = output_stage.Setup(gs);
@@ -406,42 +430,6 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 		else {
 			input_stage.Setup(vs, state);
 		}
-	}
-	
-	if(vs) {
-		vs->Setup();
-	} else {
-		context->VSSetShader(0, 0, 0);
-	}
-	
-	if (gs) {
-		gs->Setup(raw_stream_out_shader);
-	} else {
-		context->GSSetShader(0,0,0);
-	}
-
-	if(ps) {
-		ps->Setup();
-	} else {
-		context->PSSetShader(0, 0, 0);
-	}
-	
-	//Setup rasterization option.
-	if(new_rast) {
-		SetupRasterizationOption();
-		new_rast = false;
-	}
-	
-	//Setup depth stencil option.
-	if(new_ds) {
-		SetupDepthStencilOption();
-		new_ds = false;
-	}
-	
-	//Setup blend option.
-	if(new_blend) {
-		SetupBlendOption();
-		new_blend = false;
 	}
 	
 	//Flush data in input stage and start drawing.

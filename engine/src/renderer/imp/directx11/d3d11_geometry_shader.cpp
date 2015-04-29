@@ -152,6 +152,16 @@ void D3D11GeometryShader::Setup(ID3D11GeometryShader *stream_out_shader) {
 	}
 }
 
+void D3D11GeometryShader::Unbind() {
+	if (shader) {
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::GEOMETRY;
+		cb_container->Unbind(context, type);
+		sampler_container->Unbind(context, type);
+		sr_container->Unbind(context, type);
+	}
+}
+
 }
 
 

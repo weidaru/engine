@@ -19,14 +19,14 @@
 #include <algorithm>
 
 #ifdef NDEBUG
-	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
 #else
-	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
 #endif
 
 namespace s2 {
 
-D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager) 
+D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager)
 	: manager(_manager), rasterized_stream(-1){
 	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	stream_outs.resize(D3D11_SO_STREAM_COUNT);
@@ -37,20 +37,38 @@ D3D11OutputStage::~D3D11OutputStage() {
 
 void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target) {
 	D3D11RenderTarget * target = NiceCast(D3D11RenderTarget *, _target);
-	if(_target != 0) {
-		CHECK(target)<<"target cannot be cast to D3D11RenderTarget";
+	if (_target != 0) {
+		CHECK(target) << "target cannot be cast to D3D11RenderTarget";
 	}
-	if(target) {
-		for(unsigned int i=0; i<rts.size(); i++) {
-			if(rts[i].data == target) {
+
+	if (target) {
+		for (unsigned int i = 0; i<rts.size(); i++) {
+			if (rts[i].data == target) {
 				rts[i].data = 0;
 				rts[i].is_new = true;
 			}
 		}
 	}
-	
+
 	rts[index].data = target;
 	rts[index].is_new = true;
+
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
+	for (unsigned int i = 0; i<rts.size(); i++) {
+		if (rts[i].data != 0) {
+			rt_array[i] = rts[i].data->GetRenderTargetView();
+		}
+		else {
+			rt_array[i] = 0;
+		}
+	}
+	if (ds.data) {
+		context->OMSetRenderTargets(rts.size(), rt_array, ds.data->GetDepthStencilView());
+	}
+	else {
+		context->OMSetRenderTargets(rts.size(), rt_array, 0);
+	}
 }
 
 D3D11RenderTarget * D3D11OutputStage::GetRenderTarget(unsigned int index) {
@@ -68,6 +86,24 @@ void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 	}
 	ds.data = depth_stencil;
 	ds.is_new = true;
+
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
+	for (unsigned int i = 0; i<rts.size(); i++) {
+		if (rts[i].data != 0) {
+			rt_array[i] = rts[i].data->GetRenderTargetView();
+		}
+		else {
+			rt_array[i] = 0;
+		}
+
+	}
+	if (ds.data) {
+		context->OMSetRenderTargets(rts.size(), rt_array, ds.data->GetDepthStencilView());
+	}
+	else {
+		context->OMSetRenderTargets(rts.size(), rt_array, 0);
+	}
 }
 
 D3D11DepthStencil * D3D11OutputStage::GetDepthStencil() {
@@ -81,6 +117,20 @@ void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int stream_inde
 	}
 	stream_outs[index].data = stream_out;
 	stream_outs[index].stream_index = stream_index;
+
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11Buffer **so_array = new ID3D11Buffer *[stream_outs.size()];
+	UINT *offset = new UINT[stream_outs.size()];
+	for (unsigned int i = 0; i < stream_outs.size(); i++) {
+		if (stream_outs[i].data != 0) {
+			so_array[i] = stream_outs[i].data->GetBuffer();
+		}
+		else {
+			so_array[i] = 0;
+		}
+		offset[i] = 0;
+	}
+	context->SOSetTargets(stream_outs.size(), so_array, offset);
 }
 
 D3D11StreamOut * D3D11OutputStage::GetStreamOut(unsigned int index, unsigned int *stream_index) {
@@ -98,7 +148,7 @@ ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11Geome
 	unsigned int size = reflect.GetOutputSize();
 
 	for (unsigned int i = 0; i < size; i++) {
-		
+
 		const D3D11ShaderReflection::Parameter& output_param = reflect.GetOutput(i);
 
 		int slot_index = -1;
@@ -122,7 +172,8 @@ ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11Geome
 	unsigned real_rasterized_stream;
 	if (rasterized_stream < 0) {
 		real_rasterized_stream = D3D11_SO_NO_RASTERIZED_STREAM;
-	} else {
+	}
+	else {
 		real_rasterized_stream = rasterized_stream;
 	}
 
@@ -160,7 +211,6 @@ s2string D3D11OutputStage::DumpStreamOutInfo(const std::vector<SOInfo> &infos) {
 }
 
 ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs) {
-	SetOutput();
 	ID3D11GeometryShader *raw_stream_out_shader = 0;
 
 	if (gs) {
@@ -171,11 +221,9 @@ ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs) {
 }
 
 ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state) {
-	SetOutput();
-	
 	if (gs && draw_state->GetStreamOutGeometryShader() == 0) {
 		draw_state->SetStreamOutGeometryShader(BuildStreamOutGeometryShader(gs));
-	} 
+	}
 
 	return draw_state->GetStreamOutGeometryShader();
 }
@@ -186,21 +234,6 @@ void D3D11OutputStage::SetRasterizedStream(int index) {
 
 int D3D11OutputStage::GetRasterizedStream() {
 	return rasterized_stream;
-}
-
-D3D11OutputStage::RTBindingVector D3D11OutputStage::GetNewRenderTargetBindings() const {
-	RTBindingVector result;
-	for(unsigned int i=0; i<rts.size(); i++) {
-		if(rts[i].is_new == false) {
-			continue;
-		}
-		Resource *resource = 0;
-		if (rts[i].data) {
-			resource = rts[i].data->GetResource();
-		}
-		result.push_back(std::make_pair(i, resource));
-	}
-	return result;
 }
 
 void D3D11OutputStage::ClearRenderTarget(RenderTarget *_target, const float rgba[4]) {
@@ -219,54 +252,20 @@ void D3D11OutputStage::ClearDepthStencil(DepthStencil *_depth_stencil, bool clea
 		CHECK(depth_stencil) << "buffer cannot be cast to D3D11DepthStencil";
 	}
 
-	if(clear_depth|| clear_stencil) {
-		unsigned int flag = clear_depth ? D3D11_CLEAR_DEPTH:0;
-		flag |= clear_stencil ? D3D11_CLEAR_STENCIL:0;
-		
+	if (clear_depth || clear_stencil) {
+		unsigned int flag = clear_depth ? D3D11_CLEAR_DEPTH : 0;
+		flag |= clear_stencil ? D3D11_CLEAR_STENCIL : 0;
+
 		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->ClearDepthStencilView(depth_stencil->GetDepthStencilView(), flag, depth, (UINT8)stencil);
 	}
-}
-
-void D3D11OutputStage::SetOutput() {
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
-	for(unsigned int i=0; i<rts.size(); i++) {
-		if(rts[i].data != 0) {
-			rt_array[i] = rts[i].data->GetRenderTargetView();
-		} else {
-			rt_array[i] = 0;
-		}
-		
-	}
-	if (ds.data) {
-		context->OMSetRenderTargets(rts.size(), rt_array, ds.data->GetDepthStencilView());
-	} else {
-		context->OMSetRenderTargets(rts.size(), rt_array, 0);
-	}
-
-	ID3D11Buffer **so_array = new ID3D11Buffer *[stream_outs.size()];
-	UINT *offset = new UINT[stream_outs.size()];
-	for (unsigned int i = 0; i < stream_outs.size(); i++) {
-		if (stream_outs[i].data != 0) {
-			so_array[i] = stream_outs[i].data->GetBuffer();
-		} else {
-			so_array[i] = 0;
-		}
-		offset[i] = 0;
-	}
-
-	context->SOSetTargets(stream_outs.size(), so_array, offset);
-
-	delete[] so_array;
-	delete[] rt_array;
 }
 
 void D3D11OutputStage::Refresh() {
 	for (unsigned int i = 0; i < rts.size(); i++){
 		rts[i].is_new = false;
 	}
-	
+
 	ds.is_new = false;
 }
 
