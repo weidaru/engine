@@ -1,24 +1,8 @@
 #ifndef MATRIX4X4_H_
 #define MATRIX4x4_H_
 
+#include "vector4.h"
 #include "vector3.h"
-
-struct Vector4 {
-	float data[4];
-	
-	Vector4();
-	Vector4(const Vector3 &vec3, float _w);
-	Vector4(float _0, float _1, float _2, float _3);
-	Vector3 ToVec3() const;
-	
-	void Set(float _0, float _1, float _2, float _3) {
-		data[0] = _0; data[1] = _1; data[2] = _2; data[3] = _3;
-	}
-	
-	float & operator[](unsigned int index) { return data[index]; }
-	const float & operator[](unsigned int index) const { return data[index]; }
-};
-
 
 /**
  * Row major memory layout.
@@ -34,6 +18,7 @@ struct Matrix4x4 {
 			float _10, float _11, float _12, float _13, 
 			float _20, float _21, float _22, float _23, 
 			float _30, float _31, float _32, float _33);
+
 	
 	bool Invert();
 	void Transpose();
@@ -57,6 +42,10 @@ struct Matrix4x4 {
 	Matrix4x4 & SetRotationY(float angle);
 	Matrix4x4 & SetRotationZ(float angle);
 	Matrix4x4 & SetProjection(float aspect, float fov, float np, float fp);
+	Matrix4x4 & SetTranslate(const s2::Vector3& vec);
+	Matrix4x4 & SetTranslate(float x, float y, float z);
+	Matrix4x4 & SetScale(const s2::Vector3& vec);
+	Matrix4x4 & SetScale(float x, float y, float z);
 	
 	Matrix4x4 & operator+=(const Matrix4x4 &rhs);
 	Matrix4x4 & operator-=(const Matrix4x4 &rhs);
@@ -70,8 +59,8 @@ Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs);
 Matrix4x4 operator*(const Matrix4x4 &matrix, float scale);
 Matrix4x4 operator*( float scale, const Matrix4x4 &matrix);
 
-Vector4 operator*(const Matrix4x4 &lhs, const Vector4 &rhs);
-Vector4 operator*(const Vector4 &lhs, const Matrix4x4 &rhs);
+s2::Vector4 operator*(const Matrix4x4 &lhs, const s2::Vector4 &rhs);
+s2::Vector4 operator*(const s2::Vector4 &lhs, const Matrix4x4 &rhs);
 
 
 

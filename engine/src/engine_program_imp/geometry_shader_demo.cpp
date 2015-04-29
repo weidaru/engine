@@ -1,7 +1,7 @@
 #include "engine.h"
 #include "engine_program.h"
 
-#include "renderer/all.h"
+#include "graphics/renderer/all.h"
 #include "asset/asset_path.h"
 
 #include <glog/logging.h>
@@ -51,13 +51,13 @@ public:
 		vb->Initialize(vb_option);
 
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize(ResolveAssetPath("billboard.vs"), "main"))<<vs->GetLastError();
+		CHECK(vs->Initialize(ResolveTestAssetPath("billboard.vs"), "main"))<<vs->GetLastError();
 
 		gs = manager->CreateGeometryShader();
-		CHECK(gs->Initialize(ResolveAssetPath("billboard.gs"), "main"))<<gs->GetLastError();
+		CHECK(gs->Initialize(ResolveTestAssetPath("billboard.gs"), "main"))<<gs->GetLastError();
 
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize(ResolveAssetPath("billboard.ps"), "main"))<<ps->GetLastError();
+		CHECK(ps->Initialize(ResolveTestAssetPath("billboard.ps"), "main"))<<ps->GetLastError();
 
 		return true;
 	}

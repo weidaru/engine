@@ -1,11 +1,11 @@
 #include "engine_program.h"
 #include "engine.h"
 
-#include "renderer/all.h"
+#include "graphics/renderer/all.h"
 #include "asset/model.h"
 #include "asset/asset_path.h"
 #include "scene/camera.h"
-#include "input_system.h"
+#include "input/input_system.h"
 
 #include <glog/logging.h>
 #include <stdlib.h>
@@ -52,7 +52,7 @@ public:
 		ds_buffer->Initialize(ds_option);
 		
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize(ResolveAssetPath("instancing.vs"), "main"))
+		CHECK(vs->Initialize(ResolveTestAssetPath("instancing.vs"), "main"))
 				<<vs->GetLastError();
 		
 		{
@@ -69,7 +69,7 @@ public:
 		
 		
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize(ResolveAssetPath("instancing.ps"), "main"))
+		CHECK(ps->Initialize(ResolveTestAssetPath("instancing.ps"), "main"))
 				<<ps->GetLastError();
 		
 		position_buffer = manager->CreateBuffer();
@@ -77,7 +77,7 @@ public:
 		index_buffer = manager->CreateBuffer();
 		{
 			Model model;
-			CHECK(model.Initialize(ResolveAssetPath("model/cube.obj"))) << model.GetLastError();
+			CHECK(model.Initialize(ResolveTestAssetPath("model/cube.obj"))) << model.GetLastError();
 			
 			{
 				InstancingTestPosition *positions = 0;

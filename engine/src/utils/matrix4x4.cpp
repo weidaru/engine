@@ -4,38 +4,7 @@
 #include <assert.h>
 #include <string.h>
 
-Vector4::Vector4() {
-	data[0] = 0.0f;
-	data[1] = 0.0f;
-	data[2] = 0.0f;
-	data[3] = 0.0f;
-}
-
-Vector4::Vector4(const Vector3 &vec3, float _w) {
-	data[0] = vec3[0];
-	data[1] = vec3[1];
-	data[2] = vec3[2];
-	data[3] = _w;
-}
-
-Vector4::Vector4(float _0, float _1, float _2, float _3) {
-	Set(_0, _1, _2, _3);
-}
-
-Vector3 Vector4::ToVec3() const {
-	Vector3 result;
-	if(data[3]==0.0f || data[3]==1.0f) {
-		result[0] = data[0];
-		result[1] = data[1];
-		result[2] = data[2];
-	} else {
-		float w = data[3];
-		result[0] = data[0]/w;
-		result[1] = data[1]/w;
-		result[2] = data[2]/w;
-	}
-	return result;
-}
+using namespace s2;
 
 Matrix4x4::Matrix4x4() {
 	SetIdentity();
@@ -181,6 +150,28 @@ Matrix4x4 & Matrix4x4::SetProjection(float aspect, float fov, float np, float fp
 	data[3][3] = 0.0f;
 
 	return *this;
+}
+
+Matrix4x4 & Matrix4x4::SetTranslate(const Vector3& vec) {
+	SetTranslate(vec[0], vec[1], vec[2]);
+}
+
+Matrix4x4 & Matrix4x4::SetTranslate(float x, float y, float z) {
+	SetIdentity();
+	data[0][3] = x;
+	data[1][3] = y;
+	data[2][3] = z;
+}
+
+Matrix4x4 & Matrix4x4::SetScale(const Vector3& vec) {
+	SetScale(vec[0], vec[1], vec[2]);
+}
+
+Matrix4x4 & Matrix4x4::SetScale(float x, float y, float z) {
+	SetIdentity();
+	data[0][0] = x;
+	data[1][1] = y;
+	data[2][2] = z;
 }
 
 Matrix4x4 & Matrix4x4::SetIdentity() {

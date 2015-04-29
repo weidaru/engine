@@ -6,7 +6,7 @@
 #undef ERROR
 
 #include "utils/singleton.h"
-#include "renderer/renderer_context.h"
+#include "graphics/renderer/renderer_context.h"
 
 namespace s2 {
 

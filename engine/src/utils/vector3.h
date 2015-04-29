@@ -1,5 +1,7 @@
-#ifndef VECTOR4_H_
-#define VECTOR4_H_
+#ifndef VECTOR3_H_
+#define VECTOR3_H_
+
+namespace s2 {
 
 struct Vector4;
 
@@ -35,6 +37,10 @@ Vector3 operator+(const Vector3 &lhs, const Vector3 &rhs);
 Vector3 operator-(const Vector3 &lhs, const Vector3 &rhs);
 Vector3 operator*(const Vector3 &vec, float scale);
 Vector3 operator*(float scale, const Vector3 &vec);
+
+}
+
+
 
 
 #endif			//VECTOR4_H_

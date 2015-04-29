@@ -3,14 +3,14 @@
 #include "engine_program.h"
 #include "engine.h"
 
-#include "renderer/all.h"
+#include "graphics/renderer/all.h"
 
 #include "asset/model.h"
 #include "asset/pixel_map.h"
 #include "asset/asset_path.h"
 
 #include "scene/camera.h"
-#include "input_system.h"
+#include "input/input_system.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -71,7 +71,7 @@ public:
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
-		CHECK(vs->Initialize(ResolveAssetPath("gouraud.vs"), "main")) <<
+		CHECK(vs->Initialize(ResolveTestAssetPath("gouraud.vs"), "main")) <<
 			vs->GetLastError();
 		{
 			Matrix4x4 identity;
@@ -89,12 +89,12 @@ public:
 
 		//Create PixelShader;
 		ps = manager->CreatePixelShader();
-		CHECK(ps->Initialize(ResolveAssetPath("gouraud.ps"), "main")) <<
+		CHECK(ps->Initialize(ResolveTestAssetPath("gouraud.ps"), "main")) <<
 			ps->GetLastError();
 		
 		//Create VertexBuffer
 		Model model;
-		CHECK(model.Initialize(ResolveAssetPath("model/bunny.obj"))) << model.GetLastError();
+		CHECK(model.Initialize(ResolveTestAssetPath("model/bunny.obj"))) << model.GetLastError();
 		{
 			Vertex *vertices = 0;
 			
@@ -157,12 +157,12 @@ public:
 
 		//Set vertex shader
 		tex_vs = manager->CreateVertexShader();
-		CHECK(tex_vs->Initialize(ResolveAssetPath("texture.vs"), "main")) <<
+		CHECK(tex_vs->Initialize(ResolveTestAssetPath("texture.vs"), "main")) <<
 			tex_vs->GetLastError();
 
 		//Set pixel shader
 		tex_ps = manager->CreatePixelShader();
-		CHECK(tex_ps->Initialize(ResolveAssetPath("texture.ps"), "main")) <<
+		CHECK(tex_ps->Initialize(ResolveTestAssetPath("texture.ps"), "main")) <<
 			tex_ps->GetLastError();
 		tex_ps->SetSampler("shader_sampler", sampler);
 		tex_ps->SetShaderResource("shader_texture", texture->AsShaderResource());
