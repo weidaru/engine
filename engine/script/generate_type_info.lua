@@ -23,7 +23,7 @@ PointerRegistration PointerRegistration::registration;
 The generated file is generally small, so we can generate all and dump to file.
 But things can change. So the signature require a second parameter file for flexibility.
 ]]
-local function generate(context, file)
+local function generate(context, file, root_path)
 	local buffer = {}
 	local indent = 0
 	
@@ -104,20 +104,27 @@ local function generate(context, file)
 	append_help('#include "utils/type_info_helper.h"')
 	append_help('')
 	
-	--We need to declare all the struct first.
-	append_help([[//All the necessary struct declaration]])
+	--Add all include.
+	local include_list = {}
 	for k,v in pairs(context) do
-		if k:sub(1,2) ~= "__" and context_class.primitive[k] == nil then
-			append_help(string.format('struct %s;', k))
+		if k:sub(1,2) ~= "__" then
+			if context_class.primitive[k] == nil then
+				local relative = fs.get_relative_path(v.file, root_path)
+				local include_buffer = {}
+				for k,_ in string.gmatch(relative, "[^/\\]+") do
+					table.insert(include_buffer, k)
+				end
+				
+				include_list[string.format('#include "%s"', table.concat(include_buffer, "/"))] = true;
+			end
 		end
 	end
-	append_help("")
-		--Try to resolve the dependency.
-	local seq = resolve_dependency(context)
-	for k,v in ipairs(seq) do
-		append_help(v.text)
+	for k,_ in pairs(include_list) do
+		append_help(k)
 	end
 	append_help("")
+	--Try to resolve the dependency.
+	local seq = resolve_dependency(context)
 	
 	append_help('namespace s2 {')
 	--Do for primitive
@@ -172,7 +179,7 @@ local context = context_class.new()
 
 --Start scan
 print("===========Parsing ")
-fs.scan_dir(source_dir, {"*.h", "*.hpp", "*.cpp", "*.c", "*.cc"}, 
+fs.scan_dir(source_dir, {"*.h", "*.hpp"}, 
 function(filepath)
 	local f = assert(io.open(filepath, "r"))
 	--Cache the file
@@ -191,7 +198,7 @@ parser.link(context)
 print("===========Linking complete.\n\n")
 
 print("===========Generating...")
-generate(context, outputfile)
+generate(context, outputfile, source_dir)
 print("===========Generating complete.\n\n")
 
 

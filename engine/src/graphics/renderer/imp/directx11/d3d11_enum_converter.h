@@ -4,7 +4,7 @@
 #include "graphics/renderer/renderer_enum.h"
 #include "graphics/renderer/depth_stencil_option.h"
 #include "graphics/renderer/blend_option.h"
-#include "grapihcs/renderer/graphic_pipeline.h"
+#include "graphics/renderer/graphic_pipeline.h"
 #include "graphics/renderer/sampler.h"
 
 enum DXGI_FORMAT;

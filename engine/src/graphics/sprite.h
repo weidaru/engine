@@ -29,7 +29,7 @@ public:
 	Sprite & SetPosition(float x, float y, float z);
 	Sprite & SetPosition(const Vector3 &vec);
 
-	const Vector3 & GetAbsolutePosition();
+	Vector3 GetAbsolutePosition();
 	Sprite & SetAbsolutePosition(float x, float y, float z);
 	Sprite & SetAbsolutePosition(const Vector3 &vec);
 	

@@ -65,6 +65,14 @@ function m.get_last_entry(path)
 	return nil
 end
 
+function m.get_relative_path(path, root)
+	local _,end_index = path:find(root)
+	if end_index ~= nil then
+		return path:sub(end_index+1)
+	end
+	return nil
+end
+
 return m
 
 

@@ -10,7 +10,7 @@ namespace s2 {
 
 class Button : public Entity {
 public: 
-	typedef  std::function<void (*)(Button *)> Callback;
+	typedef  std::function<void (Button *)> Callback;
 
 public:
 	Button();

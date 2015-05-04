@@ -10,23 +10,9 @@
 #include <glog/logging.h>
 #include <stdlib.h>
 
+#include "instancing_demo.h"
+
 #define PI 3.141596253f
-
-//[[TypeInfo]]//
-struct InstancingTestPosition {
-	float data[3];
-};
-
-//[[TypeInfo]]//
-struct InstancingTestColor {
-	float data[4];
-};
-
-//[[TypeInfo]]//
-struct InstancingTestInstancePosition {
-	float data[3];
-};
-
 
 namespace s2 {
 

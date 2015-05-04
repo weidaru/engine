@@ -15,19 +15,9 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "render_to_target_demo.h"
+
 #define PI 3.141596253f
-
-//[[TypeInfo]]//
-struct Vertex {
-	float position[3];
-	float normal[3];
-};
-
-//[[TypeInfo]]//
-struct TextureVertex {
-	float position[3];
-	float tex[2];
-};
 
 namespace s2 {
 
@@ -96,10 +86,10 @@ public:
 		Model model;
 		CHECK(model.Initialize(ResolveTestAssetPath("model/bunny.obj"))) << model.GetLastError();
 		{
-			Vertex *vertices = 0;
+			RTTTestVertex *vertices = 0;
 			
 	 		unsigned int size = model.GetVertexSize();
-			vertices = new Vertex[size];
+			vertices = new RTTTestVertex[size];
 			for(unsigned int i=0; i<size; i++) {
 				Model::Vertex v = model.GetVertex(i);
 				vertices[i].position[0] = v.x;
@@ -168,7 +158,7 @@ public:
 		tex_ps->SetShaderResource("shader_texture", texture->AsShaderResource());
 		
 		//Set vertex buffer
-		TextureVertex vertices[4] = {
+		RTTTestTextureVertex vertices[4] = {
 			{{0.5f, 1.0f, 0.0f}, {0.0f, 0.0f}},
 			{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, 
 			{{1.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}, 

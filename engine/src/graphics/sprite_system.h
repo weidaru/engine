@@ -6,8 +6,12 @@
 #include <vector>
 
 
-namespace s2 {
+//[[TypeInfo]]//
+struct SpriteVertex {
+	float position[3];
+};
 
+namespace s2 {
 class Sprite;
 class Buffer;
 class VertexShader;
@@ -35,8 +39,6 @@ private:
 
 	static unsigned int kSpriteBatchSize;
 };
-
-
 }
 
 #endif				//SPRITE_SYSTEM_H_

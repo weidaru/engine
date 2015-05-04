@@ -1,5 +1,6 @@
 @echo off
 
+mkdir %cd%\log
 set LUA_PATH=./script/?.lua
 echo ===================Run unit test===================
 set unitest_log=%cd%\log\script_unit_test.log

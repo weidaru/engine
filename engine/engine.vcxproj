@@ -14,6 +14,8 @@
     <ClInclude Include="src\asset\asset_path.h" />
     <ClInclude Include="src\asset\model.h" />
     <ClInclude Include="src\asset\pixel_map.h" />
+    <ClInclude Include="src\engine_program_imp\instancing_demo.h" />
+    <ClInclude Include="src\engine_program_imp\render_to_target_demo.h" />
     <ClInclude Include="src\entity\component.h" />
     <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\entity\transform.h" />

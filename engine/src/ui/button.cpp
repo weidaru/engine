@@ -42,8 +42,8 @@ void Button::OneFrame(float delta) {
 		}
 	} else {
 		if(input_system->IsMouseButtonDown(InputSystem::M_LEFT)) {
-			float mouse_x = input_system->GetMouseX();
-			float mouse_y = input_system->GetMouseY();
+			float mouse_x = (float)input_system->GetMouseX();
+			float mouse_y = (float)input_system->GetMouseY();
 
 			if(mouse_x>=x && mouse_x<= (x+width) && mouse_y>=y && mouse_y<=(y+height) ) {
 				inClick = true;

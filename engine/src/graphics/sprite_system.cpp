@@ -6,11 +6,6 @@
 
 #include "sprite.h"
 
-//[[TypeInfo]]//
-struct SpriteVertex {
-	float position[3];
-};
-
 namespace s2 {
 
 unsigned int SpriteSystem::kSpriteBatchSize = 400;
@@ -33,7 +28,7 @@ SpriteSystem::SpriteSystem()
 		{0.1f, -0.1f, -1.0f},
 		{-0.1f, -0.1f, -1.0f}
 	};
-	option.Initialize(4, &verticies);
+	option.Initialize(4, verticies);
 	option.resource_write = RendererEnum::IMMUTABLE;
 	vertex_buffer->Initialize(option);
 

@@ -1,4 +1,4 @@
-#ifndef MATRIX4X4_H_
+#ifndef MATRIX4x4_H_
 #define MATRIX4x4_H_
 
 #include "vector4.h"

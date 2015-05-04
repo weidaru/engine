@@ -34,9 +34,9 @@ Sprite & Sprite::SetPosition(const Vector3 &vec) {
 	return SetPosition(vec[0], vec[1], vec[2]);
 }
 
-const Vector3 & Sprite::GetAbsolutePosition() {
+Vector3 Sprite::GetAbsolutePosition() {
 	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	float w_width = setting.window_width, w_height = setting.window_height;
+	float w_width = (float)setting.window_width, w_height = (float)setting.window_height;
 	const Vector3 &pos =  GetPosition();
 	
 	float x = (pos[0]+1.0f)*w_width/2.0f;
@@ -48,7 +48,7 @@ const Vector3 & Sprite::GetAbsolutePosition() {
 
 Sprite & Sprite::SetAbsolutePosition(float x, float y, float z) {
 	auto setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	float w_width = setting.window_width, w_height = setting.window_height;
+	float w_width = (float)setting.window_width, w_height = (float)setting.window_height;
 
 	float s_x = x/w_width*2+1;
 	float s_y = 1-y/w_height*2;
@@ -62,14 +62,14 @@ Sprite & Sprite::SetAbsolutePosition(const Vector3 &vector) {
 
 float Sprite::GetAbsoluteWidth() {
 	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	float w_width = setting.window_width;
+	float w_width = (float)setting.window_width;
 	
 	return GetWidth()*w_width/2.0f;
 }
 
 Sprite & Sprite::SetAbsoluteWidth(float new_value) {
 	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	float w_width = setting.window_width;
+	float w_width = (float)setting.window_width;
 
 	return SetWidth(new_value/w_width*2.0f);
 }
@@ -87,14 +87,14 @@ Sprite & Sprite::SetWidth(float new_value) {
 
 float Sprite::GetAbsoluteHeight() {
 	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	float w_height = setting.window_height;
+	float w_height = (float)setting.window_height;
 
 	return GetHeight()*w_height/2.0f;
 }
 
 Sprite & Sprite::SetAbsoluteHeight(float new_value) {
 	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
-	float w_height = setting.window_height;
+	float w_height = (float)setting.window_height;
 
 	return SetHeight(new_value/w_height*2.0f);
 }
@@ -118,7 +118,7 @@ Sprite & Sprite::SetDepth(float new_value) {
 	Vector3 pos = GetPosition();
 	pos[2] = new_value;
 
-	SetPosition(pos);
+	return SetPosition(pos);
 }
 
 namespace {

@@ -153,7 +153,7 @@ Matrix4x4 & Matrix4x4::SetProjection(float aspect, float fov, float np, float fp
 }
 
 Matrix4x4 & Matrix4x4::SetTranslate(const Vector3& vec) {
-	SetTranslate(vec[0], vec[1], vec[2]);
+	return SetTranslate(vec[0], vec[1], vec[2]);
 }
 
 Matrix4x4 & Matrix4x4::SetTranslate(float x, float y, float z) {
@@ -161,10 +161,11 @@ Matrix4x4 & Matrix4x4::SetTranslate(float x, float y, float z) {
 	data[0][3] = x;
 	data[1][3] = y;
 	data[2][3] = z;
+	return *this;
 }
 
 Matrix4x4 & Matrix4x4::SetScale(const Vector3& vec) {
-	SetScale(vec[0], vec[1], vec[2]);
+	return SetScale(vec[0], vec[1], vec[2]);
 }
 
 Matrix4x4 & Matrix4x4::SetScale(float x, float y, float z) {
@@ -172,6 +173,8 @@ Matrix4x4 & Matrix4x4::SetScale(float x, float y, float z) {
 	data[0][0] = x;
 	data[1][1] = y;
 	data[2][2] = z;
+
+	return *this;
 }
 
 Matrix4x4 & Matrix4x4::SetIdentity() {

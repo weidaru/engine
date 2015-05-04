@@ -5,12 +5,14 @@
 
 namespace s2 {
 
-static const char *kTestAssetRoot = "D:/github_repository/engine/engine/test/";
+static const char *kTestAssetRoot = "C:/Users/zhiwshen/Documents/GitHub/engine/engine/test/";
 //"C:/Users/zhiwshen/Documents/GitHub/engine/engine/test/"
 //"D:/github_repository/engine/engine/test/"
 
 
-static const char *kAssetRoot = "D:/github_repository/engine/engine/content/";
+static const char *kAssetRoot = "C:/Users/zhiwshen/Documents/GitHub/engine/content/";
+//"C:/Users/zhiwshen/Documents/GitHub/engine/content/"
+//"D:/github_repository/engine/engine/content/"
 
 
 static inline s2string ResolveTestAssetPath(const s2string &input) {

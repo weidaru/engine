@@ -2,8 +2,8 @@
 #define PIXEL_MAP_H_
 
 #include "utils/s2string.h"
-#include "renderer/texture_enum.h"
-#include "renderer/texture2d.h"
+#include "graphics/renderer/texture_enum.h"
+#include "graphics/renderer/texture2d.h"
 
 struct FIBITMAP;
 
