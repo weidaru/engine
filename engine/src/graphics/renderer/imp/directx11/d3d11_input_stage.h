@@ -26,7 +26,8 @@ struct D3D11InputLayout {
 class D3D11InputStage {
 private:
 	struct VBInfo {
-		int start_index;
+		bool is_new;
+		unsigned int start_index;
 		D3D11VertexBuffer *vb;
 		
 		VBInfo() {
@@ -34,17 +35,20 @@ private:
 		}
 		
 		void Reset() {
-			start_index = -1;
+			is_new = false;
+			start_index = 0;
 			vb = 0;
 		}
 	};
 
 	struct IBInfo {
 		bool is_new;
+		unsigned int vertex_base;
 		D3D11IndexBuffer *buffer;
 
 		IBInfo() {
 			is_new = false;
+			vertex_base = 0;
 			buffer = 0;
 		}
 	};
@@ -58,8 +62,8 @@ public:
 	
 	void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
 	D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
-	void SetIndexBuffer(IndexBuffer *buf);
-	D3D11IndexBuffer * GetIndexBuffer();
+	void SetIndexBuffer(IndexBuffer *buf, unsigned int vertex_base);
+	D3D11IndexBuffer * GetIndexBuffer(unsigned int * vertex_base);
 	
 	//Validate input stage with vertex shader, set message to NULL if you don't care.
 	bool Validate(const D3D11VertexShader &shader, s2string *message) const;
@@ -67,8 +71,12 @@ public:
 	void Setup(const D3D11VertexShader *shader);
 	void Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state);
 
-	void Flush(unsigned int vertex_count, unsigned int instance_count);
+	void Flush(unsigned int start_index,unsigned int vertex_count);
+	void FlushWithInstancing(unsigned int vertex_start, unsigned int vertex_count, unsigned int instance_start, unsigned int instance_count);
 	void Refresh();
+
+	void SetAutoSizeOnDraw(bool auto_size);
+	bool GetAutoSizeOnDraw();
 	
 private:
 	D3D11InputLayout * CreateInputLayout(const D3D11VertexShader *shader);
@@ -88,6 +96,7 @@ private:
 	
 	unsigned int current_first_instance_count;
 	ID3D11InputLayout *owned_layout;
+
 };
 
 

@@ -27,29 +27,27 @@ public:
 private:
 	struct  RTInfo {
 		D3D11RenderTarget *data;
-		bool is_new;
 		
 		RTInfo() {
 			data = 0;
-			is_new = false;
 		}
 	};
 	struct  DSInfo {
 		D3D11DepthStencil *data;
-		bool is_new;
 
 		DSInfo() {
 			data = 0;
-			is_new = false;
 		}
 	};
 	struct  SOInfo {
 		D3D11StreamOut *data;
-		int stream_index;
+		bool is_new;
+		unsigned int stream_index;
 
 		SOInfo() {
 			data = 0;
-			stream_index = -1;
+			is_new = false;
+			stream_index = 0;
 		}
 	};
 

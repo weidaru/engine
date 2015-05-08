@@ -107,8 +107,8 @@ namespace s2 {
 				pipeline->SetVertexShader(vs);
 				pipeline->SetGeometryShader(0);
 				pipeline->SetPixelShader(ps);
-				pipeline->SetVertexBuffer(0, 0, stream_out->AsVertexBuffer());
 				pipeline->SetStreamOut(0, 0, 0);
+				pipeline->SetVertexBuffer(0, 0, stream_out->AsVertexBuffer());
 				pipeline->SetRenderTarget(0, bf->AsRenderTarget());
 				pipeline->Draw(&normal_state);
 			pipeline->End();
@@ -116,6 +116,11 @@ namespace s2 {
 
 		virtual void OneFrame(float delta) {
 			StreamOut(delta);
+
+			stream_out->ReadMap();
+			const float * data =  (const float *)stream_out->Read(0, 16);
+			stream_out->ReadUnmap();
+
 			DrawStreamOut(delta);
 		}
 

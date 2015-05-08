@@ -37,8 +37,8 @@ public:
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
 	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index=0);
 
-	virtual void SetIndexBuffer(IndexBuffer *buf);
-	virtual D3D11IndexBuffer * GetIndexBuffer();
+	virtual void SetIndexBuffer(IndexBuffer *buf, unsigned int vertex_base = 0);
+	virtual D3D11IndexBuffer * GetIndexBuffer(unsigned int *vertex_base);
 	
 	//Shaders
 	virtual void SetVertexShader(VertexShader *shader);
@@ -74,11 +74,11 @@ public:
 	virtual void SetRasterizedStream(int index);
 	virtual int GetRasterizedStream();
 
-	virtual bool Validate(s2string *_error) const;
-
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	virtual void Draw(DrawingState **state=0, unsigned int vertex_count = 0, unsigned int instance_count = 0);
+	virtual void Draw(DrawingState **state = 0,  unsigned int start_index=0, unsigned int vertex_count = 0);
+	virtual void DrawInstance(DrawingState **state = 0, 
+		unsigned int vertex_start=0, unsigned int vertex_count=0, unsigned int instance_start=0, unsigned int instance_count=0);
 	virtual void Start();
 	virtual void End();
 
@@ -87,6 +87,8 @@ private:
 	void SetupDepthStencilOption();
 	void SetupBlendOption();
 	void Check();
+	void DrawSetup(D3D11DrawingState *state);
+	void DrawCleanup(D3D11DrawingState *state );
 	
 private:
 	bool active;
@@ -108,7 +110,6 @@ private:
 	ID3D11BlendState *blend_state;
 	
 	D3D11OutputStage output_stage;
-
 };
 
 

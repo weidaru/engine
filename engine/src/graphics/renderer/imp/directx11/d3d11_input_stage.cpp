@@ -56,15 +56,20 @@ void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_inp
 	if (_buf) {
 		CHECK(buffer) << "Cannot cast buf to D3D11VertexBuffer";
 	}
+	vbs[index].is_new = true;
 	vbs[index].start_index = start_input_index;
-	vbs[index].vb = buffer;
 
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	//Set vertex buffer.
-	ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
-	unsigned int strides = buffer ? buffer->GetResource()->GetElementBytewidth() : 0;
-	unsigned int offsets = 0;
-	context->IASetVertexBuffers(index, 1, &buffer_raw, &strides, &offsets);
+	if(vbs[index].vb != buffer) {
+		vbs[index].vb = buffer;
+
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		//Set vertex buffer.
+		ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
+		unsigned int strides = buffer ? buffer->GetResource()->GetElementBytewidth() : 0;
+		unsigned int offsets = 0;
+		context->IASetVertexBuffers(index, 1, &buffer_raw, &strides, &offsets);
+	}
+
 }
 
 D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
@@ -74,21 +79,26 @@ D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigne
 	return vbs[index].vb;
 }
 
-void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf) {
+void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf, unsigned int vertex_base) {
 	D3D11IndexBuffer *buffer = NiceCast(D3D11IndexBuffer *, _buf);
 	if (_buf) {
 		CHECK(buffer) << "Cannot cast buf to D3D11IndexBuffer";
 	}
 
-	ib.buffer = buffer;
 	ib.is_new = true;
-	//Set index buffer
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
-	ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
-	context->IASetIndexBuffer(buffer_raw, DXGI_FORMAT_R32_UINT, 0);
+	ib.vertex_base = vertex_base;
+
+	if(ib.buffer != buffer) {
+		ib.buffer = buffer;
+		//Set index buffer
+		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
+		context->IASetIndexBuffer(buffer_raw, DXGI_FORMAT_R32_UINT, 0);
+	}
 }
 
-D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer() {
+D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer(unsigned int *vertex_base) {
+	*vertex_base = ib.vertex_base;
 	return ib.buffer;
 }
 
@@ -136,43 +146,55 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader, D3D11DrawingState *
 	}
 }
 
-void D3D11InputStage::Flush(unsigned int vertex_count, unsigned int instance_count) {
+void D3D11InputStage::Flush(unsigned int start_index, unsigned int vertex_count) {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	
 	if (vertex_count == 0) {
-		if (ib.buffer != 0) {
-			vertex_count = ib.buffer->GetResource()->GetElementCount();
+		if (ib.is_new && ib.buffer) {
+			vertex_count = ib.buffer->GetResource()->GetElementCount() - start_index;
 		}
 		else {
 			for (unsigned int i = 0; i<vbs.size(); i++) {
 				if (vbs[i].vb) {
-					vertex_count = vbs[i].vb->GetResource()->GetElementCount();
+					vertex_count = vbs[i].vb->GetResource()->GetElementCount() - start_index;
 					break;
 				}
 			}
 		}
 	}
 
-	if (instance_count == 0) {
+	
+	if(ib.is_new && ib.buffer) {
+		context->DrawIndexed(vertex_count, start_index, ib.vertex_base);
+	} else {
+		context->Draw(vertex_count, start_index);
+	}
+}
+
+void D3D11InputStage::FlushWithInstancing(unsigned int vertex_start, unsigned int vertex_count, unsigned int instance_start, unsigned int instance_count) {
+	if (vertex_count == 0) {
+		if (ib.is_new && ib.buffer) {
+			vertex_count = ib.buffer->GetResource()->GetElementCount() - vertex_start;
+		}
+		else {
+			for (unsigned int i = 0; i<vbs.size(); i++) {
+				if (vbs[i].vb) {
+					vertex_count = vbs[i].vb->GetResource()->GetElementCount() - vertex_start;
+					break;
+				}
+			}
+		}
+	}
+
+	if(instance_count == 0) {
 		instance_count = current_first_instance_count;
 	}
 
-	if (vertex_count != 0) {
-		if (ib.is_new && ib.buffer != 0) {
-			if (instance_count == 0) {
-				context->DrawIndexed(vertex_count, 0, 0);
-			}
-			else {
-				context->DrawIndexedInstanced(vertex_count, instance_count, 0, 0, 0);
-			}
-		}
-		else{
-			if (instance_count == 0) {
-				context->Draw(vertex_count, 0);
-			}
-			else {
-				context->DrawInstanced(vertex_count, instance_count, 0, 0);
-			}
-		}
+	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	if(ib.is_new && ib.buffer) {
+		context->DrawIndexedInstanced(vertex_count, instance_count, vertex_start, ib.vertex_base, instance_start);
+	} else {
+		context->DrawInstanced(vertex_count, instance_count, vertex_start, instance_start);
 	}
 }
 
@@ -261,7 +283,7 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 
 	std::vector<std::vector<VBInfo>::iterator> pool;
 	for (std::vector<VBInfo>::iterator it = vbs.begin(); it != vbs.end(); it++) {
-		if (it->vb && it->start_index >= 0)
+		if (it->vb && it->is_new)
 			pool.push_back(it);
 	}
 
@@ -324,9 +346,7 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 void D3D11InputStage::Refresh() {
 	//Set all the start_index to be -1 so that it will needs to be refreshed inorder to create new input layout.
 	for (auto it = vbs.begin(); it != vbs.end(); it++) {
-		if (it->vb && it->start_index >= 0) {
-			it->start_index = -1;
-		}
+		it->is_new = false;
 	}
 	ib.is_new = false;
 }

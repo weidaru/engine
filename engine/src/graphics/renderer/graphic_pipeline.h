@@ -52,8 +52,8 @@ public:
 	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
 	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index=0) = 0;
 
-	virtual void SetIndexBuffer(IndexBuffer *buf) = 0;
-	virtual IndexBuffer * GetIndexBuffer() = 0;
+	virtual void SetIndexBuffer(IndexBuffer *buf, unsigned int vertex_base = 0) = 0;
+	virtual IndexBuffer * GetIndexBuffer(unsigned int *vertex_base) = 0;
 
 	//Shaders
 	/**
@@ -98,17 +98,13 @@ public:
 	virtual void SetRasterizedStream(int index) = 0;
 	virtual int GetRasterizedStream() = 0;
 	
-	//Validate whether each stage is settled properly.
-	virtual bool Validate(s2string *error) const = 0;
-	
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) = 0;
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	
-	//With vertex_count and instance_count be zero, the draw call will figure out these 2 numbers by itself.
-	//For instance_count, it will pick the size of first available vertex buffer which is considered as instance buffer.
-	//For vertex_count, it will go to index buffer first, if no luck, pick the size of first available vertex buffer.
-	//TODO: Not sure always daring from start is a good assumption to make, revisit this.
-	virtual void Draw(DrawingState **state = 0, unsigned int vertex_count = 0, unsigned int instance_count = 0) = 0;
+	virtual void Draw(DrawingState **state = 0,  unsigned int start_index=0, unsigned int vertex_count = 0) = 0;
+	virtual void DrawInstance(DrawingState **state = 0, 
+		unsigned int vertex_start=0, unsigned int vertex_count=0, unsigned int instance_start=0, unsigned int instance_count=0) = 0;
+
 
 	/**
 	 * A state machine may always be in a state that only part of the attributes is concerned by the user.

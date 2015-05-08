@@ -37,7 +37,9 @@ public:
 	/*****************D3D11 exclusive.******************/
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() { return blob; }
-	void Setup(ID3D11GeometryShader *stream_out_shader = 0);
+	void Setup();
+	void UseShader(ID3D11GeometryShader *stream_out_shader);
+	ID3D11GeometryShader * GetShader() { return shader; } 
 	void Unbind();
 	
 	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }

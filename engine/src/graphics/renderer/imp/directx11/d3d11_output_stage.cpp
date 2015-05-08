@@ -45,13 +45,11 @@ void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target
 		for (unsigned int i = 0; i<rts.size(); i++) {
 			if (rts[i].data == target) {
 				rts[i].data = 0;
-				rts[i].is_new = true;
 			}
 		}
 	}
 
 	rts[index].data = target;
-	rts[index].is_new = true;
 
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
@@ -85,7 +83,6 @@ void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 		CHECK(depth_stencil) << "buffer cannot be cast to D3D11DepthStencil";
 	}
 	ds.data = depth_stencil;
-	ds.is_new = true;
 
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
@@ -115,6 +112,7 @@ void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int stream_inde
 	if (_stream_out != 0) {
 		CHECK(stream_out) << "stream out cannot be cast to D3D11StreamOut";
 	}
+	stream_outs[index].is_new = true;
 	stream_outs[index].data = stream_out;
 	stream_outs[index].stream_index = stream_index;
 
@@ -153,7 +151,7 @@ ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11Geome
 
 		int slot_index = -1;
 		for (auto it = stream_outs.begin(); it != stream_outs.end(); it++) {
-			if (output_param.stream == it->stream_index) {
+			if (it->is_new && output_param.stream == it->stream_index) {
 				slot_index = it - stream_outs.begin();
 			}
 		}
@@ -262,11 +260,10 @@ void D3D11OutputStage::ClearDepthStencil(DepthStencil *_depth_stencil, bool clea
 }
 
 void D3D11OutputStage::Refresh() {
-	for (unsigned int i = 0; i < rts.size(); i++){
-		rts[i].is_new = false;
+	for (auto it=stream_outs.begin(); it != stream_outs.end(); it++) {
+		it->is_new = false;
 	}
 
-	ds.is_new = false;
 }
 
 

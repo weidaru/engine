@@ -98,7 +98,7 @@ public:
 	virtual void ReadUnmap() const = 0;
 	template <typename T>
 	const T * Read(unsigned int index) const {
-		return this->Read(index, sizeof(T));
+		return (const T *)this->Read(index, sizeof(T));
 	}
 
 	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;

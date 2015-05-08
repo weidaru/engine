@@ -86,13 +86,13 @@ D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, un
 	return input_stage.GetVertexBuffer(index, start_input_index);
 }
 
-void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf) {
+void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf, unsigned int vertex_base) {
 	Check();
-	input_stage.SetIndexBuffer( _buf);
+	input_stage.SetIndexBuffer( _buf, vertex_base);
 }
 
-D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer() {
-	return input_stage.GetIndexBuffer();
+D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer(unsigned int *vertex_base) {
+	return input_stage.GetIndexBuffer(vertex_base);
 }
 
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
@@ -387,10 +387,6 @@ void D3D11GraphicPipeline::SetupBlendOption() {
 	context->OMSetBlendState(blend_state , blend_opt.factor, blend_opt.sample_mask);
 }
 
-bool D3D11GraphicPipeline::Validate(s2string *error) const {
-	return true;
-}
-
 void D3D11GraphicPipeline::ClearRenderTarget(RenderTarget *rt, const float rgba[4]) {
 	output_stage.ClearRenderTarget(rt, rgba);
 }
@@ -399,18 +395,7 @@ void D3D11GraphicPipeline::ClearDepthStencil(DepthStencil *ds, bool clear_depth,
 	output_stage.ClearDepthStencil(ds, clear_depth, depth , clear_stencil, stencil);
 }
 
-void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count, unsigned int instance_count) {
-	Check();
-	D3D11DrawingState *state = 0;
-	if (_state) {
-		state = NiceCast(D3D11DrawingState *, *_state);
-		if (*_state) {
-			CHECK(state) << "Cannot cast state to D3D11 DrawState";
-		}
-		state = state == 0 ? new D3D11DrawingState : state;
-		*_state = state;
-	}
-
+void D3D11GraphicPipeline::DrawSetup(D3D11DrawingState *state) {
 	ID3D11DeviceContext *context = manager->GetDeviceContext();
 
 	//Setup output 
@@ -420,6 +405,10 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 	}
 	else {
 		raw_stream_out_shader = output_stage.Setup(gs, state);
+	}
+	
+	if(raw_stream_out_shader) {
+		gs->UseShader(raw_stream_out_shader);
 	}
 
 	//Setup input
@@ -431,9 +420,44 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state, unsigned int vertex_count
 			input_stage.Setup(vs, state);
 		}
 	}
-	
-	//Flush data in input stage and start drawing.
-	input_stage.Flush(vertex_count, instance_count);
+}
+
+void D3D11GraphicPipeline::DrawCleanup(D3D11DrawingState *state) {
+	gs->UseShader(gs->GetShader());
+}
+
+void D3D11GraphicPipeline::Draw(DrawingState **_state,  unsigned int start_index, unsigned int vertex_count) {
+	Check();
+	D3D11DrawingState *state = 0;
+	if (_state) {
+		state = NiceCast(D3D11DrawingState *, *_state);
+		if (*_state) {
+			CHECK(state) << "Cannot cast state to D3D11 DrawState";
+		}
+		state = state == 0 ? new D3D11DrawingState : state;
+		*_state = state;
+	}
+
+	DrawSetup(state);
+
+	input_stage.Flush(start_index, vertex_count);
+}
+
+void D3D11GraphicPipeline::DrawInstance(DrawingState **_state, 
+		unsigned int vertex_start, unsigned int vertex_count, unsigned int instance_start, unsigned int instance_count) {
+	Check();
+	D3D11DrawingState *state = 0;
+	if (_state) {
+		state = NiceCast(D3D11DrawingState *, *_state);
+		if (*_state) {
+			CHECK(state) << "Cannot cast state to D3D11 DrawState";
+		}
+		state = state == 0 ? new D3D11DrawingState : state;
+		*_state = state;
+	}
+	DrawSetup(state);
+
+	input_stage.FlushWithInstancing(vertex_start, vertex_count, instance_start, instance_count);
 }
 
 void D3D11GraphicPipeline::Start() {

@@ -178,7 +178,7 @@ public:
 			pipeline->SetVertexBuffer(0, 1, color_buffer->AsVertexBuffer());
 			pipeline->SetVertexBuffer(1, 2, instance_buffer->AsVertexBuffer());
 			pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
-			pipeline->Draw();
+			pipeline->DrawInstance();
 		pipeline->End();
 	}
 	
