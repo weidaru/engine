@@ -9,7 +9,12 @@ Entity::Entity() : parent(0), enabled(true), id(GetCurrentId()++) {
 }
 
 Entity::~Entity() {
-
+	for(auto it = components.begin(); it != components.end(); it++) {
+		delete it->second;
+	}
+	for(auto it = children.begin(); it != children.end() ;) {
+		delete it->second;
+	}
 }
 
 void Entity::AddChild(const s2string &name, Entity *e) {

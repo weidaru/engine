@@ -17,6 +17,8 @@ public:
 public:
 	Button();
 
+	virtual ~Button() override;
+
 	int AddClickCallback(Callback cb);
 	void RemoveClickCallback(unsigned int index);
 

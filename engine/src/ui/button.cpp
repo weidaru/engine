@@ -14,6 +14,10 @@ Button::Button() : inClick(false) {
 	Engine::GetSingleton()->GetSpriteSystem()->RegisterSprite(sprite);
 }
 
+Button::~Button() {
+	Engine::GetSingleton()->GetSpriteSystem()->DeregisterSprite(sprite);
+}
+
 int Button::AddClickCallback(Callback cb) {
 	if(cb) {
 		click_callbacks.push_back(cb);
