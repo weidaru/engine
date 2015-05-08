@@ -5,22 +5,16 @@
 
 namespace s2 {
 
-static const char *kTestAssetRoot = "C:/Users/zhiwshen/Documents/GitHub/engine/engine/test/";
-//"C:/Users/zhiwshen/Documents/GitHub/engine/engine/test/"
-//"D:/github_repository/engine/engine/test/"
-
-
-static const char *kAssetRoot = "C:/Users/zhiwshen/Documents/GitHub/engine/content/";
-//"C:/Users/zhiwshen/Documents/GitHub/engine/content/"
-//"D:/github_repository/engine/engine/content/"
-
+static const char *kAssetRoot = "D:/github_repository/engine/engine/";
+//"C:/Users/zhiwshen/Documents/GitHub/engine/"
+//"D:/github_repository/engine/"
 
 static inline s2string ResolveTestAssetPath(const s2string &input) {
-	return kTestAssetRoot + input;
+	return s2string(kAssetRoot) + "test/" + input;
 }
 
 static inline s2string ResolveAssetPath(const s2string &input) {
-	return kAssetRoot + input;
+	return s2string(kAssetRoot) + "content/" + input;
 }
 
 }
