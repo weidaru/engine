@@ -29,6 +29,11 @@ public:
 		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0),
 		normal_draw_state(0), rtt_draw_state(0) {}
 
+	virtual ~RenderToTargetDemo() {
+		delete normal_draw_state;
+		delete rtt_draw_state;
+	}
+
 	virtual bool Initialize(){
 		printf("Initialize test program.\n");
 		//Create and set depth stencil buffer
@@ -254,11 +259,6 @@ public:
 		pipeline->ClearRenderTarget(texture->AsRenderTarget(), red);
 		DrawNormal(delta);
 		DrawTexture(delta);
-	}
-
-	virtual ~RenderToTargetDemo() {
-		delete normal_draw_state;
-		delete rtt_draw_state;
 	}
 	
 private:

@@ -14,7 +14,9 @@ public:
 		
 	}
 
-	virtual ~GeometryShaderDemo() {}
+	virtual ~GeometryShaderDemo() {
+		
+	}
 
 	virtual bool Initialize()  {
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();

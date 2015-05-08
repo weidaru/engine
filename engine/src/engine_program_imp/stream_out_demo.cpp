@@ -17,7 +17,10 @@ namespace s2 {
 
 		}
 
-		virtual ~StreamoutDemo() {}
+		virtual ~StreamoutDemo() {
+			delete streamout_state;
+			delete normal_state;
+		}
 
 		virtual bool Initialize()  {
 			GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
