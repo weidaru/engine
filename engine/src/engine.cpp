@@ -3,6 +3,8 @@
 #include "graphics/renderer/imp/directx11/d3d11_context.h"
 #include "engine_program.h"
 #include "input/input_system.h"
+#include "entity/entity_system.h"
+#include "graphics/sprite_system.h"
 
 #include <glog/logging.h>
 
@@ -34,14 +36,19 @@ namespace s2 {
 
 Engine::Engine() 
 	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), 
-		program_manager(new EngineProgramManager), input_system(0){
+		program_manager(new EngineProgramManager), 
+		input_system(0), entity_system(0), sprite_system(0){
 
 }
 
 void Engine::Shutdown() {
 	if(window_name == PISSED_STR)
 		return;
-		
+
+	delete sprite_system;
+	delete entity_system;
+	delete input_system;
+
 	delete program_manager;
 
 	RendererSetting renderer_setting = renderer_context->GetSetting();
@@ -94,9 +101,18 @@ void Engine::Run() {
 }
 
 void Engine::OneFrame(float delta) {
-	//Only run test program for now.
+	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+	Texture2D *bf = manager->GetBackBuffer();
+		
+	float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
+
 	input_system->OneFrame(delta);
-	program_manager->Get("StreamoutDemo")->OneFrame(delta);
+	sprite_system->OneFrame(delta);
+	entity_system->OneFrame(delta);
+
+	program_manager->Get("UIDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 
@@ -113,7 +129,9 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	context->Initialize(hwnd);
 
 	input_system = new InputSystem(hwnd);
-	
+	entity_system = new EntitySystem();
+	sprite_system = new SpriteSystem();
+
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);
 	for(unsigned int i=0; i<programs.size(); i++) {
@@ -174,7 +192,7 @@ void Engine::InitWindow(const s2string &window_name, unsigned int window_width, 
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
-	ShowCursor(false);
+	ShowCursor(true);
 	RECT clip;
 	GetWindowRect(hwnd, &clip);
 	ClipCursor(&clip);

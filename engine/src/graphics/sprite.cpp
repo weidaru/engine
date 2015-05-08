@@ -8,10 +8,7 @@
 namespace s2 {
 
 Sprite::Sprite() {
-	SetWidth(0.2f);
-	SetHeight(0.2f);
-	SetDepth(-1.0f);
-
+	SetBackgroundColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 }
 
 
@@ -50,10 +47,10 @@ Sprite & Sprite::SetAbsolutePosition(float x, float y, float z) {
 	auto setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 	float w_width = (float)setting.window_width, w_height = (float)setting.window_height;
 
-	float s_x = x/w_width*2+1;
+	float s_x = x/w_width*2-1;
 	float s_y = 1-y/w_height*2;
 	float s_z = z;
-	return SetPosition(s_z, s_y, s_z);
+	return SetPosition(s_x, s_y, s_z);
 }
 
 Sprite & Sprite::SetAbsolutePosition(const Vector3 &vector) {
@@ -106,7 +103,7 @@ float Sprite::GetHeight() {
 }
 
 Sprite & Sprite::SetHeight(float new_value) {
-	GetEntity()->GetTransform().Scale(0.0f, new_value/0.1f, 0.0f);
+	GetEntity()->GetTransform().Scale(0.0f, new_value/0.2f, 0.0f);
 	return *this;
 }
 

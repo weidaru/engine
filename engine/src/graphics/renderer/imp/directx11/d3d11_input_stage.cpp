@@ -289,6 +289,7 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 
 	std::sort(pool.begin(), pool.end(), VBCompare);
 
+	//Number of register it covers.
 	unsigned int head = 0;
 	for (std::vector<std::vector<VBInfo>::iterator>::iterator it = pool.begin(); it != pool.end(); it++) {
 		const VBInfo &vbinfo = **it;
@@ -299,30 +300,23 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		}
 		else {
-			head = vbinfo.start_index + vbinfo.vb->GetResource()->GetElementMemberCount();
+			D3D11Buffer *buffer = vbinfo.vb->GetResource() ;
+			unsigned int byte_width = buffer->GetElementBytewidth();
+			unsigned int offset = 0;
+			while(offset < byte_width) {
+				const D3D11ShaderReflection::Parameter &p = reflect.GetInput(head);
+				
+				descs[head].InputSlot = *it - vbs.begin();
+				descs[head].AlignedByteOffset = offset;
+				offset += p.size;
+				head++;
+				if (head > size) {
+					LOG(FATAL) << "Vertex buffer overflows input. Dumping:\n" << DumpVertexBufferInfo(vbs);
+				}
+			}
 		}
-	}
-	if (head < size) {
-		LOG(FATAL) << "Some shader tail inputs are not covered by vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
-	}
-	else if (head > size) {
-		LOG(FATAL) << "Vertex buffer overflows input. Dumping:\n" << DumpVertexBufferInfo(vbs);
 	}
 
-	std::vector<std::vector<VBInfo>::iterator>::iterator it = pool.begin();
-	unsigned int offset = 0;
-	for (unsigned int i = 0; i<size; i++) {
-		if ((**it).start_index + (**it).vb->GetResource()->GetElementMemberCount() - 1 < i) {
-			it++;
-			offset = 0;
-		}
-		const D3D11ShaderReflection::Parameter &p = reflect.GetInput(i);
-		const VBInfo &vbinfo = **it;
-		CHECK(i <= (vbinfo.start_index + vbinfo.vb->GetResource()->GetElementMemberCount()));
-		descs[i].InputSlot = *it - vbs.begin();
-		descs[i].AlignedByteOffset = offset;
-		offset += p.size;
-	}
 
 	//Find the first input parameter bound as D3D11_INPUT_PER_INSTANCE_DATA and 
 	//remember its corresponding vertex buffer element count

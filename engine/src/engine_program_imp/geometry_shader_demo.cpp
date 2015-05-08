@@ -72,9 +72,6 @@ public:
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 		Texture2D *bf = manager->GetBackBuffer();
-		
-		float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-		pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
 		pipeline->Start();
 			pipeline->SetDepthStencil(0);
 			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
@@ -95,5 +92,5 @@ private:
 	PixelShader *ps;
 };
 
-AddBeforeMain(GeometryShaderDemo)
+//AddBeforeMain(GeometryShaderDemo)
 }

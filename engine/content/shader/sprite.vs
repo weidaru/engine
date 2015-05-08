@@ -2,8 +2,8 @@ struct VertexInputType
 {
 	float3 position : POSITION;
 
-	float4 color : INSTANCE_COLOR;
 	float4x4 transform: INSTANCE_TRANSFORM;
+	float4 color : INSTANCE_COLOR;
 };
 
 struct PixelInputType
@@ -20,7 +20,7 @@ PixelInputType main(VertexInputType input)
 	output.position.xyz = input.position.xyz;
 	output.position.w = 1.0f;
 
-	output.position = mul(transform, output.position);
+	output.position = mul(input.transform, output.position);
 
 	// Store the input color for the pixel shader to use.
 	output.color = input.color;

@@ -18,6 +18,7 @@
     <ClInclude Include="src\engine_program_imp\render_to_target_demo.h" />
     <ClInclude Include="src\entity\component.h" />
     <ClInclude Include="src\entity\entity.h" />
+    <ClInclude Include="src\entity\entity_system.h" />
     <ClInclude Include="src\entity\transform.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\engine_program.h" />
@@ -84,7 +85,9 @@
   <ItemGroup>
     <ClCompile Include="src\asset\model.cpp" />
     <ClCompile Include="src\asset\pixel_map.cpp" />
+    <ClCompile Include="src\engine_program_imp\ui_demo.cpp" />
     <ClCompile Include="src\entity\entity.cpp" />
+    <ClCompile Include="src\entity\entity_system.cpp" />
     <ClCompile Include="src\entity\transform.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\engine_program.cpp" />

@@ -2,10 +2,13 @@
 #define ENTITY_H_
 
 #include "transform.h"
+#include "utils/s2string.h"
 
 #include <map>
 
 namespace s2 {
+
+class EntitySystem;
 
 class Entity {
 public:
@@ -30,6 +33,18 @@ public:
 
 	virtual void OneFrame(float delta);
 
+	const s2string & GetName() { return name; }
+
+private :
+	void SetName(const s2string& _name) { name=_name; }
+
+	static unsigned int & GetCurrentId() {
+		static unsigned int currentId = 0;
+		return currentId;
+	}
+
+	friend class EntitySystem;
+
 private:
 	Transform transform;
 
@@ -37,6 +52,9 @@ private:
 	std::map<s2string, Component* > components;
 	std::map<s2string, Entity *> children;
 	bool enabled;
+
+	unsigned int id;
+	s2string name;
 };
 
 }

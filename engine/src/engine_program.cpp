@@ -1,5 +1,7 @@
 #include "engine_program.h"
 
+#include <glog/logging.h>
+
 namespace s2 {
 
 EngineProgramManager::EngineProgramManager() {}
@@ -11,12 +13,18 @@ EngineProgramManager::~EngineProgramManager() {
 }
 
 EngineProgramManager & EngineProgramManager::Add(EngineProgram *program) {
+	CHECK(Get(program->GetName()) == 0)<<"Name conflict.";
 	map[program->GetName()] = program;
 	return *this;
 }
 
 EngineProgram * EngineProgramManager::Get(const s2string &name) {
-	return map[name];
+	auto it = map.find(name);
+	if( it == map.end()) {
+		return 0;
+	} else {
+		return it->second;
+	}
 }
 
 void EngineProgramManager::GetAll(std::vector<EngineProgram *> *result) {

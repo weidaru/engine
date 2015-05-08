@@ -8,35 +8,28 @@
 
 namespace s2 {
 
+class Sprite;
+
 class Button : public Entity {
 public: 
 	typedef  std::function<void (Button *)> Callback;
 
 public:
 	Button();
-	Button(float x, float y, float z, float width, float height);
 
 	int AddClickCallback(Callback cb);
 	void RemoveClickCallback(unsigned int index);
 
-	virtual void OneFrame(float delta);
+	Sprite * GetSprite() { return sprite; }
 
-	float GetX() { return x; }
-	Button & SetX(float new_value) { x = new_value; return *this; }
-	float GetY() { return y; }
-	Button & SetY(float new_value) { y = new_value; return *this; }
-	float GetZ() { return z; }
-	Button & SetZ(float new_value) { z = new_value; return *this; }
-	float GetWidth() { return width; }
-	Button & SetWidth(float new_value) { width = new_value; return *this; }
-	float GetHeight() { return height; }
-	Button & SetHeight(float new_value) { height = new_value; return *this; }
+	virtual void OneFrame(float delta);
 
 private:
 	std::vector<Callback> click_callbacks;
 
 	bool inClick;
-	float x, y,z, width, height;
+	Sprite *sprite;
+
 };
 
 }

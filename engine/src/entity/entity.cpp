@@ -4,7 +4,7 @@
 
 namespace s2 {
 
-Entity::Entity() : parent(0), enabled(true) {
+Entity::Entity() : parent(0), enabled(true), id(GetCurrentId()++) {
 
 }
 

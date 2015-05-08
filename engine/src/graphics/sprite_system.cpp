@@ -1,10 +1,9 @@
 #include "sprite_system.h"
-
 #include "engine.h"
-
 #include "graphics/renderer/all.h"
-
 #include "sprite.h"
+#include "asset/asset_path.h"
+#include <glog/logging.h>
 
 namespace s2 {
 
@@ -15,18 +14,18 @@ SpriteSystem::SpriteSystem()
 	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 	vs = manager->CreateVertexShader();
-	vs->Initialize("shader/sprite.vs", "main");
+	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite.vs"), "main")) << vs->GetLastError();
 
 	ps = manager->CreatePixelShader();
-	ps->Initialize("shader/sprite.ps", "main");
+	CHECK(ps->Initialize(ResolveAssetPath("shader/sprite.ps"), "main")) << ps->GetLastError();
 
 	vertex_buffer = manager->CreateBuffer();
 	Buffer::Option option;
 	SpriteVertex verticies[4] = {
-		{-0.1f, 0.1f, -1.0f},
-		{0.1f, 0.1f, -1.0f},
-		{0.1f, -0.1f, -1.0f},
-		{-0.1f, -0.1f, -1.0f}
+		{-0.1f, -0.1f, 0.0f},
+		{0.1f, -0.1f, 0.0f},
+		{-0.1f, 0.1f, 0.0f},
+		{0.1f, 0.1f, 0.0f}
 	};
 	option.Initialize(4, verticies);
 	option.resource_write = RendererEnum::IMMUTABLE;
@@ -66,15 +65,19 @@ void SpriteSystem::OneFrame(float delta) {
 	instance_buffer->WriteMap();
 	instance_buffer->Write(0, instances, sprites.size());
 	instance_buffer->WriteUnmap();
+	
+	delete[] instances;
 
 	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	pipeline->Start();
+		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
 		pipeline->SetVertexBuffer(0,0,vertex_buffer->AsVertexBuffer());
-		pipeline->SetVertexBuffer(0,1,instance_buffer->AsVertexBuffer());
+		pipeline->SetVertexBuffer(1,1,instance_buffer->AsVertexBuffer());
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-		pipeline->Draw(&drawing_state);
+		pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
 	pipeline->End();
 }
 
