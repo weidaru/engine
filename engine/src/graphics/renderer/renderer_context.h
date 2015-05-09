@@ -6,6 +6,7 @@
 namespace  s2 {
 class GraphicPipeline;
 class GraphicResourceManager;
+class Texture2D;
 
 struct RendererSetting {
 	unsigned int window_width;
@@ -31,6 +32,7 @@ public:
 	virtual const s2string & GetLastError() = 0;
 	virtual void PropagateSetting() = 0;
 	virtual void SwapBuffer() = 0;
+	virtual Texture2D * GetBackBuffer() = 0;
 };
 
 }

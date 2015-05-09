@@ -4,6 +4,10 @@
 #include "graphics/renderer/renderer_context.h"
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_graphic_pipeline.h"
+#include "d3d11_texture2d.h"
+
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 
 namespace s2 {
 
@@ -23,8 +27,17 @@ public:
 	virtual const s2string & GetLastError() { return error; }
 	virtual void PropagateSetting();
 	virtual void SwapBuffer();
+	virtual D3D11Texture2D * GetBackBuffer();
+
+private:
+	void InitDeviceAndContextAndSwapchain(
+		unsigned int screen_width, unsigned int screen_height, void *hwnd, bool enable_vsync, bool full_screen,
+		ID3D11Device **device, ID3D11DeviceContext **context);
 	
 private:
+	IDXGISwapChain *swap_chain;
+	D3D11Texture2D * back_buffer;				//This go with the swap_chain
+
 	D3D11GraphicResourceManager *resource_manager;
 	D3D11GraphicPipeline *pipeline;
 	

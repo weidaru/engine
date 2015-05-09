@@ -13,9 +13,6 @@
 #include <map>
 
 struct ID3D11Device;
-struct ID3D11DeviceContext;
-struct IDXGISwapChain;
-struct ID3D11RenderTargetView;
 
 namespace s2 {
 
@@ -24,8 +21,7 @@ namespace s2 {
  */
 class D3D11GraphicResourceManager : public GraphicResourceManager {
 public:
-	D3D11GraphicResourceManager(unsigned int window_width, unsigned int window_height, 
-												void *hwnd, bool enable_vsync, bool full_screen);
+	D3D11GraphicResourceManager(ID3D11Device *_device);
 	virtual ~D3D11GraphicResourceManager();
 	
 	//Buffer
@@ -72,23 +68,14 @@ public:
 	/****************D3D11 exclusive*****************/
 public:
 	ID3D11Device * GetDevice() { return device; }
-	ID3D11DeviceContext * GetDeviceContext() { return context; }
-	IDXGISwapChain * GetSwapChain() { return swap_chain; }
 	
-private:
-	/*	The assumption is that we are only using one monitor thus only one swapchain is needed.
-		Refactor if support for multiple monitors is needed. */
-	void InitDeviceAndContextAndSwapchain(unsigned int screen_width, unsigned int screen_height, void *hwnd, bool enable_vsync, bool full_screen);
-	
+private:	
 	D3D11GraphicResourceManager(const D3D11GraphicResourceManager &);
 	D3D11GraphicResourceManager & operator=(const D3D11GraphicResourceManager &);
 	
 	
 private:
 	ID3D11Device *device;
-	ID3D11DeviceContext  *context;
-	IDXGISwapChain *swap_chain;
-	D3D11Texture2D * back_buffer;				//This go with the swap_chain
 	
 	std::map<unsigned int, D3D11Buffer *> buffer_map;
 	std::map<unsigned int, Texture1D *> tex1d_map;
