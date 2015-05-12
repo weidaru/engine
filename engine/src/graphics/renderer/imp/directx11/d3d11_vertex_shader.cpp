@@ -16,6 +16,7 @@
 
 #include "d3d11_constant_buffer.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_shader_reflection.h"
 #include "d3d11_shader_helper.h"
@@ -137,30 +138,29 @@ D3D11ShaderResource * D3D11VertexShader::GetShaderResource(const s2string &name)
 	return sr_container->GetShaderResource(name, &error);
 }
 
-void D3D11VertexShader::Setup() {
+void D3D11VertexShader::Setup(D3D11GraphicPipeline *pipeline) {
 	if(shader) {
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::VERTEX;
 		context->VSSetShader(shader, 0, 0);
 		
 		//Set constant buffer.
-		cb_container->Setup(context, type);
+		cb_container->Setup(pipeline, type);
 		
 		//Set samplers.
-		sampler_container->Setup(context, type);
+		sampler_container->Setup(pipeline, type);
 		
 		//Set shader resources.
-		sr_container->Setup(context, type);
+		sr_container->Setup(pipeline, type);
 	}
 }
 
-void D3D11VertexShader::Unbind() {
+void D3D11VertexShader::Unbind(D3D11GraphicPipeline *pipeline) {
 	if (shader) {
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		D3D11ShaderHelper::ShaderType type = D3D11ShaderHelper::VERTEX;
-		cb_container->Unbind(context, type);
-		sampler_container->Unbind(context, type);
-		sr_container->Unbind(context, type);
+		cb_container->Unbind(pipeline, type);
+		sampler_container->Unbind(pipeline, type);
+		sr_container->Unbind(pipeline, type);
 	}
 }
 

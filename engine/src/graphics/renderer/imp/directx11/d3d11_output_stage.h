@@ -11,6 +11,7 @@ namespace s2 {
 class D3D11Texture2D;
 class Resource;
 class D3D11GraphicResourceManager;
+class D3D11GraphicPipeline;
 class D3D11RenderTarget;
 class D3D11DepthStencil;
 class D3D11StreamOut;
@@ -52,7 +53,7 @@ private:
 	};
 
 public:
-	D3D11OutputStage(D3D11GraphicResourceManager *_manager);
+	D3D11OutputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
 	~D3D11OutputStage();
 	
 	void SetRenderTarget(unsigned int index, RenderTarget *target);
@@ -82,6 +83,7 @@ private:
 	
 private:
 	D3D11GraphicResourceManager *manager;
+	D3D11GraphicPipeline *pipeline;
 
 	std::vector<RTInfo > rts;
 	DSInfo ds;

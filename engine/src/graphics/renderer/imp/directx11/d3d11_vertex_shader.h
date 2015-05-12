@@ -15,6 +15,7 @@ typedef ID3D10Blob ID3DBlob;
 namespace s2 {
 
 class D3D11GraphicResourceManager;
+class D3D11GraphicPipeline;
 class D3D11ShaderReflection;
 class ConstantBufferContainer;
 class SamplerContainer;
@@ -35,8 +36,8 @@ public:
 	virtual const s2string & GetLastError() { return error; } 
 	
 	/*****************D3D11 exclusive.******************/
-	void Setup();
-	void Unbind();
+	void Setup(D3D11GraphicPipeline *pipeline);
+	void Unbind(D3D11GraphicPipeline *pipeline);
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 	ID3DBlob * GetBlob() const { return blob;}
 	const ConstantBufferContainer & GetConstantBufferContainer() const { return *cb_container; }

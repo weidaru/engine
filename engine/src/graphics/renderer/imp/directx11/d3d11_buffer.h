@@ -25,14 +25,14 @@ public:
 
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
 	virtual unsigned int GetBinding() const;
-	virtual void WriteMap(bool no_overwrite);
+	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite);
 	virtual void WriteUnmap();
-	virtual void ReadMap(bool wipe_cache) const;
+	virtual void ReadMap(GraphicPipeline *pipeline, bool wipe_cache) const;
 	virtual void ReadUnmap() const;
 
 	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
 	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const;
-	virtual void Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
+	virtual void Update(GraphicPipeline *pipeline, unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
 
 	virtual IndexBuffer * AsIndexBuffer() const;
 	virtual VertexBuffer * AsVertexBuffer() const;

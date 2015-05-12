@@ -7,6 +7,7 @@
 #include "renderer_enum.h"
 
 namespace s2 {
+class GraphicPipeline;
 
 class Texture3D : public Resource {
 public:
@@ -42,17 +43,18 @@ public:
 	virtual void Initialize(const Option &option) = 0;
 	virtual const Texture3D::Option & GetOption() const = 0;		
 	
-	virtual void WriteMap(unsigned int mip_index, unsigned array_index) = 0;
+	virtual void WriteMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index) = 0;
 	virtual void Write(unsigned int row, unsigned int col, unsigned int depth, const void *data, unsigned int size) = 0;
 	virtual void WriteUnmap() = 0;
 	
 	virtual void Update(
+			GraphicPipeline *pipeline, 
 			unsigned int left, unsigned int right,
 			unsigned int top, unsigned int bottom,
 			unsigned int front, unsigned int back,
 			const void *data) = 0;
 			
-	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
+	virtual void ReadMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
 	virtual void Read(unsigned int row, unsigned int col, unsigned int depth) = 0;
 	virtual void ReadUnmap() = 0;
 

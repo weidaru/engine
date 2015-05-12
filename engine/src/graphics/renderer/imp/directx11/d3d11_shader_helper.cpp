@@ -16,6 +16,7 @@
 
 #include "d3d11_shader_reflection.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 #include "d3d11_constant_buffer.h"
 #include "utils/type_info.h"
 
@@ -83,14 +84,15 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 	return true;
 }
 
-void ConstantBufferContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
 	for(unsigned int i=0; i<cbs.size(); i++) {
 		D3D11ConstantBuffer *cb = cbs[i].second;
 		if(cb == 0) {
 			continue;
 		}
-		cb->Flush();
+		cb->Flush(pipeline);
 		ID3D11Buffer *buffer = cb->GetInternal();
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		switch(shader_type) {
 			case D3D11ShaderHelper::VERTEX:
 				context->VSSetConstantBuffers(cbs[i].first, 1, &buffer);
@@ -107,13 +109,14 @@ void ConstantBufferContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 	}
 }
 
-void ConstantBufferContainer::Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+void ConstantBufferContainer::Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
 	for (unsigned int i = 0; i<cbs.size(); i++) {
 		D3D11ConstantBuffer *cb = cbs[i].second;
 		if (cb == 0) {
 			continue;
 		}
 		ID3D11Buffer *buffer = 0;
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		switch (shader_type) {
 		case D3D11ShaderHelper::VERTEX:
 			context->VSSetConstantBuffers(cbs[i].first, 1, &buffer);
@@ -184,13 +187,14 @@ D3D11Sampler* SamplerContainer::GetSampler(const s2string &name, s2string *error
 	return 0;
 }
 	
-void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
 	for(unsigned int i=0; i<samplers.size(); i++) {
 		D3D11Sampler *sampler = samplers[i].second;
 		if(sampler == 0) {
 			continue;
 		}
 		ID3D11SamplerState *state = sampler->GetInternal();
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		switch(shader_type) {
 			case D3D11ShaderHelper::VERTEX:
 				context->VSSetSamplers(samplers[i].first, 1, &state);
@@ -208,13 +212,14 @@ void SamplerContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::Sh
 	}
 }
 
-void SamplerContainer::Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+void SamplerContainer::Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
 	for (unsigned int i = 0; i<samplers.size(); i++) {
 		D3D11Sampler *sampler = samplers[i].second;
 		if (sampler == 0) {
 			continue;
 		}
 		ID3D11SamplerState *state = 0;
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		switch (shader_type) {
 		case D3D11ShaderHelper::VERTEX:
 			context->VSSetSamplers(samplers[i].first, 1, &state);
@@ -303,7 +308,7 @@ ShaderResourceContainer::BindingVector ShaderResourceContainer::GetNewBindings()
 	return result;
 }
 
-void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
 	for(unsigned int i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
 		ID3D11ShaderResourceView *view = 0;
@@ -311,6 +316,7 @@ void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 			view = shader_resources[i].shader_resource->GetShaderResourceView();
 		}
 
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		switch(shader_type) {
 			case D3D11ShaderHelper::VERTEX:
 				context->VSSetShaderResources(info.slot_index, 1, &view);
@@ -328,11 +334,12 @@ void ShaderResourceContainer::Setup(ID3D11DeviceContext *context, D3D11ShaderHel
 	}
 }
 
-void ShaderResourceContainer::Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type) {
+void ShaderResourceContainer::Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
 	for (unsigned int i = 0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
 		ID3D11ShaderResourceView *view = 0;
 
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		switch (shader_type) {
 		case D3D11ShaderHelper::VERTEX:
 			context->VSSetShaderResources(info.slot_index, 1, &view);

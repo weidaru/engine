@@ -7,13 +7,14 @@ struct ID3D11Resource;
 struct ID3D11DeviceContext;
 
 namespace s2 {
+class D3D11GraphicPipeline;
 
 class D3D11MappedResource {
 public:
-	D3D11MappedResource(ID3D11DeviceContext *_context, ID3D11Resource *resource, RendererEnum::ResourceWrite _resource_write);
+	D3D11MappedResource(ID3D11Resource *resource, RendererEnum::ResourceWrite _resource_write);
 	~D3D11MappedResource();
 	
-	void WriteMap(bool is_partial_map, unsigned int subresource_index);
+	void WriteMap(D3D11GraphicPipeline *pipeline, bool is_partial_map, unsigned int subresource_index);
 	void Write(unsigned int offset, const void *data, unsigned int size);
 	void WriteUnmap();
 	unsigned int GetWriteRowPitch() { return write_row_pitch; }
@@ -25,7 +26,7 @@ public:
 	}
 	ID3D11Resource * GetStagingResource() const { return staging_resource; }
 	
-	void ReadMap(unsigned int subresource_index, bool wipe_cache);
+	void ReadMap(D3D11GraphicPipeline *pipeline, unsigned int subresource_index, bool wipe_cache);
 	const void * Read() const;
 	void ReadUnmap();
 	unsigned int GetReadRowPitch() { return read_row_pitch; }

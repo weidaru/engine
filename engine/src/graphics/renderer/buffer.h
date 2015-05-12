@@ -9,6 +9,8 @@
 
 namespace s2 {
 
+class GraphicPipeline;
+
 class Buffer : public Resource {
 public:
 	typedef unsigned int IndexBufferElementType;
@@ -83,7 +85,7 @@ public:
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const = 0;
 	virtual unsigned int GetBinding() const = 0;
 
-	virtual void WriteMap(bool no_overwrite = false) = 0;
+	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite = false) = 0;
 	virtual void WriteUnmap() = 0;
 	template <typename T>
 	void Write(unsigned int index, T *data, unsigned int array_size) {
@@ -94,7 +96,7 @@ public:
 		this->Update(index, (const void *)data, array_size, sizeof(T));
 	}
 
-	virtual void ReadMap(bool wipe_cache = true) const = 0;
+	virtual void ReadMap(GraphicPipeline *pipeline, bool wipe_cache = true) const = 0;
 	virtual void ReadUnmap() const = 0;
 	template <typename T>
 	const T * Read(unsigned int index) const {
@@ -103,7 +105,7 @@ public:
 
 	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
 	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const = 0;
-	virtual void Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
+	virtual void Update(GraphicPipeline *pipeline, unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
 
 	virtual IndexBuffer * AsIndexBuffer() const = 0;
 	virtual VertexBuffer * AsVertexBuffer() const = 0;

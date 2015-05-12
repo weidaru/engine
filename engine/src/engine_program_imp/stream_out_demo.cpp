@@ -97,9 +97,8 @@ public:
 
 	void DrawStreamOut(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		Texture2D *bf = manager->GetBackBuffer();
+		Texture2D *bf = Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
 
 		pipeline->Start();
 			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
@@ -116,11 +115,6 @@ public:
 
 	virtual void OneFrame(float delta) {
 		StreamOut(delta);
-
-		stream_out->ReadMap();
-		const float * data =  (const float *)stream_out->Read(0, 16);
-		stream_out->ReadUnmap();
-
 		DrawStreamOut(delta);
 	}
 
@@ -132,5 +126,5 @@ private:
 	PixelShader *ps;
 };
 
-//AddBeforeMain(StreamoutDemo)
+AddBeforeMain(StreamoutDemo)
 }

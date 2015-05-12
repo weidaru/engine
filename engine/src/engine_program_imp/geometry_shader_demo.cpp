@@ -69,9 +69,8 @@ public:
 
 	virtual void OneFrame(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		Texture2D *bf = manager->GetBackBuffer();
+		Texture2D *bf = Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
 		pipeline->Start();
 			pipeline->SetDepthStencil(0);
 			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
@@ -92,5 +91,5 @@ private:
 	PixelShader *ps;
 };
 
-//AddBeforeMain(GeometryShaderDemo)
+AddBeforeMain(GeometryShaderDemo)
 }

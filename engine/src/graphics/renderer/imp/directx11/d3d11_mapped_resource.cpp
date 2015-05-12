@@ -11,13 +11,13 @@
 #include <stdio.h>
 
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 
 namespace s2 {
 
 D3D11MappedResource::D3D11MappedResource(
-		ID3D11DeviceContext *_context, ID3D11Resource *_resource, RendererEnum::ResourceWrite _resource_write) 
-			: 	context(_context), resource(_resource), resource_write(_resource_write) {
-	CHECK_NOTNULL(_context);
+		ID3D11Resource *_resource, RendererEnum::ResourceWrite _resource_write) 
+			: 	context(0), resource(_resource), resource_write(_resource_write) {
 	CHECK_NOTNULL(_resource);
 	mapped_data = 0;
 	write_index = -1;
@@ -39,7 +39,8 @@ D3D11MappedResource::~D3D11MappedResource() {
 }
 
 
-void D3D11MappedResource::WriteMap(bool no_overwirte, unsigned int subresource_index) {
+void D3D11MappedResource::WriteMap(D3D11GraphicPipeline *pipeline, bool no_overwirte, unsigned int subresource_index) {
+	context = pipeline->GetDeviceContext();
 	write_index = subresource_index;
 	CHECK(mapped_data == 0)<<"Cannot map a resource twice in a row. Call ReadUnmap first";
 	CHECK(resource_write != RendererEnum::IMMUTABLE) << 
@@ -72,9 +73,11 @@ void D3D11MappedResource::WriteUnmap() {
 	write_index = -1;
 	write_row_pitch = 0;
 	write_depth_pitch = 0;
+	context = 0;
 }
 
-void D3D11MappedResource::ReadMap(unsigned int subresource_index, bool wipe_cache) {
+void D3D11MappedResource::ReadMap(D3D11GraphicPipeline *pipeline, unsigned int subresource_index, bool wipe_cache) {
+	context = pipeline->GetDeviceContext();
 	//Copy resource to staging resource.
 	read_index = subresource_index;
 	CHECK(staging_resource)<<"staging_resource must be set before mapping";
@@ -98,6 +101,7 @@ void D3D11MappedResource::ReadUnmap() {
 	read_index = -1;
 	read_row_pitch = 0;
 	read_depth_pitch = 0;
+	context = 0;
 }
 
 const void * D3D11MappedResource::Read() const {

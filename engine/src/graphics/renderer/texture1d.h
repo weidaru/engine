@@ -8,6 +8,7 @@
 #include "resource_view.h"
 
 namespace s2 {
+class GraphicPipeline;
 
 class Texture1D : public Resource {
 public:
@@ -37,13 +38,13 @@ public:
 	virtual void Initialize(const Option &option) = 0;
 	virtual const Texture1D::Option & GetOption() const = 0;		
 	
-	virtual void WriteMap(bool no_overwrite, unsigned int mip_index, unsigned array_index) = 0;
+	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, unsigned int mip_index, unsigned array_index) = 0;
 	virtual void Write(unsigned int index, const void *data, unsigned int size) = 0;
 	virtual void WriteUnmap() = 0;
 	
-	virtual void Update(unsigned int index, const void *data, unsigned int size) = 0;
+	virtual void Update(GraphicPipeline *pipeline, unsigned int index, const void *data, unsigned int size) = 0;
 	
-	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
+	virtual void ReadMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
 	virtual void * Read(unsigned int index) = 0;
 	virtual void ReadUnmap() = 0;
 

@@ -29,13 +29,15 @@
 
 namespace s2 {
 
-D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager)
+D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager,  ID3D11DeviceContext *_context)
 	:  active(true),
-		manager(_manager), 
-		input_stage(_manager),
+		manager(_manager),  context(_context),
+		input_stage(_manager, this),
 		vs(0), ps(0), gs(0),
 		rast_state(0), ds_state(0), blend_state(0),
-		output_stage(_manager) {
+		output_stage(_manager, this) {
+	CHECK_NOTNULL(manager);
+	CHECK_NOTNULL(context);
 
 	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 	RasterizationOption option;
@@ -55,17 +57,21 @@ void D3D11GraphicPipeline::Check() {
 }
 
 D3D11GraphicPipeline::~D3D11GraphicPipeline() {
-	if(rast_state)
+	if(rast_state) {
 		rast_state->Release();
-	rast_state=0;
+	}
 	
-	if(ds_state)
+	if(ds_state) {
 		ds_state->Release();
-	ds_state=0; 
+	}
 	
-	if(blend_state)
+	if(blend_state) {
 		blend_state->Release();
-	blend_state=0;
+	}
+
+	if(context) {
+		context->Release();
+	}
 }
 
 void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
@@ -98,16 +104,15 @@ D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer(unsigned int *vertex_bas
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
 	Check();
 	if (vs) {
-		vs->Unbind();
+		vs->Unbind(this);
 	}
 	vs = NiceCast(D3D11VertexShader *, shader);
 	if(shader) {
 		CHECK(vs)<<"Shader cannot be cast to D3D11VertexShader";
 	}
 	if (vs) {
-		vs->Setup();
+		vs->Setup(this);
 	} else {
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->VSSetShader(0, 0, 0);
 	}
 }
@@ -119,16 +124,15 @@ VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 	Check();
 	if (ps) {
-		ps->Unbind();
+		ps->Unbind(this);
 	}
 	ps = NiceCast(D3D11PixelShader *, shader);
 	if(shader) {
 		CHECK(ps)<<"Shader cannot be cast to D3D11PixelShader";
 	}
 	if (ps) {
-		ps->Setup();
+		ps->Setup(this);
 	} else {
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->PSSetShader(0, 0, 0);
 	}
 }
@@ -140,16 +144,15 @@ PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
 	Check();
 	if (gs) {
-		gs->Unbind();
+		gs->Unbind(this);
 	}
 	gs = NiceCast(D3D11GeometryShader *, shader);
 	if (shader) {
 		CHECK(gs) <<"Shader cannot be cast to D3D11GeometryShader";
 	}
 	if (gs) {
-		gs->Setup();
+		gs->Setup(this);
 	} else {
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
 		context->GSSetShader(0, 0, 0);
 	}
 }
@@ -342,7 +345,6 @@ int D3D11GraphicPipeline::GetRasterizedStream() {
 
 void D3D11GraphicPipeline::SetupRasterizationOption() {
 	CHECK(rast_state);
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	RasterizationOption &option = rast_opt;
 	
 	if(!option.viewports.empty()) {
@@ -376,14 +378,12 @@ void D3D11GraphicPipeline::SetupRasterizationOption() {
 
 void D3D11GraphicPipeline::SetupDepthStencilOption() {
 	CHECK(ds_state);
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetDepthStencilState(ds_state, ds_opt.stencil_replace_value);
 	
 }
 
 void D3D11GraphicPipeline::SetupBlendOption() {
 	CHECK(blend_state);
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
 	context->OMSetBlendState(blend_state , blend_opt.factor, blend_opt.sample_mask);
 }
 
@@ -396,7 +396,6 @@ void D3D11GraphicPipeline::ClearDepthStencil(DepthStencil *ds, bool clear_depth,
 }
 
 void D3D11GraphicPipeline::DrawSetup(D3D11DrawingState *state) {
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
 
 	//Setup output 
 	ID3D11GeometryShader *raw_stream_out_shader = 0;
@@ -408,7 +407,7 @@ void D3D11GraphicPipeline::DrawSetup(D3D11DrawingState *state) {
 	}
 	
 	if(raw_stream_out_shader) {
-		gs->UseShader(raw_stream_out_shader);
+		gs->UseShader(this, raw_stream_out_shader);
 	}
 
 	//Setup input
@@ -423,7 +422,7 @@ void D3D11GraphicPipeline::DrawSetup(D3D11DrawingState *state) {
 }
 
 void D3D11GraphicPipeline::DrawCleanup(D3D11DrawingState *state) {
-	gs->UseShader(gs->GetShader());
+	gs->UseShader(this, gs->GetShader());
 }
 
 void D3D11GraphicPipeline::Draw(DrawingState **_state,  unsigned int start_index, unsigned int vertex_count) {

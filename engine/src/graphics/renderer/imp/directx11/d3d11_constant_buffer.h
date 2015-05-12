@@ -8,13 +8,14 @@ struct ID3D11Buffer;
 namespace s2 {
 
 class D3D11GraphicResourceManager;
+class D3D11GraphicPipeline;
 
 class D3D11ConstantBuffer {
 public:
 	D3D11ConstantBuffer(D3D11GraphicResourceManager * _manager);
 	~D3D11ConstantBuffer();
 	void Initialize(unsigned int size, const void *data);
- 	void Flush();
+ 	void Flush(D3D11GraphicPipeline *pipeline);
 	
 	bool SetData(unsigned int offset, const void *data, unsigned int size);
 	unsigned int GetSize() { return size;}

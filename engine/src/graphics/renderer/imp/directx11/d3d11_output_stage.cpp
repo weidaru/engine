@@ -10,6 +10,7 @@
 #include "d3d11_output_stage.h"
 
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 #include "d3d11_context.h"
 #include "d3d11_texture2d.h"
 #include "d3d11_resource_view.h"
@@ -26,8 +27,8 @@
 
 namespace s2 {
 
-D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager)
-	: manager(_manager), rasterized_stream(-1){
+D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline)
+	: manager(_manager), pipeline(_pipeline), rasterized_stream(-1){
 	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	stream_outs.resize(D3D11_SO_STREAM_COUNT);
 }
@@ -51,7 +52,7 @@ void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target
 
 	rts[index].data = target;
 
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
 	for (unsigned int i = 0; i<rts.size(); i++) {
 		if (rts[i].data != 0) {
@@ -84,7 +85,7 @@ void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 	}
 	ds.data = depth_stencil;
 
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
 	for (unsigned int i = 0; i<rts.size(); i++) {
 		if (rts[i].data != 0) {
@@ -116,7 +117,7 @@ void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int stream_inde
 	stream_outs[index].data = stream_out;
 	stream_outs[index].stream_index = stream_index;
 
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11Buffer **so_array = new ID3D11Buffer *[stream_outs.size()];
 	UINT *offset = new UINT[stream_outs.size()];
 	for (unsigned int i = 0; i < stream_outs.size(); i++) {
@@ -240,7 +241,7 @@ void D3D11OutputStage::ClearRenderTarget(RenderTarget *_target, const float rgba
 		CHECK(target) << "target cannot be cast to D3D11RenderTarget";
 	}
 
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	context->ClearRenderTargetView(target->GetRenderTargetView(), rgba);
 }
 
@@ -254,7 +255,7 @@ void D3D11OutputStage::ClearDepthStencil(DepthStencil *_depth_stencil, bool clea
 		unsigned int flag = clear_depth ? D3D11_CLEAR_DEPTH : 0;
 		flag |= clear_stencil ? D3D11_CLEAR_STENCIL : 0;
 
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		context->ClearDepthStencilView(depth_stencil->GetDepthStencilView(), flag, depth, (UINT8)stencil);
 	}
 }

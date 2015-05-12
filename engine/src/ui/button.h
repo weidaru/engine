@@ -26,6 +26,8 @@ public:
 
 	virtual void OneFrame(float delta);
 
+	virtual Button & SetEnabled(bool new_value) override;
+
 private:
 	std::vector<Callback> click_callbacks;
 

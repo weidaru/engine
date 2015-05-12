@@ -41,6 +41,7 @@ public:
 				self->GetSprite()->SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 			}
 		});
+		button->SetEnabled(false);
 
 		return true;
 	}
@@ -50,6 +51,7 @@ public:
 	}
 
 	virtual void OneFrame(float delta) {
+		button->SetEnabled(true);
 		button->OneFrame(delta);
 	}
 	

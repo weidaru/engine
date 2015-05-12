@@ -28,7 +28,7 @@ public:
 
 	Entity * GetParent() const { return parent; }
 
-	Entity & SetEnabled(bool new_value) { enabled=new_value; return *this; } 
+	virtual Entity & SetEnabled(bool new_value) { enabled=new_value; return *this; } 
 	bool IsEnabled() { return enabled; }
 
 	virtual void OneFrame(float delta);

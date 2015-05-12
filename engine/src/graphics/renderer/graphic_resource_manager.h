@@ -30,7 +30,6 @@ public:
 	virtual Texture2D * CreateTexture2D() = 0;
 	virtual Texture2D * GetTexture2D(unsigned int id) = 0;
 	virtual void RemoveTexture2D(unsigned int id) = 0;
-	virtual Texture2D * GetBackBuffer() = 0;
 	
 	//Texture3D
 	virtual Texture3D * CreateTexture3D() = 0;

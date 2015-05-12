@@ -103,7 +103,7 @@ void Engine::Run() {
 void Engine::OneFrame(float delta) {
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-	Texture2D *bf = manager->GetBackBuffer();
+	Texture2D *bf = renderer_context->GetBackBuffer();
 		
 	float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
@@ -112,7 +112,7 @@ void Engine::OneFrame(float delta) {
 	sprite_system->OneFrame(delta);
 	entity_system->OneFrame(delta);
 
-	program_manager->Get("UIDemo")->OneFrame(delta);
+	program_manager->Get("RenderToTargetDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 

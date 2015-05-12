@@ -13,6 +13,7 @@
 #include "d3d11_vertex_shader.h"
 #include "d3d11_shader_reflection.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_drawing_state.h"
 
@@ -32,8 +33,8 @@ D3D11InputLayout::~D3D11InputLayout() {
 }
 
 
-D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager)
-	: manager(_manager), owned_layout(0){
+D3D11InputStage::D3D11InputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline)
+	: manager(_manager), pipeline(_pipeline), owned_layout(0){
 	SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
 	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
 }
@@ -43,7 +44,7 @@ D3D11InputStage::~D3D11InputStage() {
 
 void D3D11InputStage::SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue) {
 	topology = newvalue;
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	context->IASetPrimitiveTopology(D3D11EnumConverter::TopologyToD3D11Topology(topology));
 }
 
@@ -62,7 +63,7 @@ void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_inp
 	if(vbs[index].vb != buffer) {
 		vbs[index].vb = buffer;
 
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		//Set vertex buffer.
 		ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
 		unsigned int strides = buffer ? buffer->GetResource()->GetElementBytewidth() : 0;
@@ -91,7 +92,7 @@ void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf, unsigned int vertex_base
 	if(ib.buffer != buffer) {
 		ib.buffer = buffer;
 		//Set index buffer
-		ID3D11DeviceContext *context = manager->GetDeviceContext();
+		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
 		context->IASetIndexBuffer(buffer_raw, DXGI_FORMAT_R32_UINT, 0);
 	}
@@ -103,7 +104,7 @@ D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer(unsigned int *vertex_base) {
 }
 
 void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 
 	if (shader != 0) {
 		D3D11InputLayout *input_layout = 0;
@@ -124,7 +125,7 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
 
 void D3D11InputStage::Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state) {
 	CHECK_NOTNULL(draw_state);
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 
 	if (shader != 0) {
 		D3D11InputLayout *input_layout = 0;
@@ -147,7 +148,7 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader, D3D11DrawingState *
 }
 
 void D3D11InputStage::Flush(unsigned int start_index, unsigned int vertex_count) {
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	
 	if (vertex_count == 0) {
 		if (ib.is_new && ib.buffer) {
@@ -190,7 +191,7 @@ void D3D11InputStage::FlushWithInstancing(unsigned int vertex_start, unsigned in
 		instance_count = current_first_instance_count;
 	}
 
-	ID3D11DeviceContext *context = manager->GetDeviceContext();
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	if(ib.is_new && ib.buffer) {
 		context->DrawIndexedInstanced(vertex_count, instance_count, vertex_start, ib.vertex_base, instance_start);
 	} else {

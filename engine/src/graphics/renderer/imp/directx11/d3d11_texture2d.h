@@ -25,15 +25,16 @@ public:
 	virtual void Initialize(const Option &_option);
 	virtual const Texture2D::Option & GetOption() const;
 	
-	virtual void WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index);
+	virtual void WriteMap(GraphicPipeline *pipeline, bool is_partial_map, unsigned int mip_index, unsigned array_index);
 	virtual void Write(unsigned int row, unsigned int col,  const void *data, unsigned int size);
 	virtual void WriteUnmap();
 	
-	virtual void ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache) const;
+	virtual void ReadMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache) const;
 	virtual const void * Read(unsigned int row, unsigned int col) const;
 	virtual void ReadUnmap() const;
 	
 	virtual void Update(
+			GraphicPipeline *pipeline, 
 			unsigned int left, unsigned int right,
 			unsigned int top, unsigned int bottom,
 			const void *data);

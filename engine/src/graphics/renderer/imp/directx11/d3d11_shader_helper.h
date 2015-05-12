@@ -6,13 +6,13 @@
 
 #include "utils/s2string.h"
 
-struct ID3D11DeviceContext;
 struct ID3D11ShaderResourceView;
 
 namespace s2 {
 
 class TypeInfo;
 class D3D11GraphicResourceManager;
+class D3D11GraphicPipeline;
 class D3D11ConstantBuffer;
 class D3D11ShaderReflection;
 class D3D11Sampler;
@@ -36,8 +36,8 @@ public:
 	bool SetUniform(const s2string &name, const void * value, unsigned int size, s2string *error);
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
-	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
-	void Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
+	void Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -55,8 +55,8 @@ public:
 	bool SetSampler(const s2string &name, Sampler *sampler, s2string *error);
 	D3D11Sampler* GetSampler(const s2string &name, s2string *error);
 	
-	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
-	void Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
+	void Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -82,8 +82,8 @@ public:
 	bool SetShaderResource(const s2string &name, ShaderResource *_shader_resource, s2string *error);
 	D3D11ShaderResource * GetShaderResource(const s2string &name, s2string *error);
 	
-	void Setup(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
-	void Unbind(ID3D11DeviceContext *context, D3D11ShaderHelper::ShaderType shader_type);
+	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
+	void Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
 	
 	/**
 	 * New bindings since last draw call.

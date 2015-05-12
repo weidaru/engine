@@ -19,17 +19,44 @@ D3D11Context::D3D11Context()
 
 D3D11Context::~D3D11Context() {
 	delete back_buffer;
+	swap_chain->SetFullscreenState(FALSE, NULL);
 	swap_chain->Release();
 	delete pipeline;
 	delete resource_manager;
 }
 
 void D3D11Context::Initialize(void *hwnd) {
-	ID3D11Device **device;
-	ID3D11DeviceContext **context;
+	ID3D11Device *device = 0;
+	ID3D11DeviceContext *context = 0;
 
-	resource_manager = new D3D11GraphicResourceManager(this, *device);
-	pipeline = new D3D11GraphicPipeline(this, resource_manager, *context);
+	InitDeviceAndContextAndSwapchain(
+		setting.window_width, setting.window_height, hwnd, setting.enable_vsync, setting.full_screen,
+		&device, &context);
+
+	resource_manager = new D3D11GraphicResourceManager(device);
+	pipeline = new D3D11GraphicPipeline(resource_manager, context);
+
+	//Get back buffer and create render target view.
+	HRESULT result = 1;
+	ID3D11Texture2D* bf_ptr = 0;
+	ID3D11RenderTargetView *bf_rt_view = 0;
+	result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&bf_ptr);
+	CHECK(!FAILED(result))<<"Cannot get back buffer from swap chain. Error " << ::GetLastError();
+	result = device->CreateRenderTargetView(bf_ptr, NULL, &bf_rt_view);
+	
+	CHECK(!FAILED(result))<<"Cannot create render target view for back buffer. Error " << ::GetLastError();
+	back_buffer = new D3D11Texture2D(resource_manager);
+	Texture2D::Option bf_desc;
+	bf_desc.width = setting.window_width;
+	bf_desc.height = setting.window_height;
+	bf_desc.mip_level= 1;
+	bf_desc.array_size = 1;
+	bf_desc.format = RendererEnum::R8G8B8A8_UNORM;
+	bf_desc.sample_size = 1;
+	bf_desc.resource_write = RendererEnum::IMMUTABLE;
+	bf_desc.output_bind = TextureEnum::RENDER_TARGET;
+	bf_desc.input_bind = TextureEnum::NOT_INPUT;
+	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);
 }
 
 bool D3D11Context::SetSetting(const RendererSetting &_setting) {
@@ -99,36 +126,17 @@ void D3D11Context::InitDeviceAndContextAndSwapchain(
 	swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	// Don't set the advanced flags.
-	swap_chain_desc.Flags = 0;
+	swap_chain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 	D3D_FEATURE_LEVEL  feature_level = D3D_FEATURE_LEVEL_11_0;
 	UINT creation_flags = 0;
 #ifndef NDEBUG
 	creation_flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+
 	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creation_flags, &feature_level, 1, 
 		D3D11_SDK_VERSION, &swap_chain_desc, &swap_chain, device, NULL, context);
 	CHECK(!FAILED(result))<<"Cannot create device and swap chain. Error " << ::GetLastError();
-
-	ID3D11Texture2D* bf_ptr = 0;
-	ID3D11RenderTargetView *bf_rt_view = 0;
-	result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&bf_ptr);
-	CHECK(!FAILED(result))<<"Cannot get back buffer from swap chain. Error " << ::GetLastError();
-	result = (*device)->CreateRenderTargetView(bf_ptr, NULL, &bf_rt_view);
-	
-	CHECK(!FAILED(result))<<"Cannot create render target view for back buffer. Error " << ::GetLastError();
-	back_buffer = new D3D11Texture2D(this);
-	Texture2D::Option bf_desc;
-	bf_desc.width = window_width;
-	bf_desc.height = window_height;
-	bf_desc.mip_level= 1;
-	bf_desc.array_size = 1;
-	bf_desc.format = RendererEnum::R8G8B8A8_UNORM;
-	bf_desc.sample_size = 1;
-	bf_desc.resource_write = RendererEnum::IMMUTABLE;
-	bf_desc.output_bind = TextureEnum::RENDER_TARGET;
-	bf_desc.input_bind = TextureEnum::NOT_INPUT;
-	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);
 }
 
 }

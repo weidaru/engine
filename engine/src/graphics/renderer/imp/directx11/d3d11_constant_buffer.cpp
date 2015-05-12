@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 
 
 namespace s2 {
@@ -72,15 +73,15 @@ void D3D11ConstantBuffer::Initialize(unsigned int _size, const void *data) {
 	CHECK(!FAILED(result))<<"Cannot create constant buffer. Error code: " << ::GetLastError();
 }
 
-void D3D11ConstantBuffer::Flush() {
+void D3D11ConstantBuffer::Flush(D3D11GraphicPipeline *pipeline) {
 	CHECK(cb)<<"Constant buffer is not initialized.";
 	D3D11_MAPPED_SUBRESOURCE subresource;
 	HRESULT result=1;
-	result = manager->GetDeviceContext()->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
+	result = pipeline->GetDeviceContext()->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
 	CHECK(!FAILED(result))<<"Fail to map the constant buffer. Error code  "<<::GetLastError();
 	memcpy(subresource.pData, (const void *)data_buffer, size);
 	
-	manager->GetDeviceContext()->Unmap(cb, 0);
+	pipeline->GetDeviceContext()->Unmap(cb, 0);
 }
 
 }

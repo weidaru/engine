@@ -162,7 +162,6 @@ public:
 		UpdateCamera(delta);
 
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
 		vs->SetUniform("view", camera.GetViewMatrix());
@@ -170,7 +169,7 @@ public:
 		pipeline->Start();
 			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
 			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetVertexShader(vs);
 			pipeline->SetPixelShader(ps);
 			pipeline->SetVertexBuffer(2, 0, position_buffer->AsVertexBuffer());
@@ -192,7 +191,7 @@ private:
 	Camera camera;
 };
 
-//AddBeforeMain(InstancingDemo)
+AddBeforeMain(InstancingDemo)
 
 
 }

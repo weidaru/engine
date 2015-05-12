@@ -38,7 +38,6 @@ public:
 	virtual D3D11Texture2D * CreateTexture2D();
 	virtual D3D11Texture2D * GetTexture2D(unsigned int id);
 	virtual void RemoveTexture2D(unsigned int id);
-	virtual D3D11Texture2D * GetBackBuffer();
 	
 	//Texture3D
 	virtual Texture3D * CreateTexture3D();

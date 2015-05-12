@@ -9,9 +9,16 @@
 #include <glog/logging.h>
 
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 #include "d3d11_resource_helper.h"
 #include "d3d11_mapped_resource.h"
 #include "d3d11_resource_view.h"
+
+#ifdef NDEBUG
+	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#else
+	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#endif
 
 namespace s2 {
 
@@ -62,7 +69,7 @@ void D3D11Buffer::Initialize(const Option &_option) {
 
 	CHECK(!FAILED(result)) << "Cannot create vertex buffer. Error code: " << ::GetLastError();
 
-	mapped = new D3D11MappedResource(manager->GetDeviceContext(), buffer, option.resource_write);
+	mapped = new D3D11MappedResource(buffer, option.resource_write);
 
 	//Create all the views.
 	if ((option.binding & 0xF) == VERTEX_BUFFER) {
@@ -105,9 +112,14 @@ s2string D3D11Buffer::GetElementTypeName() const {
 	return option.element_typename;
 }
 
-void D3D11Buffer::WriteMap(bool no_overwrite) {
+void D3D11Buffer::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite) {
 	Check();
-	mapped->WriteMap(no_overwrite, 0);
+	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+	if(_pipeline) {
+		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
+	}
+
+	mapped->WriteMap(pipeline, no_overwrite, 0);
 }
 
 void D3D11Buffer::WriteUnmap() {
@@ -128,8 +140,13 @@ const void * D3D11Buffer::Read(unsigned int index, unsigned int element_bytewidt
 	return (const char *)mapped->Read() + index*element_bytewidth;
 }
 
-void D3D11Buffer::ReadMap(bool wipe_cache) const {
+void D3D11Buffer::ReadMap(GraphicPipeline *_pipeline, bool wipe_cache) const {
 	Check();
+	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+	if(_pipeline) {
+		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
+	}
+
 	//Create the staging resource if not present.
 	if (mapped->GetStagingResource() == 0) {
 		D3D11_BUFFER_DESC desc;
@@ -146,7 +163,7 @@ void D3D11Buffer::ReadMap(bool wipe_cache) const {
 		CHECK(!FAILED(result)) << "Cannot create staging resource. Error " << ::GetLastError();
 		mapped->SetStagingResource(staging_resource);
 	}
-	mapped->ReadMap(0, wipe_cache);
+	mapped->ReadMap(pipeline, 0, wipe_cache);
 }
 
 void D3D11Buffer::ReadUnmap() const {
@@ -154,8 +171,13 @@ void D3D11Buffer::ReadUnmap() const {
 	mapped->ReadUnmap();
 }
 
-void D3D11Buffer::Update(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
+void D3D11Buffer::Update(GraphicPipeline * _pipeline, 
+			unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
 	Check();
+	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+	if(_pipeline) {
+		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
+	}
 	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
 	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL) <<
 		"Only CPU_WRITE_OCCASIONAL is allowed to update.";
@@ -168,7 +190,7 @@ void D3D11Buffer::Update(unsigned int index, const void *data, unsigned int arra
 	dest.front = 0;
 	dest.back = 1;
 
-	manager->GetDeviceContext()->UpdateSubresource(
+	pipeline->GetDeviceContext()->UpdateSubresource(
 		buffer, 0, &dest, data, 0, 0);
 }
 

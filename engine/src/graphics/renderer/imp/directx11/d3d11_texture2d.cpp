@@ -12,7 +12,14 @@
 
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
+#include "d3d11_graphic_pipeline.h"
 #include "d3d11_mapped_resource.h"
+
+#ifdef NDEBUG
+	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#else
+	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#endif
 
 namespace s2 {
 
@@ -43,7 +50,7 @@ void D3D11Texture2D::InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetV
 	render_target = new D3D11RenderTarget(this, _rt_view);
 	option = _option;
 	
-	mapped = new D3D11MappedResource(manager->GetDeviceContext(), tex, _option.resource_write);
+	mapped = new D3D11MappedResource(tex, _option.resource_write);
 }
 
 namespace {
@@ -204,12 +211,17 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		delete srv_desc;
 	}
 
-	mapped = new D3D11MappedResource(manager->GetDeviceContext(), tex, _option.resource_write);
+	mapped = new D3D11MappedResource(tex, _option.resource_write);
 }
 
-void D3D11Texture2D::WriteMap(bool is_partial_map, unsigned int mip_index, unsigned array_index) {
+void D3D11Texture2D::WriteMap(GraphicPipeline *_pipeline, bool is_partial_map, unsigned int mip_index, unsigned array_index) {
 	Check();
-	mapped->WriteMap(is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
+	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+	if(_pipeline) {
+		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
+	}
+
+	mapped->WriteMap(pipeline, is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
 }
 
 void D3D11Texture2D::WriteUnmap() {
@@ -223,8 +235,13 @@ void D3D11Texture2D::Write(unsigned int row, unsigned int col,  const void *data
 	mapped->Write(mapped->GetWriteRowPitch() + col*RendererEnum::GetFormatSize(option.format), data, size);
 }
 
-void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool wipe_cache) const {
+void D3D11Texture2D::ReadMap(GraphicPipeline *_pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache) const {
 	Check();
+	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+	if(_pipeline) {
+		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
+	}
+
 	if(mapped->GetStagingResource() == 0) {
 		D3D11_TEXTURE2D_DESC desc;
 		SetDesc(option, &desc);
@@ -238,7 +255,7 @@ void D3D11Texture2D::ReadMap(unsigned int mip_index, unsigned array_index, bool 
 		mapped->SetStagingResource(staging_resource);
 	}
 	
-	mapped->ReadMap(D3D11CalcSubresource(mip_index, array_index, option.mip_level), wipe_cache);
+	mapped->ReadMap(pipeline, D3D11CalcSubresource(mip_index, array_index, option.mip_level), wipe_cache);
 }
 
 void D3D11Texture2D::ReadUnmap() const {
@@ -257,12 +274,19 @@ const Texture2D::Option & D3D11Texture2D::GetOption() const {
 }
 
 void D3D11Texture2D::Update(
+			GraphicPipeline *_pipeline,
 			unsigned int left, unsigned int right,
 			unsigned int top, unsigned int bottom,
 			const void *data) {
 	Check();
 	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
 				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
+	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+	if(_pipeline) {
+		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
+	}
+
+
 	unsigned int ele_size = RendererEnum::GetFormatSize(option.format);
 	D3D11_BOX dest;
 	dest.left = left*ele_size;
@@ -272,7 +296,7 @@ void D3D11Texture2D::Update(
 	dest.front = 0;
 	dest.back = 1;
 	
-	manager->GetDeviceContext()->UpdateSubresource(
+	pipeline->GetDeviceContext()->UpdateSubresource(
 		tex, 0, &dest, (const void *)data, option.width*ele_size, 0 
 	);
 }

@@ -31,9 +31,20 @@ void Button::RemoveClickCallback(unsigned int index) {
 	}
 }
 
-void Button::OneFrame(float delta) {
-	auto input_system = Engine::GetSingleton()->GetInputSystem();
+Button & Button::SetEnabled(bool new_value) {
+	Entity::SetEnabled(new_value);
 
+	sprite->SetEnabled(new_value);
+
+	return *this;
+}
+
+void Button::OneFrame(float delta) {
+	if(!IsEnabled()) {
+		return;
+	}
+
+	auto input_system = Engine::GetSingleton()->GetInputSystem();
 
 	if(inClick) {
 		if(input_system->IsMouseButtonDown(InputSystem::M_LEFT) == false) {

@@ -56,22 +56,26 @@ void SpriteSystem::DeregisterSprite(Sprite *s) {
 }
 
 void SpriteSystem::OneFrame(float delta) {
+	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 	//Assume only 1 batch now.
 	SpriteInstance *instances = new SpriteInstance[kSpriteBatchSize];
+	unsigned int count = 0;
 	for(unsigned int i=0; i<sprites.size(); i++) {
-		memcpy(&instances[i], sprites[i]->GetData(), sizeof(SpriteInstance));
+		if(sprites[i]->IsEnabled()) {
+			memcpy(instances+count, sprites[i]->GetData(), sizeof(SpriteInstance));
+			count++;
+		}
 	}
 
-	instance_buffer->WriteMap();
-	instance_buffer->Write(0, instances, sprites.size());
+	instance_buffer->WriteMap(pipeline);
+	instance_buffer->Write(0, instances, count);
 	instance_buffer->WriteUnmap();
 	
 	delete[] instances;
 
-	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+	
 	pipeline->Start();
-		pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
 		pipeline->SetVertexBuffer(0,0,vertex_buffer->AsVertexBuffer());

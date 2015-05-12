@@ -184,7 +184,6 @@ public:
 	
 	void DrawNormal(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 		rotate += delta*PI / 2.0f;
 		rotate = rotate>2 * PI ? rotate - 2 * PI : rotate;
@@ -198,7 +197,7 @@ public:
 			pipeline->SetVertexShader(vs);
 			pipeline->SetPixelShader(ps);
 			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetRenderTarget(1, texture->AsRenderTarget());
 			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(ib->AsIndexBuffer());
@@ -208,8 +207,6 @@ public:
 	
 	void DrawTexture(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 		pipeline->Start();
 			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
@@ -217,7 +214,7 @@ public:
 			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
 			pipeline->SetVertexShader(tex_vs);
 			pipeline->SetPixelShader(tex_ps);
-			pipeline->SetRenderTarget(0, manager->GetBackBuffer()->AsRenderTarget());
+			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetVertexBuffer(0, 0, tex_vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
 			pipeline->Draw(&rtt_draw_state);
@@ -282,7 +279,7 @@ private:
 	Camera camera;
 };
 
-//AddBeforeMain(RenderToTargetDemo)
+AddBeforeMain(RenderToTargetDemo)
 
 }
 

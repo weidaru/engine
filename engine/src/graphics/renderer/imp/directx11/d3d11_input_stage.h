@@ -13,6 +13,7 @@ class D3D11IndexBuffer;
 class D3D11VertexShader;
 class D3D11ShaderReflection;
 class D3D11GraphicResourceManager;
+class D3D11GraphicPipeline;
 class D3D11DrawingState;
 
 struct D3D11InputLayout {
@@ -54,7 +55,7 @@ private:
 	};
 
 public:
-	D3D11InputStage(D3D11GraphicResourceManager *_manager);
+	D3D11InputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
 	~D3D11InputStage();
 	
 	void SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue);
@@ -89,6 +90,7 @@ private:
 	
 private:
 	D3D11GraphicResourceManager *manager;
+	D3D11GraphicPipeline *pipeline;
 	
 	IBInfo ib;
 	std::vector<VBInfo> vbs;
