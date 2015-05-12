@@ -15,12 +15,15 @@ struct SpriteInstance {
 
 namespace s2 {
 
+class SpriteSystem;
+
 /**
  * Default as [width, height] = [0.2, 0.2], pos = [0.0f, 0.0f, -1.0f] in NDC space.
  */
 class Sprite: public Component {
 public:
-	Sprite();
+	Sprite(SpriteSystem *_system);
+	~Sprite();
 
 	Sprite & SetBackgroundColor(const Vector4 &color);
 	const Vector4 & GetBackgroundColor() { return bg_color; }
@@ -52,6 +55,8 @@ public:
 	unsigned int GetDataSize() { return 4; } 
 
 private:
+	SpriteSystem *system;
+
 	Vector4 bg_color;
 
 	SpriteInstance data;

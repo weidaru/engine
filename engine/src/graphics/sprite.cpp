@@ -1,14 +1,24 @@
 #include "sprite.h"
+#include "sprite_system.h"
 #include "engine.h"
 
 #include "entity/entity.h"
 #include "entity/transform.h"
 #include "graphics/renderer/renderer_context.h"
 
+#include <glog/logging.h>
+
 namespace s2 {
 
-Sprite::Sprite() {
+Sprite::Sprite(SpriteSystem *_system) : system(_system) {
 	SetBackgroundColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	CHECK_NOTNULL(system);
+	system->RegisterSprite(this);
+}
+
+Sprite::~Sprite() {
+	system->DeregisterSprite(this);
 }
 
 

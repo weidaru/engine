@@ -9,13 +9,11 @@
 namespace s2 {
 
 Button::Button() : inClick(false) {
-	sprite = new Sprite();
+	sprite = new Sprite(Engine::GetSingleton()->GetSpriteSystem());
 	AddComponent("sprite", sprite);
-	Engine::GetSingleton()->GetSpriteSystem()->RegisterSprite(sprite);
 }
 
 Button::~Button() {
-	Engine::GetSingleton()->GetSpriteSystem()->DeregisterSprite(sprite);
 }
 
 int Button::AddClickCallback(Callback cb) {
