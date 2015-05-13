@@ -12,6 +12,8 @@ Button::Button(EntitySystem *system) : Entity(system), inClick(false), sprite(0)
 	sprite = new Sprite(this, Engine::GetSingleton()->GetSpriteSystem());
 	text = new Text(this, Engine::GetSingleton()->GetTextSystem());
 	text->SetClipped(true);
+	SetWidth(sprite->GetWidth());
+	SetHeight(sprite->GetHeight());
 
 	SetDepth(0.1f);
 }
@@ -121,6 +123,7 @@ Button & Button::SetPosition(float x, float y, float z) {
 
 Button & Button::SetPosition(const Vector3 &vec) {
 	sprite->SetPosition(vec);
+	text->SetDepth(vec[2]-1e-4f);
 	return *this;
 }
 

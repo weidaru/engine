@@ -2,6 +2,7 @@
 #include "text.h"
 #include "engine.h"
 #include "entity/entity.h"
+#include "entity/transform.h"
 
 #include "graphics/renderer/imp/directx11/d3d11_graphic_resource_manager.h"
 #include "graphics/renderer/imp/directx11/d3d11_graphic_pipeline.h"
@@ -65,6 +66,17 @@ unsigned int ColorToUnsignedInt(const Vector4 &color) {
 	 return result;
 }
 
+Matrix4x4 CalculateCascadeTranslateRotateMatrix(Entity *e) {
+	Matrix4x4 result;
+	if(e->GetParent()) {
+		result = CalculateCascadeTranslateRotateMatrix(e->GetParent());
+	}
+
+	result *= e->GetTransform()->CalculateTranslateMatrix();
+	result *= e->GetTransform()->CalcualteRotateMatrix();
+	return result;
+}
+
 }
 
 void TextSystem::OneFrame(float delta) {
@@ -81,7 +93,7 @@ void TextSystem::OneFrame(float delta) {
 		
 
 		//The restore flag here is a little bit expensive, better to have our ownway of restoring state.
-		unsigned int flag = FW1_RESTORESTATE;
+		unsigned int flag = FW1_RESTORESTATE | FW1_NOGEOMETRYSHADER;
 
 		unsigned int color_uint = ColorToUnsignedInt(cur->GetColor());
 
@@ -105,7 +117,7 @@ void TextSystem::OneFrame(float delta) {
 		}
 
 		//TODO: Should only compute translate and rotate matrix.
-		Matrix4x4 transform_matrix = cur->GetEntity()->GetCascadeTransformMatrix();
+		Matrix4x4 transform_matrix = CalculateCascadeTranslateRotateMatrix(cur->GetEntity());
 		Matrix4x4 orth(
 			2.0f/w_width, 0.0f, 0.0f, -1.0f,
 			0.0f, -2.0f/w_height, 0.0f, 1.0f,
@@ -126,6 +138,7 @@ void TextSystem::OneFrame(float delta) {
 			rect, 
 			transform_matrix.data[0],
 			flag);
+		delete rect;
 	}
 }
 

@@ -12,6 +12,9 @@ public:
 	Transform(Entity *entity);
 
 	const Matrix4x4 & GetMatrix() const;
+	Matrix4x4 CalculateTranslateMatrix() const;
+	Matrix4x4 CalculateScaleMatrix() const;
+	Matrix4x4 CalcualteRotateMatrix() const;
 
 	Transform & Translate(float x, float y, float z);
 	Transform & Translate(const Vector3 &vector);
@@ -19,6 +22,7 @@ public:
 	Transform & SetTranslate(const Vector3 &vectro);
 	const Vector3 & GetTranslate() { return translate; }
 	Transform & ResetTranslate();
+	
 
 	Transform & Scale(float x, float y, float z);
 	Transform & Scale(const Vector3 &vector);
@@ -26,6 +30,7 @@ public:
 	Transform & SetScale(const Vector3 &vector);
 	const Vector3 & GetScale() { return scale; }
 	Transform & ResetScaling();
+	
 
 	Transform & Rotate(float x, float y ,float z);
 	Transform & Rotate(const Vector3 &vector);

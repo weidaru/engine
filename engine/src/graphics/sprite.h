@@ -18,7 +18,7 @@ namespace s2 {
 class SpriteSystem;
 
 /**
- * Default as [width, height] = [0.2, 0.2], pos = [0.0f, 0.0f, -1.0f] in NDC space.
+ * Default as [width, height] = [0.2, 0.2], pos = [0.0f, 0.0f, 0.0f] in NDC space.
  */
 class Sprite: public Component {
 public:

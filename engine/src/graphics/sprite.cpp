@@ -89,7 +89,9 @@ float Sprite::GetWidth() {
 Sprite & Sprite::SetWidth(float new_value) {
 	CHECK_GE(new_value, 0.0f);
 
-	GetEntity()->GetTransform()->Scale(new_value/0.2f, 0.0f, 0.0f);
+	Vector3 scale = GetEntity()->GetTransform()->GetScale();
+	scale[0] = new_value/0.2f; 
+	GetEntity()->GetTransform()->SetScale(scale);
 
 	return *this; 
 }
@@ -116,8 +118,9 @@ float Sprite::GetHeight() {
 
 Sprite & Sprite::SetHeight(float new_value) {
 	CHECK_GE(new_value, 0.0f);
-
-	GetEntity()->GetTransform()->Scale(0.0f, new_value/0.2f, 0.0f);
+	Vector3 scale = GetEntity()->GetTransform()->GetScale();
+	scale[1] = new_value/0.2f; 
+	GetEntity()->GetTransform()->SetScale(scale);
 	return *this;
 }
 
@@ -139,7 +142,6 @@ inline void FillArrayWithVector4(float *dest, const Vector4 &source) {
 		dest[i] = source[i];
 	}
 }
-
 }
 
 SpriteInstance * Sprite::GetData() {

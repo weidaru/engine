@@ -2,7 +2,7 @@
 
 namespace s2 {
 
-Transform::Transform(Entity *entity) : Component(entity), needCompute(false) {
+Transform::Transform(Entity *entity) : Component(entity), needCompute(false), scale(1.0f, 1.0f, 1.0f) {
 
 }
 
@@ -11,25 +11,35 @@ const Matrix4x4 & Transform::GetMatrix() const {
 		return matrix;
 	}
 
-	Matrix4x4 scale_matrix, rotation_matrix;
-	scale_matrix.SetScale(scale);
-
-	//Use XYZ intrinsic rotation.
-	Matrix4x4 temp;
-	rotation_matrix.SetRotationX(rotate[0]);
-	temp.SetRotationY(rotate[1]);
-	rotation_matrix *= temp;
-	temp.SetRotationZ(rotate[2]);
-	rotation_matrix *= temp;
+	Matrix4x4 scale_matrix = CalculateScaleMatrix(), rotation_matrix = CalcualteRotateMatrix();
 
 	//Scale  ->  Rotate  ->  Translate
-	matrix.SetTranslate(translate);
+	matrix = CalculateTranslateMatrix();
 	matrix *= rotation_matrix;
 	matrix *= scale_matrix;
 
 	needCompute = false;
-
 	return matrix;
+}
+
+Matrix4x4 Transform::CalculateTranslateMatrix() const {
+	Matrix4x4 result;
+	return result.SetTranslate(translate);
+}
+
+
+Matrix4x4 Transform::CalculateScaleMatrix() const {
+	Matrix4x4 result;
+	return result.SetScale(scale);
+}
+
+Matrix4x4 Transform::CalcualteRotateMatrix() const {
+	Matrix4x4 temp, result;
+	result.SetRotationX(rotate[0]);
+	temp.SetRotationY(rotate[1]);
+	result *= temp;
+	temp.SetRotationZ(rotate[2]);
+	return result *= temp;
 }
 
 Transform & Transform::Translate(float x, float y, float z) {
@@ -129,7 +139,6 @@ Transform & Transform::ResetRotation() {
 	needCompute = true;
 	return *this;
 }
-
 }
 
 
