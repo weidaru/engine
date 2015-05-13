@@ -4,6 +4,7 @@
 #include "engine_program.h"
 #include "input/input_system.h"
 #include "entity/entity_system.h"
+#include "graphics/text_system.h"
 #include "graphics/sprite_system.h"
 
 #include <glog/logging.h>
@@ -37,7 +38,7 @@ namespace s2 {
 Engine::Engine() 
 	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), 
 		program_manager(new EngineProgramManager), 
-		input_system(0), entity_system(0), sprite_system(0){
+		input_system(0), entity_system(0), sprite_system(0), text_system(0){
 
 }
 
@@ -45,7 +46,9 @@ void Engine::Shutdown() {
 	if(window_name == PISSED_STR)
 		return;
 
+	
 	delete entity_system;
+	delete text_system;
 	delete sprite_system;
 	delete input_system;
 
@@ -108,10 +111,12 @@ void Engine::OneFrame(float delta) {
 	float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
 
+	entity_system->OneFrame(delta);
 	input_system->OneFrame(delta);
 	sprite_system->OneFrame(delta);
-	entity_system->OneFrame(delta);
+	text_system->OneFrame(delta);
 
+	
 	program_manager->Get("UIDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
@@ -131,6 +136,7 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	input_system = new InputSystem(hwnd);
 	entity_system = new EntitySystem();
 	sprite_system = new SpriteSystem();
+	text_system = new TextSystem();
 
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);

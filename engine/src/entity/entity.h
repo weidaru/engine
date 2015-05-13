@@ -1,21 +1,23 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "transform.h"
 #include "utils/s2string.h"
+#include "utils/matrix4x4.h"
 
 #include <map>
 
 namespace s2 {
 
 class EntitySystem;
+class Transform;
+class Component;
 
 class Entity {
 public:
 	Entity(EntitySystem *system);
 	virtual ~Entity();
 
-	Transform & GetTransform() {return transform;}
+	Transform * GetTransform() {return transform;}
 	Matrix4x4 GetCascadeTransformMatrix();
 
 	void AddChild(Entity *e);
@@ -48,7 +50,7 @@ private :
 	friend class EntitySystem;
 
 private:
-	Transform transform;
+	Transform *transform;
 
 	EntitySystem *system;
 	Entity *parent;

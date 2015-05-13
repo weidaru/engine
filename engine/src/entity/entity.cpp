@@ -1,12 +1,17 @@
 #include "entity.h"
 #include "entity_system.h"
 
+#include "transform.h"
+
 #include <glog/logging.h>
 
 namespace s2 {
 
-Entity::Entity(EntitySystem *_system) : system(_system), parent(0), enabled(true), id(GetCurrentId()++) {
+Entity::Entity(EntitySystem *_system) 
+	: transform(0), system(_system), parent(0), enabled(true), id(GetCurrentId()++) {
 	CHECK_NOTNULL(system);
+	
+	transform = new Transform(this);
 	system->Add(this);
 }
 
@@ -15,6 +20,9 @@ Entity::~Entity() {
 	if(parent) {
 		parent->RemoveChild(GetId());
 	}
+	
+	delete RemoveComponent(transform->GetId());
+
 	for(auto it = components.begin(); it != components.end();) {
 		Component *c = it->second;
 		it = components.erase(it);
@@ -83,9 +91,9 @@ void Entity::OneFrame(float delta) {
 
 Matrix4x4 Entity::GetCascadeTransformMatrix() {
 	if(parent) {
-		return parent->GetCascadeTransformMatrix()  * transform.GetMatrix();
+		return parent->GetCascadeTransformMatrix()  * transform->GetMatrix();
 	} else {
-		return transform.GetMatrix();
+		return transform->GetMatrix();
 	}
 }
 

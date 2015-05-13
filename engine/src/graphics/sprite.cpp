@@ -28,11 +28,11 @@ Sprite & Sprite::SetBackgroundColor(const Vector4 &color) {
 }
 
 const Vector3 & Sprite::GetPosition() {
-	return GetEntity()->GetTransform().GetTranslate();
+	return GetEntity()->GetTransform()->GetTranslate();
 }
 
 Sprite & Sprite::SetPosition(float x, float y, float z) {
-	GetEntity()->GetTransform().SetTranslate(x, y, z);
+	GetEntity()->GetTransform()->SetTranslate(x, y, z);
 
 	return *this;
 }
@@ -82,12 +82,14 @@ Sprite & Sprite::SetAbsoluteWidth(float new_value) {
 }
 
 float Sprite::GetWidth() {
-	const Vector3& scale = GetEntity()->GetTransform().GetScale();
+	const Vector3& scale = GetEntity()->GetTransform()->GetScale();
 	return scale[0]*0.2f;
 }
 
 Sprite & Sprite::SetWidth(float new_value) {
-	GetEntity()->GetTransform().Scale(new_value/0.2f, 0.0f, 0.0f);
+	CHECK_GE(new_value, 0.0f);
+
+	GetEntity()->GetTransform()->Scale(new_value/0.2f, 0.0f, 0.0f);
 
 	return *this; 
 }
@@ -107,18 +109,20 @@ Sprite & Sprite::SetAbsoluteHeight(float new_value) {
 }
 
 float Sprite::GetHeight() {
-	const Vector3& scale = GetEntity()->GetTransform().GetScale();
+	const Vector3& scale = GetEntity()->GetTransform()->GetScale();
 
 	return scale[1]*0.2f;
 }
 
 Sprite & Sprite::SetHeight(float new_value) {
-	GetEntity()->GetTransform().Scale(0.0f, new_value/0.2f, 0.0f);
+	CHECK_GE(new_value, 0.0f);
+
+	GetEntity()->GetTransform()->Scale(0.0f, new_value/0.2f, 0.0f);
 	return *this;
 }
 
 float Sprite::GetDepth() {
-	return GetEntity()->GetTransform().GetTranslate()[2];
+	return GetEntity()->GetTransform()->GetTranslate()[2];
 }
 
 Sprite & Sprite::SetDepth(float new_value) {

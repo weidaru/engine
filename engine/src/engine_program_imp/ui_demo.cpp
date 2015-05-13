@@ -27,18 +27,19 @@ public:
 
 	virtual bool Initialize() {
 		button = new Button(Engine::GetSingleton()->GetEntitySystem());
-		Sprite *sprite = button->GetSprite();
-		sprite->SetAbsolutePosition(100.0f, 100.0f, 0.0f);
-		sprite->SetAbsoluteWidth(100.0f);
-		sprite->SetHeight(0.2f);
-		sprite->SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
+		button->SetFontSize(64).
+			SetTextColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f)).
+			SetText("Click").
+			SetAbsolutePosition(100.0f, 100.0f, 0.0f).
+			SetWidth(0.2f).
+			SetHeight(0.2f).
+			SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 
 		button->AddClickCallback([] (Button *self) {
-			Sprite *sprite = self->GetSprite();
-			if(sprite->GetBackgroundColor()[0] > 0.0f) {
-				sprite->SetBackgroundColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f));	
+			if(self->GetBackgroundColor()[0] > 0.0f) {
+				self->SetBackgroundColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f));	
 			} else {
-				self->GetSprite()->SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
+				self->SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 			}
 		});
 		button->SetEnabled(false);

@@ -14,6 +14,7 @@ class EngineProgramManager;
 class InputSystem;
 class EntitySystem;
 class SpriteSystem;
+class TextSystem;
 
 class Engine : public Singleton<Engine>  {
 public:
@@ -35,6 +36,7 @@ public:
 	InputSystem * GetInputSystem() { return input_system; }
 	EntitySystem * GetEntitySystem() { return entity_system; }
 	SpriteSystem * GetSpriteSystem() { return sprite_system; }
+	TextSystem * GetTextSystem() { return text_system; }
 
 private:
 	void InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen);
@@ -49,6 +51,7 @@ private:
 	InputSystem *input_system;
 	EntitySystem *entity_system;
 	SpriteSystem *sprite_system;
+	TextSystem *text_system;
 
 	//Need to be thread safe?
 	bool stop;

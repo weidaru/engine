@@ -5,7 +5,7 @@
 #include "utils/s2string.h"
 #include "utils/vector4.h"
 
-#include <utility>
+#include <tuple>
 
 struct IDWriteTextLayout;
 
@@ -14,7 +14,7 @@ class TextSystem;
 
 class Text : public Component {
 public:
-	Text(TextSystem *_system);
+	Text(Entity *entity, TextSystem *_system);
 	virtual ~Text() override;
 
 	Text & SetFontName(const s2string &_font_name);
@@ -24,20 +24,29 @@ public:
 	unsigned int GetFontSize() const { return font_size; }
 
 	Text & SetContent(const s2string &_content);
-	const s2string & GetContextName() const { return content; }
+	const s2string & GetContent() const { return content; }
 
 	Text & SetColor(const Vector4 &_color) { color=_color; return *this; }
 	const Vector4 & GetColor() const { return color;}
 
-	Text & SetClipperSize(unsigned int width, unsigned int height) {
-		clipper_size.first=width;
-		clipper_size.second=height; 
-		return *this; 
-	}
-	const std::pair<unsigned int, unsigned int> & GetClipperSize() { return clipper_size; }
+	Text & SetClipperWidth(float new_value);
+	float GetClipperWidth() const;
+	Text & SetClipperHeight(float new_value);
+	float GetClipperHeight() const;
 
-	Text & SetClipped(bool new_value) { isClipped=new_value; return *this; }
-	bool IsClipped() { return isClipped; }
+	Text & SetAbsoluteClipperWidth(float new_value);
+	float GetAbsoluteClipperWidth() const;
+	Text & SetAbsoluteClipperHeight(float new_value);
+	float GetAbsoluteClipperHeight() const;
+
+	Text & SetClipped(bool new_value);
+	bool IsClipped() const;
+
+	Text & SetDepth(float _depth);
+	float GetDepth() const;
+
+	//(LEFT, RIGHT, TOP, BOTTOM)
+	std::tuple<float, float, float, float> GetBoundingBox();
 
 private:
 	IDWriteTextLayout *GetLayout();
@@ -55,7 +64,8 @@ private:
 	unsigned int font_size;
 	Vector4 color;
 	bool isClipped;
-	std::pair<unsigned int, unsigned int> clipper_size;
+	std::pair<float, float> clipper_size;
+	float depth;
 };
 
 }

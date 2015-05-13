@@ -5,7 +5,7 @@
 
 namespace s2 {
 
-static const char *kAssetRoot = "C:/Users/zhiwshen/Documents/GitHub/engine/engine/";
+static const char *kAssetRoot = "D:/github_repository/engine/engine/";
 //"C:/Users/zhiwshen/Documents/GitHub/engine/engine/"
 //"D:/github_repository/engine/engine/"
 

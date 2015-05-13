@@ -2,7 +2,7 @@
 
 namespace s2 {
 
-Transform::Transform() : needCompute(false) {
+Transform::Transform(Entity *entity) : Component(entity), needCompute(false) {
 
 }
 

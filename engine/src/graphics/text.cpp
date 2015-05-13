@@ -1,6 +1,8 @@
 #include "text.h"
 #include "text_system.h"
 
+#include "engine.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <FW1FontWrapper.h>
 #undef ERROR
@@ -9,10 +11,12 @@
 
 namespace s2 {
 
-Text::Text(TextSystem *_system)
-	:	system(_system), layout(0), need_new_layout(true), 
-		font_name(TextSystem::GetDefaultFontName()), font_size(8),
-		isClipped(false), clipper_size(0, 0){
+Text::Text(Entity *entity, TextSystem *_system)
+	:	Component(entity),
+		system(_system), layout(0), need_new_layout(true), 
+		font_name(TextSystem::GetDefaultFontName()), font_size(32),
+		isClipped(false), clipper_size(0.0f, 0.0f),
+		depth(0.0f){
 	system->Register(this);
 }
 
@@ -41,6 +45,87 @@ Text & Text::SetContent(const s2string &_content) {
 	return *this;
 }
 
+Text & Text::SetClipperWidth(float new_value) {
+	CHECK_GE(new_value, 0.0f);
+
+	clipper_size.first = new_value;
+	return *this;
+}
+
+float Text::GetClipperWidth() const {
+	return clipper_size.first;
+}
+
+Text & Text::SetClipperHeight(float new_value) {
+	CHECK_GE(new_value, 0.0f);
+
+	clipper_size.second = new_value;
+	return *this;
+}
+
+float Text::GetClipperHeight() const {
+	return clipper_size.second;
+}
+
+Text & Text::SetAbsoluteClipperWidth(float new_value) {
+	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	float w_width = (float)setting.window_width;
+
+	return SetClipperWidth(new_value*2.0f/w_width);
+}
+
+float Text::GetAbsoluteClipperWidth() const {
+	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	float w_width = (float)setting.window_width;
+
+	return GetClipperWidth() * w_width / 2.0f;
+}
+
+Text & Text::SetAbsoluteClipperHeight(float new_value) {
+	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	float w_height = (float)setting.window_height;
+
+	return SetClipperHeight(new_value*2.0f/w_height);
+}
+
+float Text::GetAbsoluteClipperHeight() const {
+	RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	float w_height = (float)setting.window_height;
+
+	return GetClipperHeight() * w_height / 2.0f;
+}
+
+std::tuple<float, float, float, float> Text::GetBoundingBox() {
+	GetLayout();
+	DWRITE_OVERHANG_METRICS metrics;
+	layout->GetOverhangMetrics(&metrics);
+
+	return std::tuple<float, float, float, float>(
+		-metrics.left, 
+		metrics.right, 
+		-metrics.top, 
+		metrics.bottom); 
+}
+
+Text & Text::SetClipped(bool new_value) {
+	isClipped = new_value;
+	return *this;
+}
+
+bool Text::IsClipped() const {
+	return isClipped;
+}
+
+Text & Text::SetDepth(float _depth) {
+	depth = _depth;
+	return *this;
+}
+
+float Text::GetDepth() const {
+	return depth;
+}
+
+
 IDWriteTextLayout *Text::GetLayout() {
 	if(need_new_layout) {
 		if(layout) {
@@ -56,7 +141,7 @@ IDWriteTextLayout *Text::GetLayout() {
 			DWRITE_FONT_WEIGHT_NORMAL,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
-			64.0f,
+			(float)font_size,
 			L"",
 			&format
 		);

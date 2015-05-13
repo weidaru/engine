@@ -7,9 +7,9 @@
 
 namespace s2 {
 
-class Transform : Component {
+class Transform : public Component {
 public:
-	Transform();
+	Transform(Entity *entity);
 
 	const Matrix4x4 & GetMatrix() const;
 

@@ -7,6 +7,7 @@
 
 struct IDWriteFactory;
 struct IFW1FontWrapper;
+struct IFW1Factory;
 
 namespace s2 {
 class Text;
