@@ -22,7 +22,7 @@ class SpriteSystem;
  */
 class Sprite: public Component {
 public:
-	Sprite(SpriteSystem *_system);
+	Sprite(Entity *entity, SpriteSystem *_system);
 	~Sprite();
 
 	Sprite & SetBackgroundColor(const Vector4 &color);

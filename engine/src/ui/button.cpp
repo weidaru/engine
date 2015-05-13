@@ -5,12 +5,12 @@
 #include "engine.h"
 #include "graphics/sprite.h"
 #include "graphics/sprite_system.h"
+#include "entity/entity_system.h"
 
 namespace s2 {
 
-Button::Button() : inClick(false) {
-	sprite = new Sprite(Engine::GetSingleton()->GetSpriteSystem());
-	AddComponent("sprite", sprite);
+Button::Button(EntitySystem *system) : Entity(system), inClick(false) {
+	sprite = new Sprite(this, Engine::GetSingleton()->GetSpriteSystem());
 }
 
 Button::~Button() {

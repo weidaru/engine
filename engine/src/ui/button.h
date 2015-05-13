@@ -15,7 +15,7 @@ public:
 	typedef  std::function<void (Button *)> Callback;
 
 public:
-	Button();
+	Button(EntitySystem *system);
 
 	virtual ~Button() override;
 
@@ -24,9 +24,10 @@ public:
 
 	Sprite * GetSprite() { return sprite; }
 
-	virtual void OneFrame(float delta);
-
 	virtual Button & SetEnabled(bool new_value) override;
+
+protected:
+	virtual void OneFrame(float delta);
 
 private:
 	std::vector<Callback> click_callbacks;

@@ -6,6 +6,7 @@
 namespace s2 {
 
 typedef std::string s2string;
+typedef std::wstring s2wstring;
 
 //This now uses 1024-byte stack. TODO: Refactor if necessary.
 void S2StringFormat(s2string *str, const char *pattern, ...);

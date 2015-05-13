@@ -1,38 +1,47 @@
 #include "entity.h"
+#include "entity_system.h"
 
 #include <glog/logging.h>
 
 namespace s2 {
 
-Entity::Entity() : parent(0), enabled(true), id(GetCurrentId()++) {
-
+Entity::Entity(EntitySystem *_system) : system(_system), parent(0), enabled(true), id(GetCurrentId()++) {
+	CHECK_NOTNULL(system);
+	system->Add(this);
 }
 
 Entity::~Entity() {
-	for(auto it = components.begin(); it != components.end(); it++) {
-		delete it->second;
+	system->Remove(GetId());
+	if(parent) {
+		parent->RemoveChild(GetId());
 	}
-	for(auto it = children.begin(); it != children.end() ;) {
-		delete it->second;
+	for(auto it = components.begin(); it != components.end();) {
+		Component *c = it->second;
+		it = components.erase(it);
+		delete c;
+	}
+	for(auto it = children.begin(); it != children.end();) {
+		Entity *e = it->second;
+		it = children.erase(it);
+		delete e;
 	}
 }
 
-void Entity::AddChild(const s2string &name, Entity *e) {
+void Entity::AddChild(Entity *e) {
 	CHECK_NOTNULL(e);
-	CHECK(GetChild(name) == 0)<<"Child with name already exists. Use replace instead.";
-	children[name] = e;
+	children[e->GetId()] = e;
 	e->parent = this;
 }
 
-Entity * Entity::RemoveChild(const s2string &name) {
-	Entity *child = GetChild(name);
-	children.erase(name);
+Entity * Entity::RemoveChild(unsigned int id) {
+	Entity *child = GetChild(id);
+	children.erase(id);
 	child->parent = 0;
 	return child;
 }
 
-Entity * Entity::GetChild(const s2string &name) const {
-	auto it = children.find(name);
+Entity * Entity::GetChild(unsigned int id) {
+	auto it = children.find(id);
 	if(it != children.end()) {
 		return it->second;
 	} else {
@@ -40,22 +49,23 @@ Entity * Entity::GetChild(const s2string &name) const {
 	}
 }
 
-void Entity::AddComponent(const s2string &name, Component *c) {
+void Entity::AddComponent(Component *c) {
 	CHECK_NOTNULL(c);
-	CHECK(GetComponent(name) == 0)<<"Component with name already exists. Use replace instead.";
-	components[name] = c;
+	components[c->GetId()] = c;
 	c->entity = this;
 }
 
-Component * Entity::RemoveComponent(const s2string &name) {
-	Component *c = GetComponent(name);
-	components.erase(name);
-	c->entity = 0;
+Component * Entity::RemoveComponent(unsigned int id) {
+	Component *c = GetComponent(id);
+	if(c) {
+		components.erase(id);
+		c->entity = 0;
+	}
 	return c;
 }
 
-Component * Entity::GetComponent(const s2string &name) const {
-	auto it = components.find(name);
+Component * Entity::GetComponent(unsigned int id) {
+	auto it = components.find(id);
 	if(it != components.end()) {
 		return it->second;
 	} else {

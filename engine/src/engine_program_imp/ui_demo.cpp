@@ -26,7 +26,7 @@ public:
 	}
 
 	virtual bool Initialize() {
-		button = new Button();
+		button = new Button(Engine::GetSingleton()->GetEntitySystem());
 		Sprite *sprite = button->GetSprite();
 		sprite->SetAbsolutePosition(100.0f, 100.0f, 0.0f);
 		sprite->SetAbsoluteWidth(100.0f);
@@ -52,7 +52,6 @@ public:
 
 	virtual void OneFrame(float delta) {
 		button->SetEnabled(true);
-		button->OneFrame(delta);
 	}
 	
 private:

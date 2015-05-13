@@ -45,8 +45,8 @@ void Engine::Shutdown() {
 	if(window_name == PISSED_STR)
 		return;
 
-	delete sprite_system;
 	delete entity_system;
+	delete sprite_system;
 	delete input_system;
 
 	delete program_manager;
@@ -112,7 +112,7 @@ void Engine::OneFrame(float delta) {
 	sprite_system->OneFrame(delta);
 	entity_system->OneFrame(delta);
 
-	program_manager->Get("RenderToTargetDemo")->OneFrame(delta);
+	program_manager->Get("UIDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 

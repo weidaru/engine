@@ -23,8 +23,8 @@ public:
 	SpriteSystem();
 	~SpriteSystem();
 	
-	void RegisterSprite(Sprite *s);
-	void DeregisterSprite(Sprite *s);
+	void Register(Sprite *s);
+	void Deregister(Sprite *s);
 
 	void OneFrame(float delta);
 

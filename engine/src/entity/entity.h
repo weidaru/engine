@@ -12,28 +12,30 @@ class EntitySystem;
 
 class Entity {
 public:
-	Entity();
+	Entity(EntitySystem *system);
 	virtual ~Entity();
 
 	Transform & GetTransform() {return transform;}
 	Matrix4x4 GetCascadeTransformMatrix();
 
-	void AddChild(const s2string &name, Entity *e);
-	Entity * RemoveChild(const s2string &name);
-	Entity * GetChild(const s2string &name) const;
+	void AddChild(Entity *e);
+	Entity * RemoveChild(unsigned int id);
+	Entity * GetChild(unsigned int id);
 
-	void AddComponent(const s2string &name, Component *c);
-	Component * RemoveComponent(const s2string &name);
-	Component * GetComponent(const s2string &name) const;
+	void AddComponent(Component *c);
+	Component * RemoveComponent(unsigned int id);
+	Component * GetComponent(unsigned int id);
 
 	Entity * GetParent() const { return parent; }
+	unsigned int GetId() const { return id; }
 
 	virtual Entity & SetEnabled(bool new_value) { enabled=new_value; return *this; } 
-	bool IsEnabled() { return enabled; }
+	bool IsEnabled() const { return enabled; }
 
+	const s2string & GetName() const { return name; }
+
+protected:
 	virtual void OneFrame(float delta);
-
-	const s2string & GetName() { return name; }
 
 private :
 	void SetName(const s2string& _name) { name=_name; }
@@ -48,9 +50,10 @@ private :
 private:
 	Transform transform;
 
+	EntitySystem *system;
 	Entity *parent;
-	std::map<s2string, Component* > components;
-	std::map<s2string, Entity *> children;
+	std::map<unsigned int, Component* > components;
+	std::map<unsigned int, Entity *> children;
 	bool enabled;
 
 	unsigned int id;

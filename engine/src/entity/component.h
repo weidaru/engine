@@ -9,8 +9,8 @@ class Entity;
 
 class Component {
 public:
-	Component() : id(GetCurrentId()++), entity(0), enabled(true) {}
-	virtual ~Component() {}
+	Component(Entity *_entity);
+	virtual ~Component();
 
 	unsigned int GetId() const { return id; } 
 	const s2string & GetName() const { return name;  }

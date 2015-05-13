@@ -10,15 +10,15 @@
 
 namespace s2 {
 
-Sprite::Sprite(SpriteSystem *_system) : system(_system) {
+Sprite::Sprite(Entity *entity, SpriteSystem *_system) : Component(entity), system(_system) {
 	SetBackgroundColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	CHECK_NOTNULL(system);
-	system->RegisterSprite(this);
+	system->Register(this);
 }
 
 Sprite::~Sprite() {
-	system->DeregisterSprite(this);
+	system->Deregister(this);
 }
 
 

@@ -38,7 +38,7 @@ SpriteSystem::SpriteSystem()
 }
 
 SpriteSystem::~SpriteSystem() {
-	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 	manager->RemoveBuffer(instance_buffer->GetID());
 	manager->RemoveBuffer(vertex_buffer->GetID());
@@ -47,11 +47,12 @@ SpriteSystem::~SpriteSystem() {
 	delete drawing_state;
 }
 	
-void SpriteSystem::RegisterSprite(Sprite *s) {
+void SpriteSystem::Register(Sprite *s) {
+	CHECK_NOTNULL(s);
 	sprites.push_back(s);
 }
 
-void SpriteSystem::DeregisterSprite(Sprite *s) {
+void SpriteSystem::Deregister(Sprite *s) {
 	sprites.erase(std::find(sprites.begin(), sprites.end(), s));
 }
 

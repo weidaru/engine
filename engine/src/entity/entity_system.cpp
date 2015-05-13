@@ -10,20 +10,20 @@ EntitySystem::EntitySystem() {
 }
 
 EntitySystem::~EntitySystem() {
-	for(auto it = entities.begin(); it != entities.end(); it++) {
-		delete it->second;
+	for(auto it = entities.begin(); it != entities.end();) {
+		Entity *e = it->second;
+		it = entities.erase(it);
+		delete e;
 	}
 }
 
-void EntitySystem::Add(const s2string &name, Entity * e) {
-	CHECK(Get(name) == 0)<<name <<" already exists.";
+void EntitySystem::Add(Entity * e) {
 	CHECK(e) << "entity cannot be null";
-	e->SetName(name);
-	entities[name] = e;
+	entities[e->GetId()] = e;
 }
 
-Entity * EntitySystem::Get(const s2string &name) {
-	auto it = entities.find(name);
+Entity * EntitySystem::Get(unsigned int id) {
+	auto it = entities.find(id);
 	if(it == entities.end()) {
 		return 0;
 	}  else {
@@ -31,8 +31,15 @@ Entity * EntitySystem::Get(const s2string &name) {
 	}
 }
 
-void EntitySystem::Remove(const s2string &name) {
-	entities.erase(name);
+Entity * EntitySystem::Remove(unsigned int id) {
+	auto it = entities.find(id);
+	Entity *e = 0;
+	if(it != entities.end()) {
+		e = it->second;
+		entities.erase(it);
+	}
+	
+	return e;
 }
 
 void EntitySystem::OneFrame(float delta) {

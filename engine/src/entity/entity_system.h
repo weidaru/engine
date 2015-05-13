@@ -14,14 +14,14 @@ public:
 	EntitySystem();
 	~EntitySystem();
 
-	void Add(const s2string &name, Entity *e);
-	Entity * Get(const s2string &name);
-	void Remove(const s2string &name);
+	void Add(Entity *e);
+	Entity * Get(unsigned int id);
+	Entity * Remove(unsigned int id);
 
 	void OneFrame(float delta);
 
 private:
-	std::map<s2string, Entity *> entities;
+	std::map<unsigned int, Entity *> entities;
 };
 
 }
