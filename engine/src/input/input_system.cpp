@@ -87,6 +87,22 @@ void InputSystem::OneFrame(float delta) {
 		GetCursorPos(&p);
 		RECT rect;
 		GetWindowRect((HWND)hwnd, &rect);
+
+		DWORD style = GetWindowStyle((HWND)hwnd);
+		if(style & WS_DLGFRAME) {
+			int	caption_height = GetSystemMetrics(SM_CYCAPTION);
+			rect.top += caption_height;
+		}
+
+		if(style & WS_BORDER) {
+			int border_width = GetSystemMetrics(SM_CXBORDER);
+			int border_height = GetSystemMetrics(SM_CYBORDER);
+			rect.left += border_width;
+			rect.right -= border_width;
+			rect.top += border_height;
+			rect.bottom -= border_height;
+		}
+		
 		int old_x = mouse_x;
 		mouse_x = p.x-rect.left;
 		int old_y = mouse_y;
