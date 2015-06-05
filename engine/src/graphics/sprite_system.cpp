@@ -14,10 +14,10 @@ SpriteSystem::SpriteSystem()
 	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 	vs = manager->CreateVertexShader();
-	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite.vs"), "main")) << vs->GetLastError();
+	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite.hlsl"), "fs_main")) << vs->GetLastError();
 
 	ps = manager->CreatePixelShader();
-	CHECK(ps->Initialize(ResolveAssetPath("shader/sprite.ps"), "main")) << ps->GetLastError();
+	CHECK(ps->Initialize(ResolveAssetPath("shader/sprite.hlsl"), "ps_main")) << ps->GetLastError();
 
 	vertex_buffer = manager->CreateBuffer();
 	Buffer::Option option;
