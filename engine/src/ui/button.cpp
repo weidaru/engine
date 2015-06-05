@@ -3,8 +3,8 @@
 #include "input/input_system.h"
 #include "graphics/renderer/renderer_context.h"
 #include "engine.h"
-#include "graphics/sprite.h"
-#include "graphics/text.h"
+#include "graphics/sprite/sprite.h"
+#include "graphics/text/text.h"
 
 namespace s2 {
 

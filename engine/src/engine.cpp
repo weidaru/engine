@@ -4,8 +4,8 @@
 #include "engine_program.h"
 #include "input/input_system.h"
 #include "entity/entity_system.h"
-#include "graphics/text_system.h"
-#include "graphics/sprite_system.h"
+#include "graphics/text/text_system.h"
+#include "graphics/sprite/sprite_system.h"
 
 #include <glog/logging.h>
 

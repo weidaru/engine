@@ -2,7 +2,7 @@
 #define SCREEN_SPACE_TEXTURE_H_
 
 #include "entity/component.h"
-#include "renderer/texture2d.h"
+#include "graphics/renderer/texture2d.h"
 #include "utils/matrix4x4.h"
 #include "utils/vector4.h"
 #include "utils/vector3.h"

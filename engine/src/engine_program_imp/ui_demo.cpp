@@ -4,8 +4,8 @@
 #include "engine.h"
 
 #include "graphics/renderer/all.h"
-#include "graphics/sprite_system.h"
-#include "graphics/sprite.h"
+#include "graphics/sprite/sprite_system.h"
+#include "graphics/sprite/sprite.h"
 
 #include "input/input_system.h"
 
