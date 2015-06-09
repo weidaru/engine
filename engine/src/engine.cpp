@@ -9,23 +9,18 @@
 
 #include <glog/logging.h>
 
-LRESULT CALLBACK WndProc(HWND _hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
-{
-	switch(umessage)
-	{
-	case WM_DESTROY:
-		{
+LRESULT CALLBACK WndProc(HWND _hwnd, UINT umessage, WPARAM wparam, LPARAM lparam){
+	switch(umessage) {
+	case WM_DESTROY: {
 			PostQuitMessage(0);
 			return 0;
 		}
 
-	case WM_CLOSE:
-		{
+	case WM_CLOSE: {
 			PostQuitMessage(0);		
 			return 0;
 		}
-	default:
-		{
+	default: {
 			return DefWindowProc(_hwnd, umessage, wparam, lparam);
 		}
 	}
