@@ -34,7 +34,7 @@ public:
 	struct Option {
 		Filter 					min_mag_filter;
 		Filter 					mip_filter;	//Mip filter is only applied when texture minification is desired.
-		unsigned int 			max_anisotropy;
+		uint32_t 			max_anisotropy;
 		ComparisonFunc 	compare_func;
 		WrapMode 			u_wrap;
 		WrapMode 			v_wrap;

@@ -70,7 +70,7 @@ const s2string & Model::GetLastError() const {
 	return error;
 }
 
-unsigned int Model::GetVertexSize() const {
+uint32_t Model::GetVertexSize() const {
 	Check();
 	return mesh->mNumVertices;
 }
@@ -80,7 +80,7 @@ bool Model::HasTextureCoordinates() const {
 	return mesh->HasTextureCoords(0);
 }
 
-Model::Vertex Model::GetVertex(unsigned int index) const {
+Model::Vertex Model::GetVertex(uint32_t index) const {
 	Check();
 	Vertex result;
 	
@@ -98,12 +98,12 @@ Model::Vertex Model::GetVertex(unsigned int index) const {
 	return result;
 }
 
-unsigned int Model::GetTriangleSize() const {
+uint32_t Model::GetTriangleSize() const {
 	Check();
 	return mesh->mNumFaces;
 }
 
-unsigned int Model::GetTriangleVertexIndex(unsigned int index, unsigned int vertex_index) const {
+uint32_t Model::GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const {
 	Check();
 	return mesh->mFaces[index].mIndices[vertex_index];
 }

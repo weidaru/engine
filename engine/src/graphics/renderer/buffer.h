@@ -13,7 +13,7 @@ class GraphicPipeline;
 
 class Buffer : public Resource {
 public:
-	typedef unsigned int IndexBufferElementType;
+	typedef uint32_t IndexBufferElementType;
 
 	enum Binding {
 		INDEX_BUFFER = 0x1,
@@ -28,14 +28,14 @@ public:
 	};
 
 	struct Option {
-		unsigned int element_count;
-		unsigned int element_member_count;
-		unsigned int element_bytewidth;
+		uint32_t element_count;
+		uint32_t element_member_count;
+		uint32_t element_bytewidth;
 		void * data;
 		s2string element_typename;
 		RendererEnum::Format format;
 		RendererEnum::ResourceWrite resource_write;
-		unsigned int binding;
+		uint32_t binding;
 
 		Option() {
 			element_count = 0;
@@ -48,7 +48,7 @@ public:
 		}
 
 		template<typename T>
-		void Initialize(unsigned int size, T *_data=0) {
+		void Initialize(uint32_t size, T *_data=0) {
 			const TypeInfo &type_info =  TypeInfoManager::GetSingleton()->Get<T>();
 			element_count = size;
 			element_member_count = type_info.GetMemberSize();
@@ -57,11 +57,11 @@ public:
 			data = _data;
 		}
 		
-		void InitializeAsIndexBuffer(unsigned int size, IndexBufferElementType *_data=0) {
+		void InitializeAsIndexBuffer(uint32_t size, IndexBufferElementType *_data=0) {
 			element_count = size;
 			element_member_count = 1;
 			element_bytewidth = sizeof(IndexBufferElementType);
-			element_typename = "unsigned int";
+			element_typename = "uint32_t";
 			binding = INDEX_BUFFER;
 			data = _data;
 		}
@@ -75,37 +75,37 @@ public:
 	 */
 	virtual void 				Initialize(const Option &option) = 0;
 
-	virtual unsigned int 	GetElementCount() const = 0;
-	virtual unsigned int 	GetElementBytewidth() const = 0;
-	virtual unsigned int 	GetElementMemberCount() const = 0;
+	virtual uint32_t 	GetElementCount() const = 0;
+	virtual uint32_t 	GetElementBytewidth() const = 0;
+	virtual uint32_t 	GetElementMemberCount() const = 0;
 	//VertexBuffer with raw data, not initialized or initialized through 
 	//will return have "" TypeName.
 	virtual s2string 			GetElementTypeName() const { return ""; }
 
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const = 0;
-	virtual unsigned int GetBinding() const = 0;
+	virtual uint32_t GetBinding() const = 0;
 
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite = false) = 0;
 	virtual void WriteUnmap() = 0;
 	template <typename T>
-	void Write(unsigned int index, T *data, unsigned int array_size) {
+	void Write(uint32_t index, T *data, uint32_t array_size) {
 		this->Write(index, (void *)data, array_size, sizeof(T));
 	}
 	template <typename T>
-	void Update(unsigned int index, T *data, unsigned int array_size) {
+	void Update(uint32_t index, T *data, uint32_t array_size) {
 		this->Update(index, (const void *)data, array_size, sizeof(T));
 	}
 
 	virtual void ReadMap(GraphicPipeline *pipeline, bool wipe_cache = true) const = 0;
 	virtual void ReadUnmap() const = 0;
 	template <typename T>
-	const T * Read(unsigned int index) const {
+	const T * Read(uint32_t index) const {
 		return (const T *)this->Read(index, sizeof(T));
 	}
 
-	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
-	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const = 0;
-	virtual void Update(GraphicPipeline *pipeline, unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth) = 0;
+	virtual void Write(uint32_t index, const void *data, uint32_t array_size, uint32_t element_byetwidth) = 0;
+	virtual const void * Read(uint32_t index, uint32_t element_byetwidth) const = 0;
+	virtual void Update(GraphicPipeline *pipeline, uint32_t index, const void *data, uint32_t array_size, uint32_t element_byetwidth) = 0;
 
 	virtual IndexBuffer * AsIndexBuffer() const = 0;
 	virtual VertexBuffer * AsVertexBuffer() const = 0;

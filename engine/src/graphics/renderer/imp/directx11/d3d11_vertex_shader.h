@@ -27,7 +27,7 @@ public:
 	virtual bool Initialize(const s2string &path, const s2string &entry_point);
 	virtual ~D3D11VertexShader();
 
-	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size);
+	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size);
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
 	virtual D3D11Sampler* GetSampler(const s2string &name);
 	virtual bool SetShaderResource(const s2string &name, ShaderResource *resource);

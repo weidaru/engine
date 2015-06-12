@@ -7,6 +7,8 @@
 #include "utils/vector4.h"
 #include "utils/vector3.h"
 
+#include <stdint.h>
+
 //[[TypeInfo]]//
 struct SpriteInstance {
 	Matrix4x4 transform;
@@ -52,7 +54,7 @@ public:
 	Sprite & SetDepth(float new_value);
 
 	SpriteInstance *GetData();
-	unsigned int GetDataSize() { return 4; } 
+	uint32_t GetDataSize() { return 4; } 
 
 private:
 	SpriteSystem *system;

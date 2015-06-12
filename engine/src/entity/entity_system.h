@@ -4,7 +4,7 @@
 #include <map>
 
 #include "utils/s2string.h"
-
+#include <stdint.h>
 
 namespace s2 {
 class Entity;
@@ -15,13 +15,13 @@ public:
 	~EntitySystem();
 
 	void Add(Entity *e);
-	Entity * Get(unsigned int id);
-	Entity * Remove(unsigned int id);
+	Entity * Get(uint32_t id);
+	Entity * Remove(uint32_t id);
 
 	void OneFrame(float delta);
 
 private:
-	std::map<unsigned int, Entity *> entities;
+	std::map<uint32_t, Entity *> entities;
 };
 
 }

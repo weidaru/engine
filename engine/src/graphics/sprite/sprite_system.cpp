@@ -7,7 +7,7 @@
 
 namespace s2 {
 
-unsigned int SpriteSystem::kSpriteBatchSize = 400;
+uint32_t SpriteSystem::kSpriteBatchSize = 400;
 
 SpriteSystem::SpriteSystem() 
 		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), drawing_state(0) {
@@ -60,8 +60,8 @@ void SpriteSystem::OneFrame(float delta) {
 	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 	//Assume only 1 batch now.
 	SpriteInstance *instances = new SpriteInstance[kSpriteBatchSize];
-	unsigned int count = 0;
-	for(unsigned int i=0; i<sprites.size(); i++) {
+	uint32_t count = 0;
+	for(uint32_t i=0; i<sprites.size(); i++) {
 		if(sprites[i]->IsEnabled()) {
 			memcpy(instances+count, sprites[i]->GetData(), sizeof(SpriteInstance));
 			count++;

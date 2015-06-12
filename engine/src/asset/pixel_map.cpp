@@ -47,7 +47,7 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 	case R8G8B8A8:
 		{
 			FREE_IMAGE_TYPE type = FreeImage_GetImageType(bitmap);
-			unsigned int bpp = FreeImage_GetBPP(bitmap);
+			uint32_t bpp = FreeImage_GetBPP(bitmap);
 			if(type!=FIT_BITMAP || bpp!=32) {
 				FIBITMAP *bitmap_32 = FreeImage_ConvertTo32Bits(bitmap);
 				CHECK(bitmap_32)<<"Cannot convert to 32bit bitmap";
@@ -86,12 +86,12 @@ void PixelMap::PopulateTexture2DOption(Texture2D::Option *option) {
 	}
 }
 
-unsigned int PixelMap::GetWidth() const {
+uint32_t PixelMap::GetWidth() const {
 	Check();
 	return FreeImage_GetWidth(bitmap);
 }
 
-unsigned int PixelMap::GetHeight() const {
+uint32_t PixelMap::GetHeight() const {
 	Check();
 	return FreeImage_GetHeight(bitmap);
 }

@@ -18,7 +18,7 @@ class D3D11DrawingState;
 
 struct D3D11InputLayout {
 	ID3D11InputLayout *layout;
-	unsigned int first_instance_count;
+	uint32_t first_instance_count;
 
 	D3D11InputLayout() : layout(0), first_instance_count(0) {}
 	~D3D11InputLayout();
@@ -28,7 +28,7 @@ class D3D11InputStage {
 private:
 	struct VBInfo {
 		bool is_new;
-		unsigned int start_index;
+		uint32_t start_index;
 		D3D11VertexBuffer *vb;
 		
 		VBInfo() {
@@ -44,7 +44,7 @@ private:
 
 	struct IBInfo {
 		bool is_new;
-		unsigned int vertex_base;
+		uint32_t vertex_base;
 		D3D11IndexBuffer *buffer;
 
 		IBInfo() {
@@ -61,10 +61,10 @@ public:
 	void SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue);
 	GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
-	void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
-	D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index);
-	void SetIndexBuffer(IndexBuffer *buf, unsigned int vertex_base);
-	D3D11IndexBuffer * GetIndexBuffer(unsigned int * vertex_base);
+	void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf);
+	D3D11VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index);
+	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base);
+	D3D11IndexBuffer * GetIndexBuffer(uint32_t * vertex_base);
 	
 	//Validate input stage with vertex shader, set message to NULL if you don't care.
 	bool Validate(const D3D11VertexShader &shader, s2string *message) const;
@@ -72,8 +72,8 @@ public:
 	void Setup(const D3D11VertexShader *shader);
 	void Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state);
 
-	void Flush(unsigned int start_index,unsigned int vertex_count);
-	void FlushWithInstancing(unsigned int vertex_start, unsigned int vertex_count, unsigned int instance_start, unsigned int instance_count);
+	void Flush(uint32_t start_index,uint32_t vertex_count);
+	void FlushWithInstancing(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count);
 	void Refresh();
 
 	void SetAutoSizeOnDraw(bool auto_size);
@@ -96,7 +96,7 @@ private:
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
 	
-	unsigned int current_first_instance_count;
+	uint32_t current_first_instance_count;
 	ID3D11InputLayout *owned_layout;
 
 };

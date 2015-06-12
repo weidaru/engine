@@ -5,6 +5,7 @@
 #include "utils/matrix4x4.h"
 
 #include <map>
+#include <stdint.h>
 
 namespace s2 {
 
@@ -21,15 +22,15 @@ public:
 	Matrix4x4 GetCascadeTransformMatrix();
 
 	void AddChild(Entity *e);
-	Entity * RemoveChild(unsigned int id);
-	Entity * GetChild(unsigned int id);
+	Entity * RemoveChild(uint32_t id);
+	Entity * GetChild(uint32_t id);
 
 	void AddComponent(Component *c);
-	Component * RemoveComponent(unsigned int id);
-	Component * GetComponent(unsigned int id);
+	Component * RemoveComponent(uint32_t id);
+	Component * GetComponent(uint32_t id);
 
 	Entity * GetParent() const { return parent; }
-	unsigned int GetId() const { return id; }
+	uint32_t GetId() const { return id; }
 
 	virtual Entity & SetEnabled(bool new_value) { enabled=new_value; return *this; } 
 	bool IsEnabled() const { return enabled; }
@@ -42,8 +43,8 @@ protected:
 private :
 	void SetName(const s2string& _name) { name=_name; }
 
-	static unsigned int & GetCurrentId() {
-		static unsigned int currentId = 0;
+	static uint32_t & GetCurrentId() {
+		static uint32_t currentId = 0;
 		return currentId;
 	}
 
@@ -54,11 +55,11 @@ private:
 
 	EntitySystem *system;
 	Entity *parent;
-	std::map<unsigned int, Component* > components;
-	std::map<unsigned int, Entity *> children;
+	std::map<uint32_t, Component* > components;
+	std::map<uint32_t, Entity *> children;
 	bool enabled;
 
-	unsigned int id;
+	uint32_t id;
 	s2string name;
 };
 

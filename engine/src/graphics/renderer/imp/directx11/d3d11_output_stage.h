@@ -23,7 +23,7 @@ class D3D11DrawingState;
 
 class D3D11OutputStage {
 public:
-	typedef std::vector<std::pair<unsigned int, Resource * > > RTBindingVector;
+	typedef std::vector<std::pair<uint32_t, Resource * > > RTBindingVector;
 
 private:
 	struct  RTInfo {
@@ -43,7 +43,7 @@ private:
 	struct  SOInfo {
 		D3D11StreamOut *data;
 		bool is_new;
-		unsigned int stream_index;
+		uint32_t stream_index;
 
 		SOInfo() {
 			data = 0;
@@ -56,15 +56,15 @@ public:
 	D3D11OutputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
 	~D3D11OutputStage();
 	
-	void SetRenderTarget(unsigned int index, RenderTarget *target);
-	D3D11RenderTarget * GetRenderTarget(unsigned int index);
-	unsigned int GetRenderTargetCapacity() const;
+	void SetRenderTarget(uint32_t index, RenderTarget *target);
+	D3D11RenderTarget * GetRenderTarget(uint32_t index);
+	uint32_t GetRenderTargetCapacity() const;
 
 	void SetDepthStencil(DepthStencil *buffer);
 	D3D11DepthStencil * GetDepthStencil();
 
-	void SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out);
-	D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *stream_index);
+	void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out);
+	D3D11StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index);
 
 	void SetRasterizedStream(int index);
 	int GetRasterizedStream();

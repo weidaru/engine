@@ -39,7 +39,7 @@ D3D11MappedResource::~D3D11MappedResource() {
 }
 
 
-void D3D11MappedResource::WriteMap(D3D11GraphicPipeline *pipeline, bool no_overwirte, unsigned int subresource_index) {
+void D3D11MappedResource::WriteMap(D3D11GraphicPipeline *pipeline, bool no_overwirte, uint32_t subresource_index) {
 	context = pipeline->GetDeviceContext();
 	write_index = subresource_index;
 	CHECK(mapped_data == 0)<<"Cannot map a resource twice in a row. Call ReadUnmap first";
@@ -60,7 +60,7 @@ void D3D11MappedResource::WriteMap(D3D11GraphicPipeline *pipeline, bool no_overw
 	CHECK(!FAILED(result))<<"Fail to map resource. Error code "<<::GetLastError();
 }
 
-void D3D11MappedResource::Write(unsigned int offset, const void *data, unsigned int size) {
+void D3D11MappedResource::Write(uint32_t offset, const void *data, uint32_t size) {
 	CHECK(mapped_data) << "Must call WriteMap before Write.";
 	CHECK(resource_write != RendererEnum::CPU_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for CPU_WRITE_OCASSIONAL";
 	memcpy(mapped_data, data, size);
@@ -76,7 +76,7 @@ void D3D11MappedResource::WriteUnmap() {
 	context = 0;
 }
 
-void D3D11MappedResource::ReadMap(D3D11GraphicPipeline *pipeline, unsigned int subresource_index, bool wipe_cache) {
+void D3D11MappedResource::ReadMap(D3D11GraphicPipeline *pipeline, uint32_t subresource_index, bool wipe_cache) {
 	context = pipeline->GetDeviceContext();
 	//Copy resource to staging resource.
 	read_index = subresource_index;

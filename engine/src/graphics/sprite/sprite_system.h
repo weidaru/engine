@@ -1,10 +1,8 @@
 #ifndef	SPRITE_SYSTEM_H_
 #define SPRITE_SYSTEM_H_
 
-#include "utils/singleton.h"
-
 #include <vector>
-
+#include <stdint.h>
 
 //[[TypeInfo]]//
 struct SpriteVertex {
@@ -37,7 +35,7 @@ private:
 	
 	DrawingState *drawing_state;
 
-	static unsigned int kSpriteBatchSize;
+	static uint32_t kSpriteBatchSize;
 };
 }
 

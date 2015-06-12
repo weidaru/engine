@@ -82,12 +82,12 @@ void D3D11Buffer::Initialize(const Option &_option) {
 	}
 }
 
-unsigned int D3D11Buffer::GetElementCount() const {
+uint32_t D3D11Buffer::GetElementCount() const {
 	Check();
 	return option.element_count;
 }
 
-unsigned int D3D11Buffer::GetElementBytewidth() const {
+uint32_t D3D11Buffer::GetElementBytewidth() const {
 	Check();
 	return option.element_bytewidth;
 }
@@ -97,12 +97,12 @@ RendererEnum::ResourceWrite D3D11Buffer::GetResourceWrite() const {
 	return mapped->GetResourceWrite();
 }
 
-unsigned int D3D11Buffer::GetBinding() const {
+uint32_t D3D11Buffer::GetBinding() const {
 	Check();
 	return option.binding;
 }
 
-unsigned int D3D11Buffer::GetElementMemberCount() const {
+uint32_t D3D11Buffer::GetElementMemberCount() const {
 	Check();
 	return option.element_member_count;
 }
@@ -127,14 +127,14 @@ void D3D11Buffer::WriteUnmap() {
 	mapped->WriteUnmap();
 }
 
-void D3D11Buffer::Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
+void D3D11Buffer::Write(uint32_t index, const void *data, uint32_t array_size, uint32_t element_bytewidth) {
 	Check();
 	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
 
 	mapped->Write(index*element_bytewidth, data, array_size*element_bytewidth);
 }
 
-const void * D3D11Buffer::Read(unsigned int index, unsigned int element_bytewidth) const {
+const void * D3D11Buffer::Read(uint32_t index, uint32_t element_bytewidth) const {
 	Check();
 	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
 	return (const char *)mapped->Read() + index*element_bytewidth;
@@ -172,7 +172,7 @@ void D3D11Buffer::ReadUnmap() const {
 }
 
 void D3D11Buffer::Update(GraphicPipeline * _pipeline, 
-			unsigned int index, const void *data, unsigned int array_size, unsigned int element_bytewidth) {
+			uint32_t index, const void *data, uint32_t array_size, uint32_t element_bytewidth) {
 	Check();
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {

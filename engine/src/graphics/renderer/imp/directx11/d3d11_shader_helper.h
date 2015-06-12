@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <stdint.h>
 
 #include "utils/s2string.h"
 
@@ -27,13 +28,13 @@ struct D3D11ShaderHelper {
 
 class ConstantBufferContainer{
 private:
-	typedef std::vector<std::pair<unsigned int, D3D11ConstantBuffer *> > CBVector;
+	typedef std::vector<std::pair<uint32_t, D3D11ConstantBuffer *> > CBVector;
 
 public:
 	ConstantBufferContainer(D3D11GraphicResourceManager *manager, D3D11ShaderReflection *_reflect);
 	~ConstantBufferContainer();
 	
-	bool SetUniform(const s2string &name, const void * value, unsigned int size, s2string *error);
+	bool SetUniform(const s2string &name, const void * value, uint32_t size, s2string *error);
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
@@ -47,7 +48,7 @@ private:
 
 class SamplerContainer {
 private:
-	typedef std::vector<std::pair<unsigned int, D3D11Sampler *> > SamplerVector;
+	typedef std::vector<std::pair<uint32_t, D3D11Sampler *> > SamplerVector;
 
 public:
 	SamplerContainer(D3D11ShaderReflection *_reflect);
@@ -66,11 +67,11 @@ private:
 
 class ShaderResourceContainer {
 public:
-	typedef std::vector<std::pair<unsigned int, Resource *> > BindingVector;
+	typedef std::vector<std::pair<uint32_t, Resource *> > BindingVector;
 
 private:
 	struct Info {
-		unsigned int reflect_index;
+		uint32_t reflect_index;
 		D3D11ShaderResource *shader_resource;
 	};
 

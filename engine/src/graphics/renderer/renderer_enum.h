@@ -18,7 +18,7 @@ struct RendererEnum {
 		//Add more later.
 	};
 
-	static unsigned int GetFormatSize(Format flag) {
+	static uint32_t GetFormatSize(Format flag) {
 		switch (flag) {
 		case R8G8B8A8_UNORM:
 		case D24_UNORM_S8_UINT:

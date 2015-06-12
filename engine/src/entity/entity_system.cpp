@@ -22,7 +22,7 @@ void EntitySystem::Add(Entity * e) {
 	entities[e->GetId()] = e;
 }
 
-Entity * EntitySystem::Get(unsigned int id) {
+Entity * EntitySystem::Get(uint32_t id) {
 	auto it = entities.find(id);
 	if(it == entities.end()) {
 		return 0;
@@ -31,7 +31,7 @@ Entity * EntitySystem::Get(unsigned int id) {
 	}
 }
 
-Entity * EntitySystem::Remove(unsigned int id) {
+Entity * EntitySystem::Remove(uint32_t id) {
 	auto it = entities.find(id);
 	Entity *e = 0;
 	if(it != entities.end()) {

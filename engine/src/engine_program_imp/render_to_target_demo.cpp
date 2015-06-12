@@ -93,9 +93,9 @@ public:
 		{
 			RTTTestVertex *vertices = 0;
 			
-	 		unsigned int size = model.GetVertexSize();
+	 		uint32_t size = model.GetVertexSize();
 			vertices = new RTTTestVertex[size];
-			for(unsigned int i=0; i<size; i++) {
+			for(uint32_t i=0; i<size; i++) {
 				Model::Vertex v = model.GetVertex(i);
 				vertices[i].position[0] = v.x;
 				vertices[i].position[1] = v.y;
@@ -115,9 +115,9 @@ public:
 		
 		{
 			//Create IndexBuffer
-			unsigned int size = model.GetTriangleSize()*3;
+			uint32_t size = model.GetTriangleSize()*3;
 			Buffer::IndexBufferElementType*indices = new Buffer::IndexBufferElementType[size];
-			for(unsigned int i=0; i<model.GetTriangleSize(); i++) {
+			for(uint32_t i=0; i<model.GetTriangleSize(); i++) {
 				indices[i*3] = model.GetTriangleVertexIndex(i, 0);
 				indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
 				indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);

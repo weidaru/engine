@@ -6,7 +6,7 @@ Resource::Resource () : id(GetCurrentID()++), name("") {}
 
 Resource::~Resource() {}
 
-unsigned int Resource::GetID() const {
+uint32_t Resource::GetID() const {
 	return id;
 }
 
@@ -25,8 +25,8 @@ s2string Resource::GetIDAndName() const {
 	return result;
 }
 
-unsigned int & Resource::GetCurrentID() {
-	static unsigned int current_id = 0;
+uint32_t & Resource::GetCurrentID() {
+	static uint32_t current_id = 0;
 	return current_id;
 }
 

@@ -22,6 +22,8 @@
     <ClInclude Include="src\entity\transform.h" />
     <ClInclude Include="src\engine.h" />
     <ClInclude Include="src\engine_program.h" />
+    <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_texture_cube.h" />
+    <ClInclude Include="src\graphics\renderer\texture_cube.h" />
     <ClInclude Include="src\graphics\sprite\sprite_system.h" />
     <ClInclude Include="src\graphics\text\text.h" />
     <ClInclude Include="src\graphics\text\text_system.h" />
@@ -99,6 +101,7 @@
     <ClCompile Include="src\engine_program_imp\render_to_target_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\stream_out_demo.cpp" />
     <ClCompile Include="src\generate\generated_type_info.cpp" />
+    <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_texture_cube.cpp" />
     <ClCompile Include="src\graphics\sprite\sprite_system.cpp" />
     <ClCompile Include="src\graphics\text\text.cpp" />
     <ClCompile Include="src\graphics\text\text_system.cpp" />

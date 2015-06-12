@@ -28,7 +28,7 @@ namespace {
 
 void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
-	for(unsigned int i=0; i<desc.ConstantBuffers; i++) {
+	for(uint32_t i=0; i<desc.ConstantBuffers; i++) {
 		ID3D11ShaderReflectionConstantBuffer *cb_reflect = reflect->GetConstantBufferByIndex(i);
 		D3D11_SHADER_BUFFER_DESC cb_desc;
 		result = cb_reflect->GetDesc(&cb_desc);
@@ -46,7 +46,7 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 		cb.size = cb_desc.Size;
 		cb.uniforms.resize(cb_desc.Variables);
 		
-		for(unsigned int j=0; j<cb_desc.Variables; j++) {
+		for(uint32_t j=0; j<cb_desc.Variables; j++) {
 			ID3D11ShaderReflectionVariable *v_reflect = cb_reflect->GetVariableByIndex(j);
 			D3D11_SHADER_VARIABLE_DESC v_desc;
 			v_reflect->GetDesc(&v_desc);
@@ -82,8 +82,8 @@ s2string ComponentToTypeName(D3D_REGISTER_COMPONENT_TYPE input) {
 	}
 }
 
-unsigned int GetUsedComponentSize(char mask) {
-	unsigned int c;
+uint32_t GetUsedComponentSize(char mask) {
+	uint32_t c;
 	for (c = 0; mask; c++) 
 		mask &= mask - 1;
 	return c*4;
@@ -94,7 +94,7 @@ unsigned int GetUsedComponentSize(char mask) {
 void D3D11ShaderReflection::PopulateInputs(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
 	inputs.resize(desc.InputParameters);
-	for(unsigned int i=0;i<desc.InputParameters; i++) {
+	for(uint32_t i=0;i<desc.InputParameters; i++) {
 		Parameter &p = inputs[i];
 		D3D11_SIGNATURE_PARAMETER_DESC in_desc;
 		result = reflect->GetInputParameterDesc(i, &in_desc);
@@ -111,7 +111,7 @@ void D3D11ShaderReflection::PopulateInputs(const D3D11_SHADER_DESC &desc) {
 void D3D11ShaderReflection::PopulateOutputs(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
 	outputs.resize(desc.OutputParameters);
-	for(unsigned int i=0;i<desc.OutputParameters; i++) {
+	for(uint32_t i=0;i<desc.OutputParameters; i++) {
 		Parameter &p = outputs[i];
 		D3D11_SIGNATURE_PARAMETER_DESC out_desc;
 		result = reflect->GetOutputParameterDesc(i, &out_desc);
@@ -128,7 +128,7 @@ void D3D11ShaderReflection::PopulateOutputs(const D3D11_SHADER_DESC &desc) {
 void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
 
-	for(unsigned int i=0; i<desc.BoundResources; i++) {
+	for(uint32_t i=0; i<desc.BoundResources; i++) {
 		D3D11_SHADER_INPUT_BIND_DESC resource_desc;
 		reflect->GetResourceBindingDesc(i, &resource_desc);
 		
@@ -150,11 +150,11 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 
 namespace {
 
-unsigned int Pack4Byte(unsigned int size) {
+uint32_t Pack4Byte(uint32_t size) {
 	return size%4==0 ? size : (size/4+1)*4;
 }
 
-s2string ParseArrayTypeName(const s2string &type_name, unsigned int length) {
+s2string ParseArrayTypeName(const s2string &type_name, uint32_t length) {
 	s2string buf;
 	S2StringFormat(&buf, "%s[%d]", type_name.c_str(), length);
 	return buf;
@@ -188,7 +188,7 @@ void D3D11ShaderReflection::_ParseShaderType(
 		TypeInfo::Members members;
 		
 		s2string name = desc.Name;
-		for(unsigned int i=0; i<desc.Members; i++) {
+		for(uint32_t i=0; i<desc.Members; i++) {
 			TypeInfo::Member m;
 			ID3D11ShaderReflectionType *member_type = type.GetMemberTypeByIndex(i);
 			D3D11_SHADER_TYPE_DESC member_desc;
@@ -202,7 +202,7 @@ void D3D11ShaderReflection::_ParseShaderType(
 		}
 		
 		const TypeInfo &last_member = GetTypeInfo(members.back().type_name);
-		unsigned int size = Pack4Byte(members.back().offset + last_member.GetSize());
+		uint32_t size = Pack4Byte(members.back().offset + last_member.GetSize());
 		typeinfo_manager.CreateStruct(name, size, members);
 	} else if(desc.Class == D3D_SVC_VECTOR) {
 		s2string name= desc.Name;
@@ -240,19 +240,19 @@ void D3D11ShaderReflection::ParseShaderType(ID3D11ShaderReflectionType &type) {
 void D3D11ShaderReflection::PopulateScalarTypes() {
 	CHECK(sizeof(float)==4)<<"Opps, float is not 4 bytes!!";
 	CHECK(sizeof(int)==4)<<"Opps, int is not 4 bytes!!";
-	CHECK(sizeof(unsigned int)==4)<<"Opps, unsigned int is not 4 bytes!!";
+	CHECK(sizeof(uint32_t)==4)<<"Opps, uint32_t is not 4 bytes!!";
 	CHECK(sizeof(double)==8)<<"Opps, double is not 8 bytes!!";
 
 	typeinfo_manager.CreateScalar("bool", 4);
 	typeinfo_manager.MakeCompatible("bool", "bool");
 	typeinfo_manager.MakeCompatible("bool", "int");
-	typeinfo_manager.MakeCompatible("bool", "unsigned int");
+	typeinfo_manager.MakeCompatible("bool", "uint32_t");
 	
 	typeinfo_manager.CreateScalar("int", 4);
 	typeinfo_manager.MakeCompatible("int", "int");
 
 	typeinfo_manager.CreateScalar("uint", 4);
-	typeinfo_manager.MakeCompatible("uint", "unsigned int");
+	typeinfo_manager.MakeCompatible("uint", "uint32_t");
 
 	typeinfo_manager.CreateScalar("float", 4);
 	typeinfo_manager.MakeCompatible("float", "float");
@@ -285,11 +285,11 @@ D3D11ShaderReflection::~D3D11ShaderReflection() {
 	reflect->Release();
 }
 
-const D3D11ShaderReflection::ConstantBuffer & D3D11ShaderReflection::GetConstantBuffer(unsigned int index) const {
+const D3D11ShaderReflection::ConstantBuffer & D3D11ShaderReflection::GetConstantBuffer(uint32_t index) const {
 	return cbs[index];
 }
 
-unsigned int D3D11ShaderReflection::GetConstantBufferSize() const {
+uint32_t D3D11ShaderReflection::GetConstantBufferSize() const {
 	return cbs.size();
 }
 
@@ -302,23 +302,23 @@ bool D3D11ShaderReflection::HasUniform(const s2string &name) const {
 	return uniforms.find(name) != uniforms.end();
 }
 
-const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetInput(unsigned int index) const {
+const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetInput(uint32_t index) const {
 	return inputs[index];
 }
 
-unsigned int D3D11ShaderReflection::GetInputSize() const {
+uint32_t D3D11ShaderReflection::GetInputSize() const {
 	return inputs.size();
 }
 
-const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetOutput(unsigned int index) const {
+const D3D11ShaderReflection::Parameter & D3D11ShaderReflection::GetOutput(uint32_t index) const {
 	return outputs[index];
 }
 
-unsigned int D3D11ShaderReflection::GetOutputSize() const {
+uint32_t D3D11ShaderReflection::GetOutputSize() const {
 	return outputs.size();
 }
 
-const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(unsigned int index) const {
+const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(uint32_t index) const {
 	return samplers[index];
 }
 
@@ -327,7 +327,7 @@ const D3D11ShaderReflection::Sampler & D3D11ShaderReflection::GetSampler(const s
 }
 
 bool D3D11ShaderReflection::HasSampler(const s2string &name) const {
-	for(unsigned int i=0; i<samplers.size(); i++) {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		if(samplers[i].name == name) {
 			return true;
 		}
@@ -335,8 +335,8 @@ bool D3D11ShaderReflection::HasSampler(const s2string &name) const {
 	return false;
 }
 
-unsigned int D3D11ShaderReflection::GetSamplerIndex(const s2string  &name) const {
-	for(unsigned int i=0; i<samplers.size(); i++) {
+uint32_t D3D11ShaderReflection::GetSamplerIndex(const s2string  &name) const {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		if(samplers[i].name == name) {
 			return i;
 		}
@@ -346,12 +346,12 @@ unsigned int D3D11ShaderReflection::GetSamplerIndex(const s2string  &name) const
 	return 0;
 }
 
-unsigned int D3D11ShaderReflection::GetSamplerSize() const {
+uint32_t D3D11ShaderReflection::GetSamplerSize() const {
 	return samplers.size();
 }
 
 
-const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderResource(unsigned int index) const {
+const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderResource(uint32_t index) const {
 	return shader_resources[index];
 }
 
@@ -360,7 +360,7 @@ const D3D11ShaderReflection::ShaderResource & D3D11ShaderReflection::GetShaderRe
 }
 
 bool D3D11ShaderReflection::HasShaderResource(const s2string &name) const {
-	for(unsigned int i=0; i<samplers.size(); i++) {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		if(shader_resources[i].name == name) {
 			return true;
 		}
@@ -368,8 +368,8 @@ bool D3D11ShaderReflection::HasShaderResource(const s2string &name) const {
 	return false;
 }
 
-unsigned int D3D11ShaderReflection::GetShaderResourceIndex(const s2string &name) const {
-	for(unsigned int i=0; i<samplers.size(); i++) {
+uint32_t D3D11ShaderReflection::GetShaderResourceIndex(const s2string &name) const {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		if(shader_resources[i].name == name) {
 			return i;
 		}
@@ -378,7 +378,7 @@ unsigned int D3D11ShaderReflection::GetShaderResourceIndex(const s2string &name)
 	return 0;
 }
 
-unsigned int D3D11ShaderReflection::GetShaderResourceSize() const {
+uint32_t D3D11ShaderReflection::GetShaderResourceSize() const {
 	return shader_resources.size();
 }
 
@@ -396,7 +396,7 @@ bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, con
 	const TypeInfo &info = GetTypeInfo(shader_typename);
 	if(cpp_type.HasCustomMetadata("CoreData")) {
 		s2string core_index_str = cpp_type.GetCustomMetadata("CoreData");
-		unsigned int core_index = atoi(core_index_str.c_str());
+		uint32_t core_index = atoi(core_index_str.c_str());
 		return this->CheckCompatible(shader_typename, cpp_type.GetMemberType(core_index), message);
 	}
 	if(info.GetMemberSize()!=cpp_type.GetMemberSize()) {
@@ -405,7 +405,7 @@ bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, con
 	if(IsArray(shader_typename) && IsArray(cpp_type.GetName())) {
 		return CheckCompatible(info.GetMemberType(0).GetName(), cpp_type.GetMemberType(0));
 	}
-	for(unsigned int i=0; i<info.GetMemberSize(); i++) {
+	for(uint32_t i=0; i<info.GetMemberSize(); i++) {
 		if(	info.GetMemberOffset(i) != cpp_type.GetMemberOffset(i) ||
 			!this->CheckCompatible(info.GetMemberType(i).GetName(), cpp_type.GetMemberType(i)))
 			return false;

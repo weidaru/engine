@@ -23,8 +23,8 @@ public:
 	const s2string &GetLastError() { return error;}
 	
 	void * GetRawMemory();
-	unsigned int GetWidth() const;
-	unsigned int GetHeight() const;
+	uint32_t GetWidth() const;
+	uint32_t GetHeight() const;
 	const s2string & GetPath() const;
 	PixelMap::Format GetFormat() const;
 	

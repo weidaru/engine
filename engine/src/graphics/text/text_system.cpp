@@ -57,12 +57,12 @@ void TextSystem::Deregister(Text *text) {
 
 namespace {
 
-unsigned int ColorToUnsignedInt(const Vector4 &color) {
-	 unsigned int result = 0;
-	 result |= (unsigned int)(color[0]*0xff)<<24;
-	 result |= (unsigned int)(color[1]*0xff)<<16;
-	 result |= (unsigned int)(color[2]*0xff)<<8;
-	 result |= (unsigned int)(color[3]*0xff);
+uint32_t ColorToUnsignedInt(const Vector4 &color) {
+	 uint32_t result = 0;
+	 result |= (uint32_t)(color[0]*0xff)<<24;
+	 result |= (uint32_t)(color[1]*0xff)<<16;
+	 result |= (uint32_t)(color[2]*0xff)<<8;
+	 result |= (uint32_t)(color[3]*0xff);
 	 return result;
 }
 
@@ -93,9 +93,9 @@ void TextSystem::OneFrame(float delta) {
 		
 
 		//The restore flag here is a little bit expensive, better to have our ownway of restoring state.
-		unsigned int flag = FW1_RESTORESTATE | FW1_NOGEOMETRYSHADER;
+		uint32_t flag = FW1_RESTORESTATE | FW1_NOGEOMETRYSHADER;
 
-		unsigned int color_uint = ColorToUnsignedInt(cur->GetColor());
+		uint32_t color_uint = ColorToUnsignedInt(cur->GetColor());
 
 		RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		float w_height = (float)setting.window_height, w_width = (float)setting.window_width;

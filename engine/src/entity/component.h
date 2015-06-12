@@ -2,6 +2,7 @@
 #define COMPONENT_H_
 
 #include "utils/s2string.h"
+#include <stdint.h>
 
 namespace s2 {
 
@@ -12,7 +13,7 @@ public:
 	Component(Entity *_entity);
 	virtual ~Component();
 
-	unsigned int GetId() const { return id; } 
+	uint32_t GetId() const { return id; } 
 	const s2string & GetName() const { return name;  }
 	
 	Component & SetName(const s2string &new_name) { name = new_name; return *this; }
@@ -22,15 +23,15 @@ public:
 	bool IsEnabled() { return enabled; }
 
 private:
-	static unsigned int & GetCurrentId() {
-		static unsigned int currentId = 0;
+	static uint32_t & GetCurrentId() {
+		static uint32_t currentId = 0;
 		return currentId;
 	}
 
 	friend class Entity;
 
 private:
-	unsigned int id;
+	uint32_t id;
 	s2string name;
 	Entity *entity;
 	bool enabled;

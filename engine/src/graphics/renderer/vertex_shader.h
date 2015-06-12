@@ -22,7 +22,7 @@ public:
 	}
 	
 	//This will be version without compatibility check, more like a c style.
-	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size) = 0;
+	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) = 0;
 	
 	virtual bool 					SetSampler(const s2string &name, Sampler *sampler) = 0;
 	virtual Sampler * 			GetSampler(const s2string &name) = 0;

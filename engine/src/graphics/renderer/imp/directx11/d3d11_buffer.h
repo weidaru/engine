@@ -18,21 +18,21 @@ public:
 	D3D11Buffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11Buffer();
 	virtual void Initialize(const Option &option);
-	virtual unsigned int GetElementCount() const;
-	virtual unsigned int GetElementBytewidth() const;
-	virtual unsigned int GetElementMemberCount() const;
+	virtual uint32_t GetElementCount() const;
+	virtual uint32_t GetElementBytewidth() const;
+	virtual uint32_t GetElementMemberCount() const;
 	virtual s2string GetElementTypeName() const;
 
 	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
-	virtual unsigned int GetBinding() const;
+	virtual uint32_t GetBinding() const;
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite);
 	virtual void WriteUnmap();
 	virtual void ReadMap(GraphicPipeline *pipeline, bool wipe_cache) const;
 	virtual void ReadUnmap() const;
 
-	virtual void Write(unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
-	virtual const void * Read(unsigned int index, unsigned int element_byetwidth) const;
-	virtual void Update(GraphicPipeline *pipeline, unsigned int index, const void *data, unsigned int array_size, unsigned int element_byetwidth);
+	virtual void Write(uint32_t index, const void *data, uint32_t array_size, uint32_t element_byetwidth);
+	virtual const void * Read(uint32_t index, uint32_t element_byetwidth) const;
+	virtual void Update(GraphicPipeline *pipeline, uint32_t index, const void *data, uint32_t array_size, uint32_t element_byetwidth);
 
 	virtual IndexBuffer * AsIndexBuffer() const;
 	virtual VertexBuffer * AsVertexBuffer() const;

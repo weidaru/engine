@@ -39,7 +39,7 @@ public:
 	TextSystem * GetTextSystem() { return text_system; }
 
 private:
-	void InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen);
+	void InitWindow(const s2string &window_name, uint32_t window_width, uint32_t window_height, bool fullscreen);
 
 private:
 	HINSTANCE hinstance;

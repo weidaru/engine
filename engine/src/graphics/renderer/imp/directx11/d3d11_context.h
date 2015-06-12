@@ -32,7 +32,7 @@ public:
 
 private:
 	void InitDeviceAndContextAndSwapchain(
-		unsigned int screen_width, unsigned int screen_height, void *hwnd, bool enable_vsync, bool full_screen,
+		uint32_t screen_width, uint32_t screen_height, void *hwnd, bool enable_vsync, bool full_screen,
 		ID3D11Device **device, ID3D11DeviceContext **context);
 	
 private:

@@ -135,12 +135,12 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);
-	for(unsigned int i=0; i<programs.size(); i++) {
+	for(uint32_t i=0; i<programs.size(); i++) {
 		programs[i]->Initialize();
 	}
 }
 
-void Engine::InitWindow(const s2string &window_name, unsigned int window_width, unsigned int window_height, bool fullscreen) {
+void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint32_t window_height, bool fullscreen) {
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
 	int posX, posY;

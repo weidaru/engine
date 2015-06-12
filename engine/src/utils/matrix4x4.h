@@ -4,6 +4,8 @@
 #include "vector4.h"
 #include "vector3.h"
 
+#include <stdint.h>
+
 /**
  * Row major memory layout.
  */
@@ -23,8 +25,8 @@ struct Matrix4x4 {
 	bool Invert();
 	void Transpose();
 	
-	float * operator[](unsigned int index) { return data[index]; }
-	const float * operator[](unsigned int index) const { return data[index]; }
+	float * operator[](uint32_t index) { return data[index]; }
+	const float * operator[](uint32_t index) const { return data[index]; }
 	
 	void Set(
 			float _00, float _01, float _02, float _03, 

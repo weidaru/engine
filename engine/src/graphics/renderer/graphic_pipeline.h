@@ -49,11 +49,11 @@ public:
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
 
-	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) = 0;
-	virtual VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index=0) = 0;
+	virtual void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf) = 0;
+	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index=0) = 0;
 
-	virtual void SetIndexBuffer(IndexBuffer *buf, unsigned int vertex_base = 0) = 0;
-	virtual IndexBuffer * GetIndexBuffer(unsigned int *vertex_base) = 0;
+	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) = 0;
+	virtual IndexBuffer * GetIndexBuffer(uint32_t *vertex_base) = 0;
 
 	//Shaders
 	/**
@@ -85,15 +85,15 @@ public:
 	virtual const BlendOption & GetBlendOption() const = 0;
 	
 	//Output
-	virtual void SetRenderTarget(unsigned int index, RenderTarget *target) = 0;
-	virtual RenderTarget * GetRenderTarget(unsigned int index) = 0;
+	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) = 0;
+	virtual RenderTarget * GetRenderTarget(uint32_t index) = 0;
 	
 	virtual void SetDepthStencil(DepthStencil *buffer) = 0;
 	virtual DepthStencil* GetDepthStencil() = 0;
 
 	//Stream Out will always go before render  target if set.
-	virtual void SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out) = 0;
-	virtual StreamOut * GetStreamOut(unsigned int index, unsigned int *stream_index = 0) = 0;
+	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) = 0;
+	virtual StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) = 0;
 	//negative index means no stream get rasterized.
 	virtual void SetRasterizedStream(int index) = 0;
 	virtual int GetRasterizedStream() = 0;
@@ -101,9 +101,9 @@ public:
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) = 0;
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	
-	virtual void Draw(DrawingState **state = 0,  unsigned int start_index=0, unsigned int vertex_count = 0) = 0;
+	virtual void Draw(DrawingState **state = 0,  uint32_t start_index=0, uint32_t vertex_count = 0) = 0;
 	virtual void DrawInstance(DrawingState **state = 0, 
-		unsigned int vertex_start=0, unsigned int vertex_count=0, unsigned int instance_start=0, unsigned int instance_count=0) = 0;
+		uint32_t vertex_start=0, uint32_t vertex_count=0, uint32_t instance_start=0, uint32_t instance_count=0) = 0;
 
 
 	/**

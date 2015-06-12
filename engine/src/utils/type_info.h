@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <stdint.h>
 
 #include "s2string.h"
 #include "singleton.h"
@@ -47,21 +48,21 @@ public:
 	struct Member {
 		s2string 		type_name;
 		s2string 		name;
-		unsigned int 	offset;
+		uint32_t 	offset;
 	};
 	typedef std::vector<Member> Members;
 
 public:
 	virtual ~TypeInfo() {}
-	virtual const TypeInfo & GetMemberType(unsigned int index) const = 0;
-	virtual unsigned int GetMemberOffset(unsigned int index) const = 0;
-	virtual s2string GetMemberName(unsigned int index) const = 0;
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const = 0;
-	virtual unsigned int GetMemberSize() const = 0;
+	virtual const TypeInfo & GetMemberType(uint32_t index) const = 0;
+	virtual uint32_t GetMemberOffset(uint32_t index) const = 0;
+	virtual s2string GetMemberName(uint32_t index) const = 0;
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const = 0;
+	virtual uint32_t GetMemberSize() const = 0;
 	virtual bool HasMember(const s2string &member_name) const = 0;
 
 	virtual s2string GetName() const = 0;
-	virtual unsigned int GetSize() const = 0;
+	virtual uint32_t GetSize() const = 0;
 	
 	const s2string & GetCustomMetadata(const s2string &key) const;
 	bool HasCustomMetadata(const s2string &key) const;
@@ -102,8 +103,8 @@ public:
 	/**
 	 * Don't call the following unless you know what you are doing.
 	 */
-	TypeInfo & CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members);
-	TypeInfo & CreatePrimitive(const s2string &name, unsigned int size);
+	TypeInfo & CreateStruct(const s2string &name, uint32_t size, const TypeInfo::Members &new_members);
+	TypeInfo & CreatePrimitive(const s2string &name, uint32_t size);
 	
 private:
 	mutable Data data;

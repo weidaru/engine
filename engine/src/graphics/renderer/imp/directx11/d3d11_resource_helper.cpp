@@ -10,7 +10,7 @@
 
 namespace s2 {
 
-void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, unsigned int  byte_width, RendererEnum::ResourceWrite resource_write) {
+void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, uint32_t  byte_width, RendererEnum::ResourceWrite resource_write) {
 	desc->ByteWidth = byte_width;
 	switch(resource_write) {
 		case RendererEnum::IMMUTABLE:

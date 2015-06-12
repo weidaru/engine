@@ -2,6 +2,7 @@
 #define RENDERER_CONTEXT_H_
 
 #include "utils/s2string.h"
+#include <stdint.h>
 
 namespace  s2 {
 class GraphicPipeline;
@@ -9,8 +10,8 @@ class GraphicResourceManager;
 class Texture2D;
 
 struct RendererSetting {
-	unsigned int window_width;
-	unsigned int window_height;
+	uint32_t window_width;
+	uint32_t window_height;
 	bool enable_vsync;
 	bool full_screen;
 		

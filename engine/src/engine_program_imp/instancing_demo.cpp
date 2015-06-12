@@ -69,10 +69,10 @@ public:
 				InstancingTestPosition *positions = 0;
 				InstancingTestColor *colors = 0;
 			
-	 			unsigned int size = model.GetVertexSize();
+	 			uint32_t size = model.GetVertexSize();
 				positions = new InstancingTestPosition[size];
 				colors = new InstancingTestColor[size];
-				for(unsigned int i=0; i<size; i++) {
+				for(uint32_t i=0; i<size; i++) {
 					Model::Vertex v = model.GetVertex(i);
 					positions[i].data[0] = v.x;
 					positions[i].data[1] = v.y;
@@ -97,9 +97,9 @@ public:
 
 			{
 				//Create IndexBuffer
-				unsigned int size = model.GetTriangleSize()*3;
+				uint32_t size = model.GetTriangleSize()*3;
 				Buffer::IndexBufferElementType *indices = new Buffer::IndexBufferElementType[size];
-				for(unsigned int i=0; i<model.GetTriangleSize(); i++) {
+				for(uint32_t i=0; i<model.GetTriangleSize(); i++) {
 					indices[i*3] = model.GetTriangleVertexIndex(i, 0);
 					indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
 					indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
@@ -115,7 +115,7 @@ public:
 		instance_buffer = manager->CreateBuffer();
 		{
 			InstancingTestInstancePosition positions[10];
-			for(unsigned int i=0; i<10; i++) {
+			for(uint32_t i=0; i<10; i++) {
 				positions[i].data[0] = (float)5*i;
 				positions[i].data[1] = (float)5*i;
 				positions[i].data[2] = (float)5*i;

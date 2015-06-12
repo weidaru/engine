@@ -6,6 +6,7 @@
 #include "utils/vector4.h"
 
 #include <tuple>
+#include <stdint.h>
 
 struct IDWriteTextLayout;
 
@@ -20,8 +21,8 @@ public:
 	Text & SetFontName(const s2string &_font_name);
 	const s2string & GetFontName() const { return font_name; }
 
-	Text & SetFontSize(unsigned int size);
-	unsigned int GetFontSize() const { return font_size; }
+	Text & SetFontSize(uint32_t size);
+	uint32_t GetFontSize() const { return font_size; }
 
 	Text & SetContent(const s2string &_content);
 	const s2string & GetContent() const { return content; }
@@ -61,7 +62,7 @@ private:
 
 	s2string content;
 	s2string font_name;
-	unsigned int font_size;
+	uint32_t font_size;
 	Vector4 color;
 	bool isClipped;
 	std::pair<float, float> clipper_size;

@@ -30,7 +30,7 @@ int Button::AddClickCallback(Callback cb) {
 	}
 }
 
-void Button::RemoveClickCallback(unsigned int index) {
+void Button::RemoveClickCallback(uint32_t index) {
 	if(index < click_callbacks.size()) {
 		click_callbacks.erase(click_callbacks.begin() + index);
 	}
@@ -74,13 +74,13 @@ void Button::OneFrame(float delta) {
 	}
 }
 
-Button & Button::SetFontSize(unsigned int size) {
+Button & Button::SetFontSize(uint32_t size) {
 	text->SetFontSize(size);
 
 	return *this;
 }
 
-unsigned int Button::GetFontSize() {
+uint32_t Button::GetFontSize() {
 	return text->GetFontSize();
 }
 

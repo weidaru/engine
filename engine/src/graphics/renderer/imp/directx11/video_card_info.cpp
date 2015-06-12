@@ -8,7 +8,7 @@
 
 namespace s2 {
 
-void VideoCardInfo::GetProperAdapter(unsigned int screen_width, unsigned int screen_height,  AdapterInfo *info) {
+void VideoCardInfo::GetProperAdapter(uint32_t screen_width, uint32_t screen_height,  AdapterInfo *info) {
 	HRESULT result = 1;
 
 	IDXGIFactory* factory = 0;
@@ -24,7 +24,7 @@ void VideoCardInfo::GetProperAdapter(unsigned int screen_width, unsigned int scr
 	CHECK(!FAILED(result))<<"Cannot enumerate the primary adapter output (monitor) Error " << GetLastError();
 
 	DXGI_MODE_DESC* display_mode_list = 0;
-	unsigned int mode_count = 0;
+	uint32_t mode_count = 0;
 	result = adapter_output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &mode_count, NULL);
 	CHECK(!FAILED(result))<<"Cannot get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor). Error " << GetLastError();
 	display_mode_list =new DXGI_MODE_DESC[mode_count];
@@ -34,7 +34,7 @@ void VideoCardInfo::GetProperAdapter(unsigned int screen_width, unsigned int scr
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
 	result = 0;
-	for(unsigned int i=0; i<mode_count; i++) {
+	for(uint32_t i=0; i<mode_count; i++) {
 		if(display_mode_list[i].Width == screen_width &&
 		   display_mode_list[i].Height == screen_height) {
 				info->refresh_numerator = display_mode_list[i].RefreshRate.Numerator;
@@ -50,7 +50,7 @@ void VideoCardInfo::GetProperAdapter(unsigned int screen_width, unsigned int scr
 	result = adapter->GetDesc(&adapterDesc);
 	CHECK(!FAILED(result))<<"Cannot get adapter description";
 
-	info->memory_size =  (unsigned int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); 
+	info->memory_size =  (uint32_t)(adapterDesc.DedicatedVideoMemory / 1024 / 1024); 
 	{
 		size_t dummy = 0;
 		CHECK(!wcstombs_s(&dummy, info->name, sizeof(info->name), adapterDesc.Description, sizeof(info->name)));

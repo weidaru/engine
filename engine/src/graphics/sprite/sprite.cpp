@@ -138,7 +138,7 @@ Sprite & Sprite::SetDepth(float new_value) {
 namespace {
 
 inline void FillArrayWithVector4(float *dest, const Vector4 &source) {
-	for(unsigned int i=0; i<4; i++) {
+	for(uint32_t i=0; i<4; i++) {
 		dest[i] = source[i];
 	}
 }

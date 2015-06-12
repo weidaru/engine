@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <functional>
+#include <stdint.h>
 
 namespace s2 {
 
@@ -21,12 +22,12 @@ public:
 	virtual ~Button() override;
 
 	int AddClickCallback(Callback cb);
-	void RemoveClickCallback(unsigned int index);
+	void RemoveClickCallback(uint32_t index);
 
 	virtual Button & SetEnabled(bool new_value) override;
 
-	Button & SetFontSize(unsigned int size);
-	unsigned int GetFontSize();
+	Button & SetFontSize(uint32_t size);
+	uint32_t GetFontSize();
 
 	Button & SetText(const s2string &content);
 	const s2string & GetText();

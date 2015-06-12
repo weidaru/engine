@@ -36,7 +36,7 @@ bool D3D11VertexShader::Initialize(const s2string &path, const s2string &entry_p
 	CHECK(shader == 0) << "Cannot initialize twice.";
 
 	//Just compile from file for now and always pack it as row major matrix.
-	unsigned int flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
+	uint32_t flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 #ifndef NDEBUG
 	flag |= D3DCOMPILE_DEBUG;
 #endif
@@ -109,7 +109,7 @@ void D3D11VertexShader::Check() {
 	CHECK(shader) << "VertexShader is not initialized.";
 }
 
-bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, unsigned int size) {
+bool D3D11VertexShader::SetUniform(const s2string &name, const void * value, uint32_t size) {
 	Check();
 	return cb_container->SetUniform(name, value, size, &error);
 }

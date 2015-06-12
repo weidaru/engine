@@ -83,21 +83,21 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 	return input_stage.GetPrimitiveTopology();
 }
 
-void D3D11GraphicPipeline::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf) {
+void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf) {
 	Check();
 	input_stage.SetVertexBuffer(index, start_input_index, buf);
 }
 
-D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
+D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index, uint32_t *start_input_index) {
 	return input_stage.GetVertexBuffer(index, start_input_index);
 }
 
-void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf, unsigned int vertex_base) {
+void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf, uint32_t vertex_base) {
 	Check();
 	input_stage.SetIndexBuffer( _buf, vertex_base);
 }
 
-D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer(unsigned int *vertex_base) {
+D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer(uint32_t *vertex_base) {
 	return input_stage.GetIndexBuffer(vertex_base);
 }
 
@@ -247,7 +247,7 @@ ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &opt
 	desc.AlphaToCoverageEnable = false;		//Disabled for now, see class BlendOption.
 	desc.IndependentBlendEnable= option.rt_options.size()>1;
 	
-	for(unsigned int i=0; i<option.rt_options.size(); i++) {
+	for(uint32_t i=0; i<option.rt_options.size(); i++) {
 		const BlendOption::RenderTargetBlendOption &opt = option.rt_options[i];
 		desc.RenderTarget[i].BlendEnable = true;
 		desc.RenderTarget[i].SrcBlend = D3D11EnumConverter::BlendFactorToD3D11Blend(opt.src_factor);
@@ -307,12 +307,12 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 	return blend_opt;
 }
 
-void D3D11GraphicPipeline::SetRenderTarget(unsigned int index, RenderTarget *target) {
+void D3D11GraphicPipeline::SetRenderTarget(uint32_t index, RenderTarget *target) {
 	Check();
 	output_stage.SetRenderTarget(index, target);
 }
 
-D3D11RenderTarget * D3D11GraphicPipeline::GetRenderTarget(unsigned int index) {
+D3D11RenderTarget * D3D11GraphicPipeline::GetRenderTarget(uint32_t index) {
 	return output_stage.GetRenderTarget(index);
 }
 
@@ -325,12 +325,12 @@ D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
 	return output_stage.GetDepthStencil();
 }
 
-void D3D11GraphicPipeline::SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out) {
+void D3D11GraphicPipeline::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) {
 	Check();
 	output_stage.SetStreamOut(index, stream_index, stream_out);
 }
 
-D3D11StreamOut * D3D11GraphicPipeline::GetStreamOut(unsigned int index, unsigned int *stream_index) {
+D3D11StreamOut * D3D11GraphicPipeline::GetStreamOut(uint32_t index, uint32_t *stream_index) {
 	return output_stage.GetStreamOut(index, stream_index);
 }
 
@@ -349,7 +349,7 @@ void D3D11GraphicPipeline::SetupRasterizationOption() {
 	
 	if(!option.viewports.empty()) {
 		D3D11_VIEWPORT *viewports = new D3D11_VIEWPORT[option.viewports.size()];
-		for(unsigned int i=0; i<option.viewports.size(); i++) {
+		for(uint32_t i=0; i<option.viewports.size(); i++) {
 			viewports[i].TopLeftX = option.viewports[i].top_left_x;
 			viewports[i].TopLeftY = option.viewports[i].top_left_y;
 			viewports[i].Width = option.viewports[i].width;
@@ -363,7 +363,7 @@ void D3D11GraphicPipeline::SetupRasterizationOption() {
 
 	if(!option.scissors.empty()) {
 		D3D11_RECT *scissors = new D3D11_RECT[option.scissors.size()];
-		for(unsigned int i=0; i<option.scissors.size(); i++) {
+		for(uint32_t i=0; i<option.scissors.size(); i++) {
 			scissors[i].left = (long)option.scissors[i].top_left_x;
 			scissors[i].top = (long)option.scissors[i].top_left_y;
 			scissors[i].right = scissors[i].left + (long)option.scissors[i].width;
@@ -425,7 +425,7 @@ void D3D11GraphicPipeline::DrawCleanup(D3D11DrawingState *state) {
 	gs->UseShader(this, gs->GetShader());
 }
 
-void D3D11GraphicPipeline::Draw(DrawingState **_state,  unsigned int start_index, unsigned int vertex_count) {
+void D3D11GraphicPipeline::Draw(DrawingState **_state,  uint32_t start_index, uint32_t vertex_count) {
 	Check();
 	D3D11DrawingState *state = 0;
 	if (_state) {
@@ -443,7 +443,7 @@ void D3D11GraphicPipeline::Draw(DrawingState **_state,  unsigned int start_index
 }
 
 void D3D11GraphicPipeline::DrawInstance(DrawingState **_state, 
-		unsigned int vertex_start, unsigned int vertex_count, unsigned int instance_start, unsigned int instance_count) {
+		uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
 	Check();
 	D3D11DrawingState *state = 0;
 	if (_state) {

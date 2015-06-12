@@ -15,12 +15,12 @@ class GraphicPipeline;
 class Texture2D : public Resource {
 public:
 	struct Option {
-		unsigned int 	width;
-		unsigned int 	height;
-		unsigned int 	mip_level;				//0 is full mipmap.
-		unsigned int 	array_size;
+		uint32_t 	width;
+		uint32_t 	height;
+		uint32_t 	mip_level;				//0 is full mipmap.
+		uint32_t 	array_size;
 		RendererEnum::Format 	format;
-		unsigned int 	sample_size;			//This is only useful for render target
+		uint32_t 	sample_size;			//This is only useful for render target
 		RendererEnum::ResourceWrite resource_write;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
@@ -39,7 +39,7 @@ public:
 			data = 0;
 		}
 		
-		static void SetAsDepthStencilBuffer(Option *option, unsigned int width, unsigned int height) {
+		static void SetAsDepthStencilBuffer(Option *option, uint32_t width, uint32_t height) {
 			option->width = width;
 			option->height = height;
 			option->mip_level = 1;
@@ -58,18 +58,19 @@ public:
 	virtual void Initialize(const Option &option) = 0;
 	virtual const Texture2D::Option & GetOption() const = 0;		
 	
-	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, unsigned int mip_index, unsigned array_index) = 0;
-	virtual void Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) = 0;
+	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index) = 0;
+	virtual void Write(uint32_t row, uint32_t col,  const void *data, uint32_t size) = 0;
 	virtual void WriteUnmap() = 0;
 	
-	virtual void ReadMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache=true) const = 0;
-	virtual const void * Read(unsigned int row, unsigned int col) const = 0;
+	virtual void ReadMap(GraphicPipeline *pipeline, uint32_t mip_index, uint32_t array_index, bool wipe_cache=true) const = 0;
+	virtual const void * Read(uint32_t row, uint32_t col) const = 0;
 	virtual void ReadUnmap() const = 0;
 	
 	virtual void Update(
 			GraphicPipeline *pipeline, 
-			unsigned int left, unsigned int right,
-			unsigned int top, unsigned int bottom,
+			uint32_t mip_index, uint32_t array_index,
+			uint32_t left, uint32_t right,
+			uint32_t top, uint32_t bottom,
 			const void *data) = 0;
 
 	virtual RenderTarget * AsRenderTarget() const = 0;

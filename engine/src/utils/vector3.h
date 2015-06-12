@@ -1,6 +1,8 @@
 #ifndef VECTOR3_H_
 #define VECTOR3_H_
 
+#include <stdint.h>
+
 namespace s2 {
 
 struct Vector4;
@@ -14,8 +16,8 @@ struct Vector3 {
 	float Distance();
 	void Normalize();
 	
-	float & operator[](unsigned int index) { return data[index]; }
-	const float & operator[](unsigned int index) const { return data[index]; }
+	float & operator[](uint32_t index) { return data[index]; }
+	const float & operator[](uint32_t index) const { return data[index]; }
 	
 	void Set(float _0, float _1, float _2) {
 		data[0] = _0; data[1] = _1; data[2] = _2;

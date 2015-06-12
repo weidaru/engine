@@ -4,11 +4,13 @@
 #include "graphics/renderer/graphic_resource_manager.h"
 
 #include "d3d11_texture2d.h"
+#include "d3d11_texture_cube.h"
 #include "d3d11_buffer.h"
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
 #include "d3d11_sampler.h"
 #include "d3d11_geometry_shader.h"
+
 
 #include <map>
 
@@ -26,43 +28,48 @@ public:
 	
 	//Buffer
 	virtual D3D11Buffer * CreateBuffer();
-	virtual D3D11Buffer * GetBuffer(unsigned int id);
-	virtual void RemoveBuffer(unsigned int id);
+	virtual D3D11Buffer * GetBuffer(uint32_t id);
+	virtual void RemoveBuffer(uint32_t id);
 	
 	//Texture1D
 	virtual Texture1D * CreateTexture1D();
-	virtual Texture1D * GetTexture1D(unsigned int id);
-	virtual void RemoveTexture1D(unsigned int id);
+	virtual Texture1D * GetTexture1D(uint32_t id);
+	virtual void RemoveTexture1D(uint32_t id);
 	
 	//Texture2D
 	virtual D3D11Texture2D * CreateTexture2D();
-	virtual D3D11Texture2D * GetTexture2D(unsigned int id);
-	virtual void RemoveTexture2D(unsigned int id);
+	virtual D3D11Texture2D * GetTexture2D(uint32_t id);
+	virtual void RemoveTexture2D(uint32_t id);
+
+	//TextureCube
+	virtual D3D11TextureCube * CreateTextureCube();
+	virtual D3D11TextureCube * GetTextureCube(uint32_t id);
+	virtual void RemoveTextureCube(uint32_t id);
 	
 	//Texture3D
 	virtual Texture3D * CreateTexture3D();
-	virtual Texture3D * GetTexture3D(unsigned int id);
-	virtual void RemoveTexture3D(unsigned int id);
+	virtual Texture3D * GetTexture3D(uint32_t id);
+	virtual void RemoveTexture3D(uint32_t id);
 	
 	//Sampler
 	virtual D3D11Sampler * CreateSampler();
-	virtual D3D11Sampler * GetSampler(unsigned int id);
-	virtual void RemoveSampler(unsigned int id);
+	virtual D3D11Sampler * GetSampler(uint32_t id);
+	virtual void RemoveSampler(uint32_t id);
  
 	//VertexShader
 	virtual D3D11VertexShader * CreateVertexShader();
-	virtual D3D11VertexShader * GetVertexShader(unsigned int id);
-	virtual void RemoveVertexShader(unsigned int id);
+	virtual D3D11VertexShader * GetVertexShader(uint32_t id);
+	virtual void RemoveVertexShader(uint32_t id);
 	
 	//PixelShader
 	virtual D3D11PixelShader * CreatePixelShader();
-	virtual D3D11PixelShader * GetPixelShader(unsigned int id);
-	virtual void RemovePixelShader(unsigned int id);
+	virtual D3D11PixelShader * GetPixelShader(uint32_t id);
+	virtual void RemovePixelShader(uint32_t id);
 
 	//GeometryShader
 	virtual D3D11GeometryShader * CreateGeometryShader();
-	virtual D3D11GeometryShader * GetGeometryShader(unsigned int id);
-	virtual void RemoveGeometryShader(unsigned int id);
+	virtual D3D11GeometryShader * GetGeometryShader(uint32_t id);
+	virtual void RemoveGeometryShader(uint32_t id);
 	
 	/****************D3D11 exclusive*****************/
 public:
@@ -76,14 +83,15 @@ private:
 private:
 	ID3D11Device *device;
 	
-	std::map<unsigned int, D3D11Buffer *> buffer_map;
-	std::map<unsigned int, Texture1D *> tex1d_map;
-	std::map<unsigned int, D3D11Texture2D *> tex2d_map;
-	std::map<unsigned int, Texture3D *> tex3d_map;
-	std::map<unsigned int, D3D11Sampler *> sampler_map;
-	std::map<unsigned int, D3D11VertexShader *> vs_map;
-	std::map<unsigned int, D3D11PixelShader *> ps_map;
-	std::map<unsigned int, D3D11GeometryShader *> gs_map;
+	std::map<uint32_t, D3D11Buffer *> buffer_map;
+	std::map<uint32_t, Texture1D *> tex1d_map;
+	std::map<uint32_t, D3D11Texture2D *> tex2d_map;
+	std::map<uint32_t, D3D11TextureCube *> texcube_map;
+	std::map<uint32_t, Texture3D *> tex3d_map;
+	std::map<uint32_t, D3D11Sampler *> sampler_map;
+	std::map<uint32_t, D3D11VertexShader *> vs_map;
+	std::map<uint32_t, D3D11PixelShader *> ps_map;
+	std::map<uint32_t, D3D11GeometryShader *> gs_map;
 };
 
 

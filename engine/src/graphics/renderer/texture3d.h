@@ -12,13 +12,13 @@ class GraphicPipeline;
 class Texture3D : public Resource {
 public:
 	struct Option {
-		unsigned int 	width;
-		unsigned int 	height;
-		unsigned int 	depth;
-		unsigned int 	mip_level;			//0 is full mipmap.
-		unsigned int 	array_size;
+		uint32_t 	width;
+		uint32_t 	height;
+		uint32_t 	depth;
+		uint32_t 	mip_level;			//0 is full mipmap.
+		uint32_t 	array_size;
 		RendererEnum::Format 	format;
-		unsigned int 	sample_size;
+		uint32_t 	sample_size;
 		RendererEnum::ResourceWrite resource_write;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
@@ -43,19 +43,20 @@ public:
 	virtual void Initialize(const Option &option) = 0;
 	virtual const Texture3D::Option & GetOption() const = 0;		
 	
-	virtual void WriteMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index) = 0;
-	virtual void Write(unsigned int row, unsigned int col, unsigned int depth, const void *data, unsigned int size) = 0;
+	virtual void WriteMap(GraphicPipeline *pipeline, uint32_t mip_index, uint32_t array_index) = 0;
+	virtual void Write(uint32_t row, uint32_t col, uint32_t depth, const void *data, uint32_t size) = 0;
 	virtual void WriteUnmap() = 0;
 	
 	virtual void Update(
 			GraphicPipeline *pipeline, 
-			unsigned int left, unsigned int right,
-			unsigned int top, unsigned int bottom,
-			unsigned int front, unsigned int back,
+			uint32_t mip_index, uint32_t array_index,
+			uint32_t left, uint32_t right,
+			uint32_t top, uint32_t bottom,
+			uint32_t front, uint32_t back,
 			const void *data) = 0;
 			
-	virtual void ReadMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache=true) = 0;
-	virtual void Read(unsigned int row, unsigned int col, unsigned int depth) = 0;
+	virtual void ReadMap(GraphicPipeline *pipeline, uint32_t mip_index, uint32_t array_index, bool wipe_cache=true) = 0;
+	virtual void Read(uint32_t row, uint32_t col, uint32_t depth) = 0;
 	virtual void ReadUnmap() = 0;
 
 	virtual const RenderTarget & AsRenderTarget() const = 0;

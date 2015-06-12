@@ -24,7 +24,7 @@ D3D11GraphicResourceManager::D3D11GraphicResourceManager(ID3D11Device *_device)
 }
 
 #define MapClean(Type, name) \
-for(std::map<unsigned int, Type *>::iterator it=name.begin(); it!=name.end(); it++) { \
+for(std::map<uint32_t, Type *>::iterator it=name.begin(); it!=name.end(); it++) { \
 	delete it->second; \
 }\
 name.clear()
@@ -33,6 +33,7 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(D3D11Buffer, buffer_map);
 	MapClean(Texture1D, tex1d_map);
 	MapClean(D3D11Texture2D, tex2d_map);
+	MapClean(D3D11TextureCube, texcube_map);
 	MapClean(Texture3D, tex3d_map);
 	MapClean(D3D11Sampler, sampler_map);
 	MapClean(D3D11VertexShader, vs_map);
@@ -57,13 +58,13 @@ Mangle(Type) * D3D11GraphicResourceManager::Create##Type() { \
 	name[temp->GetID()] = temp; \
 	return temp; \
 } \
-void D3D11GraphicResourceManager::Remove##Type(unsigned int id) { \
+void D3D11GraphicResourceManager::Remove##Type(uint32_t id) { \
 	if(name.find(id) != name.end()) { \
 		delete name[id]; \
 		name.erase(id); \
 	} \
 } \
-Mangle(Type) * D3D11GraphicResourceManager::Get##Type(unsigned int id) { \
+Mangle(Type) * D3D11GraphicResourceManager::Get##Type(uint32_t id) { \
 	if(name.find(id) == name.end()) { \
 		return 0; \
 	} else { \
@@ -72,41 +73,41 @@ Mangle(Type) * D3D11GraphicResourceManager::Get##Type(unsigned int id) { \
 }
 
 ResourceImp(Buffer, buffer_map)
-	
+ResourceImp(Texture2D, tex2d_map)
+ResourceImp(TextureCube, texcube_map)
+ResourceImp(Sampler, sampler_map)
+ResourceImp(VertexShader, vs_map)
+ResourceImp(PixelShader, ps_map)
+ResourceImp(GeometryShader, gs_map)
+
+
 Texture1D * D3D11GraphicResourceManager::CreateTexture1D() {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
 
-Texture1D * D3D11GraphicResourceManager::GetTexture1D(unsigned int id) {
+Texture1D * D3D11GraphicResourceManager::GetTexture1D(uint32_t id) {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
 
-void D3D11GraphicResourceManager::RemoveTexture1D(unsigned int id) {
+void D3D11GraphicResourceManager::RemoveTexture1D(uint32_t id) {
 	CHECK(false)<<"Disabled.";
 }
 
-ResourceImp(Texture2D, tex2d_map)
-	
 Texture3D * D3D11GraphicResourceManager::CreateTexture3D() {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
 
-Texture3D * D3D11GraphicResourceManager::GetTexture3D(unsigned int id) {
+Texture3D * D3D11GraphicResourceManager::GetTexture3D(uint32_t id) {
 	CHECK(false)<<"Disabled.";
 	return 0;
 }
 
-void D3D11GraphicResourceManager::RemoveTexture3D(unsigned int id) {
+void D3D11GraphicResourceManager::RemoveTexture3D(uint32_t id) {
 	CHECK(false)<<"Disabled.";
 }
-
-ResourceImp(Sampler, sampler_map)
-ResourceImp(VertexShader, vs_map)
-ResourceImp(PixelShader, ps_map)
-ResourceImp(GeometryShader, gs_map)
 }
 
 

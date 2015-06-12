@@ -30,36 +30,36 @@ class TypeInfo;
 class D3D11ShaderReflection {
 public:
 	struct ConstantBuffer {
-		unsigned int slot_index;
+		uint32_t slot_index;
 		s2string name;
-		unsigned int size;
+		uint32_t size;
 		
 		std::vector<s2string> uniforms;
 	};
 
 	struct Uniform {
-		unsigned int cb_slot_index;
+		uint32_t cb_slot_index;
 		s2string cb_name;
 		
 		s2string name;
 		s2string type_name;
-		unsigned int offset;
-		unsigned int size;
+		uint32_t offset;
+		uint32_t size;
 	};
 	
 	//Directx 11 registers are all 4-component-32-bit.
 	struct Parameter {
-		unsigned int index;
-		s2string type_name;			//Be either float, int or unsigned int
-		unsigned int size;		
+		uint32_t index;
+		s2string type_name;			//Be either float, int or uint32_t
+		uint32_t size;		
 		s2string semantic;
-		unsigned int semantic_index;
+		uint32_t semantic_index;
 
 		int stream;						//Will be set to >=0 if that parameter is an output of a geometry shader.
 	};
 	
 	struct Sampler {
-		unsigned int slot_index;
+		uint32_t slot_index;
 		s2string name;
 		bool is_compare_sampler;
 	};
@@ -69,7 +69,7 @@ public:
 	};
 	
 	struct ShaderResource {
-		unsigned int slot_index;
+		uint32_t slot_index;
 		s2string name;
 		ShaderResourceType type;
 	};
@@ -85,28 +85,28 @@ public:
 	D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob);
 	~D3D11ShaderReflection();
 	
-	const D3D11ShaderReflection::ConstantBuffer & GetConstantBuffer(unsigned int index) const;
-	unsigned int GetConstantBufferSize() const;
+	const D3D11ShaderReflection::ConstantBuffer & GetConstantBuffer(uint32_t index) const;
+	uint32_t GetConstantBufferSize() const;
 	//All the thing in constant buffer(cbuffer or tbuffer)
 	const D3D11ShaderReflection::Uniform & GetUniform(const s2string &name) const;
 	bool HasUniform(const s2string &name) const;
 	
-	const D3D11ShaderReflection::Parameter & GetInput(unsigned int index) const;
-	unsigned int GetInputSize() const;
-	const D3D11ShaderReflection::Parameter & GetOutput(unsigned int index) const;
-	unsigned int GetOutputSize() const;
+	const D3D11ShaderReflection::Parameter & GetInput(uint32_t index) const;
+	uint32_t GetInputSize() const;
+	const D3D11ShaderReflection::Parameter & GetOutput(uint32_t index) const;
+	uint32_t GetOutputSize() const;
 	
-	const D3D11ShaderReflection::Sampler & GetSampler(unsigned int index) const;
+	const D3D11ShaderReflection::Sampler & GetSampler(uint32_t index) const;
 	const D3D11ShaderReflection::Sampler & GetSampler(const s2string &name) const;
 	bool HasSampler(const s2string &name) const;
-	unsigned int GetSamplerSize() const;
-	unsigned int GetSamplerIndex(const s2string  &name) const;
+	uint32_t GetSamplerSize() const;
+	uint32_t GetSamplerIndex(const s2string  &name) const;
 	
-	const D3D11ShaderReflection::ShaderResource & GetShaderResource(unsigned int index) const;
+	const D3D11ShaderReflection::ShaderResource & GetShaderResource(uint32_t index) const;
 	const D3D11ShaderReflection::ShaderResource & GetShaderResource(const s2string &name) const;
 	bool HasShaderResource(const s2string &name) const;
-	unsigned int GetShaderResourceSize() const;
-	unsigned int GetShaderResourceIndex(const s2string &name) const;
+	uint32_t GetShaderResourceSize() const;
+	uint32_t GetShaderResourceIndex(const s2string &name) const;
 	
 	//message is ignored for now.
 	//TODO: Added support to check message indicating why false is returned.

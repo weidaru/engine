@@ -81,7 +81,7 @@ void D3D11Context::SwapBuffer() {
 }
 
 void D3D11Context::InitDeviceAndContextAndSwapchain(
-						unsigned int window_width, unsigned int window_height, 
+						uint32_t window_width, uint32_t window_height, 
 						void *hwnd, bool enable_vsync, bool full_screen,
 						ID3D11Device **device, ID3D11DeviceContext **context) {
 	VideoCardInfo::AdapterInfo adapter_info;

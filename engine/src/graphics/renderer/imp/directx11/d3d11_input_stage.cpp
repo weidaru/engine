@@ -52,7 +52,7 @@ GraphicPipeline::PrimitiveTopology D3D11InputStage::GetPrimitiveTopology() {
 	return topology;
 }
 
-void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *_buf) {
+void D3D11InputStage::SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *_buf) {
 	D3D11VertexBuffer *buffer = NiceCast(D3D11VertexBuffer *, _buf);
 	if (_buf) {
 		CHECK(buffer) << "Cannot cast buf to D3D11VertexBuffer";
@@ -66,21 +66,21 @@ void D3D11InputStage::SetVertexBuffer(unsigned int index, unsigned int start_inp
 		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 		//Set vertex buffer.
 		ID3D11Buffer *buffer_raw = buffer ? buffer->GetBuffer() : 0;
-		unsigned int strides = buffer ? buffer->GetResource()->GetElementBytewidth() : 0;
-		unsigned int offsets = 0;
+		uint32_t strides = buffer ? buffer->GetResource()->GetElementBytewidth() : 0;
+		uint32_t offsets = 0;
 		context->IASetVertexBuffers(index, 1, &buffer_raw, &strides, &offsets);
 	}
 
 }
 
-D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(unsigned int index, unsigned int *start_input_index) {
+D3D11VertexBuffer * D3D11InputStage::GetVertexBuffer(uint32_t index, uint32_t *start_input_index) {
 	if (start_input_index) {
 		*start_input_index = vbs[index].start_index;
 	}
 	return vbs[index].vb;
 }
 
-void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf, unsigned int vertex_base) {
+void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf, uint32_t vertex_base) {
 	D3D11IndexBuffer *buffer = NiceCast(D3D11IndexBuffer *, _buf);
 	if (_buf) {
 		CHECK(buffer) << "Cannot cast buf to D3D11IndexBuffer";
@@ -98,7 +98,7 @@ void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf, unsigned int vertex_base
 	}
 }
 
-D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer(unsigned int *vertex_base) {
+D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer(uint32_t *vertex_base) {
 	*vertex_base = ib.vertex_base;
 	return ib.buffer;
 }
@@ -147,7 +147,7 @@ void D3D11InputStage::Setup(const D3D11VertexShader *shader, D3D11DrawingState *
 	}
 }
 
-void D3D11InputStage::Flush(unsigned int start_index, unsigned int vertex_count) {
+void D3D11InputStage::Flush(uint32_t start_index, uint32_t vertex_count) {
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	
 	if (vertex_count == 0) {
@@ -155,7 +155,7 @@ void D3D11InputStage::Flush(unsigned int start_index, unsigned int vertex_count)
 			vertex_count = ib.buffer->GetResource()->GetElementCount() - start_index;
 		}
 		else {
-			for (unsigned int i = 0; i<vbs.size(); i++) {
+			for (uint32_t i = 0; i<vbs.size(); i++) {
 				if (vbs[i].vb) {
 					vertex_count = vbs[i].vb->GetResource()->GetElementCount() - start_index;
 					break;
@@ -172,13 +172,13 @@ void D3D11InputStage::Flush(unsigned int start_index, unsigned int vertex_count)
 	}
 }
 
-void D3D11InputStage::FlushWithInstancing(unsigned int vertex_start, unsigned int vertex_count, unsigned int instance_start, unsigned int instance_count) {
+void D3D11InputStage::FlushWithInstancing(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
 	if (vertex_count == 0) {
 		if (ib.is_new && ib.buffer) {
 			vertex_count = ib.buffer->GetResource()->GetElementCount() - vertex_start;
 		}
 		else {
-			for (unsigned int i = 0; i<vbs.size(); i++) {
+			for (uint32_t i = 0; i<vbs.size(); i++) {
 				if (vbs[i].vb) {
 					vertex_count = vbs[i].vb->GetResource()->GetElementCount() - vertex_start;
 					break;
@@ -233,10 +233,10 @@ bool D3D11InputStage::VBCompare(const std::vector<VBInfo>::iterator lhs, const s
 s2string D3D11InputStage::DumpVertexBufferInfo(const std::vector<VBInfo> &infos) {
 	char buffer[1024 * 8];
 	char *head = buffer;
-	for (unsigned int i = 0; i<infos.size(); i++) {
+	for (uint32_t i = 0; i<infos.size(); i++) {
 		if (infos[i].vb) {
-			unsigned int start = infos[i].start_index;
-			unsigned int end = start + infos[i].vb->GetResource()->GetElementMemberCount() - 1;
+			uint32_t start = infos[i].start_index;
+			uint32_t end = start + infos[i].vb->GetResource()->GetElementMemberCount() - 1;
 
 			head += sprintf_s(head, 1024 * 8 - (head - buffer), "VertexBuffer %d, start at input %d, ends at input %d.\n",
 				i, start, end);
@@ -263,10 +263,10 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 
 	const D3D11ShaderReflection &reflect = shader->GetReflection();
 
-	unsigned int size = reflect.GetInputSize();
+	uint32_t size = reflect.GetInputSize();
 	D3D11_INPUT_ELEMENT_DESC *descs = new D3D11_INPUT_ELEMENT_DESC[size];
 
-	for (unsigned int i = 0; i<size; i++) {
+	for (uint32_t i = 0; i<size; i++) {
 		const D3D11ShaderReflection::Parameter &p = reflect.GetInput(i);
 		descs[i].SemanticName = p.semantic.c_str();
 		descs[i].SemanticIndex = p.semantic_index;
@@ -291,19 +291,19 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 	std::sort(pool.begin(), pool.end(), VBCompare);
 
 	//Number of register it covers.
-	unsigned int head = 0;
+	uint32_t head = 0;
 	for (std::vector<std::vector<VBInfo>::iterator>::iterator it = pool.begin(); it != pool.end(); it++) {
 		const VBInfo &vbinfo = **it;
-		if (head < (unsigned int)vbinfo.start_index) {
+		if (head < (uint32_t)vbinfo.start_index) {
 			LOG(FATAL) << "Shader input " << head << " is not covered by vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		}
-		else if (head >(unsigned int)vbinfo.start_index) {
+		else if (head >(uint32_t)vbinfo.start_index) {
 			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		}
 		else {
 			D3D11Buffer *buffer = vbinfo.vb->GetResource() ;
-			unsigned int byte_width = buffer->GetElementBytewidth();
-			unsigned int offset = 0;
+			uint32_t byte_width = buffer->GetElementBytewidth();
+			uint32_t offset = 0;
 			while(offset < byte_width) {
 				const D3D11ShaderReflection::Parameter &p = reflect.GetInput(head);
 				
@@ -321,7 +321,7 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 
 	//Find the first input parameter bound as D3D11_INPUT_PER_INSTANCE_DATA and 
 	//remember its corresponding vertex buffer element count
-	for (unsigned int i = 0; i<size; i++) {
+	for (uint32_t i = 0; i<size; i++) {
 		if (descs[i].InputSlotClass == D3D11_INPUT_PER_INSTANCE_DATA) {
 			input_layout->first_instance_count = vbs[descs[i].InputSlot].vb->GetResource()->GetElementCount();
 

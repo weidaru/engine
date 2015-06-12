@@ -52,14 +52,14 @@ void AddLine(float mat[4][8], int des, int source ,float scale)
 bool Matrix4x4::Invert() {
 	//use Gauss Jordan elimination
 	float augment[4][8];
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			augment[i][j] = data[i][j];
 			augment[i][j+4] = (i==j ? 1.0f : 0.0f);
 		}
 	}
 
-	for(unsigned int i=0; i< 4; i++) {	
+	for(uint32_t i=0; i< 4; i++) {	
 		//Scale
 		int pivot=i;
 		while(augment[pivot][i] == 0 && pivot <4) {
@@ -73,15 +73,15 @@ bool Matrix4x4::Invert() {
 		assert(abs(augment[i][i] - 1.0f) < 1e-6);
 
 		//Eliminate
-		for(unsigned int j=0; j<4; j++) {
+		for(uint32_t j=0; j<4; j++) {
 			if(j == i) {
 				continue;
 			}
 			AddLine(augment, j, i, -augment[j][i]);
 		}
 	}
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			data[i][j] = augment[i][j+4];
 		}
 	}
@@ -89,8 +89,8 @@ bool Matrix4x4::Invert() {
 }
 
 void Matrix4x4::Transpose() {
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=i+1; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=i+1; j<4; j++) {
 			float temp = data[i][j];
 			data[i][j] = data[j][i];
 			data[j][i] = temp;
@@ -99,8 +99,8 @@ void Matrix4x4::Transpose() {
 }
 
 Matrix4x4 & Matrix4x4::operator+=(const Matrix4x4 &rhs) {
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			data[i][j] += rhs[i][j];
 		}
 	}
@@ -108,8 +108,8 @@ Matrix4x4 & Matrix4x4::operator+=(const Matrix4x4 &rhs) {
 }
 
 Matrix4x4 & Matrix4x4::operator-=(const Matrix4x4 &rhs) {
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			data[i][j] -= rhs[i][j];
 		}
 	}
@@ -117,11 +117,11 @@ Matrix4x4 & Matrix4x4::operator-=(const Matrix4x4 &rhs) {
 }
 
 Matrix4x4 & Matrix4x4::operator*=(const Matrix4x4 &rhs) {
-	for(unsigned int i=0; i<4; i++) {
+	for(uint32_t i=0; i<4; i++) {
 		float temp[4] = {data[i][0], data[i][1], data[i][2], data[i][3]};
-		for(unsigned int j=0; j<4; j++) {
+		for(uint32_t j=0; j<4; j++) {
 			float value = 0.0f;
-			for(unsigned int k=0; k<4; k++) {
+			for(uint32_t k=0; k<4; k++) {
 				value += (temp[k]*rhs[k][j]);
 			}
 			data[i][j] = value;
@@ -131,8 +131,8 @@ Matrix4x4 & Matrix4x4::operator*=(const Matrix4x4 &rhs) {
 }
 
 Matrix4x4 & Matrix4x4::operator*=(float scale) {
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			data[i][j] *= scale;
 		}
 	}
@@ -219,8 +219,8 @@ Matrix4x4 & Matrix4x4::SetRotationY(float angle) {
 	
 Matrix4x4 operator+(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 	Matrix4x4 result;
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			result[i][j] = lhs[i][j] + rhs[i][j];
 		}
 	}
@@ -229,8 +229,8 @@ Matrix4x4 operator+(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 
 Matrix4x4 operator-(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 	Matrix4x4 result;
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			result[i][j] = lhs[i][j] - rhs[i][j];
 		}
 	}
@@ -240,10 +240,10 @@ Matrix4x4 operator-(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 	Matrix4x4 result;
 	
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			float value = 0.0f;
-			for(unsigned int k=0; k<4; k++) {
+			for(uint32_t k=0; k<4; k++) {
 				value += (lhs[i][k]*rhs[k][j]);
 			}
 			result[i][j] = value;
@@ -255,9 +255,9 @@ Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 Vector4 operator*(const Matrix4x4 &lhs, const Vector4 &rhs) {
 	Vector4 result;
 	
-	for(unsigned int i=0; i<4; i++) {
+	for(uint32_t i=0; i<4; i++) {
 		result[i] = 0.0f;
-		for(unsigned int j=0; j<4; j++) {
+		for(uint32_t j=0; j<4; j++) {
 			result[i] += (lhs[i][j]*rhs[j]);
 		}
 	}
@@ -268,9 +268,9 @@ Vector4 operator*(const Matrix4x4 &lhs, const Vector4 &rhs) {
 Vector4 operator*(const Vector4 &lhs, const Matrix4x4 &rhs) {
 	Vector4 result;
 	
-	for(unsigned int i=0; i<4; i++) {
+	for(uint32_t i=0; i<4; i++) {
 		result[i] = 0.0f;
-		for(unsigned int j=0; j<4; j++) {
+		for(uint32_t j=0; j<4; j++) {
 			result[i] += (lhs[j] * rhs[j][i]);
 		}
 	}
@@ -280,8 +280,8 @@ Vector4 operator*(const Vector4 &lhs, const Matrix4x4 &rhs) {
 
 Matrix4x4 operator*(const Matrix4x4 &matrix, float scale) {
 	Matrix4x4 result;
-	for(unsigned int i=0; i<4; i++) {
-		for(unsigned int j=0; j<4; j++) {
+	for(uint32_t i=0; i<4; i++) {
+		for(uint32_t j=0; j<4; j++) {
 			result[i][j] = matrix[i][j] * scale;
 		}
 	}

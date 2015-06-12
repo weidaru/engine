@@ -35,11 +35,11 @@ public:
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue);
 	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
-	virtual void SetVertexBuffer(unsigned int index, unsigned int start_input_index, VertexBuffer *buf);
-	virtual D3D11VertexBuffer * GetVertexBuffer(unsigned int index, unsigned int *start_input_index=0);
+	virtual void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf);
+	virtual D3D11VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index=0);
 
-	virtual void SetIndexBuffer(IndexBuffer *buf, unsigned int vertex_base = 0);
-	virtual D3D11IndexBuffer * GetIndexBuffer(unsigned int *vertex_base);
+	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0);
+	virtual D3D11IndexBuffer * GetIndexBuffer(uint32_t *vertex_base);
 	
 	//Shaders
 	virtual void SetVertexShader(VertexShader *shader);
@@ -64,22 +64,22 @@ public:
 	virtual const BlendOption & GetBlendOption() const;
 	
 	//Output
-	virtual void SetRenderTarget(unsigned int index, RenderTarget *target);
-	virtual D3D11RenderTarget * GetRenderTarget(unsigned int index);
+	virtual void SetRenderTarget(uint32_t index, RenderTarget *target);
+	virtual D3D11RenderTarget * GetRenderTarget(uint32_t index);
 	
 	virtual void SetDepthStencil(DepthStencil *buffer);
 	virtual D3D11DepthStencil * GetDepthStencil();
 
-	virtual void SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *stream_out);
-	virtual D3D11StreamOut * GetStreamOut(unsigned int index, unsigned int *stream_index = 0);
+	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out);
+	virtual D3D11StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0);
 	virtual void SetRasterizedStream(int index);
 	virtual int GetRasterizedStream();
 
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	virtual void Draw(DrawingState **state = 0,  unsigned int start_index=0, unsigned int vertex_count = 0);
+	virtual void Draw(DrawingState **state = 0,  uint32_t start_index=0, uint32_t vertex_count = 0);
 	virtual void DrawInstance(DrawingState **state = 0, 
-		unsigned int vertex_start=0, unsigned int vertex_count=0, unsigned int instance_start=0, unsigned int instance_count=0);
+		uint32_t vertex_start=0, uint32_t vertex_count=0, uint32_t instance_start=0, uint32_t instance_count=0);
 	virtual void Start();
 	virtual void End();
 

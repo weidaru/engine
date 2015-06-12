@@ -12,28 +12,28 @@ namespace {
 
 class ShaderTypeInfoScalar : public TypeInfo   {
 public:
-	ShaderTypeInfoScalar(ShaderTypeInfoManager *_manager, const s2string &_name, unsigned int _size) :
+	ShaderTypeInfoScalar(ShaderTypeInfoManager *_manager, const s2string &_name, uint32_t _size) :
 		manager(_manager), name(_name), size(_size){}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return *(new ShaderTypeInfoScalar(0, "",0));
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return 0;
 	}
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return *(new s2string());
 	}
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return 0;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return 0;
 	}
 	
@@ -45,7 +45,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return size;
 	}
 	
@@ -56,28 +56,28 @@ private:
 private:
 	ShaderTypeInfoManager *manager;
 	s2string name;
-	unsigned int size;
+	uint32_t size;
 };
 
 class ShaderTypeInfoStruct : public TypeInfo {
 public:
-	ShaderTypeInfoStruct(ShaderTypeInfoManager *_manager, const s2string &new_name, unsigned int new_size, const Members &new_members) 
+	ShaderTypeInfoStruct(ShaderTypeInfoManager *_manager, const s2string &new_name, uint32_t new_size, const Members &new_members) 
 			: manager(_manager), name(new_name), size(new_size), members(new_members) {}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		return manager->GetTypeInfo(members[index].type_name);
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		return members[index].offset;
 	}
 	
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		return members[index].name;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		for(unsigned int i=0; i<members.size(); i++) {
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
+		for(uint32_t i=0; i<members.size(); i++) {
 			if(members[i].name == member_name)
 				return i;
 		}
@@ -85,7 +85,7 @@ public:
 		return 0;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return members.size();
 	}
 	
@@ -101,7 +101,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return size;
 	}
 	
@@ -118,50 +118,50 @@ private:
 	ShaderTypeInfoManager *manager;
 	Members members;
 	s2string name;
-	unsigned int size;
+	uint32_t size;
 };
 
-unsigned int Pack16Byte(unsigned int size) {
+uint32_t Pack16Byte(uint32_t size) {
 	return size%16==0 ? size : (size/16+1)*16;
 }
 
-unsigned int Pack4Byte(unsigned int size) {
+uint32_t Pack4Byte(uint32_t size) {
 	return size%4==0 ? size : (size/4+1)*4;
 }
 
 class ShaderTypeInfoArray  : public TypeInfo {
 public:
-	ShaderTypeInfoArray(ShaderTypeInfoManager *_manager, const s2string &shader_typename, const s2string &element_name, unsigned int count) 
+	ShaderTypeInfoArray(ShaderTypeInfoManager *_manager, const s2string &shader_typename, const s2string &element_name, uint32_t count) 
 			: manager(_manager), name(shader_typename), e_typename(element_name), e_count(count) {
 	}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		return manager->GetTypeInfo(e_typename);
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		return Pack16Byte(GetMemberType(index).GetSize())*index;
 	}
 	
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		CHECK(index < e_count)<<"Try index "<<index<<" while max index is "<<e_count-1;;
 		s2string buf;
 		S2StringFormat(&buf, "%d", index);
 		return buf;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		unsigned int result = atoi(member_name.c_str());
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
+		uint32_t result = atoi(member_name.c_str());
 		CHECK(result<e_count)<<member_name<<" must be a number smaller than "<<e_count;
 		return result;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return e_count;
 	}
 	
 	virtual bool HasMember(const s2string &member_name) const {
-		unsigned int index = atoi(member_name.c_str());
+		uint32_t index = atoi(member_name.c_str());
 		return index>=0 && index<e_count;
 	}
 
@@ -174,8 +174,8 @@ public:
 	 * http://stackoverflow.com/questions/24276402/unexpected-sizes-of-arrays-in-a-hlsl-constant-buffer
 	 * Bascially, hlsl does not have end padding.
 	 */
-	virtual unsigned int GetSize() const {
-		unsigned int member_size = GetMemberType(0).GetSize();
+	virtual uint32_t GetSize() const {
+		uint32_t member_size = GetMemberType(0).GetSize();
 		return member_size + Pack16Byte(member_size)*(e_count-1);
 	}
 	
@@ -187,45 +187,45 @@ private:
 	ShaderTypeInfoManager *manager;
 	s2string name;
 	s2string e_typename;
-	unsigned int e_count;
+	uint32_t e_count;
 };
 
 class ShaderTypeInfoVector  : public TypeInfo {
 public:
-	ShaderTypeInfoVector(ShaderTypeInfoManager *_manager, const s2string &shader_typename, const s2string &primitive_typename, unsigned int _count) 
+	ShaderTypeInfoVector(ShaderTypeInfoManager *_manager, const s2string &shader_typename, const s2string &primitive_typename, uint32_t _count) 
 			: manager(_manager), name(shader_typename), s_typename(primitive_typename), count(_count) {
 		
 	}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		const TypeInfo &p = manager->GetTypeInfo(s_typename);
 		CHECK(p.GetMemberSize() == 0)<<"Vector can only be associated with a primitive.";
 		return p;
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		return GetMemberType(index).GetSize()*index;
 	}
 	
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		CHECK(index < count)<<"Try index "<<index<<" while max index is "<<count-1;;
 		s2string buf;
 		S2StringFormat(&buf, "%d", index);
 		return buf;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		unsigned int result = atoi(member_name.c_str());
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
+		uint32_t result = atoi(member_name.c_str());
 		CHECK(result<count)<<member_name<<" must be a number smaller than "<<count;
 		return result;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return count;
 	}
 	
 	virtual bool HasMember(const s2string &member_name) const {
-		unsigned int index = atoi(member_name.c_str());
+		uint32_t index = atoi(member_name.c_str());
 		return index>=0 && index<count;
 	}
 
@@ -233,7 +233,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return count * Pack4Byte(GetMemberType(0).GetSize());
 	}
 	
@@ -245,47 +245,47 @@ private:
 	ShaderTypeInfoManager *manager;
 	s2string name;
 	s2string s_typename;
-	unsigned int count;
+	uint32_t count;
 };
 
 //Column major matrix
 class ShaderTypeInfoMatrix  : public TypeInfo {
 public:
-	ShaderTypeInfoMatrix(ShaderTypeInfoManager *_manager, const s2string &shader_typename, const s2string &primitive_typename, unsigned int _rows, unsigned int _columns) 
+	ShaderTypeInfoMatrix(ShaderTypeInfoManager *_manager, const s2string &shader_typename, const s2string &primitive_typename, uint32_t _rows, uint32_t _columns) 
 			: manager(_manager), name(shader_typename), s_typename(primitive_typename), rows(_rows), columns(_columns) {
 		
 	}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		CHECK(index<rows*columns)<<"Try index "<<index<<" while max index is "<<rows*columns-1;
 		const TypeInfo &p = manager->GetTypeInfo(s_typename);
 		CHECK(p.GetMemberSize() == 0)<<"Vector can only be associated with a primitive.";
 		return p;
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		return GetMemberType(index).GetSize()*index;
 	}
 	
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		CHECK(index < rows*columns)<<"Try index "<<index<<" while max index is "<<rows*columns-1;
 		s2string buf;
 		S2StringFormat(&buf, "%d", index);
 		return buf;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		unsigned int result = atoi(member_name.c_str());
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
+		uint32_t result = atoi(member_name.c_str());
 		CHECK(result<rows*columns)<<member_name<<" must be a number smaller than "<<rows*columns;
 		return result;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return rows*columns;
 	}
 	
 	virtual bool HasMember(const s2string &member_name) const {
-		unsigned int index = atoi(member_name.c_str());
+		uint32_t index = atoi(member_name.c_str());
 		return index>=0 && index<rows*columns;
 	}
 
@@ -293,7 +293,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return rows*columns* Pack4Byte(GetMemberType(0).GetSize());
 	}
 	
@@ -305,8 +305,8 @@ private:
 	ShaderTypeInfoManager *manager;
 	s2string name;
 	s2string s_typename;
-	unsigned int rows;
-	unsigned int columns;
+	uint32_t rows;
+	uint32_t columns;
 };
 
 }
@@ -333,35 +333,35 @@ bool ShaderTypeInfoManager::HasTypeInfo(const s2string &shader_typename) const {
 	return types.find(shader_typename)!=types.end();
 }
 
-const TypeInfo & ShaderTypeInfoManager::CreateScalar(const s2string &shader_typename, unsigned int size) {
+const TypeInfo & ShaderTypeInfoManager::CreateScalar(const s2string &shader_typename, uint32_t size) {
 	CHECK(HasTypeInfo(shader_typename) == false)<<"Try to create a typeinfo ["<<shader_typename<<"] that exists.";
 	TypeInfo *new_typeinfo = new ShaderTypeInfoScalar(this, shader_typename, size);
 	types[shader_typename] = new_typeinfo;
 	return *new_typeinfo;	
 }
 
-const TypeInfo & ShaderTypeInfoManager::CreateVector(const s2string &shader_typename, const s2string &scalar_typename, unsigned int count) {
+const TypeInfo & ShaderTypeInfoManager::CreateVector(const s2string &shader_typename, const s2string &scalar_typename, uint32_t count) {
 	CHECK(HasTypeInfo(shader_typename) == false)<<"Try to create a typeinfo ["<<shader_typename<<"] that exists.";
 	TypeInfo *new_typeinfo = new ShaderTypeInfoVector(this, shader_typename, scalar_typename, count);
 	types[shader_typename] = new_typeinfo;
 	return *new_typeinfo;	
 }
 
-const TypeInfo & ShaderTypeInfoManager::CreateMatrix(const s2string &shader_typename, const s2string &scalar_typename, unsigned int rows, unsigned int columns) {
+const TypeInfo & ShaderTypeInfoManager::CreateMatrix(const s2string &shader_typename, const s2string &scalar_typename, uint32_t rows, uint32_t columns) {
 	CHECK(HasTypeInfo(shader_typename) == false)<<"Try to create a typeinfo ["<<shader_typename<<"] that exists.";
 	TypeInfo *new_typeinfo = new ShaderTypeInfoMatrix(this, shader_typename, scalar_typename, rows, columns);
 	types[shader_typename] = new_typeinfo;
 	return *new_typeinfo;	
 }
 
-const TypeInfo & ShaderTypeInfoManager::CreateStruct(const s2string &shader_typename, unsigned int size, const TypeInfo::Members &members) {
+const TypeInfo & ShaderTypeInfoManager::CreateStruct(const s2string &shader_typename, uint32_t size, const TypeInfo::Members &members) {
 	CHECK(HasTypeInfo(shader_typename) == false)<<"Try to create a typeinfo ["<<shader_typename<<"] that exists.";
 	TypeInfo *new_typeinfo = new ShaderTypeInfoStruct(this, shader_typename, size, members);
 	types[shader_typename] = new_typeinfo;
 	return *new_typeinfo;	
 }
 
-const TypeInfo & ShaderTypeInfoManager::CreateArray(const s2string &shader_typename, const s2string &element_name, unsigned int count) {
+const TypeInfo & ShaderTypeInfoManager::CreateArray(const s2string &shader_typename, const s2string &element_name, uint32_t count) {
 	CHECK(HasTypeInfo(shader_typename) == false)<<"Try to create a typeinfo ["<<shader_typename<<"] that exists.";
 	TypeInfo *new_typeinfo = new ShaderTypeInfoArray(this, shader_typename, element_name, count);
 	types[shader_typename] = new_typeinfo;

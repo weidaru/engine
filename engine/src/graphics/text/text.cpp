@@ -31,7 +31,7 @@ Text & Text::SetFontName(const s2string &_font_name) {
 	return *this;
 }
 
-Text & Text::SetFontSize(unsigned int size) {
+Text & Text::SetFontSize(uint32_t size) {
 	font_size = size;
 	need_new_layout = true;
 

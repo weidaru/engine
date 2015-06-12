@@ -21,11 +21,11 @@ public:
 	const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
 	bool HasTypeInfo(const s2string &shader_typename) const;
 	
-	const TypeInfo & CreateScalar(const s2string &shader_typename, unsigned int size);
-	const TypeInfo & CreateMatrix(const s2string &shader_typename, const s2string &scalar_typename, unsigned int rows, unsigned int columns);
-	const TypeInfo & CreateVector(const s2string &shader_typename, const s2string &scalar_typename, unsigned int count);
-	const TypeInfo & CreateStruct(const s2string &shader_typename, unsigned int size, const TypeInfo::Members &members);
-	const TypeInfo & CreateArray(const s2string &shader_typename, const s2string &element_name, unsigned int count);
+	const TypeInfo & CreateScalar(const s2string &shader_typename, uint32_t size);
+	const TypeInfo & CreateMatrix(const s2string &shader_typename, const s2string &scalar_typename, uint32_t rows, uint32_t columns);
+	const TypeInfo & CreateVector(const s2string &shader_typename, const s2string &scalar_typename, uint32_t count);
+	const TypeInfo & CreateStruct(const s2string &shader_typename, uint32_t size, const TypeInfo::Members &members);
+	const TypeInfo & CreateArray(const s2string &shader_typename, const s2string &element_name, uint32_t count);
 	
 private:
 	TypeMap types;

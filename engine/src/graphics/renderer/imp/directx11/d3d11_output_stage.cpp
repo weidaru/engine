@@ -36,14 +36,14 @@ D3D11OutputStage::D3D11OutputStage(D3D11GraphicResourceManager *_manager, D3D11G
 D3D11OutputStage::~D3D11OutputStage() {
 }
 
-void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target) {
+void D3D11OutputStage::SetRenderTarget(uint32_t index, RenderTarget *_target) {
 	D3D11RenderTarget * target = NiceCast(D3D11RenderTarget *, _target);
 	if (_target != 0) {
 		CHECK(target) << "target cannot be cast to D3D11RenderTarget";
 	}
 
 	if (target) {
-		for (unsigned int i = 0; i<rts.size(); i++) {
+		for (uint32_t i = 0; i<rts.size(); i++) {
 			if (rts[i].data == target) {
 				rts[i].data = 0;
 			}
@@ -54,7 +54,7 @@ void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target
 
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
-	for (unsigned int i = 0; i<rts.size(); i++) {
+	for (uint32_t i = 0; i<rts.size(); i++) {
 		if (rts[i].data != 0) {
 			rt_array[i] = rts[i].data->GetRenderTargetView();
 		}
@@ -70,11 +70,11 @@ void D3D11OutputStage::SetRenderTarget(unsigned int index, RenderTarget *_target
 	}
 }
 
-D3D11RenderTarget * D3D11OutputStage::GetRenderTarget(unsigned int index) {
+D3D11RenderTarget * D3D11OutputStage::GetRenderTarget(uint32_t index) {
 	return rts[index].data;
 }
 
-unsigned int D3D11OutputStage::GetRenderTargetCapacity() const {
+uint32_t D3D11OutputStage::GetRenderTargetCapacity() const {
 	return rts.size();
 }
 
@@ -87,7 +87,7 @@ void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
-	for (unsigned int i = 0; i<rts.size(); i++) {
+	for (uint32_t i = 0; i<rts.size(); i++) {
 		if (rts[i].data != 0) {
 			rt_array[i] = rts[i].data->GetRenderTargetView();
 		}
@@ -108,7 +108,7 @@ D3D11DepthStencil * D3D11OutputStage::GetDepthStencil() {
 	return ds.data;
 }
 
-void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int stream_index, StreamOut *_stream_out) {
+void D3D11OutputStage::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *_stream_out) {
 	D3D11StreamOut * stream_out = NiceCast(D3D11StreamOut *, _stream_out);
 	if (_stream_out != 0) {
 		CHECK(stream_out) << "stream out cannot be cast to D3D11StreamOut";
@@ -120,7 +120,7 @@ void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int stream_inde
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11Buffer **so_array = new ID3D11Buffer *[stream_outs.size()];
 	UINT *offset = new UINT[stream_outs.size()];
-	for (unsigned int i = 0; i < stream_outs.size(); i++) {
+	for (uint32_t i = 0; i < stream_outs.size(); i++) {
 		if (stream_outs[i].data != 0) {
 			so_array[i] = stream_outs[i].data->GetBuffer();
 		}
@@ -132,7 +132,7 @@ void D3D11OutputStage::SetStreamOut(unsigned int index, unsigned int stream_inde
 	context->SOSetTargets(stream_outs.size(), so_array, offset);
 }
 
-D3D11StreamOut * D3D11OutputStage::GetStreamOut(unsigned int index, unsigned int *stream_index) {
+D3D11StreamOut * D3D11OutputStage::GetStreamOut(uint32_t index, uint32_t *stream_index) {
 	if (stream_index) {
 		*stream_index = stream_outs[index].stream_index;
 	}
@@ -144,9 +144,9 @@ ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11Geome
 	const D3D11ShaderReflection &reflect = gs->GetReflection();
 	std::vector<D3D11_SO_DECLARATION_ENTRY> entries;
 
-	unsigned int size = reflect.GetOutputSize();
+	uint32_t size = reflect.GetOutputSize();
 
-	for (unsigned int i = 0; i < size; i++) {
+	for (uint32_t i = 0; i < size; i++) {
 
 		const D3D11ShaderReflection::Parameter& output_param = reflect.GetOutput(i);
 
@@ -198,9 +198,9 @@ ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11Geome
 s2string D3D11OutputStage::DumpStreamOutInfo(const std::vector<SOInfo> &infos) {
 	char buffer[1024 * 8];
 	char *head = buffer;
-	for (unsigned int i = 0; i<infos.size(); i++) {
+	for (uint32_t i = 0; i<infos.size(); i++) {
 		if (infos[i].data) {
-			unsigned int stream_index = infos[i].stream_index;
+			uint32_t stream_index = infos[i].stream_index;
 			head += sprintf_s(head, 1024 * 8 - (head - buffer), "StreamOut %d at stream %d\n",
 				i, stream_index);
 		}
@@ -252,7 +252,7 @@ void D3D11OutputStage::ClearDepthStencil(DepthStencil *_depth_stencil, bool clea
 	}
 
 	if (clear_depth || clear_stencil) {
-		unsigned int flag = clear_depth ? D3D11_CLEAR_DEPTH : 0;
+		uint32_t flag = clear_depth ? D3D11_CLEAR_DEPTH : 0;
 		flag |= clear_stencil ? D3D11_CLEAR_STENCIL : 0;
 
 		ID3D11DeviceContext *context = pipeline->GetDeviceContext();

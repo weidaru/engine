@@ -2,6 +2,7 @@
 #define RESOURCE_H_
 
 #include "utils/s2string.h"
+#include <stdint.h>
 
 namespace s2 {
 
@@ -10,7 +11,7 @@ public:
 	Resource ();
 	virtual ~Resource();
 	
-	unsigned int 			GetID() const;
+	uint32_t 			GetID() const;
 	s2string 				GetName() const;
 	s2string				GetIDAndName() const;
 	/**
@@ -19,12 +20,12 @@ public:
 	Resource & 				SetName(const s2string &new_name);
 	
 private:
-	static unsigned int & 	GetCurrentID();
+	static uint32_t & 	GetCurrentID();
 	Resource(const Resource &);
 	Resource & operator=(const Resource &);
 	
 private:
-	unsigned int 	id;
+	uint32_t 	id;
 	s2string 	name;
 };
 

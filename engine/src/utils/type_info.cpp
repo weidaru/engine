@@ -24,23 +24,23 @@ namespace {
 
 class TypeInfoStruct : public TypeInfo {
 public:
-	TypeInfoStruct(const s2string &new_name, unsigned int new_size, const Members &new_members) 
+	TypeInfoStruct(const s2string &new_name, uint32_t new_size, const Members &new_members) 
 			: name(new_name), size(new_size), members(new_members) {}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		return TypeInfoManager::GetSingleton()->Get(members[index].type_name);
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		return members[index].offset;
 	}
 	
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		return members[index].name;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		for(unsigned int i=0; i<members.size(); i++) {
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
+		for(uint32_t i=0; i<members.size(); i++) {
 			if(members[i].name == member_name)
 				return i;
 		}
@@ -48,7 +48,7 @@ public:
 		return 0;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return members.size();
 	}
 	
@@ -64,7 +64,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return size;
 	}
 	
@@ -80,33 +80,33 @@ private:
 	 */
 	Members members;
 	s2string name;
-	unsigned int size;
+	uint32_t size;
 };
 
 class TypeInfoPrimitive : public TypeInfo   {
 public:
-	TypeInfoPrimitive(const s2string &_name, unsigned int _size) :
+	TypeInfoPrimitive(const s2string &_name, uint32_t _size) :
 		name(_name), size(_size){}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return *(new TypeInfoPrimitive("",0));
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return 0;
 	}
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return *(new s2string());
 	}
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
 		CHECK(false)<<"This is primitive type. No member.";
 		return 0;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return 0;
 	}
 	
@@ -118,7 +118,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return size;
 	}
 	
@@ -128,7 +128,7 @@ private:
 	
 private:
 	s2string name;
-	unsigned int size;
+	uint32_t size;
 };
 
 class SimpleLexer {
@@ -164,7 +164,7 @@ public:
 	}
 	
 	//return 0 as an error code.
-	unsigned int ExpectPositveNumber() {
+	uint32_t ExpectPositveNumber() {
 		return strtol(cur, (char **)&cur, 10);
 	}
 	
@@ -220,39 +220,39 @@ public:
 		e_count = 1;
 		while(!lexer.IsEnd()) {
 			CHECK(lexer.Expect("["))<<"Bad array typename "<<name;
-			unsigned int count = lexer.ExpectPositveNumber();
+			uint32_t count = lexer.ExpectPositveNumber();
 			e_count *= count;
 			CHECK(lexer.Expect("]"))<<"Bad array typename "<<name;
 		}
 	}
 
-	virtual const TypeInfo & GetMemberType(unsigned int index) const {
+	virtual const TypeInfo & GetMemberType(uint32_t index) const {
 		return TypeInfoManager::GetSingleton()->Get(e_name);
 	}
 	
-	virtual unsigned int GetMemberOffset(unsigned int index) const {
+	virtual uint32_t GetMemberOffset(uint32_t index) const {
 		return GetMemberType(index).GetSize()*index;
 	}
 	
-	virtual s2string GetMemberName(unsigned int index) const {
+	virtual s2string GetMemberName(uint32_t index) const {
 		CHECK(index<e_count)<<"Try index "<<index<<" while max index is "<<e_count-1;
 		s2string buf;
 		S2StringFormat(&buf, "%d", index);
 		return e_name;
 	}
 	
-	virtual unsigned int GetMemberIndex(const s2string &member_name) const {
-		unsigned int result = atoi(member_name.c_str());
+	virtual uint32_t GetMemberIndex(const s2string &member_name) const {
+		uint32_t result = atoi(member_name.c_str());
 		CHECK(result<e_count)<<member_name<<" must be a number smaller than "<<e_count;
 		return result;
 	}
 	
-	virtual unsigned int GetMemberSize() const {
+	virtual uint32_t GetMemberSize() const {
 		return e_count;
 	}
 	
 	virtual bool HasMember(const s2string &member_name) const {
-		unsigned int index = atoi(member_name.c_str());
+		uint32_t index = atoi(member_name.c_str());
 		return index>=0 && index<e_count;
 	}
 
@@ -260,7 +260,7 @@ public:
 		return name;
 	}
 	
-	virtual unsigned int GetSize() const {
+	virtual uint32_t GetSize() const {
 		return e_count * GetMemberType(0).GetSize();
 	}
 	
@@ -290,7 +290,7 @@ private:
 private:
 	s2string name;
 	s2string e_name;
-	unsigned int e_count;
+	uint32_t e_count;
 };
 
 }
@@ -328,14 +328,14 @@ const bool TypeInfoManager::Has(const s2string &name) const {
 	return data.find(name) != data.end();
 }
 
-TypeInfo & TypeInfoManager::CreateStruct(const s2string &name, unsigned int size, const TypeInfo::Members &new_members) {
+TypeInfo & TypeInfoManager::CreateStruct(const s2string &name, uint32_t size, const TypeInfo::Members &new_members) {
 	CHECK(Has(name) == false)<<"Try to create a typeinfo ["<<name<<"] that exists.";
 	TypeInfo *new_typeinfo = new TypeInfoStruct(name, size, new_members);
 	data[name] = new_typeinfo;
 	return *new_typeinfo;	
 }
 
-TypeInfo & TypeInfoManager::CreatePrimitive(const s2string &name, unsigned int size) {
+TypeInfo & TypeInfoManager::CreatePrimitive(const s2string &name, uint32_t size) {
 	CHECK(Has(name) == false)<<"Try to create a typeinfo ["<<name<<"] that exists.";
 	TypeInfo *new_typeinfo = new TypeInfoPrimitive(name, size);
 	data[name] = new_typeinfo;

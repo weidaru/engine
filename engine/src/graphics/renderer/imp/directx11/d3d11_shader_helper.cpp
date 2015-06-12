@@ -32,7 +32,7 @@ ConstantBufferContainer::ConstantBufferContainer(D3D11GraphicResourceManager *ma
 			: reflect(_reflect){
 	CHECK_NOTNULL(reflect);
 	cbs.resize(reflect->GetConstantBufferSize());
-	for(unsigned int i=0; i<cbs.size(); i++) {
+	for(uint32_t i=0; i<cbs.size(); i++) {
 		const D3D11ShaderReflection::ConstantBuffer &cb_reflect = reflect->GetConstantBuffer(i);
 		cbs[i].first = cb_reflect.slot_index;
 		cbs[i].second = new D3D11ConstantBuffer(manager);
@@ -41,19 +41,19 @@ ConstantBufferContainer::ConstantBufferContainer(D3D11GraphicResourceManager *ma
 }
 
 ConstantBufferContainer::~ConstantBufferContainer() {
-	for(unsigned int i=0; i<cbs.size(); i++) {
+	for(uint32_t i=0; i<cbs.size(); i++) {
 		delete cbs[i].second;
 	}
 }
 
-bool ConstantBufferContainer::SetUniform(const s2string &name, const void * value, unsigned int size, s2string *error) {
+bool ConstantBufferContainer::SetUniform(const s2string &name, const void * value, uint32_t size, s2string *error) {
 	if(!reflect->HasUniform(name)) {
 		S2StringFormat(error, "Cannot find uniform %s", name.c_str());
 		return false;
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
 	D3D11ConstantBuffer *cb = 0;
-	for(unsigned int i=0; i<cbs.size(); i++) {
+	for(uint32_t i=0; i<cbs.size(); i++) {
 		if(cbs[i].first == uniform.cb_slot_index) {
 			cb = cbs[i].second;
 		}
@@ -74,7 +74,7 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 		return false;
 	}
 	D3D11ConstantBuffer *cb = 0;
-	for(unsigned int i=0; i<cbs.size(); i++) {
+	for(uint32_t i=0; i<cbs.size(); i++) {
 		if(cbs[i].first == uniform.cb_slot_index) {
 			cb = cbs[i].second;
 		}
@@ -85,7 +85,7 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 }
 
 void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
-	for(unsigned int i=0; i<cbs.size(); i++) {
+	for(uint32_t i=0; i<cbs.size(); i++) {
 		D3D11ConstantBuffer *cb = cbs[i].second;
 		if(cb == 0) {
 			continue;
@@ -110,7 +110,7 @@ void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderH
 }
 
 void ConstantBufferContainer::Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
-	for (unsigned int i = 0; i<cbs.size(); i++) {
+	for (uint32_t i = 0; i<cbs.size(); i++) {
 		D3D11ConstantBuffer *cb = cbs[i].second;
 		if (cb == 0) {
 			continue;
@@ -138,7 +138,7 @@ SamplerContainer::SamplerContainer(D3D11ShaderReflection *_reflect)
 		: reflect(_reflect){
 	CHECK_NOTNULL(reflect);
 	samplers.resize(reflect->GetSamplerSize());
-	for(unsigned int i=0; i<samplers.size(); i++) {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		const D3D11ShaderReflection::Sampler &info =  reflect->GetSampler(i);
 		samplers[i].first = i;
 		samplers[i].second = 0;
@@ -156,10 +156,10 @@ bool SamplerContainer::SetSampler(const s2string &name, Sampler *_sampler, s2str
 		return false;
 	}
 	
-	unsigned int reflect_index = reflect->GetSamplerIndex(name);
+	uint32_t reflect_index = reflect->GetSamplerIndex(name);
 	const D3D11ShaderReflection::Sampler &info = reflect->GetSampler(reflect_index);
 	
-	for(unsigned int i=0; i<samplers.size(); i++) {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		if(samplers[i].first == reflect_index) {
 			samplers[i].second = sampler;
 			return true;
@@ -175,10 +175,10 @@ D3D11Sampler* SamplerContainer::GetSampler(const s2string &name, s2string *error
 		return 0;
 	}
 	
-	unsigned int reflect_index = reflect->GetSamplerIndex(name);
+	uint32_t reflect_index = reflect->GetSamplerIndex(name);
 	const D3D11ShaderReflection::Sampler &info = reflect->GetSampler(reflect_index);
 	
-	for(unsigned int i=0; i<samplers.size(); i++) {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		if(samplers[i].first == reflect_index) {
 			return samplers[i].second;
 		}
@@ -188,7 +188,7 @@ D3D11Sampler* SamplerContainer::GetSampler(const s2string &name, s2string *error
 }
 	
 void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
-	for(unsigned int i=0; i<samplers.size(); i++) {
+	for(uint32_t i=0; i<samplers.size(); i++) {
 		D3D11Sampler *sampler = samplers[i].second;
 		if(sampler == 0) {
 			continue;
@@ -213,7 +213,7 @@ void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::
 }
 
 void SamplerContainer::Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
-	for (unsigned int i = 0; i<samplers.size(); i++) {
+	for (uint32_t i = 0; i<samplers.size(); i++) {
 		D3D11Sampler *sampler = samplers[i].second;
 		if (sampler == 0) {
 			continue;
@@ -241,7 +241,7 @@ ShaderResourceContainer::ShaderResourceContainer(D3D11ShaderReflection *_reflect
 		: reflect(_reflect){
 	CHECK_NOTNULL(reflect);
 	shader_resources.resize(reflect->GetShaderResourceSize());
-	for(unsigned int i=0; i<shader_resources.size(); i++) {
+	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(i);
 		shader_resources[i].reflect_index = i;
 		shader_resources[i].shader_resource = 0;
@@ -259,13 +259,13 @@ bool ShaderResourceContainer::SetShaderResource(const s2string &name, ShaderReso
 		S2StringFormat(error, "Cannot find shader resource %s", name);
 		return false;
 	}
-	unsigned int reflect_index = reflect->GetShaderResourceIndex(name);
+	uint32_t reflect_index = reflect->GetShaderResourceIndex(name);
 	const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(reflect_index);
 	if(info.type != D3D11ShaderReflection::TEXTURE) {
 		S2StringFormat(error, "Shader resource %s is not declared as a texture", name);
 		return false;
 	}
-	for(unsigned int i=0; i<shader_resources.size(); i++) {
+	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		if(shader_resources[i].reflect_index == reflect_index) {
 			shader_resources[i].shader_resource = shader_resource;
 			return true;
@@ -280,13 +280,13 @@ D3D11ShaderResource * ShaderResourceContainer::GetShaderResource(const s2string 
 		S2StringFormat(error, "Cannot find shader resource %s", name);
 		return 0;
 	}
-	unsigned int reflect_index = reflect->GetShaderResourceIndex(name);
+	uint32_t reflect_index = reflect->GetShaderResourceIndex(name);
 	const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(reflect_index);
 	if(info.type != D3D11ShaderReflection::TEXTURE) {
 		S2StringFormat(error, "Shader resource %s is not declared as a texture", name);
 		return 0;
 	}
-	for(unsigned int i=0; i<shader_resources.size(); i++) {
+	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		if(shader_resources[i].reflect_index == reflect_index) {
 			return shader_resources[i].shader_resource;
 		}
@@ -297,7 +297,7 @@ D3D11ShaderResource * ShaderResourceContainer::GetShaderResource(const s2string 
 
 ShaderResourceContainer::BindingVector ShaderResourceContainer::GetNewBindings() const {
 	BindingVector result;
-	for(unsigned int i=0; i<shader_resources.size(); i++) {
+	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
 		Resource *resource = 0;
 		if (shader_resources[i].shader_resource) {
@@ -309,7 +309,7 @@ ShaderResourceContainer::BindingVector ShaderResourceContainer::GetNewBindings()
 }
 
 void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
-	for(unsigned int i=0; i<shader_resources.size(); i++) {
+	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
 		ID3D11ShaderResourceView *view = 0;
 		if (shader_resources[i].shader_resource) {
@@ -335,7 +335,7 @@ void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderH
 }
 
 void ShaderResourceContainer::Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type) {
-	for (unsigned int i = 0; i<shader_resources.size(); i++) {
+	for (uint32_t i = 0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
 		ID3D11ShaderResourceView *view = 0;
 

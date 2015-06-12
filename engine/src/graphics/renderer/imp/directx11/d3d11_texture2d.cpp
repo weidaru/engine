@@ -35,7 +35,9 @@ D3D11Texture2D::~D3D11Texture2D() {
 	delete depth_stencil;
 	delete render_target;
 	delete mapped;
-	tex->Release();
+	if(tex) {
+		tex->Release();
+	}
 }
 
 void D3D11Texture2D::Check() const {
@@ -214,14 +216,14 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	mapped = new D3D11MappedResource(tex, _option.resource_write);
 }
 
-void D3D11Texture2D::WriteMap(GraphicPipeline *_pipeline, bool is_partial_map, unsigned int mip_index, unsigned array_index) {
+void D3D11Texture2D::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index) {
 	Check();
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {
 		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
 	}
 
-	mapped->WriteMap(pipeline, is_partial_map, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
+	mapped->WriteMap(pipeline, no_overwrite, D3D11CalcSubresource(mip_index, array_index, option.mip_level));
 }
 
 void D3D11Texture2D::WriteUnmap() {
@@ -229,13 +231,13 @@ void D3D11Texture2D::WriteUnmap() {
 	mapped->WriteUnmap();
 }
 
-void D3D11Texture2D::Write(unsigned int row, unsigned int col,  const void *data, unsigned int size) {
+void D3D11Texture2D::Write(uint32_t row, uint32_t col,  const void *data, uint32_t size) {
 	Check();
 	
 	mapped->Write(mapped->GetWriteRowPitch() + col*RendererEnum::GetFormatSize(option.format), data, size);
 }
 
-void D3D11Texture2D::ReadMap(GraphicPipeline *_pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache) const {
+void D3D11Texture2D::ReadMap(GraphicPipeline *_pipeline, uint32_t mip_index, uint32_t array_index, bool wipe_cache) const {
 	Check();
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {
@@ -263,7 +265,7 @@ void D3D11Texture2D::ReadUnmap() const {
 	mapped->ReadUnmap();
 }
 
-const void * D3D11Texture2D::Read(unsigned int row, unsigned int col) const {
+const void * D3D11Texture2D::Read(uint32_t row, uint32_t col) const {
 	Check();
 	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*RendererEnum::GetFormatSize(option.format);
 }
@@ -275,8 +277,9 @@ const Texture2D::Option & D3D11Texture2D::GetOption() const {
 
 void D3D11Texture2D::Update(
 			GraphicPipeline *_pipeline,
-			unsigned int left, unsigned int right,
-			unsigned int top, unsigned int bottom,
+			uint32_t mip_index, uint32_t array_index,
+			uint32_t left, uint32_t right,
+			uint32_t top, uint32_t bottom,
 			const void *data) {
 	Check();
 	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
@@ -287,7 +290,7 @@ void D3D11Texture2D::Update(
 	}
 
 
-	unsigned int ele_size = RendererEnum::GetFormatSize(option.format);
+	uint32_t ele_size = RendererEnum::GetFormatSize(option.format);
 	D3D11_BOX dest;
 	dest.left = left*ele_size;
 	dest.right = right*ele_size;
@@ -297,7 +300,7 @@ void D3D11Texture2D::Update(
 	dest.back = 1;
 	
 	pipeline->GetDeviceContext()->UpdateSubresource(
-		tex, 0, &dest, (const void *)data, option.width*ele_size, 0 
+		tex, D3D11CalcSubresource(mip_index, array_index, option.mip_level), &dest, (const void *)data, option.width*ele_size, 0 
 	);
 }
 

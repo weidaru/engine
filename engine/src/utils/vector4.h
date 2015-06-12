@@ -3,6 +3,8 @@
 
 #include "vector3.h"
 
+#include <stdint.h>
+
 namespace s2 {
 
 struct Vector4 {
@@ -17,8 +19,8 @@ struct Vector4 {
 		data[0] = _0; data[1] = _1; data[2] = _2; data[3] = _3;
 	}
 	
-	float & operator[](unsigned int index) { return data[index]; }
-	const float & operator[](unsigned int index) const { return data[index]; }
+	float & operator[](uint32_t index) { return data[index]; }
+	const float & operator[](uint32_t index) const { return data[index]; }
 };
 
 }

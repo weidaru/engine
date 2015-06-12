@@ -2,6 +2,7 @@
 #define VIDEO_CARD_INFO_H_
 
 #include "utils/s2string.h"
+#include <stdint.h>
 
 namespace s2 {
 /**
@@ -11,13 +12,13 @@ class VideoCardInfo {
 public:
 	struct AdapterInfo {
 		char name[256];
-		unsigned int refresh_numerator;
-		unsigned int refresh_denominator;
-		unsigned int memory_size;
+		uint32_t refresh_numerator;
+		uint32_t refresh_denominator;
+		uint32_t memory_size;
 	};	
 
 public:
-	static void GetProperAdapter(unsigned int screen_width, unsigned int screen_height,  AdapterInfo *info);
+	static void GetProperAdapter(uint32_t screen_width, uint32_t screen_height,  AdapterInfo *info);
 };
 }
 

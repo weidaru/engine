@@ -26,7 +26,7 @@ public:
 	virtual ~D3D11GeometryShader();
 	virtual bool Initialize(const s2string &path, const s2string &entry_point);
 
-	virtual bool SetUniform(const s2string &name, const void * value, unsigned int size);
+	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size);
 
 	virtual bool SetSampler(const s2string &name, Sampler *sampler);
 	virtual D3D11Sampler * GetSampler(const s2string &name);

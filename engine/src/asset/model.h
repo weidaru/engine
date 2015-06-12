@@ -2,6 +2,7 @@
 #define MODEL_H_
 
 #include "utils/s2string.h"
+#include <stdint.h>
 
 namespace Assimp {
 class Importer;
@@ -30,11 +31,11 @@ public:
 
 	bool HasTextureCoordinates() const;
 	
-	unsigned int GetVertexSize() const;
-	Vertex GetVertex(unsigned int index) const;
+	uint32_t GetVertexSize() const;
+	Vertex GetVertex(uint32_t index) const;
 	
-	unsigned int GetTriangleSize() const;
-	unsigned int GetTriangleVertexIndex(unsigned int index, unsigned int vertex_index) const;
+	uint32_t GetTriangleSize() const;
+	uint32_t GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const;
 	
 private:
 	void Clear();

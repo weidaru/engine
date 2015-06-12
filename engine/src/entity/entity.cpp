@@ -41,14 +41,14 @@ void Entity::AddChild(Entity *e) {
 	e->parent = this;
 }
 
-Entity * Entity::RemoveChild(unsigned int id) {
+Entity * Entity::RemoveChild(uint32_t id) {
 	Entity *child = GetChild(id);
 	children.erase(id);
 	child->parent = 0;
 	return child;
 }
 
-Entity * Entity::GetChild(unsigned int id) {
+Entity * Entity::GetChild(uint32_t id) {
 	auto it = children.find(id);
 	if(it != children.end()) {
 		return it->second;
@@ -63,7 +63,7 @@ void Entity::AddComponent(Component *c) {
 	c->entity = this;
 }
 
-Component * Entity::RemoveComponent(unsigned int id) {
+Component * Entity::RemoveComponent(uint32_t id) {
 	Component *c = GetComponent(id);
 	if(c) {
 		components.erase(id);
@@ -72,7 +72,7 @@ Component * Entity::RemoveComponent(unsigned int id) {
 	return c;
 }
 
-Component * Entity::GetComponent(unsigned int id) {
+Component * Entity::GetComponent(uint32_t id) {
 	auto it = components.find(id);
 	if(it != components.end()) {
 		return it->second;

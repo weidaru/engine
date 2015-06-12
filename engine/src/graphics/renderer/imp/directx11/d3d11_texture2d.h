@@ -6,8 +6,6 @@
 
 struct ID3D11Texture2D;
 struct ID3D11RenderTargetView;
-struct ID3D11DepthStencilView;
-struct ID3D11ShaderResourceView;
 
 namespace s2 {
 
@@ -16,8 +14,6 @@ class D3D11MappedResource;
 class D3D11GraphicResourceManager;
 
 class D3D11Texture2D : public Texture2D {
-	friend class D3D11GraphicResourceManager;
-
 public:
 	D3D11Texture2D(D3D11GraphicResourceManager *_manager);
 
@@ -25,18 +21,19 @@ public:
 	virtual void Initialize(const Option &_option);
 	virtual const Texture2D::Option & GetOption() const;
 	
-	virtual void WriteMap(GraphicPipeline *pipeline, bool is_partial_map, unsigned int mip_index, unsigned array_index);
-	virtual void Write(unsigned int row, unsigned int col,  const void *data, unsigned int size);
+	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index);
+	virtual void Write(uint32_t row, uint32_t col,  const void *data, uint32_t size);
 	virtual void WriteUnmap();
 	
-	virtual void ReadMap(GraphicPipeline *pipeline, unsigned int mip_index, unsigned array_index, bool wipe_cache) const;
-	virtual const void * Read(unsigned int row, unsigned int col) const;
+	virtual void ReadMap(GraphicPipeline *pipeline, uint32_t mip_index, uint32_t array_index, bool wipe_cache) const;
+	virtual const void * Read(uint32_t row, uint32_t col) const;
 	virtual void ReadUnmap() const;
 	
 	virtual void Update(
 			GraphicPipeline *pipeline, 
-			unsigned int left, unsigned int right,
-			unsigned int top, unsigned int bottom,
+			uint32_t mip_index, uint32_t array_index,
+			uint32_t left, uint32_t right,
+			uint32_t top, uint32_t bottom,
 			const void *data);
 
 	virtual D3D11RenderTarget * AsRenderTarget() const;
