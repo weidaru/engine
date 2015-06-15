@@ -3,6 +3,8 @@
 
 #include "resource.h"
 #include "renderer_enum.h"
+#include "texture_data.h"
+
 
 namespace s2 {
 
@@ -16,10 +18,6 @@ class GraphicPipeline;
  */
 class TextureCube : public Resource {
 public:
-	enum CubeFace {
-		LEFT, RIGHT, UP, DOWN, NORTH ,SOUTH
-	};
-
 	struct Option {
 		uint32_t 	width;
 		uint32_t 	height;
@@ -28,7 +26,7 @@ public:
 		RendererEnum::Format 	format;
 		RendererEnum::ResourceWrite resource_write;
 
-		void *data;
+		TextureCubeData data;
 		
 		Option() {
 			width = 0;
@@ -37,7 +35,6 @@ public:
 			array_size = 1;
 			format = RendererEnum::R8G8B8A8_UNORM;
 			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
-			data = 0;
 		}
 	};
 

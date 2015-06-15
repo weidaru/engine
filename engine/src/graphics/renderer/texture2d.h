@@ -4,6 +4,7 @@
 #include "resource.h"
 #include "texture_enum.h"
 #include "renderer_enum.h"
+#include "texture_data.h"
 
 namespace s2 {
 
@@ -11,6 +12,7 @@ class RenderTarget;
 class DepthStencil;
 class ShaderResource;
 class GraphicPipeline;
+class TextureData;
 
 class Texture2D : public Resource {
 public:
@@ -24,7 +26,7 @@ public:
 		RendererEnum::ResourceWrite resource_write;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
-		void *data;
+		TextureData data;
 		
 		Option() {
 			width = 0;
@@ -36,7 +38,6 @@ public:
 			input_bind = TextureEnum::SHADER_RESOURCE;
 			sample_size = 1;
 			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
-			data = 0;
 		}
 		
 		static void SetAsDepthStencilBuffer(Option *option, uint32_t width, uint32_t height) {
@@ -49,7 +50,7 @@ public:
 			option->input_bind = TextureEnum::NOT_INPUT;
 			option->sample_size = 1;
 			option->resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
-			option->data = 0;
+			option->data.Reset(1, 1);
 		}
 	};
 

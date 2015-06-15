@@ -6,6 +6,7 @@
 #include "texture_enum.h"
 #include "renderer_enum.h"
 #include "resource_view.h"
+#include "texture_data.h"
 
 namespace s2 {
 class GraphicPipeline;
@@ -20,7 +21,7 @@ public:
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
 		RendererEnum::ResourceWrite resource_write;
-		void *data;
+		TextureData data;
 		
 		Option() {
 			width = 0;

@@ -13,11 +13,14 @@ PixelMap::PixelMap()
 }
 
 PixelMap::~PixelMap() {
-	Clear();
+	if(bitmap) {
+		FreeImage_Unload(bitmap);
+	}
 }
 
-bool PixelMap::Initialize(const s2string &_path, Format _format) {
-	Clear();
+bool PixelMap::Initialize(const s2string &_path, ImagePixelFormat _format) {
+	CHECK(bitmap == 0) << "Cannot initialize twice.";
+
 	path = _path;
 	format = _format;
 	
@@ -44,7 +47,7 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 
 	
 	switch(format) { 
-	case R8G8B8A8:
+	case ImagePixelFormat::R8G8B8A8:
 		{
 			FREE_IMAGE_TYPE type = FreeImage_GetImageType(bitmap);
 			uint32_t bpp = FreeImage_GetBPP(bitmap);
@@ -63,25 +66,16 @@ bool PixelMap::Initialize(const s2string &_path, Format _format) {
 	return true;
 }
 
-void PixelMap::Clear() {
-	if(bitmap) {
-		FreeImage_Unload(bitmap);
-	}
-	
-	bitmap = 0;
-	
-}
-
 void PixelMap::PopulateTexture2DOption(Texture2D::Option *option) {
-	option->data = GetRawMemory();
+	option->data.SetData(0,0, GetRawMemory());
 	option->width = GetWidth();
 	option->height = GetHeight();
 	switch(format) {
-	case R8G8B8A8:
+	case ImagePixelFormat::R8G8B8A8:
 		option->format = RendererEnum::R8G8B8A8_UNORM;
 		break;
 	default :
-		CHECK(false)<<"Unsupported format "<<format;
+		CHECK(false)<<"Unsupported format "<<static_cast<int>(format);
 		break;
 	}
 }
@@ -106,7 +100,7 @@ const s2string & PixelMap::GetPath() const {
 	return path;
 }
 
-PixelMap::Format PixelMap::GetFormat() const {
+ImagePixelFormat PixelMap::GetFormat() const {
 	Check();
 	return format;
 }

@@ -5,6 +5,7 @@
 #include "texture_enum.h"
 #include "utils/s2string.h"
 #include "renderer_enum.h"
+#include "texture_data.h"
 
 namespace s2 {
 class GraphicPipeline;
@@ -22,7 +23,7 @@ public:
 		RendererEnum::ResourceWrite resource_write;
 		TextureEnum::OutputBind output_bind;
 		TextureEnum::InputBind input_bind;
-		void *data;
+		TextureData data;
 		
 		Option() {
 			width = 0;

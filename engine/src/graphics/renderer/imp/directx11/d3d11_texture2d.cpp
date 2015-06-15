@@ -178,18 +178,22 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 	
 	HRESULT result=1;
-	{
-		if(_option.data) {
-			D3D11_SUBRESOURCE_DATA data;
-			data.pSysMem = _option.data;
-			data.SysMemPitch = _option.width*RendererEnum::GetFormatSize(_option.format);
-			result = manager->GetDevice()->CreateTexture2D(&desc, &data, &tex);
-		} else {
-			result = manager->GetDevice()->CreateTexture2D(&desc, 0, &tex);
+	if(_option.data.IsEmpty() == false) {
+		D3D11_SUBRESOURCE_DATA *sub_resources = new D3D11_SUBRESOURCE_DATA[_option.data.GetSize()];
+		for(uint32_t i=0; i<_option.data.GetArraySize(); i++) {
+			for(uint32_t j=0; j<_option.data.GetMipLevel(); j++) {
+				D3D11_SUBRESOURCE_DATA &sub_resource = sub_resources[D3D11CalcSubresource(j, i, _option.mip_level)];
+				sub_resource.pSysMem = _option.data.GetData(i, j);
+				sub_resource.SysMemPitch = _option.width/(j+1)*RendererEnum::GetFormatSize(_option.format);
+			}
 		}
-		
-		CHECK(!FAILED(result))<<"Cannot create texture 2d. Error " << ::GetLastError();
+		result = manager->GetDevice()->CreateTexture2D(&desc, sub_resources, &tex);
+		delete[] sub_resources;
+	} else {
+		result = manager->GetDevice()->CreateTexture2D(&desc, 0, &tex);
 	}
+		
+	CHECK(!FAILED(result))<<"Cannot create texture 2d. Error " << ::GetLastError();
 	
 	if(rtv_desc) {
 		ID3D11RenderTargetView *rt_view = 0;

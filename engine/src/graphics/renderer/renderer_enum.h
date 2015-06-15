@@ -1,6 +1,8 @@
 #ifndef RENDERER_ENUM_H_
 #define RENDERER_ENUM_H_
 
+#include <stdint.h>
+
 namespace s2 {
 
 struct RendererEnum {
@@ -29,6 +31,7 @@ struct RendererEnum {
 			return 0;
 			break;
 		}
+		return 0;
 	}
 };
 

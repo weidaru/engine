@@ -96,15 +96,23 @@ void D3D11TextureCube::Initialize(const Option &_option)  {
 	}
 	
 	HRESULT result=1;
-	if(_option.data) {
-		D3D11_SUBRESOURCE_DATA data;
-		data.pSysMem = _option.data;
-		data.SysMemPitch = _option.width*RendererEnum::GetFormatSize(_option.format);
-		result = manager->GetDevice()->CreateTexture2D(&desc, &data, &tex);
+	
+	if(_option.data.IsEmpty()) {
+		D3D11_SUBRESOURCE_DATA *sub_resources = new D3D11_SUBRESOURCE_DATA[_option.data.GetSize()];
+		for(uint32_t i=0; i<_option.data.GetArraySize(); i++) {
+			for(uint32_t j=0; j<_option.data.GetMipLevel(); j++) {
+				for(uint32_t k=0; k<6; k++) {
+					D3D11_SUBRESOURCE_DATA &sub_resource = sub_resources[D3D11CalcSubresource(j, i, _option.mip_level)];
+					sub_resource.pSysMem = _option.data.GetData(i, j, (CubeFace)k);
+					sub_resource.SysMemPitch = _option.width/(j+1)*RendererEnum::GetFormatSize(_option.format);
+				}
+			}
+		}
+		result = manager->GetDevice()->CreateTexture2D(&desc, sub_resources, &tex);
 	} else {
 		result = manager->GetDevice()->CreateTexture2D(&desc, 0, &tex);
 	}
-		
+	
 	CHECK(!FAILED(result))<<"Cannot create texture 2d. Error " << ::GetLastError();
 	
 	if(srv_desc) {
