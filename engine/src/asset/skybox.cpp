@@ -12,7 +12,7 @@ Skybox::Skybox() : is_initialized(false) {
 
 Skybox::~Skybox() {
 	for(auto it=data.begin(); it!=data.end(); it++) {
-		delete *it;
+		FreeImage_Unload(*it);
 	}
 }
 
