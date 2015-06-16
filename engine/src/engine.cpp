@@ -111,7 +111,7 @@ void Engine::OneFrame(float delta) {
 	text_system->OneFrame(delta);
 
 	
-	program_manager->Get("UIDemo")->OneFrame(delta);
+	program_manager->Get("InstancingDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 

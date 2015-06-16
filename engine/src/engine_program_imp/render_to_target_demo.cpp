@@ -232,7 +232,7 @@ public:
 		int delta_x = is.GetMouseXMove();
 		int delta_y = is.GetMouseYMove();
 		
-		camera->GetTransform()->Rotate(-delta_y/1000.0f,  delta_x/1000.0f, 0.0f);
+		camera->GetTransform()->Rotate(delta_y/1000.0f,  delta_x/1000.0f, 0.0f);
 		is.SetMousePositionPercent(0.5f, 0.5f);
 
 		if(is.IsKeyDown(InputSystem::K_W)) {
