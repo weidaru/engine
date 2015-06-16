@@ -9,6 +9,12 @@
 namespace s2 {
 class Entity;
 
+
+/*
+ * EntitySystem does not take ownership of entities.
+ * It merely provides the ability to update entities in each frame.
+ * Remove method will return the Entity itself whose ownership should belong to the caller.
+ */
 class EntitySystem {
 public:
 	EntitySystem();

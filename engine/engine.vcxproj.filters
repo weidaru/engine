@@ -279,10 +279,10 @@
     <ClInclude Include="src\graphics\renderer\texture_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\asset\skybox.h">
+    <ClInclude Include="src\asset\image_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\asset\image_common.h">
+    <ClInclude Include="src\asset\skybox_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -443,7 +443,10 @@
     <ClCompile Include="src\graphics\renderer\texture_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\asset\skybox.cpp">
+    <ClCompile Include="src\engine_program_imp\skybox_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\asset\skybox_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

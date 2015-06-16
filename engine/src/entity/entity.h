@@ -19,6 +19,7 @@ public:
 	virtual ~Entity();
 
 	Transform * GetTransform() {return transform;}
+	const Transform * GetTransform() const {return transform;}
 	Matrix4x4 GetCascadeTransformMatrix();
 
 	void AddChild(Entity *e);

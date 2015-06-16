@@ -20,7 +20,7 @@ public:
 	Transform & Translate(const Vector3 &vector);
 	Transform & SetTranslate(float x, float y, float z);
 	Transform & SetTranslate(const Vector3 &vectro);
-	const Vector3 & GetTranslate() { return translate; }
+	const Vector3 & GetTranslate() const { return translate; }
 	Transform & ResetTranslate();
 	
 
@@ -28,7 +28,7 @@ public:
 	Transform & Scale(const Vector3 &vector);
 	Transform & SetScale(float x, float y, float z);
 	Transform & SetScale(const Vector3 &vector);
-	const Vector3 & GetScale() { return scale; }
+	const Vector3 & GetScale() const { return scale; }
 	Transform & ResetScaling();
 	
 
@@ -36,7 +36,7 @@ public:
 	Transform & Rotate(const Vector3 &vector);
 	Transform & SetRotate(float x, float y, float z);
 	Transform & SetRotate(const Vector3 &vector);
-	const Vector3 & GetRotate() { return rotate; }
+	const Vector3 & GetRotate() const { return rotate; }
 	Transform & ResetRotation();
 
 private:

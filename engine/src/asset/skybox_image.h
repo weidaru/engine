@@ -13,15 +13,15 @@ struct FIBITMAP;
 
 namespace s2 {
 
-class Skybox {
+class SkyboxImage {
 public:
 	enum Face {
 		LEFT, RIGHT, UP, DOWN, NORTH ,SOUTH
 	};
 
 public:
-	Skybox();
-	~Skybox();
+	SkyboxImage();
+	~SkyboxImage();
 
 	bool Initialize(const s2string &path, ImagePixelFormat format);
 	const s2string &GetLastError() { return error;}

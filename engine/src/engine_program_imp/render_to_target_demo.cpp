@@ -11,6 +11,7 @@
 
 #include "scene/camera.h"
 #include "input/input_system.h"
+#include "entity/transform.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -27,11 +28,15 @@ public:
 		ds_buffer(0), texture(0),
 		vb(0), ib(0), vs(0), ps(0), rotate(0.0f),
 		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0),
-		normal_draw_state(0), rtt_draw_state(0) {}
+		normal_draw_state(0), rtt_draw_state(0),
+		camera(0){
+		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+	}
 
 	virtual ~RenderToTargetDemo() {
 		delete normal_draw_state;
 		delete rtt_draw_state;
+		delete camera;
 	}
 
 	virtual bool Initialize(){
@@ -46,8 +51,8 @@ public:
 		ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
 		
-		camera.SetPosition(Vector3(0.0, 1.0, 40.0f));
-		camera.SetForwardVector(Vector3(0.0f, 0.0f, -1.0f));
+		camera->GetTransform()->SetTranslate(Vector3(0.0, 1.0, 40.0f));
+		camera->SetDirectionVector(Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0, 1.0f, 0.0f));
 		
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -71,7 +76,7 @@ public:
 		{
 			Matrix4x4 identity;
 			vs->SetUniform("world", identity);
-			vs->SetUniform("view", camera.GetViewMatrix());
+			vs->SetUniform("view", camera->GetViewMatrix());
 			
 			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
@@ -190,7 +195,7 @@ public:
 		Matrix4x4 rotation_mat;
 		rotation_mat.SetRotationY(rotate);
 		vs->SetUniform("world", rotation_mat);
-		vs->SetUniform("view", camera.GetViewMatrix());
+		vs->SetUniform("view", camera->GetViewMatrix());
 
 		pipeline->Start();
 			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
@@ -276,7 +281,7 @@ private:
 
 	DrawingState *normal_draw_state, *rtt_draw_state;
 	
-	Camera camera;
+	Camera *camera;
 };
 
 AddBeforeMain(RenderToTargetDemo)

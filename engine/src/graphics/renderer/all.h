@@ -15,6 +15,7 @@
 #include "texture1d.h"
 #include "texture2d.h"
 #include "texture3d.h"
+#include "texture_cube.h"
 #include "texture_enum.h"
 #include "vertex_shader.h"
 #include "drawing_state.h"

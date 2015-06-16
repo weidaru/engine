@@ -1,4 +1,4 @@
-#include "skybox.h"
+#include "skybox_image.h"
 
 #include <glog/logging.h>
 
@@ -6,21 +6,21 @@
 
 namespace s2 {
 
-Skybox::Skybox() : is_initialized(false) {
+SkyboxImage::SkyboxImage() : is_initialized(false) {
 	data.resize(6, 0);
 }
 
-Skybox::~Skybox() {
+SkyboxImage::~SkyboxImage() {
 	for(auto it=data.begin(); it!=data.end(); it++) {
 		FreeImage_Unload(*it);
 	}
 }
 
-void Skybox::Check() const {
-	CHECK(is_initialized) << "Skybox is not initialized.";
+void SkyboxImage::Check() const {
+	CHECK(is_initialized) << "SkyboxImage is not initialized.";
 }
 
-bool Skybox::Initialize(const s2string &_path, ImagePixelFormat _format) {
+bool SkyboxImage::Initialize(const s2string &_path, ImagePixelFormat _format) {
 	CHECK(is_initialized == false) << "Cannot initialize twice.";
 
 	path = _path;
@@ -82,7 +82,7 @@ bool Skybox::Initialize(const s2string &_path, ImagePixelFormat _format) {
 	return true;
 }
 
-bool Skybox::CopySubImage(FIBITMAP * source, Face face) {
+bool SkyboxImage::CopySubImage(FIBITMAP * source, Face face) {
 	static uint32_t offsets[][2] = {{1, 0}, {1, 2}, {0, 1}, {2, 1}, {1, 3}, {1, 1}};
 
 	unsigned int source_width = FreeImage_GetWidth(source);
@@ -103,27 +103,27 @@ bool Skybox::CopySubImage(FIBITMAP * source, Face face) {
 	data[face] = sub;
 }
 
-void * Skybox::GetFaceData(Face face) {
+void * SkyboxImage::GetFaceData(Face face) {
 	Check();
 	return static_cast<void *>(FreeImage_GetBits(data[face]));
 }
 	
-uint32_t Skybox::GetWidth() const {
+uint32_t SkyboxImage::GetWidth() const {
 	Check();
 	return FreeImage_GetWidth(data[0]);
 }
 
-uint32_t Skybox::GetHeight() const {
+uint32_t SkyboxImage::GetHeight() const {
 	Check();
 	return FreeImage_GetHeight(data[0]);
 }
 
-ImagePixelFormat Skybox::GetFormat() const {
+ImagePixelFormat SkyboxImage::GetFormat() const {
 	Check();
 	return format;
 }
 
-void Skybox::PopulateTextureCubeOption(TextureCube::Option *option) {
+void SkyboxImage::PopulateTextureCubeOption(TextureCube::Option *option) {
 	option->width = GetWidth();
 	option->height = GetHeight();
 	switch(format) {
