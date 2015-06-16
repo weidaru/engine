@@ -34,7 +34,7 @@ PixelInputType main(VertexInputType input)
 	
 	// Assume directional light
 	float4 light_color = float4(1.0f, 1.0f, 1.0f, 1.0f);
-	float3 light_view = mul((float3x3)(view), float3(0.0f, 0.3f, 0.3f));
+	float3 light_view = mul((float3x3)(view), float3(0.0f, 0.3f, -0.3f));
 	light_view = normalize(light_view);
 	
 	// Calculate reflection

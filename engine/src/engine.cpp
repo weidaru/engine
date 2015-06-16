@@ -41,13 +41,12 @@ void Engine::Shutdown() {
 	if(window_name == PISSED_STR)
 		return;
 
+	delete program_manager;
 	
 	delete entity_system;
 	delete text_system;
 	delete sprite_system;
 	delete input_system;
-
-	delete program_manager;
 
 	RendererSetting renderer_setting = renderer_context->GetSetting();
 	delete renderer_context;

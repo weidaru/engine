@@ -101,6 +101,8 @@ bool SkyboxImage::CopySubImage(FIBITMAP * source, Face face) {
 		FreeImage_Unload(data[face]);
 	}
 	data[face] = sub;
+
+	return true;
 }
 
 void * SkyboxImage::GetFaceData(Face face) {

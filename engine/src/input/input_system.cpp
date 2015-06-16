@@ -49,6 +49,27 @@ T Clamp(T value, const T &floor, const T &ceiling) {
 	return result>ceiling ? ceiling:result;
 }
 
+RECT GetDrawingRect(HWND hwnd) {
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+	DWORD style = GetWindowStyle(hwnd);
+	if(style & WS_DLGFRAME) {
+		int	caption_height = GetSystemMetrics(SM_CYCAPTION);
+		rect.top += caption_height;
+	}
+
+	if(style & WS_BORDER) {
+		int border_width = GetSystemMetrics(SM_CXBORDER);
+		int border_height = GetSystemMetrics(SM_CYBORDER);
+		rect.left += border_width;
+		rect.right -= border_width;
+		rect.top += border_height;
+		rect.bottom -= border_height;
+	}
+
+	return rect;
+}
+
 }
 
 void InputSystem::SetMousePosition(int x, int y) {
@@ -56,8 +77,7 @@ void InputSystem::SetMousePosition(int x, int y) {
 		const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		mouse_x = Clamp(x, 0, (int)rs.window_width);
 		mouse_y = Clamp(y, 0, (int)rs.window_height);
-		RECT rect;
-		GetWindowRect((HWND)hwnd, &rect);
+		RECT rect = GetDrawingRect((HWND)hwnd);
 		SetCursorPos( rect.left+mouse_x, rect.top+mouse_y);
 	}
 }
@@ -85,23 +105,7 @@ void InputSystem::OneFrame(float delta) {
 		CHECK(GetKeyboardState(&current[0]))<<GetLastError();
 		POINT p;
 		GetCursorPos(&p);
-		RECT rect;
-		GetWindowRect((HWND)hwnd, &rect);
-
-		DWORD style = GetWindowStyle((HWND)hwnd);
-		if(style & WS_DLGFRAME) {
-			int	caption_height = GetSystemMetrics(SM_CYCAPTION);
-			rect.top += caption_height;
-		}
-
-		if(style & WS_BORDER) {
-			int border_width = GetSystemMetrics(SM_CXBORDER);
-			int border_height = GetSystemMetrics(SM_CYBORDER);
-			rect.left += border_width;
-			rect.right -= border_width;
-			rect.top += border_height;
-			rect.bottom -= border_height;
-		}
+		RECT rect = GetDrawingRect((HWND)hwnd);
 		
 		int old_x = mouse_x;
 		mouse_x = p.x-rect.left;

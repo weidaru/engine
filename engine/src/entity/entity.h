@@ -33,7 +33,7 @@ public:
 	Entity * GetParent() const { return parent; }
 	uint32_t GetId() const { return id; }
 
-	virtual Entity & SetEnabled(bool new_value) { enabled=new_value; return *this; } 
+	virtual Entity & SetEnabled(bool new_value);
 	bool IsEnabled() const { return enabled; }
 
 	const s2string & GetName() const { return name; }

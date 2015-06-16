@@ -61,18 +61,22 @@ Camera & Camera::TranslateForward(float distance) {
 	Transform &trans = *GetTransform();
 	Vector3 real_forward = (trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3();
 	trans.Translate(real_forward * distance);
+
+	return *this;
 }
 
 Camera & Camera::TranslateRight(float distance) {
 	Transform &trans = *GetTransform();
 	Vector3 real_right = forward.Cross((trans.CalcualteRotateMatrix()*Vector4(up, 0.0f)).ToVec3());
 	trans.Translate(real_right * distance);
+
+	return *this;
 }
 
 Matrix4x4 Camera::GetViewMatrix() const {
 	const Transform &trans = *GetTransform();
 
-	Vector3 zaxis = -1.0f * (trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3();
+	Vector3 zaxis = (trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3();
 	Vector3 yaxis = (trans.CalcualteRotateMatrix()*Vector4(up, 0.0f)).ToVec3();
 	Vector3 xaxis = up.Cross(zaxis);
 

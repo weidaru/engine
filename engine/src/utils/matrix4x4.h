@@ -43,6 +43,7 @@ struct Matrix4x4 {
 	Matrix4x4 & SetRotationX(float angle);
 	Matrix4x4 & SetRotationY(float angle);
 	Matrix4x4 & SetRotationZ(float angle);
+	//Projection is LH.
 	Matrix4x4 & SetProjection(float aspect, float fov, float np, float fp);
 	Matrix4x4 & SetTranslate(const s2::Vector3& vec);
 	Matrix4x4 & SetTranslate(float x, float y, float z);

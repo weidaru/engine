@@ -20,7 +20,7 @@ public:
 	}
 
 	virtual s2string GetName() const {
-	
+		return "";
 	}
 
 	virtual void OneFrame(float delta) {
@@ -28,7 +28,6 @@ public:
 	}
 
 private:
-
 };
 
 }

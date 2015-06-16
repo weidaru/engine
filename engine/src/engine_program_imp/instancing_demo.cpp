@@ -6,6 +6,7 @@
 #include "asset/asset_path.h"
 #include "scene/camera.h"
 #include "input/input_system.h"
+#include "entity/transform.h"
 
 #include <glog/logging.h>
 #include <stdlib.h>
@@ -20,14 +21,16 @@ namespace s2 {
 class InstancingDemo : public EngineProgram {
 public:
 	InstancingDemo()
-		: position_buffer(0), color_buffer(0), instance_buffer(0), index_buffer(0), vs(0), ps(0), ds_buffer(0) {
+		:	position_buffer(0), color_buffer(0), instance_buffer(0), 
+			index_buffer(0), vs(0), ps(0), ds_buffer(0), camera(0) {
 		
 	}
 	
 	virtual ~InstancingDemo() { }
 	
 	virtual bool Initialize() {
-		camera.SetPosition(Vector3(20.0f, 20.0f, 75.0f));
+		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+		camera->GetTransform()->Translate(Vector3(20.0f, 20.0f, -75.0f));
 
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		
@@ -43,7 +46,7 @@ public:
 		
 		{
 			vs->SetUniform("world", Matrix4x4());
-			vs->SetUniform("view", camera.GetViewMatrix());
+			vs->SetUniform("view", camera->GetViewMatrix());
 
 			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
@@ -138,23 +141,18 @@ public:
 		int delta_x = is.GetMouseXMove();
 		int delta_y = is.GetMouseYMove();
 
-		if(delta_x != 0) {
-			camera.TurnRight(delta_x*PI/1000.0f);
-		}
-		if (delta_y != 0) {
-			camera.TurnUp(-delta_y*PI/1000.0f);
-		}
+		camera->GetTransform()->Rotate(-delta_y*PI/1000.0f,  delta_x*PI/1000.0f, 0.0f);
 		is.SetMousePositionPercent(0.5f, 0.5f);
 
 		if(is.IsKeyDown(InputSystem::K_W)) {
-			camera.MoveForward(20.0f*delta);
+			camera->TranslateForward(20.0f*delta);
 		} else if(is.IsKeyDown(InputSystem::K_S)) {
-			camera.MoveForward(-20.0f*delta);
+			camera->TranslateForward(-20.0f*delta);
 		}
 		if(is.IsKeyDown(InputSystem::K_D)) {
-			camera.MoveRight(20.0f*delta);
+			camera->TranslateRight(20.0f*delta);
 		} else if(is.IsKeyDown(InputSystem::K_A)) {
-			camera.MoveRight(-20.0f*delta);
+			camera->TranslateRight(-20.0f*delta);
 		}
 	}
 	
@@ -164,7 +162,7 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
-		vs->SetUniform("view", camera.GetViewMatrix());
+		vs->SetUniform("view", camera->GetViewMatrix());
 
 		pipeline->Start();
 			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
@@ -188,7 +186,7 @@ private:
 	PixelShader *ps;
 	Texture2D *ds_buffer;
 
-	Camera camera;
+	Camera *camera;
 };
 
 AddBeforeMain(InstancingDemo)

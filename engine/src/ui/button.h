@@ -24,8 +24,6 @@ public:
 	int AddClickCallback(Callback cb);
 	void RemoveClickCallback(uint32_t index);
 
-	virtual Button & SetEnabled(bool new_value) override;
-
 	Button & SetFontSize(uint32_t size);
 	uint32_t GetFontSize();
 

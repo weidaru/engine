@@ -97,6 +97,18 @@ Matrix4x4 Entity::GetCascadeTransformMatrix() {
 	}
 }
 
+Entity & Entity::SetEnabled(bool new_value) {
+	for(auto it=components.begin(); it!=components.end(); it++) {
+		it->second->SetEnabled(new_value);
+	}
+
+	for(auto it=children.begin(); it!=children.end(); it++) {
+		it->second->SetEnabled(new_value);
+	}
+
+	return *this;
+}
+
 }
 
 

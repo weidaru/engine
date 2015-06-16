@@ -30,7 +30,6 @@ public:
 		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0),
 		normal_draw_state(0), rtt_draw_state(0),
 		camera(0){
-		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
 	}
 
 	virtual ~RenderToTargetDemo() {
@@ -41,6 +40,8 @@ public:
 
 	virtual bool Initialize(){
 		printf("Initialize test program.\n");
+		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+
 		//Create and set depth stencil buffer
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		
@@ -51,8 +52,8 @@ public:
 		ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
 		
-		camera->GetTransform()->SetTranslate(Vector3(0.0, 1.0, 40.0f));
-		camera->SetDirectionVector(Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0, 1.0f, 0.0f));
+		camera->GetTransform()->SetTranslate(Vector3(0.0, 1.0, -40.0f));
+		camera->SetDirectionVector(Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0, 1.0f, 0.0f));
 		
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -180,7 +181,7 @@ public:
 		tex_vb->Initialize(buffer_option);
 		
 		//Set index buffer
-		Buffer::IndexBufferElementType indices[6] = {0,2,1, 0,3,2};
+		Buffer::IndexBufferElementType indices[6] = {0,1,2, 0,2,3};
 		tex_ib = manager->CreateBuffer();
 		buffer_option.InitializeAsIndexBuffer(6, indices);
 		buffer_option.resource_write = RendererEnum::IMMUTABLE;
@@ -230,24 +231,19 @@ public:
 		InputSystem &is = *Engine::GetSingleton()->GetInputSystem();
 		int delta_x = is.GetMouseXMove();
 		int delta_y = is.GetMouseYMove();
-
-		if(delta_x != 0) {
-			camera.TurnRight(delta_x*PI/1000.0f);
-		}
-		if (delta_y != 0) {
-			camera.TurnUp(-delta_y*PI/1000.0f);
-		}
+		
+		camera->GetTransform()->Rotate(-delta_y/1000.0f,  delta_x/1000.0f, 0.0f);
 		is.SetMousePositionPercent(0.5f, 0.5f);
 
 		if(is.IsKeyDown(InputSystem::K_W)) {
-			camera.MoveForward(20.0f*delta);
+			camera->TranslateForward(20.0f*delta);
 		} else if(is.IsKeyDown(InputSystem::K_S)) {
-			camera.MoveForward(-20.0f*delta);
+			camera->TranslateForward(-20.0f*delta);
 		}
 		if(is.IsKeyDown(InputSystem::K_D)) {
-			camera.MoveRight(20.0f*delta);
+			camera->TranslateRight(20.0f*delta);
 		} else if(is.IsKeyDown(InputSystem::K_A)) {
-			camera.MoveRight(-20.0f*delta);
+			camera->TranslateRight(-20.0f*delta);
 		}
 	}
 	

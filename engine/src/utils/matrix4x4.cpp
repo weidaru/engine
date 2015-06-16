@@ -144,9 +144,9 @@ Matrix4x4 & Matrix4x4::SetProjection(float aspect, float fov, float np, float fp
 	float yscale = 1.0f/tan(fov/2);
 	data[0][0] = yscale/aspect;
 	data[1][1] = yscale;
-	data[2][2] = fp/(np-fp);
+	data[2][2] = fp/(fp-np);
 	data[2][3] = np*fp/(np-fp);
-	data[3][2] = -1.0f;
+	data[3][2] = 1.0f;
 	data[3][3] = 0.0f;
 
 	return *this;

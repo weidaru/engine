@@ -36,15 +36,6 @@ void Button::RemoveClickCallback(uint32_t index) {
 	}
 }
 
-Button & Button::SetEnabled(bool new_value) {
-	Entity::SetEnabled(new_value);
-
-	sprite->SetEnabled(new_value);
-	
-
-	return *this;
-}
-
 void Button::OneFrame(float delta) {
 	if(!IsEnabled()) {
 		return;

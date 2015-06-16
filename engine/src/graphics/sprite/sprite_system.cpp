@@ -59,6 +59,9 @@ void SpriteSystem::Deregister(Sprite *s) {
 void SpriteSystem::OneFrame(float delta) {
 	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 	//Assume only 1 batch now.
+	if(sprites.size() == 0) {
+		return;
+	}
 	SpriteInstance *instances = new SpriteInstance[kSpriteBatchSize];
 	uint32_t count = 0;
 	for(uint32_t i=0; i<sprites.size(); i++) {

@@ -10,8 +10,7 @@ namespace s2 {
 
 /**
  * Assume column matrix and column vector
- *
- * Normal camera with up being (0.0f, 1.0f, 0.0f)
+ * LH system, with default forward being [0.0f, 0.0f, 1.0f], up being [0.0f, 1.0f, 0.0f]
  */
 class Camera : public Entity {
 public:

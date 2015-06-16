@@ -90,8 +90,6 @@ void TextSystem::OneFrame(float delta) {
 		D3D11GraphicPipeline *manager = NiceCast(D3D11GraphicPipeline *, _pipeline);
 		CHECK_NOTNULL(manager);
 
-		
-
 		//The restore flag here is a little bit expensive, better to have our ownway of restoring state.
 		uint32_t flag = FW1_RESTORESTATE | FW1_NOGEOMETRYSHADER;
 
@@ -116,8 +114,8 @@ void TextSystem::OneFrame(float delta) {
 			rect->Bottom = center_y + half_clipper_height;
 		}
 
-		//TODO: Should only compute translate and rotate matrix.
 		Matrix4x4 transform_matrix = CalculateCascadeTranslateRotateMatrix(cur->GetEntity());
+		//Orth project screen coordinates(with left-top corner being [0,0], right-bottom corner being [w, h]) to NDC.
 		Matrix4x4 orth(
 			2.0f/w_width, 0.0f, 0.0f, -1.0f,
 			0.0f, -2.0f/w_height, 0.0f, 1.0f,
@@ -128,6 +126,7 @@ void TextSystem::OneFrame(float delta) {
 		shift_back.SetTranslate(w_width/2.0f - center_x, w_height/2.0f - center_y, cur->GetDepth());
 		transform_matrix *=  orth;
 		transform_matrix *= shift_back;
+		//By default, FW1 use column major matrix. But our system uses row major matrix. Transpose to be compatible.
 		transform_matrix.Transpose();
 
 		font_wrapper->DrawTextLayout(
