@@ -1,5 +1,7 @@
 #include "camera.h"
 #include "entity/transform.h"
+#include "engine.h"
+#include "input/input_system.h"
 
 #include <glog/logging.h>
 
@@ -67,7 +69,7 @@ Camera & Camera::TranslateForward(float distance) {
 
 Camera & Camera::TranslateRight(float distance) {
 	Transform &trans = *GetTransform();
-	Vector3 real_right = forward.Cross((trans.CalcualteRotateMatrix()*Vector4(up, 0.0f)).ToVec3());
+	Vector3 real_right = up.Cross((trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3());
 	trans.Translate(real_right * distance);
 
 	return *this;
@@ -91,6 +93,30 @@ Matrix4x4 Camera::GetViewMatrix() const {
 		zaxis[0], 				zaxis[1], 				zaxis[2],			-p_dot_z,
 		0.0f,						0.0f,						0.0f,					1.0f
 	);
+}
+
+void Camera::OneFrame(float delta) {
+	InputSystem &is = *Engine::GetSingleton()->GetInputSystem();
+	int delta_x = is.GetMouseXMove();
+	int delta_y = is.GetMouseYMove();
+		
+	GetTransform()->Rotate(delta_y/1000.0f,  delta_x/1000.0f, 0.0f);
+	
+	float mouse_x_p = is.GetMouseXPercent(), mouse_y_p = is.GetMouseYPercent();
+	if(mouse_x_p<0.4f || mouse_x_p>0.6f || mouse_y_p<0.4f || mouse_y_p>0.6f ) {
+		is.SetMousePositionPercent(0.5f, 0.5f);
+	}
+
+	if(is.IsKeyDown(InputSystem::K_W)) {
+		TranslateForward(20.0f*delta);
+	} else if(is.IsKeyDown(InputSystem::K_S)) {
+		TranslateForward(-20.0f*delta);
+	}
+	if(is.IsKeyDown(InputSystem::K_D)) {
+		TranslateRight(20.0f*delta);
+	} else if(is.IsKeyDown(InputSystem::K_A)) {
+		TranslateRight(-20.0f*delta);
+	}
 }
 
 }

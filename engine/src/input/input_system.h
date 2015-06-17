@@ -36,6 +36,7 @@ public:
 	void OneFrame(float delta);
 	
 	int GetMouseX() const { return mouse_x; }
+	float GetMouseXPercent() const;
 
 	/**
 	 * This is absolute movement which counts on delta already.
@@ -43,6 +44,7 @@ public:
 	 */
 	int GetMouseXMove() const;
 	int GetMouseY() const { return mouse_y; }
+	float GetMouseYPercent() const;
 	/**
 	 * This is absolute movement which counts on delta already.
 	 * GetMouseYMove()/delta will give the mouse move speed on y axis.

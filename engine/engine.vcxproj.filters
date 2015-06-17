@@ -285,6 +285,12 @@
     <ClInclude Include="src\asset\skybox_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\scene\scene_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\utils\type_info.cpp">
@@ -447,6 +453,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\asset\skybox_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\scene_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

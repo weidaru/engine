@@ -100,6 +100,16 @@ int InputSystem::GetMouseYMove() const {
 	return  mouse_y_delta;
 } 
 
+float InputSystem::GetMouseXPercent() const {
+	const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	return (float)mouse_x/rs.window_width;
+}
+
+float InputSystem::GetMouseYPercent() const {
+	const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+	return (float)mouse_y/rs.window_height;
+}
+
 void InputSystem::OneFrame(float delta) {
 	if(GetForegroundWindow() == hwnd) {
 		CHECK(GetKeyboardState(&current[0]))<<GetLastError();

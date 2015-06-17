@@ -135,30 +135,8 @@ public:
 	virtual s2string GetName() const {
 		return "InstancingDemo";
 	}
-
-	void UpdateCamera(float delta) {
-		InputSystem &is = *Engine::GetSingleton()->GetInputSystem();
-		int delta_x = is.GetMouseXMove();
-		int delta_y = is.GetMouseYMove();
-
-		camera->GetTransform()->Rotate(delta_y*PI/1000.0f,  delta_x*PI/1000.0f, 0.0f);
-		is.SetMousePositionPercent(0.5f, 0.5f);
-
-		if(is.IsKeyDown(InputSystem::K_W)) {
-			camera->TranslateForward(20.0f*delta);
-		} else if(is.IsKeyDown(InputSystem::K_S)) {
-			camera->TranslateForward(-20.0f*delta);
-		}
-		if(is.IsKeyDown(InputSystem::K_D)) {
-			camera->TranslateRight(20.0f*delta);
-		} else if(is.IsKeyDown(InputSystem::K_A)) {
-			camera->TranslateRight(-20.0f*delta);
-		}
-	}
 	
 	virtual void OneFrame(float delta) {
-		UpdateCamera(delta);
-
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);

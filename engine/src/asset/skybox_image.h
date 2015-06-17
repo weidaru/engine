@@ -1,5 +1,5 @@
-#ifndef	SKYBOX_H_
-#define SKYBOX_H_
+#ifndef	SKYBOX_IMAGE_H_
+#define SKYBOX_IMAGE_H_
 
 #include "utils/s2string.h"
 #include "image_common.h"
@@ -49,4 +49,4 @@ private:
 
 }
 
-#endif		//SKYBOX_H_
+#endif		//SKYBOX_IMAGE_H_

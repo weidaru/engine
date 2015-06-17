@@ -77,6 +77,8 @@
     <ClInclude Include="src\graphics\renderer\texture_enum.h" />
     <ClInclude Include="src\graphics\renderer\vertex_shader.h" />
     <ClInclude Include="src\scene\camera.h" />
+    <ClInclude Include="src\scene\scene_manager.h" />
+    <ClInclude Include="src\scene\skybox.h" />
     <ClInclude Include="src\ui\button.h" />
     <ClInclude Include="src\graphics\sprite\sprite.h" />
     <ClInclude Include="src\utils\matrix4x4.h" />
@@ -137,6 +139,8 @@
     <ClCompile Include="src\graphics\renderer\resource.cpp" />
     <ClCompile Include="src\graphics\renderer\sampler.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
+    <ClCompile Include="src\scene\scene_manager.cpp" />
+    <ClCompile Include="src\scene\skybox.cpp" />
     <ClCompile Include="src\ui\button.cpp" />
     <ClCompile Include="src\graphics\sprite\sprite.cpp" />
     <ClCompile Include="src\utils\matrix4x4.cpp" />

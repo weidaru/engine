@@ -6,6 +6,7 @@
 #include "entity/entity_system.h"
 #include "graphics/text/text_system.h"
 #include "graphics/sprite/sprite_system.h"
+#include "scene/scene_manager.h"
 
 #include <glog/logging.h>
 
@@ -33,35 +34,9 @@ namespace s2 {
 Engine::Engine() 
 	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), 
 		program_manager(new EngineProgramManager), 
-		input_system(0), entity_system(0), sprite_system(0), text_system(0){
+		input_system(0), entity_system(0), sprite_system(0), text_system(0), 
+		scene_manager(0){
 
-}
-
-void Engine::Shutdown() {
-	if(window_name == PISSED_STR)
-		return;
-
-	delete program_manager;
-	
-	delete entity_system;
-	delete text_system;
-	delete sprite_system;
-	delete input_system;
-
-	RendererSetting renderer_setting = renderer_context->GetSetting();
-	delete renderer_context;
-
-	// Fix the display settings if leaving full screen mode.
-	if(renderer_setting.full_screen) 
-		ChangeDisplaySettings(NULL, 0);
-
-	// Remove the window.
-	DestroyWindow(hwnd);
-	hwnd = NULL;
-
-	// Remove the application instance.
-	UnregisterClass(window_name.c_str(), hinstance);
-	hinstance = NULL;
 }
 
 void Engine::Run() {
@@ -110,8 +85,7 @@ void Engine::OneFrame(float delta) {
 	sprite_system->OneFrame(delta);
 	text_system->OneFrame(delta);
 
-	
-	program_manager->Get("InstancingDemo")->OneFrame(delta);
+	program_manager->Get("RenderToTargetDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 
@@ -131,12 +105,43 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	entity_system = new EntitySystem();
 	sprite_system = new SpriteSystem();
 	text_system = new TextSystem();
+	scene_manager = new SceneManager();
 
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);
 	for(uint32_t i=0; i<programs.size(); i++) {
 		programs[i]->Initialize();
 	}
+}
+
+void Engine::Shutdown() {
+	if(window_name == PISSED_STR)
+		return;
+
+	delete program_manager;
+	
+	delete scene_manager;
+
+	delete entity_system;
+	delete text_system;
+	delete sprite_system;
+
+	delete input_system;
+
+	RendererSetting renderer_setting = renderer_context->GetSetting();
+	delete renderer_context;
+
+	// Fix the display settings if leaving full screen mode.
+	if(renderer_setting.full_screen) 
+		ChangeDisplaySettings(NULL, 0);
+
+	// Remove the window.
+	DestroyWindow(hwnd);
+	hwnd = NULL;
+
+	// Remove the application instance.
+	UnregisterClass(window_name.c_str(), hinstance);
+	hinstance = NULL;
 }
 
 void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint32_t window_height, bool fullscreen) {

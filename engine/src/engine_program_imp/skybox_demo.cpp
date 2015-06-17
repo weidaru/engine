@@ -3,7 +3,7 @@
 
 #include "graphics/renderer/all.h"
 #include "asset/asset_path.h"
-
+#include "scene/camera.h"
 #include <glog/logging.h>
 
 

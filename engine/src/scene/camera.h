@@ -28,6 +28,13 @@ public:
 	Camera & TranslateForward(float distance);
 	Camera & TranslateRight(float distance);
 
+protected:
+	virtual void OneFrame(float delta) override;
+
+private:
+	Camera(const Camera &);
+	Camera & operator=(const Camera &);
+
 private:
 	Vector3 forward, up;
 };
