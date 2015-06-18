@@ -44,7 +44,9 @@ Entity * EntitySystem::Remove(uint32_t id) {
 
 void EntitySystem::OneFrame(float delta) {
 	for(auto it=entities.begin(); it!=entities.end(); it++) {
-		it->second->OneFrame(delta);
+		if(it->second->IsEnabled()) {
+			it->second->OneFrame(delta);
+		}
 	}
 }
 

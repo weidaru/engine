@@ -47,10 +47,26 @@ void SetDesc(const TextureCube::Option &option, D3D11_TEXTURE2D_DESC *_desc) {
 	desc.MipLevels = option.mip_level;
 	desc.ArraySize = option.array_size * 6;
 	desc.Format = D3D11EnumConverter::TextureFormatToDXGIFormat(option.format);
-	desc.SampleDesc.Count = 0;
+	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	
 	desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+}
+
+}
+
+namespace {
+uint32_t GetNumMipLevels(uint32_t width, uint32_t height)
+{
+	uint32_t r = 1;
+	while(width > 1 && height > 1)
+	{
+    	width = max(width / 2, 1);
+    	height = max(height / 2, 1);
+    	++r;
+	}
+
+	return r;
 }
 
 }
@@ -69,7 +85,7 @@ void D3D11TextureCube::Initialize(const Option &_option)  {
 	desc.BindFlags = desc.BindFlags | D3D11_BIND_SHADER_RESOURCE;
 	srv_desc = new D3D11_SHADER_RESOURCE_VIEW_DESC;
 	srv_desc->Format = desc.Format;
-	if(desc.ArraySize > 1) {
+	if(_option.array_size > 1) {
 		srv_desc->ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBEARRAY;
 		srv_desc->TextureCubeArray.MipLevels = desc.MipLevels;
 		srv_desc->TextureCubeArray.MostDetailedMip = 0;
@@ -96,13 +112,18 @@ void D3D11TextureCube::Initialize(const Option &_option)  {
 	}
 	
 	HRESULT result=1;
-	
-	if(_option.data.IsEmpty()) {
+	uint32_t real_mip_level = _option.mip_level;
+	if(_option.mip_level == 0) {
+		real_mip_level =  GetNumMipLevels(_option.width, _option.height);
+	}
+
+	if(_option.data.IsEmpty() == false) {
 		D3D11_SUBRESOURCE_DATA *sub_resources = new D3D11_SUBRESOURCE_DATA[_option.data.GetSize()];
 		for(uint32_t i=0; i<_option.data.GetArraySize(); i++) {
 			for(uint32_t j=0; j<_option.data.GetMipLevel(); j++) {
 				for(uint32_t k=0; k<6; k++) {
-					D3D11_SUBRESOURCE_DATA &sub_resource = sub_resources[D3D11CalcSubresource(j, i, _option.mip_level)];
+					uint32_t index = D3D11CalcSubresource(j, k, real_mip_level) + i*6*real_mip_level;
+					D3D11_SUBRESOURCE_DATA &sub_resource = sub_resources[D3D11CalcSubresource(j, k, real_mip_level) + i*6*real_mip_level];
 					sub_resource.pSysMem = _option.data.GetData(i, j, (CubeFace)k);
 					sub_resource.SysMemPitch = _option.width/(j+1)*RendererEnum::GetFormatSize(_option.format);
 				}

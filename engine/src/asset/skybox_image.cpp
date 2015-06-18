@@ -79,6 +79,7 @@ bool SkyboxImage::Initialize(const s2string &_path, ImagePixelFormat _format) {
 
 	FreeImage_Unload(bitmap);
 	is_initialized = true;
+
 	return true;
 }
 
@@ -100,6 +101,26 @@ bool SkyboxImage::CopySubImage(FIBITMAP * source, Face face) {
 	if(data[face]) {
 		FreeImage_Unload(data[face]);
 	}
+
+	if(face == UP) {
+		FreeImage_FlipHorizontal(sub);
+	} else {
+		FreeImage_FlipVertical(sub);
+	}
+	
+	//Flip ARGB to ABGR
+	uint32_t scanline = FreeImage_GetPitch(sub)/4;
+	uint32_t *raw = (uint32_t *)FreeImage_GetBits(sub);
+	for(unsigned int i=0; i<width; i++) {
+		for(unsigned int j=0; j<height; j++) {
+			uint32_t *address = raw+scanline*j+i;
+			uint32_t old = *address;
+			uint32_t rep = (old & 0x00FF0000) >> 16;
+			rep |= ((old&0x000000FF) << 16);
+			*address = (old & 0xFF00FF00) | rep;
+		}
+	}
+
 	data[face] = sub;
 
 	return true;
@@ -136,7 +157,9 @@ void SkyboxImage::PopulateTextureCubeOption(TextureCube::Option *option) {
 		CHECK(false)<<"Unsupported format "<<static_cast<int>(format);
 		break;
 	}
-
+	
+	option->mip_level = 1;
+	option->array_size = 1;
 	option->data.Reset(1, 1);
 	
 	for(unsigned int i=0; i<6; i++) {

@@ -98,6 +98,7 @@ Matrix4x4 Entity::GetCascadeTransformMatrix() {
 }
 
 Entity & Entity::SetEnabled(bool new_value) {
+	enabled = new_value;
 	for(auto it=components.begin(); it!=components.end(); it++) {
 		it->second->SetEnabled(new_value);
 	}

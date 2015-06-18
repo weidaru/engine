@@ -53,8 +53,7 @@ public:
 		ds_buffer->Initialize(ds_option);
 		
 		camera->GetTransform()->SetTranslate(Vector3(0.0, 1.0, -40.0f));
-		camera->SetDirectionVector(Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0, 1.0f, 0.0f));
-		
+
 		CreateColorProgram();
 		CreateTextureProgram();
 		

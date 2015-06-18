@@ -21,9 +21,8 @@ public:
 	Matrix4x4 GetViewMatrix() const;
 	
 	//Up will be adjusted to forward to be orthogonal.
-	Camera & SetDirectionVector(const Vector3 &forward, const Vector3 &up);
+	Camera & SetForwardVector(const Vector3 &forward);
 	const Vector3 & GetForwardVector() const { return forward; }
-	const Vector3 & GetUpVector() const { return up; }
 
 	Camera & TranslateForward(float distance);
 	Camera & TranslateRight(float distance);
@@ -36,7 +35,7 @@ private:
 	Camera & operator=(const Camera &);
 
 private:
-	Vector3 forward, up;
+	Vector3 forward;
 };
 
 }

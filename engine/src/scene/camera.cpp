@@ -30,7 +30,6 @@ void Camera::Reset() {
 	trans.ResetTranslate();
 
 	forward.Set(0.0f, 0.0f, 1.0f);
-	up.Set(0.0f, 1.0f, 0.0f);
 }
 
 
@@ -50,12 +49,9 @@ void MakeVertical(Vector3 *_lhs, const Vector3 &rhs) {
 
 }
 
-Camera & Camera::SetDirectionVector(const Vector3 &_forward, const Vector3 &_up) {
+Camera & Camera::SetForwardVector(const Vector3 &_forward) {
 	forward = _forward;
 	forward.Normalize();
-	up = _up;
-	MakeVertical(&up, forward);
-
 	return *this;
 }
 
@@ -69,7 +65,7 @@ Camera & Camera::TranslateForward(float distance) {
 
 Camera & Camera::TranslateRight(float distance) {
 	Transform &trans = *GetTransform();
-	Vector3 real_right = up.Cross((trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3());
+	Vector3 real_right = Vector3(0.0f, 1.0f, 0.0f).Cross((trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3());
 	trans.Translate(real_right * distance);
 
 	return *this;
@@ -78,9 +74,11 @@ Camera & Camera::TranslateRight(float distance) {
 Matrix4x4 Camera::GetViewMatrix() const {
 	const Transform &trans = *GetTransform();
 
-	Vector3 zaxis = (trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3();
-	Vector3 yaxis = (trans.CalcualteRotateMatrix()*Vector4(up, 0.0f)).ToVec3();
-	Vector3 xaxis = up.Cross(zaxis);
+	Matrix4x4 rotation = trans.CalcualteRotateMatrix();
+
+	Vector3 zaxis = (rotation*Vector4(forward, 0.0f)).ToVec3();
+	Vector3 xaxis = Vector3(0.0f, 1.0f, 0.0f).Cross(zaxis);
+	Vector3 yaxis = zaxis.Cross(xaxis);
 
 	Vector3 position = trans.GetTranslate();
 	float p_dot_x = position.Dot(xaxis);

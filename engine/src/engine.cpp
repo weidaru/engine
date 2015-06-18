@@ -79,13 +79,14 @@ void Engine::OneFrame(float delta) {
 		
 	float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
+	pipeline->ClearDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil(), true, 1.0f, 0.0f, 0);
 
 	entity_system->OneFrame(delta);
 	input_system->OneFrame(delta);
 	sprite_system->OneFrame(delta);
 	text_system->OneFrame(delta);
 
-	program_manager->Get("RenderToTargetDemo")->OneFrame(delta);
+	program_manager->Get("SkyboxDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 
