@@ -74,9 +74,11 @@ Camera & Camera::TranslateRight(float distance) {
 Matrix4x4 Camera::GetViewMatrix() const {
 	const Transform &trans = *GetTransform();
 
-	Matrix4x4 rotation = trans.CalcualteRotateMatrix();
+	//Use spherical coordinate for forward vector.
+	const Vector3 & rotate = trans.GetRotate();
+	float theta = rotate[0], phi = rotate[1];
 
-	Vector3 zaxis = (rotation*Vector4(forward, 0.0f)).ToVec3();
+	Vector3 zaxis(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));
 	Vector3 xaxis = Vector3(0.0f, 1.0f, 0.0f).Cross(zaxis);
 	Vector3 yaxis = zaxis.Cross(xaxis);
 
@@ -98,7 +100,7 @@ void Camera::OneFrame(float delta) {
 	int delta_x = is.GetMouseXMove();
 	int delta_y = is.GetMouseYMove();
 		
-	GetTransform()->Rotate(delta_y/1000.0f,  delta_x/1000.0f, 0.0f);
+	GetTransform()->Rotate(delta_x/1000.0f,  -delta_y/1000.0f, 0.0f);
 	
 	float mouse_x_p = is.GetMouseXPercent(), mouse_y_p = is.GetMouseYPercent();
 	if(mouse_x_p<0.4f || mouse_x_p>0.6f || mouse_y_p<0.4f || mouse_y_p>0.6f ) {
