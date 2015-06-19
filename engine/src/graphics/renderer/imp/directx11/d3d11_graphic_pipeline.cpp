@@ -459,6 +459,60 @@ void D3D11GraphicPipeline::DrawInstance(DrawingState **_state,
 	input_stage.FlushWithInstancing(vertex_start, vertex_count, instance_start, instance_count);
 }
 
+void D3D11GraphicPipeline::PushState() {
+	input_stage.PushState();
+	output_stage.PushState();
+
+	saved_states.push(State());
+	State &new_state= saved_states.top();
+	new_state.vs = vs;
+	new_state.ps = ps;
+	new_state.gs = gs;
+
+	new_state.rast_opt = rast_opt;
+	new_state.rast_state = rast_state;
+	rast_state->AddRef();
+
+	new_state.ds_opt = ds_opt;
+	new_state.ds_state = ds_state;
+	ds_state->AddRef();
+
+	new_state.blend_opt = blend_opt;
+	new_state.blend_state = blend_state;
+	blend_state->AddRef();
+}
+
+void D3D11GraphicPipeline::PopState() {
+	State &state = saved_states.top();
+	SetVertexShader(state.vs);
+	SetPixelShader(state.ps);
+	SetGeometryShader(state.gs);
+
+	rast_opt = state.rast_opt;
+	rast_state->Release();
+	rast_state = state.rast_state;
+
+	ds_opt = state.ds_opt;
+	ds_state->Release();
+	ds_state = state.ds_state;
+
+	blend_opt = state.blend_opt;
+	blend_state->Release();
+	blend_state = state.blend_state;
+}
+
+void D3D11GraphicPipeline::ClearSavedState() {
+	while(saved_states.empty() == false) {
+		State &state = saved_states.top();
+
+		state.rast_state->Release();
+		state.ds_state->Release();
+		state.blend_state->Release();
+
+		saved_states.pop();
+	}
+}
+
 void D3D11GraphicPipeline::Start() {
 	active = true;
 	input_stage.Refresh();

@@ -3,6 +3,7 @@
 
 #include "graphics/renderer/graphic_pipeline.h"
 #include <vector>
+#include <stack>
 
 struct ID3D11InputLayout;
 
@@ -54,6 +55,12 @@ private:
 		}
 	};
 
+	struct State {
+		IBInfo ib;
+		std::vector<VBInfo> vbs;
+		GraphicPipeline::PrimitiveTopology topology;
+	};
+
 public:
 	D3D11InputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
 	~D3D11InputStage();
@@ -78,6 +85,10 @@ public:
 
 	void SetAutoSizeOnDraw(bool auto_size);
 	bool GetAutoSizeOnDraw();
+
+	void PushState();
+	void PopState();
+	void ClearSavedState();
 	
 private:
 	D3D11InputLayout * CreateInputLayout(const D3D11VertexShader *shader);
@@ -99,6 +110,7 @@ private:
 	uint32_t current_first_instance_count;
 	ID3D11InputLayout *owned_layout;
 
+	std::stack<State> saved_states;
 };
 
 

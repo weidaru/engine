@@ -51,7 +51,10 @@ void D3D11OutputStage::SetRenderTarget(uint32_t index, RenderTarget *_target) {
 	}
 
 	rts[index].data = target;
+	SyncRenderTargetsAndDepthStencil();
+}
 
+void D3D11OutputStage::SyncRenderTargetsAndDepthStencil() {
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
 	for (uint32_t i = 0; i<rts.size(); i++) {
@@ -68,7 +71,10 @@ void D3D11OutputStage::SetRenderTarget(uint32_t index, RenderTarget *_target) {
 	else {
 		context->OMSetRenderTargets(rts.size(), rt_array, 0);
 	}
+
+	delete [] rt_array;
 }
+
 
 D3D11RenderTarget * D3D11OutputStage::GetRenderTarget(uint32_t index) {
 	return rts[index].data;
@@ -85,38 +91,14 @@ void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 	}
 	ds.data = depth_stencil;
 
-	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
-	ID3D11RenderTargetView **rt_array = new ID3D11RenderTargetView *[rts.size()];
-	for (uint32_t i = 0; i<rts.size(); i++) {
-		if (rts[i].data != 0) {
-			rt_array[i] = rts[i].data->GetRenderTargetView();
-		}
-		else {
-			rt_array[i] = 0;
-		}
-
-	}
-	if (ds.data) {
-		context->OMSetRenderTargets(rts.size(), rt_array, ds.data->GetDepthStencilView());
-	}
-	else {
-		context->OMSetRenderTargets(rts.size(), rt_array, 0);
-	}
+	SyncRenderTargetsAndDepthStencil();
 }
 
 D3D11DepthStencil * D3D11OutputStage::GetDepthStencil() {
 	return ds.data;
 }
 
-void D3D11OutputStage::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *_stream_out) {
-	D3D11StreamOut * stream_out = NiceCast(D3D11StreamOut *, _stream_out);
-	if (_stream_out != 0) {
-		CHECK(stream_out) << "stream out cannot be cast to D3D11StreamOut";
-	}
-	stream_outs[index].is_new = true;
-	stream_outs[index].data = stream_out;
-	stream_outs[index].stream_index = stream_index;
-
+void D3D11OutputStage::SyncStreamOuts() {
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	ID3D11Buffer **so_array = new ID3D11Buffer *[stream_outs.size()];
 	UINT *offset = new UINT[stream_outs.size()];
@@ -130,6 +112,20 @@ void D3D11OutputStage::SetStreamOut(uint32_t index, uint32_t stream_index, Strea
 		offset[i] = 0;
 	}
 	context->SOSetTargets(stream_outs.size(), so_array, offset);
+	delete [] so_array;
+	delete [] offset;
+}
+
+void D3D11OutputStage::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *_stream_out) {
+	D3D11StreamOut * stream_out = NiceCast(D3D11StreamOut *, _stream_out);
+	if (_stream_out != 0) {
+		CHECK(stream_out) << "stream out cannot be cast to D3D11StreamOut";
+	}
+	stream_outs[index].is_new = true;
+	stream_outs[index].data = stream_out;
+	stream_outs[index].stream_index = stream_index;
+
+	SyncStreamOuts();
 }
 
 D3D11StreamOut * D3D11OutputStage::GetStreamOut(uint32_t index, uint32_t *stream_index) {
@@ -265,6 +261,34 @@ void D3D11OutputStage::Refresh() {
 		it->is_new = false;
 	}
 
+}
+
+void D3D11OutputStage::PushState() {
+	saved_states.push(State());
+	State &new_state = saved_states.top();
+
+	new_state.rts = rts;
+	new_state.ds = ds;
+	new_state.rasterized_stream = rasterized_stream;
+	new_state.stream_outs = stream_outs;
+}
+
+void D3D11OutputStage::PopState() {
+	State &state = saved_states.top();
+	rts = state.rts;
+	ds = state.ds;
+	rasterized_stream = state.rasterized_stream;
+	stream_outs = state.stream_outs;
+	saved_states.pop();
+
+	SyncRenderTargetsAndDepthStencil();
+	SyncStreamOuts();
+}
+
+void D3D11OutputStage::ClearSavedState() {
+	while(saved_states.empty() == false) {
+		saved_states.pop();
+	}
 }
 
 

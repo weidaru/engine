@@ -105,6 +105,9 @@ public:
 	virtual void DrawInstance(DrawingState **state = 0, 
 		uint32_t vertex_start=0, uint32_t vertex_count=0, uint32_t instance_start=0, uint32_t instance_count=0) = 0;
 
+	virtual void PushState() = 0;
+	virtual void PopState() = 0;
+	virtual void ClearSavedState() = 0;
 
 	/**
 	 * A state machine may always be in a state that only part of the attributes is concerned by the user.

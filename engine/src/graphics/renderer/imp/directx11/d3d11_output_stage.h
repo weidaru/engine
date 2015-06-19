@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "utils/s2string.h"
 
+#include <stack>
+
 struct ID3D11GeometryShader;
 
 namespace s2 {
@@ -52,6 +54,14 @@ private:
 		}
 	};
 
+private:
+	struct State {
+		std::vector<RTInfo > rts;
+		DSInfo ds;
+		std::vector<SOInfo> stream_outs;
+		int rasterized_stream;
+	};
+
 public:
 	D3D11OutputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
 	~D3D11OutputStage();
@@ -76,10 +86,16 @@ public:
 	ID3D11GeometryShader * Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state);
 	void Refresh();
 	
+	void PushState();
+	void PopState();
+	void ClearSavedState();
 	
 private:
 	ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11GeometryShader *gs);
 	s2string DumpStreamOutInfo(const std::vector<SOInfo> &infos);
+
+	void SyncRenderTargetsAndDepthStencil();
+	void SyncStreamOuts();
 	
 private:
 	D3D11GraphicResourceManager *manager;
@@ -90,6 +106,8 @@ private:
 
 	std::vector<SOInfo> stream_outs;
 	int rasterized_stream;
+
+	std::stack<State> saved_states;
 };
 
 

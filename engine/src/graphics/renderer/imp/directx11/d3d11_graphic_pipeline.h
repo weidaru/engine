@@ -12,7 +12,9 @@
 #include "d3d11_input_stage.h"
 #include "d3d11_output_stage.h"
 #include "d3d11_drawing_state.h"
+
 #include <map>
+#include <stack>
 
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
@@ -27,6 +29,22 @@ class D3D11GraphicResourceManager;
 class D3D11Texture2D;
 
 class D3D11GraphicPipeline : public GraphicPipeline {
+private:
+	struct State {
+		D3D11VertexShader *vs;
+		D3D11PixelShader *ps;
+		D3D11GeometryShader *gs;
+	
+		RasterizationOption rast_opt;
+		ID3D11RasterizerState *rast_state;
+	
+		DepthStencilOption ds_opt;
+		ID3D11DepthStencilState *ds_state;
+	
+		BlendOption blend_opt;
+		ID3D11BlendState *blend_state;
+	};
+
 public:
 	D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager, ID3D11DeviceContext *_context);
 	virtual ~D3D11GraphicPipeline();
@@ -83,6 +101,10 @@ public:
 	virtual void Start();
 	virtual void End();
 
+	virtual void PushState() override;
+	virtual void PopState() override;
+	virtual void ClearSavedState() override;
+
 	ID3D11DeviceContext * GetDeviceContext() { return context; }
 
 private:
@@ -114,6 +136,8 @@ private:
 	ID3D11BlendState *blend_state;
 	
 	D3D11OutputStage output_stage;
+
+	std::stack<State> saved_states;
 };
 
 

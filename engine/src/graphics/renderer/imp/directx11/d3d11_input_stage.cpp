@@ -338,6 +338,52 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 	return input_layout;
 }
 
+void D3D11InputStage::PushState() {
+	saved_states.push(State());
+	State &new_state = saved_states.top();
+
+	new_state.ib = ib;
+	new_state.vbs = vbs;
+	new_state.topology = topology;
+}
+
+void D3D11InputStage::PopState() {
+	State &state = saved_states.top();
+	ib = state.ib;
+	vbs = state.vbs;
+	SetPrimitiveTopology(state.topology);
+	saved_states.pop();
+
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	//sync index buffer
+	{
+		ID3D11Buffer *buffer_raw = ib.buffer ? ib.buffer->GetBuffer() : 0;
+		context->IASetIndexBuffer(buffer_raw, DXGI_FORMAT_R32_UINT, 0);
+	}
+
+	//sync vertex buffer
+	{
+		ID3D11Buffer **buffer_raw = new ID3D11Buffer*[vbs.size()];
+		uint32_t *strides = new uint32_t[vbs.size()];
+		uint32_t *offsets = new uint32_t[vbs.size()];
+
+		for(unsigned int i=0; i<vbs.size(); i++) {
+			VBInfo &info = vbs[i];
+			buffer_raw[i] = info.vb ? info.vb->GetBuffer() : 0;
+			strides[i] = info.vb ? info.vb->GetResource()->GetElementBytewidth() : 0;
+			offsets[i] = 0;
+		}
+
+		context->IASetVertexBuffers(0, 1, buffer_raw, strides, offsets);
+	}
+}
+
+void D3D11InputStage::ClearSavedState() {
+	while(saved_states.empty() == false) {
+		saved_states.pop();
+	}
+}
+
 void D3D11InputStage::Refresh() {
 	//Set all the start_index to be -1 so that it will needs to be refreshed inorder to create new input layout.
 	for (auto it = vbs.begin(); it != vbs.end(); it++) {
