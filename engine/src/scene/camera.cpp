@@ -77,9 +77,12 @@ Matrix4x4 Camera::GetViewMatrix() const {
 	//Use spherical coordinate for forward vector.
 	const Vector3 & rotate = trans.GetRotate();
 	float theta = rotate[0], phi = rotate[1];
+	phi = phi > 1.57f ? 1.57f : phi;
+	phi = phi < -1.57f ? -1.57f : phi;
 
 	Vector3 zaxis(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));
 	Vector3 xaxis = Vector3(0.0f, 1.0f, 0.0f).Cross(zaxis);
+	xaxis.Normalize();
 	Vector3 yaxis = zaxis.Cross(xaxis);
 
 	Vector3 position = trans.GetTranslate();

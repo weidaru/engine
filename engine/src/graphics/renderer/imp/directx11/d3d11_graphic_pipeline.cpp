@@ -460,6 +460,8 @@ void D3D11GraphicPipeline::DrawInstance(DrawingState **_state,
 }
 
 void D3D11GraphicPipeline::PushState() {
+	Check();
+
 	input_stage.PushState();
 	output_stage.PushState();
 
@@ -483,6 +485,8 @@ void D3D11GraphicPipeline::PushState() {
 }
 
 void D3D11GraphicPipeline::PopState() {
+	Check();
+
 	State &state = saved_states.top();
 	SetVertexShader(state.vs);
 	SetPixelShader(state.ps);

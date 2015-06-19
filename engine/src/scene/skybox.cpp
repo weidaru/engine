@@ -106,8 +106,8 @@ void Skybox::OneFrame(float delta) {
 	vs->SetUniform("wvp", wvp);
 
 	pipeline->Start();
+	pipeline->PushState();
 
-	//TODO: Need to save and recover state.
 	RasterizationOption rast_opt = pipeline->GetRasterizationOption();
 	rast_opt.cull_mode = RasterizationOption::NONE;
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
@@ -117,10 +117,8 @@ void Skybox::OneFrame(float delta) {
 	pipeline->SetVertexShader(vs);
 	pipeline->SetPixelShader(ps);
 	pipeline->Draw(&drawing_state, 0, ib->GetElementCount());
-	//TODO: Remove this if save and recover are done.
-	rast_opt.cull_mode = RasterizationOption::BACK;
-	pipeline->SetRasterizationOption(rast_opt);
 
+	pipeline->PopState();
 	pipeline->End();
 }
 

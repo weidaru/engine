@@ -87,11 +87,11 @@ void TextSystem::OneFrame(float delta) {
 		}
 
 		GraphicPipeline *_pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		D3D11GraphicPipeline *manager = NiceCast(D3D11GraphicPipeline *, _pipeline);
-		CHECK_NOTNULL(manager);
+		D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
+		CHECK_NOTNULL(pipeline);
 
 		//The restore flag here is a little bit expensive, better to have our ownway of restoring state.
-		uint32_t flag = FW1_RESTORESTATE | FW1_NOGEOMETRYSHADER;
+		uint32_t flag = FW1_NOGEOMETRYSHADER;
 
 		uint32_t color_uint = ColorToUnsignedInt(cur->GetColor());
 
@@ -129,14 +129,20 @@ void TextSystem::OneFrame(float delta) {
 		//By default, FW1 use column major matrix. But our system uses row major matrix. Transpose to be compatible.
 		transform_matrix.Transpose();
 
+		pipeline->Start();
+		pipeline->PushState();
+
 		font_wrapper->DrawTextLayout(
-			manager->GetDeviceContext(), 
+			pipeline->GetDeviceContext(), 
 			cur->GetLayout(), 
 			0.0f, 0.0f, 
 			color_uint, 
 			rect, 
 			transform_matrix.data[0],
 			flag);
+
+		pipeline->PopState();
+		pipeline->End();
 		delete rect;
 	}
 }

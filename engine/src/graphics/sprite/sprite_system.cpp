@@ -79,13 +79,17 @@ void SpriteSystem::OneFrame(float delta) {
 
 	
 	pipeline->Start();
-		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetVertexShader(vs);
-		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(0,0,vertex_buffer->AsVertexBuffer());
-		pipeline->SetVertexBuffer(1,1,instance_buffer->AsVertexBuffer());
-		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-		pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
+	pipeline->PushState();
+
+	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+	pipeline->SetVertexShader(vs);
+	pipeline->SetPixelShader(ps);
+	pipeline->SetVertexBuffer(0,0,vertex_buffer->AsVertexBuffer());
+	pipeline->SetVertexBuffer(1,1,instance_buffer->AsVertexBuffer());
+	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
+	pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
+
+	pipeline->PopState();
 	pipeline->End();
 }
 
