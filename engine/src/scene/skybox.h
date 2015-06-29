@@ -4,7 +4,7 @@
 #include "entity/entity.h"
 
 namespace s2 {
-class Model;
+class Mesh;
 class TextureCube;
 class Buffer;
 class VertexShader;
@@ -26,8 +26,8 @@ private:
 	Skybox & operator=(const Skybox &);
 
 private:
-	//TODO: Good to warp the model as an component, something for later.
-	Model *model;
+	//TODO: Good to warp the mesh as an component, something for later.
+	Mesh *mesh;
 	TextureCube *env_texture;
 	Sampler *sampler;
 

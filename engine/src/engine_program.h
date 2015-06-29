@@ -23,12 +23,12 @@ private:
 public:
 	EngineProgramManager();
 	~EngineProgramManager();
-	
+
 	EngineProgramManager & Add(EngineProgram *program);
 	EngineProgram * Get(const s2string &name);
 	void GetAll(std::vector<EngineProgram *> *result);
 	void Release(const s2string &name);
-	
+
 private:
 	Map map;
 };

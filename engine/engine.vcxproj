@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClInclude Include="src\asset\asset_path.h" />
     <ClInclude Include="src\asset\image_common.h" />
-    <ClInclude Include="src\asset\model.h" />
+    <ClInclude Include="src\asset\mesh.h" />
     <ClInclude Include="src\asset\pixel_map.h" />
     <ClInclude Include="src\asset\skybox_image.h" />
     <ClInclude Include="src\engine_program_imp\instancing_demo.h" />
@@ -77,6 +77,7 @@
     <ClInclude Include="src\graphics\renderer\texture_enum.h" />
     <ClInclude Include="src\graphics\renderer\vertex_shader.h" />
     <ClInclude Include="src\scene\camera.h" />
+    <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\scene_manager.h" />
     <ClInclude Include="src\scene\skybox.h" />
     <ClInclude Include="src\ui\button.h" />
@@ -92,7 +93,7 @@
     <ClInclude Include="src\utils\vector4.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\asset\model.cpp" />
+    <ClCompile Include="src\asset\mesh.cpp" />
     <ClCompile Include="src\asset\pixel_map.cpp" />
     <ClCompile Include="src\asset\skybox_image.cpp" />
     <ClCompile Include="src\engine_program_imp\skybox_demo.cpp" />
@@ -139,6 +140,7 @@
     <ClCompile Include="src\graphics\renderer\resource.cpp" />
     <ClCompile Include="src\graphics\renderer\sampler.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
+    <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\scene_manager.cpp" />
     <ClCompile Include="src\scene\skybox.cpp" />
     <ClCompile Include="src\ui\button.cpp" />

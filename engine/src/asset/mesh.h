@@ -12,27 +12,27 @@ struct aiMesh;
 
 namespace s2 {
 
-class Model {
+class Mesh {
 public:
-	struct Vertex {
-		float x,y,z;
-		float nx,ny,nz;
-		float u,v;
-	};
-
-public:
-	Model();
-	~Model();
+	Mesh();
+	~Mesh();
 	
 	bool Initialize(const s2string &path);
-	bool Initialize(aiMesh *_mesh);
+
 	
 	const s2string & GetLastError() const;
 
 	bool HasTextureCoordinates() const;
 	
-	uint32_t GetVertexSize() const;
-	Vertex GetVertex(uint32_t index) const;
+	uint32_t GetVertexNumber() const;
+	//Return float[3]
+	const float * GetPosition(uint32_t index) const;
+	//Return float[3]
+	const float * GetNormal(uint32_t index) const;
+	
+	uint32_t GetTextureCoordinateNumber() const;
+	//Return float[2]
+	const float * GetTextureCoordinate(uint32_t index, uint32_t texture_index) const;
 	
 	uint32_t GetTriangleSize() const;
 	uint32_t GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const;
@@ -42,8 +42,7 @@ private:
 	void Check() const;
 
 private:
-	Assimp::Importer *importer;
-	aiMesh *mesh;
+
 	
 	s2string error;
 };

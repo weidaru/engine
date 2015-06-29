@@ -93,7 +93,7 @@ public:
 			ps->GetLastError();
 		
 		//Create VertexBuffer
-		Model model;
+		Mesh model;
 		CHECK(model.Initialize(ResolveTestAssetPath("model/bunny.obj"))) << model.GetLastError();
 		{
 			RTTTestVertex *vertices = 0;

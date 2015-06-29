@@ -1,6 +1,6 @@
 #include "skybox.h"
 
-#include "asset/model.h"
+#include "asset/mesh.h"
 #include "asset/skybox_image.h"
 #include "asset/asset_path.h"
 
@@ -16,19 +16,19 @@
 namespace s2 {
 
 Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
-	:	Entity(system), model(0), env_texture(0), sampler(0), 
+	:	Entity(system), mesh(0), env_texture(0), sampler(0), 
 		vb(0), ib(0), vs(0), ps(0), drawing_state(0){
-	model = new Model();
-	CHECK(model->Initialize(ResolveAssetPath("model/sphere.obj")))<<model->GetLastError();
+	mesh = new Mesh();
+	CHECK(mesh->Initialize(ResolveAssetPath("model/sphere.obj")))<<mesh->GetLastError();
 	CHECK(image)<<"Image cannot be null.";
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 	{
-		uint32_t size = model->GetVertexSize();
+		uint32_t size = mesh->GetVertexSize();
 		float (*vertices)[3]  = new float[size][3];
 
 		for(uint32_t i=0; i<size; i++) {
-			Model::Vertex v = model->GetVertex(i);
+			Mesh::Vertex v = mesh->GetVertex(i);
 			vertices[i][0] = v.x;
 			vertices[i][1] = v.y;
 			vertices[i][2] = v.z;
@@ -47,12 +47,12 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 	
 	{
 		//Create IndexBuffer
-		uint32_t size = model->GetTriangleSize()*3;
+		uint32_t size = mesh->GetTriangleSize()*3;
 		Buffer::IndexBufferElementType* indices = new Buffer::IndexBufferElementType[size];
-		for(uint32_t i=0; i<model->GetTriangleSize(); i++) {
-			indices[i*3] = model->GetTriangleVertexIndex(i, 0);
-			indices[i*3+1] = model->GetTriangleVertexIndex(i, 1);
-			indices[i*3+2] = model->GetTriangleVertexIndex(i, 2);
+		for(uint32_t i=0; i<mesh->GetTriangleSize(); i++) {
+			indices[i*3] = mesh->GetTriangleVertexIndex(i, 0);
+			indices[i*3+1] = mesh->GetTriangleVertexIndex(i, 1);
+			indices[i*3+2] = mesh->GetTriangleVertexIndex(i, 2);
 		}
 		ib = manager->CreateBuffer();
 		Buffer::Option option;

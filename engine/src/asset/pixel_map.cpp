@@ -9,7 +9,6 @@ namespace s2 {
 
 PixelMap::PixelMap()
 	: bitmap(0) {
-	
 }
 
 PixelMap::~PixelMap() {
@@ -20,10 +19,9 @@ PixelMap::~PixelMap() {
 
 bool PixelMap::Initialize(const s2string &_path, ImagePixelFormat _format) {
 	CHECK(bitmap == 0) << "Cannot initialize twice.";
-
 	path = _path;
 	format = _format;
-	
+
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
 	fif = FreeImage_GetFileType(path.c_str(), 0);
 	if(fif == FIF_UNKNOWN) {
@@ -33,7 +31,7 @@ bool PixelMap::Initialize(const s2string &_path, ImagePixelFormat _format) {
 		S2StringFormat(&error, "Unknown format for %s", path);
 		return false;
 	}
-	
+
 	if(FreeImage_FIFSupportsReading(fif)) {
 		bitmap = FreeImage_Load(fif, path.c_str());
 	} else {
@@ -45,8 +43,8 @@ bool PixelMap::Initialize(const s2string &_path, ImagePixelFormat _format) {
 		return false;
 	}
 
-	
-	switch(format) { 
+
+	switch(format) {
 	case ImagePixelFormat::R8G8B8A8:
 		{
 			FREE_IMAGE_TYPE type = FreeImage_GetImageType(bitmap);
@@ -89,7 +87,7 @@ uint32_t PixelMap::GetHeight() const {
 	Check();
 	return FreeImage_GetHeight(bitmap);
 }
-	
+
 void * PixelMap::GetRawMemory() {
 	Check();
 	return (void *)FreeImage_GetBits(bitmap);
@@ -112,4 +110,3 @@ void PixelMap::Check() const {
 
 
 }
-

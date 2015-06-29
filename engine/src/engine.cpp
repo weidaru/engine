@@ -18,7 +18,7 @@ LRESULT CALLBACK WndProc(HWND _hwnd, UINT umessage, WPARAM wparam, LPARAM lparam
 		}
 
 	case WM_CLOSE: {
-			PostQuitMessage(0);		
+			PostQuitMessage(0);
 			return 0;
 		}
 	default: {
@@ -31,10 +31,10 @@ static const char * PISSED_STR = "If someone name it like this, I will be pissed
 
 namespace s2 {
 
-Engine::Engine() 
-	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR), 
-		program_manager(new EngineProgramManager), 
-		input_system(0), entity_system(0), sprite_system(0), text_system(0), 
+Engine::Engine()
+	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR),
+		program_manager(new EngineProgramManager),
+		input_system(0), entity_system(0), sprite_system(0), text_system(0),
 		scene_manager(0){
 
 }
@@ -54,7 +54,7 @@ void Engine::Run() {
 	while(!done) {
 		// start timer
 		QueryPerformanceCounter(&t1);
-		
+
 		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -76,7 +76,7 @@ void Engine::OneFrame(float delta) {
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 	Texture2D *bf = renderer_context->GetBackBuffer();
-		
+
 	float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
 	pipeline->ClearDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil(), true, 1.0f, 0.0f, 0);
@@ -120,7 +120,7 @@ void Engine::Shutdown() {
 		return;
 
 	delete program_manager;
-	
+
 	delete scene_manager;
 
 	delete entity_system;
@@ -133,7 +133,7 @@ void Engine::Shutdown() {
 	delete renderer_context;
 
 	// Fix the display settings if leaving full screen mode.
-	if(renderer_setting.full_screen) 
+	if(renderer_setting.full_screen)
 		ChangeDisplaySettings(NULL, 0);
 
 	// Remove the window.
@@ -177,7 +177,7 @@ void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint
 		dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
 		dmScreenSettings.dmPelsWidth  = (unsigned long)GetSystemMetrics(SM_CXSCREEN);
 		dmScreenSettings.dmPelsHeight = (unsigned long)GetSystemMetrics(SM_CYSCREEN);
-		dmScreenSettings.dmBitsPerPel = 32;			
+		dmScreenSettings.dmBitsPerPel = 32;
 		dmScreenSettings.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
@@ -189,7 +189,7 @@ void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint
 	}
 
 	// Create the window with the screen settings and get the handle to it.
-	hwnd = CreateWindowEx(WS_EX_APPWINDOW, (LPCSTR )window_name.c_str(), (LPCSTR )window_name.c_str(), 
+	hwnd = CreateWindowEx(WS_EX_APPWINDOW, (LPCSTR )window_name.c_str(), (LPCSTR )window_name.c_str(),
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_CAPTION,
 		posX, posY, window_width, window_height, NULL, NULL, hinstance, NULL);
 	CHECK(hwnd)<<"Cannot create window handle";
@@ -205,4 +205,3 @@ void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint
 }
 
 }
-

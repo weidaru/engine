@@ -38,7 +38,7 @@ Entity * EntitySystem::Remove(uint32_t id) {
 		e = it->second;
 		entities.erase(it);
 	}
-	
+
 	return e;
 }
 
@@ -52,4 +52,3 @@ void EntitySystem::OneFrame(float delta) {
 
 
 }
-

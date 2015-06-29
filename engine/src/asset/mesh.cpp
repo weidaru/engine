@@ -1,4 +1,4 @@
-#include "model.h"
+#include "mesh.h"
 
 #include <assimp/Importer.hpp>   
 #include <assimp/scene.h> 
@@ -8,15 +8,15 @@
 
 namespace s2 {
 
-Model::Model() :  importer(0), mesh(0){
+Mesh::Mesh() :  importer(0), mesh(0){
 
 }
 
-Model::~Model() {
+Mesh::~Mesh() {
 	Clear();
 }
 
-void Model::Clear() {
+void Mesh::Clear() {
 	if(importer) {
 		delete importer;
 		importer = 0;
@@ -27,11 +27,11 @@ void Model::Clear() {
 	}
 }
 
-void Model::Check() const {
+void Mesh::Check() const {
 	CHECK_NOTNULL(mesh);
 }
 
-bool Model::Initialize(const s2string &path) {
+bool Mesh::Initialize(const s2string &path) {
 	Clear();
 	
 	importer = new Assimp::Importer;
@@ -54,33 +54,21 @@ bool Model::Initialize(const s2string &path) {
 	return true;
 }
 
-bool Model::Initialize(aiMesh *_mesh) {
-	Clear();
-	
-	mesh = _mesh;
-	
-	if(mesh) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-const s2string & Model::GetLastError() const {
+const s2string & Mesh::GetLastError() const {
 	return error;
 }
 
-uint32_t Model::GetVertexSize() const {
+uint32_t Mesh::GetVertexSize() const {
 	Check();
 	return mesh->mNumVertices;
 }
 
-bool Model::HasTextureCoordinates() const {
+bool Mesh::HasTextureCoordinates() const {
 	Check();
 	return mesh->HasTextureCoords(0);
 }
 
-Model::Vertex Model::GetVertex(uint32_t index) const {
+Mesh::Vertex Mesh::GetVertex(uint32_t index) const {
 	Check();
 	Vertex result;
 	
@@ -98,12 +86,12 @@ Model::Vertex Model::GetVertex(uint32_t index) const {
 	return result;
 }
 
-uint32_t Model::GetTriangleSize() const {
+uint32_t Mesh::GetTriangleSize() const {
 	Check();
 	return mesh->mNumFaces;
 }
 
-uint32_t Model::GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const {
+uint32_t Mesh::GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const {
 	Check();
 	return mesh->mFaces[index].mIndices[vertex_index];
 }

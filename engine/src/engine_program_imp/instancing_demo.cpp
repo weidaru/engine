@@ -2,7 +2,7 @@
 #include "engine.h"
 
 #include "graphics/renderer/all.h"
-#include "asset/model.h"
+#include "asset/mesh.h"
 #include "asset/asset_path.h"
 #include "scene/camera.h"
 #include "input/input_system.h"
@@ -65,18 +65,18 @@ public:
 		color_buffer = manager->CreateBuffer();
 		index_buffer = manager->CreateBuffer();
 		{
-			Model model;
-			CHECK(model.Initialize(ResolveTestAssetPath("model/cube.obj"))) << model.GetLastError();
+			Mesh mesh;
+			CHECK(mesh.Initialize(ResolveTestAssetPath("model/cube.obj"))) << mesh.GetLastError();
 			
 			{
 				InstancingTestPosition *positions = 0;
 				InstancingTestColor *colors = 0;
 			
-	 			uint32_t size = model.GetVertexSize();
+	 			uint32_t size = mesh.GetVertexSize();
 				positions = new InstancingTestPosition[size];
 				colors = new InstancingTestColor[size];
 				for(uint32_t i=0; i<size; i++) {
-					Model::Vertex v = model.GetVertex(i);
+					Mesh::Vertex v = mesh.GetVertex(i);
 					positions[i].data[0] = v.x;
 					positions[i].data[1] = v.y;
 					positions[i].data[2] = v.z;
@@ -100,12 +100,12 @@ public:
 
 			{
 				//Create IndexBuffer
-				uint32_t size = model.GetTriangleSize()*3;
+				uint32_t size = mesh.GetTriangleSize()*3;
 				Buffer::IndexBufferElementType *indices = new Buffer::IndexBufferElementType[size];
-				for(uint32_t i=0; i<model.GetTriangleSize(); i++) {
-					indices[i*3] = model.GetTriangleVertexIndex(i, 0);
-					indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
-					indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
+				for(uint32_t i=0; i<mesh.GetTriangleSize(); i++) {
+					indices[i*3] = mesh.GetTriangleVertexIndex(i, 0);
+					indices[i*3+1] = mesh.GetTriangleVertexIndex(i, 1);
+					indices[i*3+2] = mesh.GetTriangleVertexIndex(i, 2);
 				}
 				Buffer::Option option;
 				option.InitializeAsIndexBuffer(size, indices);

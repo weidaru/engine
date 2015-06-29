@@ -37,7 +37,6 @@ void EngineProgramManager::Release(const s2string &name) {
 	delete map[name];
 	map.erase(name);
 }
-	
+
 
 }
-
