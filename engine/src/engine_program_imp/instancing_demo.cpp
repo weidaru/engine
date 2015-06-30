@@ -76,10 +76,10 @@ public:
 				positions = new InstancingTestPosition[size];
 				colors = new InstancingTestColor[size];
 				for(uint32_t i=0; i<size; i++) {
-					Mesh::Vertex v = mesh.GetVertex(i);
-					positions[i].data[0] = v.x;
-					positions[i].data[1] = v.y;
-					positions[i].data[2] = v.z;
+					Vector3 p = mesh.GetPosition(i);
+					positions[i].data[0] = p[0];
+					positions[i].data[1] = p[1];
+					positions[i].data[2] = p[2];
 				
 					colors[i].data[0] = (float(rand()%100))/100.0f;
 					colors[i].data[1] = (float(rand()%100))/100.0f;

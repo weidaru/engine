@@ -26,8 +26,6 @@ private:
 	Skybox & operator=(const Skybox &);
 
 private:
-	//TODO: Good to warp the mesh as an component, something for later.
-	Mesh *mesh;
 	TextureCube *env_texture;
 	Sampler *sampler;
 

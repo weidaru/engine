@@ -8,32 +8,17 @@
 
 namespace s2 {
 
-Mesh::Mesh() :  importer(0), mesh(0){
+Mesh::Mesh() : importer(0), mesh(0) {
 
 }
 
 Mesh::~Mesh() {
-	Clear();
-}
-
-void Mesh::Clear() {
 	if(importer) {
 		delete importer;
-		importer = 0;
-		mesh = 0;
-	} else{
-		delete mesh;
-		mesh = 0;
 	}
 }
 
-void Mesh::Check() const {
-	CHECK_NOTNULL(mesh);
-}
-
 bool Mesh::Initialize(const s2string &path) {
-	Clear();
-	
 	importer = new Assimp::Importer;
 	const aiScene* scene = importer->ReadFile( path, 
 		aiProcess_CalcTangentSpace			| 
@@ -42,14 +27,26 @@ bool Mesh::Initialize(const s2string &path) {
 		aiProcess_FlipUVs 						|
 		aiProcess_GenNormals
 		);
-		
+
 	if(scene == 0) {
 		error = importer->GetErrorString();
-		Clear();
 		return false;
 	}
-	//Use the first mesh.
-	mesh = scene->mMeshes[0];
+	if(scene->HasMeshes()) {
+		return Initialize(scene->mMeshes[0]);
+	} else {
+		error = "file does not contain a mesh";
+		return false;
+	}
+}
+
+bool Mesh::Initialize(aiMesh *_mesh) {
+	if(_mesh->mPrimitiveTypes != aiPrimitiveType_TRIANGLE ) {
+		error = "Input mesh must triangulated.";
+		return false;
+	}
+
+	mesh = _mesh;
 
 	return true;
 }
@@ -63,27 +60,37 @@ uint32_t Mesh::GetVertexSize() const {
 	return mesh->mNumVertices;
 }
 
-bool Mesh::HasTextureCoordinates() const {
-	Check();
-	return mesh->HasTextureCoords(0);
+namespace {
+
+Vector3 ConvertVector(const aiVector3D &origin) {
+	return Vector3(origin.x, origin.y, origin.z);
 }
 
-Mesh::Vertex Mesh::GetVertex(uint32_t index) const {
+}
+
+Vector3 Mesh::GetPosition(uint32_t index) const {
 	Check();
-	Vertex result;
-	
-	result.x =  mesh->mVertices[index].x;
-	result.y =  mesh->mVertices[index].y;
-	result.z =  mesh->mVertices[index].z;
-	result.nx = mesh->mNormals[index].x;
-	result.ny = mesh->mNormals[index].y;
-	result.nz = mesh->mNormals[index].z;
-	if(mesh->HasTextureCoords(0)) {
-		result.u = mesh->mTextureCoords[0][index].x;
-		result.v = mesh->mTextureCoords[0][index].y;
-	}
-	
-	return result;
+	return ConvertVector(mesh->mVertices[index]);
+}
+
+Vector3 Mesh::GetNormal(uint32_t index) const {
+	Check();
+	return ConvertVector(mesh->mNormals[index]);
+}
+
+uint32_t Mesh::GetTextureCoordinateSize() const {
+	Check();
+	return mesh->GetNumUVChannels();
+}
+
+int32_t Mesh::GetTextureCoordinateComponentSize(uint32_t index) const {
+	Check();
+	return mesh->mNumUVComponents[index];
+}
+
+Vector3 Mesh::GetTextureCoordinate(uint32_t index, uint32_t texture_index) const {
+	Check();
+	return ConvertVector(mesh->mTextureCoords[index][texture_index]);
 }
 
 uint32_t Mesh::GetTriangleSize() const {
@@ -94,6 +101,10 @@ uint32_t Mesh::GetTriangleSize() const {
 uint32_t Mesh::GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const {
 	Check();
 	return mesh->mFaces[index].mIndices[vertex_index];
+}
+
+void Mesh::Check() const {
+	CHECK_NOTNULL(mesh);
 }
 
 }

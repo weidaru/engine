@@ -5,7 +5,7 @@
 
 #include "graphics/renderer/all.h"
 
-#include "asset/model.h"
+#include "asset/mesh.h"
 #include "asset/pixel_map.h"
 #include "asset/asset_path.h"
 
@@ -101,14 +101,15 @@ public:
 	 		uint32_t size = model.GetVertexSize();
 			vertices = new RTTTestVertex[size];
 			for(uint32_t i=0; i<size; i++) {
-				Model::Vertex v = model.GetVertex(i);
-				vertices[i].position[0] = v.x;
-				vertices[i].position[1] = v.y;
-				vertices[i].position[2] = v.z;
+				Vector3 p = model.GetPosition(i);
+				vertices[i].position[0] = p[0];
+				vertices[i].position[1] = p[1];
+				vertices[i].position[2] = p[2];
 
-				vertices[i].normal[0] = v.nx;
-				vertices[i].normal[1] = v.ny;
-				vertices[i].normal[2] = v.nz;
+				Vector3 n = model.GetNormal(i);
+				vertices[i].normal[0] = n[0];
+				vertices[i].normal[1] = n[1];
+				vertices[i].normal[2] = n[2];
 			}
 
 			vb = manager->CreateBuffer();
