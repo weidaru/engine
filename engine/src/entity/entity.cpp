@@ -60,14 +60,14 @@ Entity * Entity::GetChild(uint32_t id) {
 void Entity::AddComponent(Component *c) {
 	CHECK_NOTNULL(c);
 	components[c->GetId()] = c;
-	c->entity = this;
+	c->OnEntityRegister(this);
 }
 
 Component * Entity::RemoveComponent(uint32_t id) {
 	Component *c = GetComponent(id);
 	if(c) {
 		components.erase(id);
-		c->entity = 0;
+		c->OnEntityDeregister(this);
 	}
 	return c;
 }

@@ -4,13 +4,17 @@
 #include "graphics/renderer/renderer_context.h"
 #include "engine.h"
 #include "graphics/sprite/sprite.h"
+#include "graphics/sprite/sprite_system.h"
 #include "graphics/text/text.h"
+#include "graphics/text/text_system.h"
 
 namespace s2 {
 
 Button::Button(EntitySystem *system) : Entity(system), inClick(false), sprite(0), text(0) {
-	sprite = new Sprite(this, Engine::GetSingleton()->GetSpriteSystem());
-	text = new Text(this, Engine::GetSingleton()->GetTextSystem());
+	sprite = new Sprite(this);
+	Engine::GetSingleton()->GetSpriteSystem()->Register(sprite);
+	text = new Text(this);
+	Engine::GetSingleton()->GetTextSystem()->Register(text);
 	text->SetClipped(true);
 	SetWidth(sprite->GetWidth());
 	SetHeight(sprite->GetHeight());

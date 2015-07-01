@@ -13,6 +13,8 @@
 
 #include <glog/logging.h>
 
+#include <algorithm>
+
 #ifdef NDEBUG
 	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
 #else
@@ -43,15 +45,24 @@ TextSystem::~TextSystem() {
 	factory->Release();
 }
 
-void TextSystem::Register(Text *text) {
+void TextSystem::Register(Component *c) {
+	Text *text = NiceCast(Text *, c);
 	CHECK_NOTNULL(text);
+	
+	if(text->GetSystem() != 0) {
+		LOG(ERROR)<<"Try to register a component twice.";
+		return;
+	}
 	data.push_back(text);
+	text->OnSystemRegister(this);
 }
 
-void TextSystem::Deregister(Text *text) {
-	auto it = std::find(data.begin(), data.end(), text);
+void TextSystem::Deregister(Component *c) {
+	auto it = std::find_if(data.begin(), data.end(), 
+		[c](Text * candiate){ return candiate->GetId()==c->GetId(); });
 	if(it != data.end()) {
 		data.erase(it);
+		c->OnSystemDeregister(this);
 	}
 }
 

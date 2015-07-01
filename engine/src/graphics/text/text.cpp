@@ -9,19 +9,27 @@
 
 #include <glog/logging.h>
 
+#ifdef NDEBUG
+	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#else
+	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#endif
+
 namespace s2 {
 
-Text::Text(Entity *entity, TextSystem *_system)
+Text::Text(Entity *entity)
 	:	Component(entity),
-		system(_system), layout(0), need_new_layout(true), 
+		layout(0), need_new_layout(true), 
 		font_name(TextSystem::GetDefaultFontName()), font_size(32),
 		isClipped(false), clipper_size(0.0f, 0.0f),
 		depth(0.0f){
-	system->Register(this);
+
 }
 
 Text::~Text() {
-	system->Deregister(this);
+	if(layout) {
+		layout->Release();
+	}
 }
 
 Text & Text::SetFontName(const s2string &_font_name) {
@@ -127,11 +135,15 @@ float Text::GetDepth() const {
 
 
 IDWriteTextLayout *Text::GetLayout() {
-	if(need_new_layout) {
+	if(need_new_layout) {	
+		TextSystem *system = NiceCast(TextSystem *, GetSystem());
+		if(system == 0) {
+			return 0;
+		}
+
 		if(layout) {
 			layout->Release();
 		}
-
 		HRESULT result = 1;
 		IDWriteFactory *factory = system->GetDWriteFactory();
 		IDWriteTextFormat *format;

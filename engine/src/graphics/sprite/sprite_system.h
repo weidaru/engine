@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <entity/component_system.h>
 
 //[[TypeInfo]]//
 struct SpriteVertex {
@@ -16,13 +17,13 @@ class VertexShader;
 class PixelShader;
 class DrawingState;
 
-class SpriteSystem {
+class SpriteSystem : public ComponentSystem {
 public:
 	SpriteSystem();
 	~SpriteSystem();
 	
-	void Register(Sprite *s);
-	void Deregister(Sprite *s);
+	virtual void Register(Component *s) override;
+	virtual void Deregister(Component *s) override;
 
 	void OneFrame(float delta);
 

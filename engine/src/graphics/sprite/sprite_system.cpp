@@ -5,6 +5,14 @@
 #include "asset/asset_path.h"
 #include <glog/logging.h>
 
+#include <algorithm>
+
+#ifdef NDEBUG
+	#define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
+#else
+	#define NiceCast(Type, Ptr) dynamic_cast<Type>(Ptr)
+#endif
+
 namespace s2 {
 
 uint32_t SpriteSystem::kSpriteBatchSize = 400;
@@ -47,13 +55,25 @@ SpriteSystem::~SpriteSystem() {
 	delete drawing_state;
 }
 	
-void SpriteSystem::Register(Sprite *s) {
+void SpriteSystem::Register(Component *c) {
+	Sprite *s = NiceCast(Sprite *, c);
 	CHECK_NOTNULL(s);
+
+	if(s->GetSystem() != 0) {
+		LOG(ERROR)<<"Try to register a component twice.";
+		return;
+	}
 	sprites.push_back(s);
+	s->OnSystemRegister(this);
 }
 
-void SpriteSystem::Deregister(Sprite *s) {
-	sprites.erase(std::find(sprites.begin(), sprites.end(), s));
+void SpriteSystem::Deregister(Component *c) {
+	auto it = std::find_if(sprites.begin(), sprites.end(), 
+		[c](Sprite * candiate){ return candiate->GetId()==c->GetId(); });
+	if(it != sprites.end()) {
+		sprites.erase(it);
+		c->OnSystemDeregister(this);
+	}
 }
 
 void SpriteSystem::OneFrame(float delta) {

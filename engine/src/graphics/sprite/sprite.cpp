@@ -1,5 +1,4 @@
 #include "sprite.h"
-#include "sprite_system.h"
 #include "engine.h"
 
 #include "entity/entity.h"
@@ -10,15 +9,12 @@
 
 namespace s2 {
 
-Sprite::Sprite(Entity *entity, SpriteSystem *_system) : Component(entity), system(_system) {
+Sprite::Sprite(Entity *entity) : Component(entity) {
 	SetBackgroundColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-
-	CHECK_NOTNULL(system);
-	system->Register(this);
 }
 
 Sprite::~Sprite() {
-	system->Deregister(this);
+
 }
 
 

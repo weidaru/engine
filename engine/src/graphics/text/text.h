@@ -11,11 +11,10 @@
 struct IDWriteTextLayout;
 
 namespace s2 {
-class TextSystem;
 
 class Text : public Component {
 public:
-	Text(Entity *entity, TextSystem *_system);
+	Text(Entity *entity);
 	virtual ~Text() override;
 
 	Text & SetFontName(const s2string &_font_name);
@@ -56,7 +55,6 @@ private:
 	friend class TextSystem;
 
 private:
-	TextSystem *system;
 	IDWriteTextLayout *layout;
 	bool need_new_layout;
 
