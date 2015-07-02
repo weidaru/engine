@@ -3,13 +3,17 @@
 
 #include "utils/s2string.h"
 #include <stdint.h>
+#include <functional>
+#include <map>
 
 namespace s2 {
 
 class Entity;
-class ComponentSystem;
 
 class Component {
+public:
+	typedef std::function<void (Component *)> Callback;
+
 public:
 	Component(Entity *_entity);
 	virtual ~Component();
@@ -23,17 +27,13 @@ public:
 	Component & SetEnabled(bool new_value) { enabled = new_value; return *this; }
 	bool IsEnabled() { return enabled; }
 
-	ComponentSystem *GetSystem() { return system; }
-
-	//Called on system Register.
-	virtual void OnSystemRegister(ComponentSystem *_system);
-	//Called on system Deregister.
-	virtual void OnSystemDeregister(ComponentSystem *_system);
-
 	//Called on entity AddComponent.
 	virtual void OnEntityRegister(Entity *_entity);
 	//Called on entity RemoveComponent.
 	virtual void OnEntityDeregister(Entity *_entity);
+
+	void AddDestroyCallback(const s2string &cb_name, Callback cb);
+	void RemoveDestroyCallback(const s2string &cb_name);
 
 private:
 	static uint32_t & GetCurrentId() {
@@ -47,7 +47,7 @@ private:
 	Entity *entity;
 	bool enabled;
 
-	ComponentSystem *system;
+	std::map<s2string, Callback> destroy_cbs;
 };
 
 }

@@ -21,24 +21,25 @@ MaterialSystem::~MaterialSystem() {
 
 }
 
-void MaterialSystem::Register(Component *c) {
-	Material *m = NiceCast(Material *, c);
-	CHECK_NOTNULL(m);
+static const char * kComponentDestroyCallbackName = "material_system_component_destroy_cb";
 
-	if(m->GetSystem() != 0) {
-		LOG(ERROR)<<"Try to register a component twice.";
-		return;
-	}
+void MaterialSystem::Register(Material *m) {
+	CHECK_NOTNULL(m);
 	materials.push_back(m);
-	m->OnSystemRegister(this);
+	m->AddDestroyCallback(kComponentDestroyCallbackName, [this](Component *c){
+		for(auto it=this->materials.begin(); it!=this->materials.end(); it++) {
+			if((*it)->GetId() == c->GetId()) {
+				this->materials.erase(it);
+			}
+		}
+	});
 }
 
-void MaterialSystem::Deregister(Component *c) {
-	auto it = std::find_if(materials.begin(), materials.end(), 
-		[c](Material* candiate){ return candiate->GetId()==c->GetId();});
+void MaterialSystem::Deregister(Material *m) {
+	auto it = std::find(materials.begin(), materials.end(), m);
 	if(it != materials.end()) {
 		materials.erase(it);
-		c->OnSystemDeregister(this);
+		(*it)->RemoveDestroyCallback(kComponentDestroyCallbackName);
 	}
 }
 

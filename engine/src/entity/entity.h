@@ -38,7 +38,6 @@ public:
 
 	const s2string & GetName() const { return name; }
 
-protected:
 	virtual void OneFrame(float delta);
 
 private :
@@ -49,7 +48,6 @@ private :
 		return currentId;
 	}
 
-	friend class EntitySystem;
 
 private:
 	Transform *transform;

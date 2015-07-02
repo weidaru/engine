@@ -54,25 +54,26 @@ SpriteSystem::~SpriteSystem() {
 	manager->RemoveVertexShader(vs->GetID());
 	delete drawing_state;
 }
-	
-void SpriteSystem::Register(Component *c) {
-	Sprite *s = NiceCast(Sprite *, c);
-	CHECK_NOTNULL(s);
 
-	if(s->GetSystem() != 0) {
-		LOG(ERROR)<<"Try to register a component twice.";
-		return;
-	}
+static const char * kComponentDestroyCallbackName = "sprite_system_component_destroy_cb";
+
+void SpriteSystem::Register(Sprite *s) {
+	CHECK_NOTNULL(s);
 	sprites.push_back(s);
-	s->OnSystemRegister(this);
+	s->AddDestroyCallback(kComponentDestroyCallbackName, [this](Component *c){
+		for(auto it=this->sprites.begin(); it!=this->sprites.end(); it++) {
+			if((*it)->GetId() == c->GetId()) {
+				this->sprites.erase(it);
+			}
+		}
+	});
 }
 
-void SpriteSystem::Deregister(Component *c) {
-	auto it = std::find_if(sprites.begin(), sprites.end(), 
-		[c](Sprite * candiate){ return candiate->GetId()==c->GetId(); });
+void SpriteSystem::Deregister(Sprite *s) {
+	auto it = std::find(sprites.begin(), sprites.end(), s);
 	if(it != sprites.end()) {
 		sprites.erase(it);
-		c->OnSystemDeregister(this);
+		(*it)->RemoveDestroyCallback(kComponentDestroyCallbackName);
 	}
 }
 

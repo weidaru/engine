@@ -103,8 +103,8 @@ float Text::GetAbsoluteClipperHeight() const {
 	return GetClipperHeight() * w_height / 2.0f;
 }
 
-std::tuple<float, float, float, float> Text::GetBoundingBox() {
-	GetLayout();
+std::tuple<float, float, float, float> Text::GetBoundingBox(TextSystem *system) {
+	GetLayout(system);
 	DWRITE_OVERHANG_METRICS metrics;
 	layout->GetOverhangMetrics(&metrics);
 
@@ -134,9 +134,8 @@ float Text::GetDepth() const {
 }
 
 
-IDWriteTextLayout *Text::GetLayout() {
+IDWriteTextLayout *Text::GetLayout(TextSystem *system) {
 	if(need_new_layout) {	
-		TextSystem *system = NiceCast(TextSystem *, GetSystem());
 		if(system == 0) {
 			return 0;
 		}

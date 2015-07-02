@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "utils/s2string.h"
-#include "entity/component_system.h"
 
 struct IDWriteFactory;
 struct IFW1FontWrapper;
@@ -13,13 +12,13 @@ struct IFW1Factory;
 namespace s2 {
 class Text;
 
-class TextSystem : public ComponentSystem {
+class TextSystem {
 public:
 	TextSystem();
 	~TextSystem();
 
-	virtual void Register(Component *c) override;
-	virtual void Deregister(Component *c) override;
+	void Register(Text *text);
+	void Deregister(Text *text);
 
 	static const s2string & GetDefaultFontName() {	
 		static s2string default_name("Arial");

@@ -4,11 +4,19 @@
 #include "utils/s2string.h"
 #include <map>
 
+namespace Assimp {
+class Importer;
+}
+
+class aiNode;
+class aiScene;
+
 namespace s2  {
 class Entity;
 
 /**
  * Container of entities read from file.
+ * These entities are concerned as local to the scene.
  */
 class Scene {
 public:
@@ -19,8 +27,13 @@ public:
 	s2string GetLastError() { return error; }
 
 private:
+	void ProcessNode(aiNode *node, const aiScene *scene);
+
+private:
 	s2string error;
 	std::map<s2string, Entity *> entities;
+
+	Assimp::Importer *importer;
 };
 
 }

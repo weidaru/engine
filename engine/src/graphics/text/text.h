@@ -12,6 +12,8 @@ struct IDWriteTextLayout;
 
 namespace s2 {
 
+class TextSystem;
+
 class Text : public Component {
 public:
 	Text(Entity *entity);
@@ -46,10 +48,10 @@ public:
 	float GetDepth() const;
 
 	//(LEFT, RIGHT, TOP, BOTTOM)
-	std::tuple<float, float, float, float> GetBoundingBox();
+	std::tuple<float, float, float, float> GetBoundingBox(TextSystem *system);
 
 private:
-	IDWriteTextLayout *GetLayout();
+	IDWriteTextLayout *GetLayout(TextSystem *system);
 
 private:
 	friend class TextSystem;

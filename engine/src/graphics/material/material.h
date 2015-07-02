@@ -3,6 +3,8 @@
 
 #include "entity/component.h"
 
+#include <vector>
+
 namespace s2 {
 
 class Mesh;
@@ -12,11 +14,13 @@ public:
 	Material(Entity *e);
 	virtual ~Material() override;
 
-	Material & SetMesh(Mesh *m);
-	Mesh *GetMesh();
+	uint32_t AddMesh(Mesh *m);
+	uint32_t GetMeshSize();
+	Mesh * GetMesh(uint32_t index);
+	Mesh * RemoveMesh(uint32_t index);
 
 private:
-	Mesh *mesh;	
+	std::vector<Mesh *> meshes;
 };
 
 }

@@ -19,7 +19,6 @@
     <ClInclude Include="src\engine_program_imp\instancing_demo.h" />
     <ClInclude Include="src\engine_program_imp\render_to_target_demo.h" />
     <ClInclude Include="src\entity\component.h" />
-    <ClInclude Include="src\entity\component_system.h" />
     <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\entity\entity_system.h" />
     <ClInclude Include="src\entity\transform.h" />

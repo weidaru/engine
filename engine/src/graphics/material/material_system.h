@@ -3,19 +3,17 @@
 
 #include <vector>
 
-#include "entity/component_system.h"
-
 namespace s2 {
 
 class Material;
 
-class MaterialSystem : public ComponentSystem  {
+class MaterialSystem {
 public:
 	MaterialSystem();
-	virtual ~MaterialSystem() override;
+	~MaterialSystem();
 
-	virtual void Register(Component *c) override;
-	virtual void Deregister(Component *c) override;
+	void Register(Material *m);
+	void Deregister(Material *m);
 
 	void OneFrame(float delta);
 

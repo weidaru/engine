@@ -45,24 +45,25 @@ TextSystem::~TextSystem() {
 	factory->Release();
 }
 
-void TextSystem::Register(Component *c) {
-	Text *text = NiceCast(Text *, c);
-	CHECK_NOTNULL(text);
-	
-	if(text->GetSystem() != 0) {
-		LOG(ERROR)<<"Try to register a component twice.";
-		return;
-	}
-	data.push_back(text);
-	text->OnSystemRegister(this);
+static const char * kComponentDestroyCallbackName = "text_system_component_destroy_cb";
+
+void TextSystem::Register(Text *t) {
+	CHECK_NOTNULL(t);
+	data.push_back(t);
+	t->AddDestroyCallback(kComponentDestroyCallbackName, [this](Component *c){
+		for(auto it=this->data.begin(); it!=this->data.end(); it++) {
+			if((*it)->GetId() == c->GetId()) {
+				this->data.erase(it);
+			}
+		}
+	});
 }
 
-void TextSystem::Deregister(Component *c) {
-	auto it = std::find_if(data.begin(), data.end(), 
-		[c](Text * candiate){ return candiate->GetId()==c->GetId(); });
+void TextSystem::Deregister(Text *t) {
+	auto it = std::find(data.begin(), data.end(), t);
 	if(it != data.end()) {
 		data.erase(it);
-		c->OnSystemDeregister(this);
+		(*it)->RemoveDestroyCallback(kComponentDestroyCallbackName);
 	}
 }
 
@@ -109,7 +110,7 @@ void TextSystem::OneFrame(float delta) {
 		RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 		float w_height = (float)setting.window_height, w_width = (float)setting.window_width;
 		
-		auto bound = cur->GetBoundingBox();
+		auto bound = cur->GetBoundingBox(this);
 		float left=std::get<0>(bound), right=std::get<1>(bound), top=std::get<2>(bound), bottom=std::get<3>(bound);
 		float center_x = (left+right)/2.0f, center_y = (top+bottom)/2.0f;
 		
@@ -145,7 +146,7 @@ void TextSystem::OneFrame(float delta) {
 
 		font_wrapper->DrawTextLayout(
 			pipeline->GetDeviceContext(), 
-			cur->GetLayout(), 
+			cur->GetLayout(this), 
 			0.0f, 0.0f, 
 			color_uint, 
 			rect, 
