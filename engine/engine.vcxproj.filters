@@ -479,6 +479,9 @@
     <ClCompile Include="src\graphics\material\material_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine_program_imp\scene_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="test\streamout.gs" />

@@ -8,8 +8,8 @@ namespace Assimp {
 class Importer;
 }
 
-class aiNode;
-class aiScene;
+struct aiNode;
+struct aiScene;
 
 namespace s2  {
 class Entity;
@@ -27,7 +27,7 @@ public:
 	s2string GetLastError() { return error; }
 
 private:
-	void ProcessNode(aiNode *node, const aiScene *scene);
+	bool ProcessNode(aiNode *node, const aiScene *scene);
 
 private:
 	s2string error;

@@ -64,6 +64,7 @@ void SpriteSystem::Register(Sprite *s) {
 		for(auto it=this->sprites.begin(); it!=this->sprites.end(); it++) {
 			if((*it)->GetId() == c->GetId()) {
 				this->sprites.erase(it);
+				break;
 			}
 		}
 	});

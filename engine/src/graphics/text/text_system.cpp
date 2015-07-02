@@ -54,6 +54,7 @@ void TextSystem::Register(Text *t) {
 		for(auto it=this->data.begin(); it!=this->data.end(); it++) {
 			if((*it)->GetId() == c->GetId()) {
 				this->data.erase(it);
+				break;
 			}
 		}
 	});

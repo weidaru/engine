@@ -7,6 +7,7 @@
 #include "graphics/text/text_system.h"
 #include "graphics/sprite/sprite_system.h"
 #include "scene/scene_manager.h"
+#include "graphics/material/material_system.h"
 
 #include <glog/logging.h>
 
@@ -35,7 +36,7 @@ Engine::Engine()
 	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR),
 		program_manager(new EngineProgramManager),
 		input_system(0), entity_system(0), sprite_system(0), text_system(0),
-		scene_manager(0){
+		material_system(0), scene_manager(0){
 
 }
 
@@ -85,8 +86,9 @@ void Engine::OneFrame(float delta) {
 	input_system->OneFrame(delta);
 	sprite_system->OneFrame(delta);
 	text_system->OneFrame(delta);
+	material_system->OneFrame(delta);
 
-	program_manager->Get("SkyboxDemo")->OneFrame(delta);
+	program_manager->Get("SceneDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 
@@ -106,7 +108,10 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	entity_system = new EntitySystem();
 	sprite_system = new SpriteSystem();
 	text_system = new TextSystem();
+	material_system = new MaterialSystem();
+
 	scene_manager = new SceneManager();
+	
 
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);
@@ -122,8 +127,9 @@ void Engine::Shutdown() {
 	delete program_manager;
 
 	delete scene_manager;
-
 	delete entity_system;
+
+	delete material_system;
 	delete text_system;
 	delete sprite_system;
 

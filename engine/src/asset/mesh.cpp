@@ -13,9 +13,7 @@ Mesh::Mesh() : importer(0), mesh(0) {
 }
 
 Mesh::~Mesh() {
-	if(importer) {
-		delete importer;
-	}
+	delete importer;
 }
 
 bool Mesh::Initialize(const s2string &path) {

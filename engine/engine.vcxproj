@@ -98,6 +98,7 @@
     <ClCompile Include="src\asset\mesh.cpp" />
     <ClCompile Include="src\asset\pixel_map.cpp" />
     <ClCompile Include="src\asset\skybox_image.cpp" />
+    <ClCompile Include="src\engine_program_imp\scene_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\skybox_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\ui_demo.cpp" />
     <ClCompile Include="src\entity\component.cpp" />

@@ -11,10 +11,13 @@
 namespace s2 {
 
 class EngineProgramManager;
+
 class InputSystem;
 class EntitySystem;
 class SpriteSystem;
 class TextSystem;
+class MaterialSystem;
+
 class SceneManager;
 
 class Engine : public Singleton<Engine>  {
@@ -34,10 +37,13 @@ public:
 	HWND GetWindowHandle() { return hwnd; }
 	
 	EngineProgramManager * GetEngineProgramManager() { return program_manager; }
+
 	InputSystem * GetInputSystem() { return input_system; }
 	EntitySystem * GetEntitySystem() { return entity_system; }
 	SpriteSystem * GetSpriteSystem() { return sprite_system; }
 	TextSystem * GetTextSystem() { return text_system; }
+	MaterialSystem * GetMaterialSystem() { return material_system; }
+
 	SceneManager * GetSceneManager() { return scene_manager; }
 
 private:
@@ -50,11 +56,15 @@ private:
 	s2string window_name;
 	
 	EngineProgramManager *program_manager;
+	
 	InputSystem *input_system;
 	EntitySystem *entity_system;
 	SpriteSystem *sprite_system;
 	TextSystem *text_system;
+	MaterialSystem *material_system;
+
 	SceneManager *scene_manager;
+	
 
 	//Need to be thread safe?
 	bool stop;

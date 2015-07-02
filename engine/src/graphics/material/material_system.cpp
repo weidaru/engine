@@ -30,6 +30,7 @@ void MaterialSystem::Register(Material *m) {
 		for(auto it=this->materials.begin(); it!=this->materials.end(); it++) {
 			if((*it)->GetId() == c->GetId()) {
 				this->materials.erase(it);
+				break;
 			}
 		}
 	});

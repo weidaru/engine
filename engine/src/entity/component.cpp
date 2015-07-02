@@ -16,6 +16,9 @@ Component::~Component() {
 	if(entity) {
 		entity->RemoveComponent(GetId());
 	}
+	for(auto it=destroy_cbs.begin(); it != destroy_cbs.end(); it++) {
+		it->second(this);
+	}
 }
 
 void Component::OnEntityRegister(Entity *_entity) {

@@ -1,6 +1,7 @@
 #include "scene.h"
 
 #include "entity/entity.h"
+#include "entity/entity_system.h"
 #include "engine.h"
 
 #include "graphics/material/material.h"
@@ -21,7 +22,11 @@ Scene::Scene() : importer(0) {
 }
 
 Scene::~Scene() {
-
+	EntitySystem *system = Engine::GetSingleton()->GetEntitySystem();
+	for(auto it=entities.begin(); it!=entities.end(); it++) {
+		delete system->Remove(it->second->GetId());
+	}
+	delete importer;
 }
 
 bool Scene::Initialize(const s2string &path) {
@@ -42,30 +47,40 @@ bool Scene::Initialize(const s2string &path) {
 		error = "No root node for scene " + path;
 		return false;
 	}
-	ProcessNode(scene->mRootNode, scene);
+	return ProcessNode(scene->mRootNode, scene);
 }
 
-void Scene::ProcessNode(aiNode *node, const aiScene *scene) {
+bool Scene::ProcessNode(aiNode *node, const aiScene *scene) {
 	if(node->mParent == 0 && node->mNumChildren != 0) {
 		for(uint32_t i=0; i<node->mNumChildren; i++) {
-			ProcessNode(node->mChildren[i], scene);
+			if(ProcessNode(node->mChildren[i], scene) == false) {
+				return false;
+			}
 		}
 	} else {
 		s2string name = node->mName.C_Str();
 		Entity *e = new Entity(Engine::GetSingleton()->GetEntitySystem());
 		CHECK(entities.find(name)==entities.end()) << "entity "<<name<<" already exists.";
-		entities[name] = e;
 
 		Material *material = new Material(e);
-		//Add to material system.
+		Engine::GetSingleton()->GetMaterialSystem()->Register(material);
 		for(uint32_t i=0; i<node->mNumMeshes; i++) {
 			Mesh *m = new Mesh();
-			m->Initialize(scene->mMeshes[node->mMeshes[i]]);
+			aiMesh *raw_mesh = scene->mMeshes[node->mMeshes[i]];
+			if(m->Initialize(raw_mesh) == false) {
+				delete e;
+				return false;
+			}
 			material->AddMesh(m);
 		}
+		for(uint32_t i=0; i<node->mNumChildren; i++) {
+			if(ProcessNode(node->mChildren[i], scene) == false) {
+				return false;
+			}
+		}
+		entities[name] = e;
 	}
 
+	return true;
 }
-
-
 }

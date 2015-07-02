@@ -12,6 +12,7 @@ Material::~Material() {
 
 uint32_t Material::AddMesh(Mesh *m) {
 	meshes.push_back(m);
+	return meshes.size()-1;
 }
 
 uint32_t Material::GetMeshSize() {
@@ -25,6 +26,7 @@ Mesh * Material::GetMesh(uint32_t index) {
 Mesh * Material::RemoveMesh(uint32_t index) {
 	Mesh *m = GetMesh(index);
 	meshes.erase(meshes.begin() + index);
+	return m;
 }
 
 }
