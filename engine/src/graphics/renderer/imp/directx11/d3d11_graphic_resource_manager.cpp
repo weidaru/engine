@@ -30,7 +30,7 @@ for(std::map<uint32_t, Type *>::iterator it=name.begin(); it!=name.end(); it++) 
 name.clear()
 
 D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
-	MapClean(D3D11Buffer, buffer_map);
+	MapClean(D3D11GraphicBuffer, buffer_map);
 	MapClean(Texture1D, tex1d_map);
 	MapClean(D3D11Texture2D, tex2d_map);
 	MapClean(D3D11TextureCube, texcube_map);
@@ -72,7 +72,7 @@ Mangle(Type) * D3D11GraphicResourceManager::Get##Type(uint32_t id) { \
 	} \
 }
 
-ResourceImp(Buffer, buffer_map)
+ResourceImp(GraphicBuffer, buffer_map)
 ResourceImp(Texture2D, tex2d_map)
 ResourceImp(TextureCube, texcube_map)
 ResourceImp(Sampler, sampler_map)

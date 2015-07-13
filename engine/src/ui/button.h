@@ -30,19 +30,19 @@ public:
 	Button & SetText(const s2string &content);
 	const s2string & GetText();
 
-	Button & SetTextColor(const Vector4 &color);
-	const Vector4 & GetTextColor();
+	Button & SetTextColor(const S2Vector4 &color);
+	const S2Vector4 & GetTextColor();
 
-	Button & SetBackgroundColor(const Vector4 &color);
-	const Vector4 & GetBackgroundColor();
+	Button & SetBackgroundColor(const S2Vector4 &color);
+	const S2Vector4 & GetBackgroundColor();
 
-	const Vector3 & GetPosition();
+	const S2Vector3 & GetPosition();
 	Button & SetPosition(float x, float y, float z);
-	Button & SetPosition(const Vector3 &vec);
+	Button & SetPosition(const S2Vector3 &vec);
 
-	Vector3 GetAbsolutePosition();
+	S2Vector3 GetAbsolutePosition();
 	Button & SetAbsolutePosition(float x, float y, float z);
-	Button & SetAbsolutePosition(const Vector3 &vec);
+	Button & SetAbsolutePosition(const S2Vector3 &vec);
 	
 	float GetAbsoluteWidth();
 	Button & SetAbsoluteWidth(float new_value);

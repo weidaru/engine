@@ -3,7 +3,7 @@
 
 #include "entity/component.h"
 #include "utils/s2string.h"
-#include "utils/vector4.h"
+#include "utils/s2vector4.h"
 
 #include <tuple>
 #include <stdint.h>
@@ -28,8 +28,8 @@ public:
 	Text & SetContent(const s2string &_content);
 	const s2string & GetContent() const { return content; }
 
-	Text & SetColor(const Vector4 &_color) { color=_color; return *this; }
-	const Vector4 & GetColor() const { return color;}
+	Text & SetColor(const S2Vector4 &_color) { color=_color; return *this; }
+	const S2Vector4 & GetColor() const { return color;}
 
 	Text & SetClipperWidth(float new_value);
 	float GetClipperWidth() const;
@@ -63,7 +63,7 @@ private:
 	s2string content;
 	s2string font_name;
 	uint32_t font_size;
-	Vector4 color;
+	S2Vector4 color;
 	bool isClipped;
 	std::pair<float, float> clipper_size;
 	float depth;

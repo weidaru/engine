@@ -27,8 +27,8 @@ SpriteSystem::SpriteSystem()
 	ps = manager->CreatePixelShader();
 	CHECK(ps->Initialize(ResolveAssetPath("shader/sprite.hlsl"), "ps_main")) << ps->GetLastError();
 
-	vertex_buffer = manager->CreateBuffer();
-	Buffer::Option option;
+	vertex_buffer = manager->CreateGraphicBuffer();
+	GraphicBuffer::Option option;
 	SpriteVertex verticies[4] = {
 		{-0.1f, -0.1f, 0.0f},
 		{0.1f, -0.1f, 0.0f},
@@ -39,7 +39,7 @@ SpriteSystem::SpriteSystem()
 	option.resource_write = RendererEnum::IMMUTABLE;
 	vertex_buffer->Initialize(option);
 
-	instance_buffer = manager->CreateBuffer();
+	instance_buffer = manager->CreateGraphicBuffer();
 	option.Initialize<SpriteInstance>(kSpriteBatchSize, 0);
 	option.resource_write = RendererEnum::CPU_WRITE_FREQUENT;
 	instance_buffer->Initialize(option);
@@ -48,8 +48,8 @@ SpriteSystem::SpriteSystem()
 SpriteSystem::~SpriteSystem() {
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-	manager->RemoveBuffer(instance_buffer->GetID());
-	manager->RemoveBuffer(vertex_buffer->GetID());
+	manager->RemoveGraphicBuffer(instance_buffer->GetID());
+	manager->RemoveGraphicBuffer(vertex_buffer->GetID());
 	manager->RemovePixelShader(ps->GetID());
 	manager->RemoveVertexShader(vs->GetID());
 	delete drawing_state;

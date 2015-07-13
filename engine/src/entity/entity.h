@@ -2,7 +2,7 @@
 #define ENTITY_H_
 
 #include "utils/s2string.h"
-#include "utils/matrix4x4.h"
+#include "utils/s2matrix4x4.h"
 
 #include <map>
 #include <stdint.h>
@@ -20,7 +20,7 @@ public:
 
 	Transform * GetTransform() {return transform;}
 	const Transform * GetTransform() const {return transform;}
-	Matrix4x4 GetCascadeTransformMatrix();
+	S2Matrix4x4 GetCascadeTransformMatrix();
 
 	void AddChild(Entity *e);
 	Entity * RemoveChild(uint32_t id);

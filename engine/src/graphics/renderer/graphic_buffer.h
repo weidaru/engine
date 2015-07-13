@@ -1,5 +1,5 @@
-#ifndef BUFFER_H_
-#define BUFFER_H_
+#ifndef GRAPHIC_BUFFER_H_
+#define GRAPHIC_BUFFER_H_
 
 #include "resource.h"
 #include "resource_view.h"
@@ -11,7 +11,7 @@ namespace s2 {
 
 class GraphicPipeline;
 
-class Buffer : public Resource {
+class GraphicBuffer : public Resource {
 public:
 	typedef uint32_t IndexBufferElementType;
 
@@ -73,7 +73,7 @@ public:
 	};
 
 public:
-	virtual 						~Buffer() {}
+	virtual 						~GraphicBuffer() {}
 	/**
 	 * TODO: Really don't like such long list of parameter, refactor!!!!
 	 */
@@ -118,4 +118,4 @@ public:
 
 }
 
-#endif		//BUFFER_H_
+#endif		//GRAPHIC_BUFFER_H_

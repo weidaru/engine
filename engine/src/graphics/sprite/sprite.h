@@ -3,15 +3,15 @@
 
 #include "entity/component.h"
 #include "graphics/renderer/texture2d.h"
-#include "utils/matrix4x4.h"
-#include "utils/vector4.h"
-#include "utils/vector3.h"
+#include "utils/s2matrix4x4.h"
+#include "utils/s2vector4.h"
+#include "utils/s2vector3.h"
 
 #include <stdint.h>
 
 //[[TypeInfo]]//
 struct SpriteInstance {
-	Matrix4x4 transform;
+	S2Matrix4x4 transform;
 	float color[4];
 };
 
@@ -25,16 +25,16 @@ public:
 	Sprite(Entity *entity);
 	virtual ~Sprite() override;
 
-	Sprite & SetBackgroundColor(const Vector4 &color);
-	const Vector4 & GetBackgroundColor() { return bg_color; }
+	Sprite & SetBackgroundColor(const S2Vector4 &color);
+	const S2Vector4 & GetBackgroundColor() { return bg_color; }
 
-	const Vector3 & GetPosition();
+	const S2Vector3 & GetPosition();
 	Sprite & SetPosition(float x, float y, float z);
-	Sprite & SetPosition(const Vector3 &vec);
+	Sprite & SetPosition(const S2Vector3 &vec);
 
-	Vector3 GetAbsolutePosition();
+	S2Vector3 GetAbsolutePosition();
 	Sprite & SetAbsolutePosition(float x, float y, float z);
-	Sprite & SetAbsolutePosition(const Vector3 &vec);
+	Sprite & SetAbsolutePosition(const S2Vector3 &vec);
 	
 	float GetAbsoluteWidth();
 	Sprite & SetAbsoluteWidth(float new_value);
@@ -55,7 +55,7 @@ public:
 	uint32_t GetDataSize() { return 4; } 
 
 private:
-	Vector4 bg_color;
+	S2Vector4 bg_color;
 
 	SpriteInstance data;
 };

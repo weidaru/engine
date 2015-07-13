@@ -4,7 +4,7 @@
 #include "graphics/renderer/resource_view.h"
 #include "utils/non_copyable.h"
 
-#include "d3d11_buffer.h"
+#include "d3d11_graphic_buffer.h"
 
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
@@ -41,26 +41,26 @@ private:
 
 class D3D11VertexBuffer : public VertexBuffer, public NonCopyable {
 public:
-	D3D11VertexBuffer(D3D11Buffer *_buffer);
+	D3D11VertexBuffer(D3D11GraphicBuffer *_buffer);
 	virtual ~D3D11VertexBuffer() {}
-	virtual D3D11Buffer *GetResource() { return buffer; }
+	virtual D3D11GraphicBuffer *GetResource() { return buffer; }
 
 	ID3D11Buffer * GetBuffer() { return buffer->GetInternal(); }
 
 private:
-	D3D11Buffer *buffer;
+	D3D11GraphicBuffer *buffer;
 };
 
 class D3D11IndexBuffer : public IndexBuffer, public NonCopyable {
 public:
-	D3D11IndexBuffer(D3D11Buffer *_resource);
+	D3D11IndexBuffer(D3D11GraphicBuffer *_resource);
 	virtual ~D3D11IndexBuffer() {}
-	virtual D3D11Buffer *GetResource() { return buffer; }
+	virtual D3D11GraphicBuffer *GetResource() { return buffer; }
 
 	ID3D11Buffer * GetBuffer() { return buffer->GetInternal(); }
 
 private:
-	D3D11Buffer *buffer;
+	D3D11GraphicBuffer *buffer;
 };
 
 
@@ -79,14 +79,14 @@ private:
 
 class D3D11StreamOut : public StreamOut, NonCopyable {
 public:
-	D3D11StreamOut(D3D11Buffer *buffer);
+	D3D11StreamOut(D3D11GraphicBuffer *buffer);
 	virtual ~D3D11StreamOut() {}
-	virtual D3D11Buffer *GetResource()  { return buffer;  }
+	virtual D3D11GraphicBuffer *GetResource()  { return buffer;  }
 
 	ID3D11Buffer *GetBuffer() { return buffer->GetInternal(); }
 
 private:
-	D3D11Buffer *buffer;
+	D3D11GraphicBuffer *buffer;
 };
 	
 }

@@ -6,7 +6,7 @@
 namespace s2 {
 class Mesh;
 class TextureCube;
-class Buffer;
+class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class Sampler;
@@ -29,8 +29,8 @@ private:
 	TextureCube *env_texture;
 	Sampler *sampler;
 
-	Buffer *vb;
-	Buffer *ib;
+	GraphicBuffer *vb;
+	GraphicBuffer *ib;
 
 	VertexShader *vs;
 	PixelShader *ps;

@@ -10,7 +10,7 @@ class Texture2D;
 class TextureCube;
 class Texture3D;
 class Sampler;
-class Buffer;
+class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class GeometryShader;
@@ -20,9 +20,9 @@ public:
 	virtual ~GraphicResourceManager() {}
 	
 	//VertexBuffer
-	virtual Buffer * CreateBuffer() = 0;
-	virtual Buffer * GetBuffer(uint32_t id) = 0;
-	virtual void RemoveBuffer(uint32_t id) = 0;
+	virtual GraphicBuffer * CreateGraphicBuffer() = 0;
+	virtual GraphicBuffer * GetGraphicBuffer(uint32_t id) = 0;
+	virtual void RemoveGraphicBuffer(uint32_t id) = 0;
 	
 	//Texture1D
 	virtual Texture1D * CreateTexture1D() = 0;

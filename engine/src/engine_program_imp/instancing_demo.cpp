@@ -30,7 +30,7 @@ public:
 	
 	virtual bool Initialize() {
 		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
-		camera->GetTransform()->Translate(Vector3(20.0f, 20.0f, -75.0f));
+		camera->GetTransform()->Translate(S2Vector3(20.0f, 20.0f, -75.0f));
 
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		
@@ -45,13 +45,13 @@ public:
 				<<vs->GetLastError();
 		
 		{
-			vs->SetUniform("world", Matrix4x4());
+			vs->SetUniform("world", S2Matrix4x4());
 			vs->SetUniform("view", camera->GetViewMatrix());
 
 			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 			float fov=PI*35/180;
-			Matrix4x4 projection;
+			S2Matrix4x4 projection;
 			projection.SetProjection(aspect, fov, np, fp);
 			vs->SetUniform("projection", projection);
 		}
@@ -61,9 +61,9 @@ public:
 		CHECK(ps->Initialize(ResolveTestAssetPath("instancing.ps"), "main"))
 				<<ps->GetLastError();
 		
-		position_buffer = manager->CreateBuffer();
-		color_buffer = manager->CreateBuffer();
-		index_buffer = manager->CreateBuffer();
+		position_buffer = manager->CreateGraphicBuffer();
+		color_buffer = manager->CreateGraphicBuffer();
+		index_buffer = manager->CreateGraphicBuffer();
 		{
 			Mesh mesh;
 			CHECK(mesh.Initialize(ResolveTestAssetPath("model/cube.obj"))) << mesh.GetLastError();
@@ -76,7 +76,7 @@ public:
 				positions = new InstancingTestPosition[size];
 				colors = new InstancingTestColor[size];
 				for(uint32_t i=0; i<size; i++) {
-					Vector3 p = mesh.GetPosition(i);
+					S2Vector3 p = mesh.GetPosition(i);
 					positions[i].data[0] = p[0];
 					positions[i].data[1] = p[1];
 					positions[i].data[2] = p[2];
@@ -85,7 +85,7 @@ public:
 					colors[i].data[1] = (float(rand()%100))/100.0f;
 					colors[i].data[2] = (float(rand()%100))/100.0f;	
 				}
-				Buffer::Option option;
+				GraphicBuffer::Option option;
 				option.Initialize(size, positions);
 				option.resource_write = RendererEnum::IMMUTABLE;
 
@@ -101,13 +101,13 @@ public:
 			{
 				//Create IndexBuffer
 				uint32_t size = mesh.GetTriangleSize()*3;
-				Buffer::IndexBufferElementType *indices = new Buffer::IndexBufferElementType[size];
+				GraphicBuffer::IndexBufferElementType *indices = new GraphicBuffer::IndexBufferElementType[size];
 				for(uint32_t i=0; i<mesh.GetTriangleSize(); i++) {
 					indices[i*3] = mesh.GetTriangleVertexIndex(i, 0);
 					indices[i*3+1] = mesh.GetTriangleVertexIndex(i, 1);
 					indices[i*3+2] = mesh.GetTriangleVertexIndex(i, 2);
 				}
-				Buffer::Option option;
+				GraphicBuffer::Option option;
 				option.InitializeAsIndexBuffer(size, indices);
 				option.resource_write = RendererEnum::IMMUTABLE;
 				index_buffer->Initialize(option);
@@ -115,7 +115,7 @@ public:
 			}
 		}
 		
-		instance_buffer = manager->CreateBuffer();
+		instance_buffer = manager->CreateGraphicBuffer();
 		{
 			InstancingTestInstancePosition positions[10];
 			for(uint32_t i=0; i<10; i++) {
@@ -123,7 +123,7 @@ public:
 				positions[i].data[1] = (float)5*i;
 				positions[i].data[2] = (float)5*i;
 			}
-			Buffer::Option option;
+			GraphicBuffer::Option option;
 			option.Initialize(10, positions);
 			option.resource_write = RendererEnum::IMMUTABLE;
 			instance_buffer->Initialize(option);
@@ -157,9 +157,9 @@ public:
 	}
 	
 private:
-	Buffer *position_buffer, *color_buffer;
-	Buffer *instance_buffer;
-	Buffer *index_buffer;
+	GraphicBuffer *position_buffer, *color_buffer;
+	GraphicBuffer *instance_buffer;
+	GraphicBuffer *index_buffer;
 	VertexShader *vs;
 	PixelShader *ps;
 	Texture2D *ds_buffer;

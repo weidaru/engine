@@ -6,12 +6,12 @@ Transform::Transform(Entity *entity) : Component(entity), needCompute(false), sc
 
 }
 
-const Matrix4x4 & Transform::GetMatrix() const {
+const S2Matrix4x4 & Transform::GetMatrix() const {
 	if(!needCompute) {
 		return matrix;
 	}
 
-	Matrix4x4 scale_matrix = CalculateScaleMatrix(), rotation_matrix = CalcualteRotateMatrix();
+	S2Matrix4x4 scale_matrix = CalculateScaleMatrix(), rotation_matrix = CalcualteRotateMatrix();
 
 	//Scale  ->  Rotate  ->  Translate
 	matrix = CalculateTranslateMatrix();
@@ -22,19 +22,19 @@ const Matrix4x4 & Transform::GetMatrix() const {
 	return matrix;
 }
 
-Matrix4x4 Transform::CalculateTranslateMatrix() const {
-	Matrix4x4 result;
+S2Matrix4x4 Transform::CalculateTranslateMatrix() const {
+	S2Matrix4x4 result;
 	return result.SetTranslate(translate);
 }
 
 
-Matrix4x4 Transform::CalculateScaleMatrix() const {
-	Matrix4x4 result;
+S2Matrix4x4 Transform::CalculateScaleMatrix() const {
+	S2Matrix4x4 result;
 	return result.SetScale(scale);
 }
 
-Matrix4x4 Transform::CalcualteRotateMatrix() const {
-	Matrix4x4 temp, result;
+S2Matrix4x4 Transform::CalcualteRotateMatrix() const {
+	S2Matrix4x4 temp, result;
 	result.SetRotationX(rotate[0]);
 	temp.SetRotationY(rotate[1]);
 	result *= temp;
@@ -50,7 +50,7 @@ Transform & Transform::Translate(float x, float y, float z) {
 	return *this;
 }
 
-Transform & Transform::Translate(const Vector3 &vector) {
+Transform & Transform::Translate(const S2Vector3 &vector) {
 	translate += vector;
 	needCompute = true;
 	
@@ -66,7 +66,7 @@ Transform & Transform::SetTranslate(float x, float y, float z) {
 	return *this;
 }
 
-Transform & Transform::SetTranslate(const Vector3 &vector) {
+Transform & Transform::SetTranslate(const S2Vector3 &vector) {
 	translate = vector;
 	needCompute = true;
 
@@ -87,7 +87,7 @@ Transform & Transform::Scale(float x, float y, float z) {
 	return *this;
 }
 
-Transform & Transform::Scale(const Vector3 &vector) {
+Transform & Transform::Scale(const S2Vector3 &vector) {
 	return Scale(vector[0], vector[1], vector[2]);
 }
 
@@ -99,7 +99,7 @@ Transform & Transform::SetScale(float x, float y, float z) {
 	return *this;
 }
 
-Transform & Transform::SetScale(const Vector3 &vector) {
+Transform & Transform::SetScale(const S2Vector3 &vector) {
 	return SetScale(vector[0], vector[1], vector[2]);
 }
 
@@ -118,7 +118,7 @@ Transform & Transform::Rotate(float x, float y ,float z) {
 	return *this;
 }
 
-Transform & Transform::Rotate(const Vector3 &vector) {
+Transform & Transform::Rotate(const S2Vector3 &vector) {
 	return Rotate(vector[0], vector[1], vector[2]);
 }
 
@@ -130,7 +130,7 @@ Transform & Transform::SetRotate(float x, float y, float z) {
 	return *this;
 }
 
-Transform & Transform::SetRotate(const Vector3 &vector) {
+Transform & Transform::SetRotate(const S2Vector3 &vector) {
 	return SetRotate(vector[0], vector[1], vector[2]);
 }
 

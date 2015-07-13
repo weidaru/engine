@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #include "d3d11_input_stage.h"
-#include "d3d11_buffer.h"
+#include "d3d11_graphic_buffer.h"
 #include "d3d11_vertex_shader.h"
 #include "d3d11_shader_reflection.h"
 #include "d3d11_graphic_resource_manager.h"
@@ -301,7 +301,7 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 			LOG(FATAL) << "Shader input " << head << " is covered by multiple vertex buffer. Dumping:\n" << DumpVertexBufferInfo(vbs);
 		}
 		else {
-			D3D11Buffer *buffer = vbinfo.vb->GetResource() ;
+			D3D11GraphicBuffer *buffer = vbinfo.vb->GetResource() ;
 			uint32_t byte_width = buffer->GetElementBytewidth();
 			uint32_t offset = 0;
 			while(offset < byte_width) {

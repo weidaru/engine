@@ -1,8 +1,8 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
-#include "utils/matrix4x4.h"
-#include "utils/vector3.h"
+#include "utils/s2matrix4x4.h"
+#include "utils/s2vector3.h"
 
 #include "entity/entity.h"
 
@@ -18,11 +18,11 @@ public:
 	
 	void Reset();
 
-	Matrix4x4 GetViewMatrix() const;
+	S2Matrix4x4 GetViewMatrix() const;
 	
 	//Up will be adjusted to forward to be orthogonal.
-	Camera & SetForwardVector(const Vector3 &forward);
-	const Vector3 & GetForwardVector() const { return forward; }
+	Camera & SetForwardVector(const S2Vector3 &forward);
+	const S2Vector3 & GetForwardVector() const { return forward; }
 
 	Camera & TranslateForward(float distance);
 	Camera & TranslateRight(float distance);
@@ -35,7 +35,7 @@ private:
 	Camera & operator=(const Camera &);
 
 private:
-	Vector3 forward;
+	S2Vector3 forward;
 };
 
 }

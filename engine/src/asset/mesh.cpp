@@ -60,13 +60,13 @@ uint32_t Mesh::GetVertexSize() const {
 
 namespace {
 
-Vector3 ConvertVector(const aiVector3D &origin) {
-	return Vector3(origin.x, origin.y, origin.z);
+S2Vector3 ConvertVector(const aiVector3D &origin) {
+	return S2Vector3(origin.x, origin.y, origin.z);
 }
 
 }
 
-Vector3 Mesh::GetPosition(uint32_t index) const {
+S2Vector3 Mesh::GetPosition(uint32_t index) const {
 	Check();
 	return ConvertVector(mesh->mVertices[index]);
 }
@@ -76,7 +76,7 @@ bool Mesh::HasNormal() const {
 	return mesh->HasNormals();
 }
 
-Vector3 Mesh::GetNormal(uint32_t index) const {
+S2Vector3 Mesh::GetNormal(uint32_t index) const {
 	Check();
 	CHECK(HasNormal())<<"Do not have normal.";
 	return ConvertVector(mesh->mNormals[index]);
@@ -92,7 +92,7 @@ int32_t Mesh::GetTextureCoordinateComponentSize(uint32_t set_index) const {
 	return mesh->mNumUVComponents[set_index];
 }
 
-Vector3 Mesh::GetTextureCoordinate(uint32_t set_index, uint32_t vertex_index) const {
+S2Vector3 Mesh::GetTextureCoordinate(uint32_t set_index, uint32_t vertex_index) const {
 	Check();
 	return ConvertVector(mesh->mTextureCoords[set_index][vertex_index]);
 }

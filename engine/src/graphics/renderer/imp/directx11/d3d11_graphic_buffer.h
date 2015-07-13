@@ -1,7 +1,7 @@
-#ifndef D3D11_BUFFER_H_
-#define D3D11_BUFFER_H_
+#ifndef D3D11_GRAPHIC_BUFFER_H_
+#define D3D11_GRAPHIC_BUFFER_H_
 
-#include "graphics/renderer/buffer.h"
+#include "graphics/renderer/graphic_buffer.h"
 
 struct ID3D11Buffer;
 
@@ -13,10 +13,10 @@ class D3D11IndexBuffer;
 class D3D11VertexBuffer;
 class D3D11StreamOut;
 
-class D3D11Buffer : public Buffer {
+class D3D11GraphicBuffer : public GraphicBuffer {
 public:
-	D3D11Buffer(D3D11GraphicResourceManager *_manager);
-	virtual ~D3D11Buffer();
+	D3D11GraphicBuffer(D3D11GraphicResourceManager *_manager);
+	virtual ~D3D11GraphicBuffer();
 	virtual void Initialize(const Option &option);
 	virtual uint32_t GetElementCount() const;
 	virtual uint32_t GetElementBytewidth() const;

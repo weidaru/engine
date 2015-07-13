@@ -1,8 +1,8 @@
 #ifndef MATERIAL_SYSTEM_H_
 #define MATERIAL_SYSTEM_H_
 
-#include <utils/vector3.h>
-#include <utils/vector4.h>
+#include "utils/s2vector3.h"
+#include "utils/s2vector4.h"
 
 #include <map>
 #include <vector>
@@ -10,16 +10,16 @@
 namespace s2 {
 
 class Material;
-class Buffer;
+class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class Mesh;
 
 //[[TypeInfo]]//
 struct MaterialVertexData {
-	Vector3 position;
-	Vector3 normal;
-	Vector4 color;
+	S2Vector3 position;
+	S2Vector3 normal;
+	S2Vector4 color;
 };
 
 class MeshData {
@@ -27,12 +27,12 @@ public:
 	MeshData(const Mesh &mesh);
 	~MeshData();
 
-	Buffer *GetVertexBuffer() { return vb; }
-	Buffer *GetIndexBuffer() { return ib;}
+	GraphicBuffer *GetVertexBuffer() { return vb; }
+	GraphicBuffer *GetIndexBuffer() { return ib;}
 
 private:
-	Buffer *vb;
-	Buffer *ib;
+	GraphicBuffer *vb;
+	GraphicBuffer *ib;
 };
 
 class MaterialSystem {

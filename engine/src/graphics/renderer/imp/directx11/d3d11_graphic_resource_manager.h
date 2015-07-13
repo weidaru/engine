@@ -5,7 +5,7 @@
 
 #include "d3d11_texture2d.h"
 #include "d3d11_texture_cube.h"
-#include "d3d11_buffer.h"
+#include "d3d11_graphic_buffer.h"
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
 #include "d3d11_sampler.h"
@@ -27,9 +27,9 @@ public:
 	virtual ~D3D11GraphicResourceManager();
 	
 	//Buffer
-	virtual D3D11Buffer * CreateBuffer();
-	virtual D3D11Buffer * GetBuffer(uint32_t id);
-	virtual void RemoveBuffer(uint32_t id);
+	virtual D3D11GraphicBuffer * CreateGraphicBuffer();
+	virtual D3D11GraphicBuffer * GetGraphicBuffer(uint32_t id);
+	virtual void RemoveGraphicBuffer(uint32_t id);
 	
 	//Texture1D
 	virtual Texture1D * CreateTexture1D();
@@ -83,7 +83,7 @@ private:
 private:
 	ID3D11Device *device;
 	
-	std::map<uint32_t, D3D11Buffer *> buffer_map;
+	std::map<uint32_t, D3D11GraphicBuffer *> buffer_map;
 	std::map<uint32_t, Texture1D *> tex1d_map;
 	std::map<uint32_t, D3D11Texture2D *> tex2d_map;
 	std::map<uint32_t, D3D11TextureCube *> texcube_map;

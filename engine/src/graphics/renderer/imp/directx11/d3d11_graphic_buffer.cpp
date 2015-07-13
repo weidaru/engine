@@ -1,6 +1,6 @@
 #pragma comment(lib, "d3d11.lib")
 
-#include "d3d11_buffer.h"
+#include "d3d11_graphic_buffer.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <d3d11.h>
@@ -22,12 +22,12 @@
 
 namespace s2 {
 
-D3D11Buffer::D3D11Buffer(D3D11GraphicResourceManager *_manager)
+D3D11GraphicBuffer::D3D11GraphicBuffer(D3D11GraphicResourceManager *_manager)
 	:	manager(_manager), buffer(0), mapped(0),
 		index_buffer(0), vertex_buffer(0), stream_out(0) {
 }
 
-D3D11Buffer::~D3D11Buffer() {
+D3D11GraphicBuffer::~D3D11GraphicBuffer() {
 	delete stream_out;
 	delete vertex_buffer;
 	delete index_buffer;
@@ -35,11 +35,11 @@ D3D11Buffer::~D3D11Buffer() {
 	buffer->Release();
 }
 
-void D3D11Buffer::Check() const {
+void D3D11GraphicBuffer::Check() const {
 	CHECK(buffer) << "Vertex buffer is not initialized.";
 }
 
-void D3D11Buffer::Initialize(const Option &_option) {
+void D3D11GraphicBuffer::Initialize(const Option &_option) {
 	option = _option;
 	CHECK(buffer == 0) << "Cannot initialize a buffer twice.";
 	CHECK(option.element_count>0 && option.element_bytewidth>0) << "element count and element bytewidth must not be 0";
@@ -82,37 +82,37 @@ void D3D11Buffer::Initialize(const Option &_option) {
 	}
 }
 
-uint32_t D3D11Buffer::GetElementCount() const {
+uint32_t D3D11GraphicBuffer::GetElementCount() const {
 	Check();
 	return option.element_count;
 }
 
-uint32_t D3D11Buffer::GetElementBytewidth() const {
+uint32_t D3D11GraphicBuffer::GetElementBytewidth() const {
 	Check();
 	return option.element_bytewidth;
 }
 
-RendererEnum::ResourceWrite D3D11Buffer::GetResourceWrite() const {
+RendererEnum::ResourceWrite D3D11GraphicBuffer::GetResourceWrite() const {
 	Check();
 	return mapped->GetResourceWrite();
 }
 
-uint32_t D3D11Buffer::GetBinding() const {
+uint32_t D3D11GraphicBuffer::GetBinding() const {
 	Check();
 	return option.binding;
 }
 
-uint32_t D3D11Buffer::GetElementMemberCount() const {
+uint32_t D3D11GraphicBuffer::GetElementMemberCount() const {
 	Check();
 	return option.element_member_count;
 }
 
-s2string D3D11Buffer::GetElementTypeName() const {
+s2string D3D11GraphicBuffer::GetElementTypeName() const {
 	Check();
 	return option.element_typename;
 }
 
-void D3D11Buffer::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite) {
+void D3D11GraphicBuffer::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite) {
 	Check();
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {
@@ -122,25 +122,25 @@ void D3D11Buffer::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite) {
 	mapped->WriteMap(pipeline, no_overwrite, 0);
 }
 
-void D3D11Buffer::WriteUnmap() {
+void D3D11GraphicBuffer::WriteUnmap() {
 	Check();
 	mapped->WriteUnmap();
 }
 
-void D3D11Buffer::Write(uint32_t index, const void *data, uint32_t array_size, uint32_t element_bytewidth) {
+void D3D11GraphicBuffer::Write(uint32_t index, const void *data, uint32_t array_size, uint32_t element_bytewidth) {
 	Check();
 	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
 
 	mapped->Write(index*element_bytewidth, data, array_size*element_bytewidth);
 }
 
-const void * D3D11Buffer::Read(uint32_t index, uint32_t element_bytewidth) const {
+const void * D3D11GraphicBuffer::Read(uint32_t index, uint32_t element_bytewidth) const {
 	Check();
 	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
 	return (const char *)mapped->Read() + index*element_bytewidth;
 }
 
-void D3D11Buffer::ReadMap(GraphicPipeline *_pipeline, bool wipe_cache) const {
+void D3D11GraphicBuffer::ReadMap(GraphicPipeline *_pipeline, bool wipe_cache) const {
 	Check();
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {
@@ -166,12 +166,12 @@ void D3D11Buffer::ReadMap(GraphicPipeline *_pipeline, bool wipe_cache) const {
 	mapped->ReadMap(pipeline, 0, wipe_cache);
 }
 
-void D3D11Buffer::ReadUnmap() const {
+void D3D11GraphicBuffer::ReadUnmap() const {
 	Check();
 	mapped->ReadUnmap();
 }
 
-void D3D11Buffer::Update(GraphicPipeline * _pipeline, 
+void D3D11GraphicBuffer::Update(GraphicPipeline * _pipeline, 
 			uint32_t index, const void *data, uint32_t array_size, uint32_t element_bytewidth) {
 	Check();
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
@@ -194,17 +194,17 @@ void D3D11Buffer::Update(GraphicPipeline * _pipeline,
 		buffer, 0, &dest, data, 0, 0);
 }
 
-IndexBuffer * D3D11Buffer::AsIndexBuffer() const {
+IndexBuffer * D3D11GraphicBuffer::AsIndexBuffer() const {
 	CHECK(index_buffer != 0)<<"Buffer is not binded as index buffer";
 	return index_buffer;
 }
 
-VertexBuffer * D3D11Buffer::AsVertexBuffer() const {
+VertexBuffer * D3D11GraphicBuffer::AsVertexBuffer() const {
 	CHECK(vertex_buffer != 0) << "Buffer is not binded as vertex buffer";
 	return vertex_buffer;
 }
 
-StreamOut * D3D11Buffer::AsStreamOut() const {
+StreamOut * D3D11GraphicBuffer::AsStreamOut() const {
 	CHECK(stream_out != 0) << "Buffer is not binded as stream out";
 	return stream_out;
 }

@@ -70,7 +70,7 @@ void TextSystem::Deregister(Text *t) {
 
 namespace {
 
-uint32_t ColorToUnsignedInt(const Vector4 &color) {
+uint32_t ColorToUnsignedInt(const S2Vector4 &color) {
 	 uint32_t result = 0;
 	 result |= (uint32_t)(color[0]*0xff)<<24;
 	 result |= (uint32_t)(color[1]*0xff)<<16;
@@ -79,8 +79,8 @@ uint32_t ColorToUnsignedInt(const Vector4 &color) {
 	 return result;
 }
 
-Matrix4x4 CalculateCascadeTranslateRotateMatrix(Entity *e) {
-	Matrix4x4 result;
+S2Matrix4x4 CalculateCascadeTranslateRotateMatrix(Entity *e) {
+	S2Matrix4x4 result;
 	if(e->GetParent()) {
 		result = CalculateCascadeTranslateRotateMatrix(e->GetParent());
 	}
@@ -127,15 +127,15 @@ void TextSystem::OneFrame(float delta) {
 			rect->Bottom = center_y + half_clipper_height;
 		}
 
-		Matrix4x4 transform_matrix = CalculateCascadeTranslateRotateMatrix(cur->GetEntity());
+		S2Matrix4x4 transform_matrix = CalculateCascadeTranslateRotateMatrix(cur->GetEntity());
 		//Orth project screen coordinates(with left-top corner being [0,0], right-bottom corner being [w, h]) to NDC.
-		Matrix4x4 orth(
+		S2Matrix4x4 orth(
 			2.0f/w_width, 0.0f, 0.0f, -1.0f,
 			0.0f, -2.0f/w_height, 0.0f, 1.0f,
 			0.0f, 0.0f, 1.0f ,0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 			);
-		Matrix4x4 shift_back;
+		S2Matrix4x4 shift_back;
 		shift_back.SetTranslate(w_width/2.0f - center_x, w_height/2.0f - center_y, cur->GetDepth());
 		transform_matrix *=  orth;
 		transform_matrix *= shift_back;

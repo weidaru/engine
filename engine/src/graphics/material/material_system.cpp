@@ -27,10 +27,10 @@ MeshData::MeshData(const Mesh &mesh) {
 	for(uint32_t i=0; i<vertex_size; i++) {
 		vb_data[i].position = mesh.GetPosition(i);
 		vb_data[i].normal = mesh.GetNormal(i);
-		vb_data[i].color = Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+		vb_data[i].color = S2Vector4(0.8f, 0.8f, 0.8f, 1.0f);
 	}
-	vb = manager->CreateBuffer();
-	Buffer::Option vb_opt;
+	vb = manager->CreateGraphicBuffer();
+	GraphicBuffer::Option vb_opt;
 	vb_opt.Initialize(vertex_size, vb_data);
 	vb->Initialize(vb_opt);
 	delete[] vb_data;
@@ -42,8 +42,8 @@ MeshData::MeshData(const Mesh &mesh) {
 		ib_data[i*3+1] = mesh.GetTriangleVertexIndex(i, 1);
 		ib_data[i*3+2] = mesh.GetTriangleVertexIndex(i, 2);
 	}
-	ib = manager->CreateBuffer();
-	Buffer::Option ib_opt;
+	ib = manager->CreateGraphicBuffer();
+	GraphicBuffer::Option ib_opt;
 	ib_opt.InitializeAsIndexBuffer(triangle_size*3, ib_data);
 	ib->Initialize(ib_opt);
 	delete[] ib_data;
@@ -51,8 +51,8 @@ MeshData::MeshData(const Mesh &mesh) {
 
 MeshData::~MeshData() {
 	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-	manager->RemoveBuffer(vb->GetID());
-	manager->RemoveBuffer(ib->GetID());
+	manager->RemoveGraphicBuffer(vb->GetID());
+	manager->RemoveGraphicBuffer(ib->GetID());
 }
 
 

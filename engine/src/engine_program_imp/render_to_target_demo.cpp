@@ -52,7 +52,7 @@ public:
 		ds_buffer = manager->CreateTexture2D();
 		ds_buffer->Initialize(ds_option);
 		
-		camera->GetTransform()->SetTranslate(Vector3(0.0, 1.0, -40.0f));
+		camera->GetTransform()->SetTranslate(S2Vector3(0.0, 1.0, -40.0f));
 
 		CreateColorProgram();
 		CreateTextureProgram();
@@ -74,14 +74,14 @@ public:
 		CHECK(vs->Initialize(ResolveTestAssetPath("gouraud.vs"), "main")) <<
 			vs->GetLastError();
 		{
-			Matrix4x4 identity;
+			S2Matrix4x4 identity;
 			vs->SetUniform("world", identity);
 			vs->SetUniform("view", camera->GetViewMatrix());
 			
 			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 			float fov=PI*35/180;
-			Matrix4x4 projection;
+			S2Matrix4x4 projection;
 			projection.SetProjection(aspect, fov, np, fp);
 
 			vs->SetUniform("projection", projection);
@@ -101,19 +101,19 @@ public:
 	 		uint32_t size = model.GetVertexSize();
 			vertices = new RTTTestVertex[size];
 			for(uint32_t i=0; i<size; i++) {
-				Vector3 p = model.GetPosition(i);
+				S2Vector3 p = model.GetPosition(i);
 				vertices[i].position[0] = p[0];
 				vertices[i].position[1] = p[1];
 				vertices[i].position[2] = p[2];
 
-				Vector3 n = model.GetNormal(i);
+				S2Vector3 n = model.GetNormal(i);
 				vertices[i].normal[0] = n[0];
 				vertices[i].normal[1] = n[1];
 				vertices[i].normal[2] = n[2];
 			}
 
-			vb = manager->CreateBuffer();
-			Buffer::Option option;
+			vb = manager->CreateGraphicBuffer();
+			GraphicBuffer::Option option;
 			option.Initialize(size, vertices);
 			vb->Initialize(option);
 			delete[] vertices;
@@ -122,14 +122,14 @@ public:
 		{
 			//Create IndexBuffer
 			uint32_t size = model.GetTriangleSize()*3;
-			Buffer::IndexBufferElementType*indices = new Buffer::IndexBufferElementType[size];
+			GraphicBuffer::IndexBufferElementType*indices = new GraphicBuffer::IndexBufferElementType[size];
 			for(uint32_t i=0; i<model.GetTriangleSize(); i++) {
 				indices[i*3] = model.GetTriangleVertexIndex(i, 0);
 				indices[i*3+1] = model.GetTriangleVertexIndex(i, 1);
 				indices[i*3+2] = model.GetTriangleVertexIndex(i, 2);
 			}
-			ib = manager->CreateBuffer();
-			Buffer::Option option;
+			ib = manager->CreateGraphicBuffer();
+			GraphicBuffer::Option option;
 			option.InitializeAsIndexBuffer(size, indices);
 			option.resource_write = RendererEnum::IMMUTABLE;
 			ib->Initialize(option);
@@ -175,14 +175,14 @@ public:
 			{{1.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}, 
 			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}}
 		};
-		tex_vb = manager->CreateBuffer();
-		Buffer::Option buffer_option;
+		tex_vb = manager->CreateGraphicBuffer();
+		GraphicBuffer::Option buffer_option;
 		buffer_option.Initialize(4, vertices);
 		tex_vb->Initialize(buffer_option);
 		
 		//Set index buffer
-		Buffer::IndexBufferElementType indices[6] = {0,1,2, 0,2,3};
-		tex_ib = manager->CreateBuffer();
+		GraphicBuffer::IndexBufferElementType indices[6] = {0,1,2, 0,2,3};
+		tex_ib = manager->CreateGraphicBuffer();
 		buffer_option.InitializeAsIndexBuffer(6, indices);
 		buffer_option.resource_write = RendererEnum::IMMUTABLE;
 		tex_ib->Initialize(buffer_option);
@@ -193,7 +193,7 @@ public:
 
 		rotate += delta*PI / 2.0f;
 		rotate = rotate>2 * PI ? rotate - 2 * PI : rotate;
-		Matrix4x4 rotation_mat;
+		S2Matrix4x4 rotation_mat;
 		rotation_mat.SetRotationY(rotate);
 		vs->SetUniform("world", rotation_mat);
 		vs->SetUniform("view", camera->GetViewMatrix());
@@ -241,14 +241,14 @@ private:
 	Texture2D *ds_buffer;
 	Texture2D *texture;
 	
-	Buffer *vb;
-	Buffer *ib;
+	GraphicBuffer *vb;
+	GraphicBuffer *ib;
 	VertexShader *vs;
 	PixelShader *ps;
 	float rotate;
 	
-	Buffer *tex_vb;
-	Buffer *tex_ib;
+	GraphicBuffer *tex_vb;
+	GraphicBuffer *tex_ib;
 	VertexShader *tex_vs;
 	PixelShader *tex_ps;
 	Sampler *sampler;

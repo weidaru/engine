@@ -28,18 +28,18 @@ public:
 	virtual bool Initialize() {
 		button = new Button(Engine::GetSingleton()->GetEntitySystem());
 		button->SetFontSize(64).
-			SetTextColor(Vector4(1.0f, 1.0f, 1.0f, 1.0f)).
+			SetTextColor(S2Vector4(1.0f, 1.0f, 1.0f, 1.0f)).
 			SetText("Click").
 			SetAbsolutePosition(100.0f, 100.0f, 0.1f).
 			SetWidth(0.2f).
 			SetAbsoluteHeight(80.0f).
-			SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
+			SetBackgroundColor(S2Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 
 		button->AddClickCallback([] (Button *self) {
 			if(self->GetBackgroundColor()[0] > 0.0f) {
-				self->SetBackgroundColor(Vector4(0.0f, 0.5f, 0.0f, 1.0f));	
+				self->SetBackgroundColor(S2Vector4(0.0f, 0.5f, 0.0f, 1.0f));	
 			} else {
-				self->SetBackgroundColor(Vector4(0.5f, 0.0f, 0.0f, 1.0f));
+				self->SetBackgroundColor(S2Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 			}
 		});
 		button->SetEnabled(false);

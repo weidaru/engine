@@ -89,7 +89,7 @@ void Entity::OneFrame(float delta) {
 	}
 }
 
-Matrix4x4 Entity::GetCascadeTransformMatrix() {
+S2Matrix4x4 Entity::GetCascadeTransformMatrix() {
 	if(parent) {
 		return parent->GetCascadeTransformMatrix()  * transform->GetMatrix();
 	} else {

@@ -58,7 +58,7 @@ void Button::OneFrame(float delta) {
 		if(input_system->IsMouseButtonDown(InputSystem::M_LEFT)) {
 			float mouse_x = (float)input_system->GetMouseX();
 			float mouse_y = (float)input_system->GetMouseY();
-			Vector3 pos = sprite->GetAbsolutePosition();
+			S2Vector3 pos = sprite->GetAbsolutePosition();
 			float x = pos[0], y = pos[1];
 			float width = sprite->GetAbsoluteWidth(), height = sprite->GetAbsoluteHeight();
 
@@ -89,25 +89,25 @@ const s2string & Button::GetText() {
 	return text->GetContent();
 }
 
-Button & Button::SetTextColor(const Vector4 &color) {
+Button & Button::SetTextColor(const S2Vector4 &color) {
 	text->SetColor(color);
 	return *this;
 }
 
-const Vector4 & Button::GetTextColor() {
+const S2Vector4 & Button::GetTextColor() {
 	return text->GetColor();
 }
 
-Button & Button::SetBackgroundColor(const Vector4 &color) {
+Button & Button::SetBackgroundColor(const S2Vector4 &color) {
 	sprite->SetBackgroundColor(color);
 	return *this;
 }
 
-const Vector4 & Button::GetBackgroundColor() {
+const S2Vector4 & Button::GetBackgroundColor() {
 	return sprite->GetBackgroundColor();
 }
 
-const Vector3 & Button::GetPosition() {
+const S2Vector3 & Button::GetPosition() {
 	return sprite->GetPosition();
 }
 
@@ -116,13 +116,13 @@ Button & Button::SetPosition(float x, float y, float z) {
 	return *this;
 }
 
-Button & Button::SetPosition(const Vector3 &vec) {
+Button & Button::SetPosition(const S2Vector3 &vec) {
 	sprite->SetPosition(vec);
 	text->SetDepth(vec[2]-1e-4f);
 	return *this;
 }
 
-Vector3 Button::GetAbsolutePosition() {
+S2Vector3 Button::GetAbsolutePosition() {
 	return sprite->GetAbsolutePosition();
 }
 
@@ -131,7 +131,7 @@ Button & Button::SetAbsolutePosition(float x, float y, float z) {
 	return *this;
 }
 
-Button & Button::SetAbsolutePosition(const Vector3 &vec) {
+Button & Button::SetAbsolutePosition(const S2Vector3 &vec) {
 	sprite->SetAbsolutePosition(vec);
 	return *this;
 }

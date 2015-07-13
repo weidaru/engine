@@ -28,14 +28,14 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 		float (*vertices)[3]  = new float[size][3];
 
 		for(uint32_t i=0; i<size; i++) {
-			Vector3 p = mesh.GetPosition(i);
+			S2Vector3 p = mesh.GetPosition(i);
 			vertices[i][0] = p[0];
 			vertices[i][1] = p[1];
 			vertices[i][2] = p[2];
 		}
 
-		vb = manager->CreateBuffer();
-		Buffer::Option option;
+		vb = manager->CreateGraphicBuffer();
+		GraphicBuffer::Option option;
 		option.element_count = size;
 		option.element_member_count = 3;
 		option.element_bytewidth = sizeof(float)*3;
@@ -48,14 +48,14 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 	{
 		//Create IndexBuffer
 		uint32_t size = mesh.GetTriangleSize()*3;
-		Buffer::IndexBufferElementType* indices = new Buffer::IndexBufferElementType[size];
+		GraphicBuffer::IndexBufferElementType* indices = new GraphicBuffer::IndexBufferElementType[size];
 		for(uint32_t i=0; i<mesh.GetTriangleSize(); i++) {
 			indices[i*3] = mesh.GetTriangleVertexIndex(i, 0);
 			indices[i*3+1] = mesh.GetTriangleVertexIndex(i, 1);
 			indices[i*3+2] = mesh.GetTriangleVertexIndex(i, 2);
 		}
-		ib = manager->CreateBuffer();
-		Buffer::Option option;
+		ib = manager->CreateGraphicBuffer();
+		GraphicBuffer::Option option;
 		option.InitializeAsIndexBuffer(size, indices);
 		option.resource_write = RendererEnum::IMMUTABLE;
 		ib->Initialize(option);
@@ -85,8 +85,8 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 Skybox::~Skybox() {
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	manager->RemoveTextureCube(env_texture->GetID());
-	manager->RemoveBuffer(ib->GetID());
-	manager->RemoveBuffer(vb->GetID());
+	manager->RemoveGraphicBuffer(ib->GetID());
+	manager->RemoveGraphicBuffer(vb->GetID());
 
 }
 
@@ -96,8 +96,8 @@ void Skybox::OneFrame(float delta) {
 
 
 	Camera *camera = Engine::GetSingleton()->GetSceneManager()->GetCamera();
-	Matrix4x4 wvp(Engine::GetSingleton()->GetSceneManager()->GetProjectionMatrix());
-	Matrix4x4 temp;
+	S2Matrix4x4 wvp(Engine::GetSingleton()->GetSceneManager()->GetProjectionMatrix());
+	S2Matrix4x4 temp;
 	wvp *= camera->GetViewMatrix();
 	temp.SetTranslate(camera->GetTransform()->GetTranslate());
 	wvp *= temp;

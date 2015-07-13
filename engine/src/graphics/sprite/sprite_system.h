@@ -11,7 +11,7 @@ struct SpriteVertex {
 
 namespace s2 {
 class Sprite;
-class Buffer;
+class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class DrawingState;
@@ -31,7 +31,7 @@ private:
 
 	VertexShader *vs;
 	PixelShader *ps;
-	Buffer *vertex_buffer, *instance_buffer;
+	GraphicBuffer *vertex_buffer, *instance_buffer;
 	
 	DrawingState *drawing_state;
 

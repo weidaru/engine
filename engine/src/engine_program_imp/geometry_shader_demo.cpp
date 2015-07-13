@@ -43,13 +43,13 @@ public:
 			{ 0.7f, -0.7f, 0.0f },
 			{ 0.9f, -0.9f, 0.0f }
 		};
-		vb = manager->CreateBuffer();
-		Buffer::Option vb_option;
+		vb = manager->CreateGraphicBuffer();
+		GraphicBuffer::Option vb_option;
 		vb_option.element_count = 20;
 		vb_option.element_member_count = 1;
 		vb_option.element_bytewidth = 12;
 		vb_option.data = vb_data;
-		vb_option.binding = Buffer::VERTEX_BUFFER;
+		vb_option.binding = GraphicBuffer::VERTEX_BUFFER;
 		vb->Initialize(vb_option);
 
 		vs = manager->CreateVertexShader();
@@ -85,7 +85,7 @@ public:
 	}
 
 private:
-	Buffer *vb;
+	GraphicBuffer *vb;
 	VertexShader *vs;
 	GeometryShader *gs;
 	PixelShader *ps;

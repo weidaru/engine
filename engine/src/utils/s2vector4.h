@@ -1,18 +1,18 @@
-#ifndef VECTOR4_H_
-#define VECTOR4_H_
+#ifndef S2VECTOR4_H_
+#define S2VECTOR4_H_
 
-#include "vector3.h"
+#include "s2vector3.h"
 
 #include <stdint.h>
 
 //[[TypeInfo]]//
-struct Vector4 {
+struct S2Vector4 {
 	float data[4];
 	
-	Vector4();
-	Vector4(const Vector3 &vec3, float _w);
-	Vector4(float _0, float _1, float _2, float _3);
-	Vector3 ToVec3() const;
+	S2Vector4();
+	S2Vector4(const S2Vector3 &vec3, float _w);
+	S2Vector4(float _0, float _1, float _2, float _3);
+	S2Vector3 ToVec3() const;
 	
 	void Set(float _0, float _1, float _2, float _3) {
 		data[0] = _0; data[1] = _1; data[2] = _2; data[3] = _3;
@@ -22,4 +22,4 @@ struct Vector4 {
 	const float & operator[](uint32_t index) const { return data[index]; }
 };
 
-#endif			//VECTOR4_H_
+#endif			//S2VECTOR4_H_

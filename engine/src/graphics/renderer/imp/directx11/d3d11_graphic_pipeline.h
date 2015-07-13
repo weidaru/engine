@@ -6,7 +6,7 @@
 #include "graphics/renderer/depth_stencil_option.h"
 #include "graphics/renderer/blend_option.h"
 
-#include "d3d11_buffer.h"
+#include "d3d11_graphic_buffer.h"
 #include "d3d11_resource_view.h"
 
 #include "d3d11_input_stage.h"

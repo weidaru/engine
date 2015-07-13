@@ -6,7 +6,7 @@
 #include "geometry_shader.h"
 #include "graphic_pipeline.h"
 #include "graphic_resource_manager.h"
-#include "buffer.h"
+#include "graphic_buffer.h"
 #include "pixel_shader.h"
 #include "rasterization_option.h"
 #include "renderer_context.h"

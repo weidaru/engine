@@ -39,8 +39,8 @@ namespace {
 /**
  * Make lhs vertical to rhs and still in the same plane.
  */
-void MakeVertical(Vector3 *_lhs, const Vector3 &rhs) {
-	Vector3 &lhs = *_lhs;
+void MakeVertical(S2Vector3 *_lhs, const S2Vector3 &rhs) {
+	S2Vector3 &lhs = *_lhs;
 	float c = lhs.Dot(rhs);
 	CHECK(c!=1.0f)<<"Input cannot be in the same line.";
 	lhs -= (rhs*c);
@@ -49,7 +49,7 @@ void MakeVertical(Vector3 *_lhs, const Vector3 &rhs) {
 
 }
 
-Camera & Camera::SetForwardVector(const Vector3 &_forward) {
+Camera & Camera::SetForwardVector(const S2Vector3 &_forward) {
 	forward = _forward;
 	forward.Normalize();
 	return *this;
@@ -57,40 +57,55 @@ Camera & Camera::SetForwardVector(const Vector3 &_forward) {
 
 Camera & Camera::TranslateForward(float distance) {
 	Transform &trans = *GetTransform();
-	Vector3 real_forward = (trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3();
-	trans.Translate(real_forward * distance);
+	//Use spherical coordinate for forward vector.
+	const S2Vector3 & rotate = trans.GetRotate();
+	float theta = rotate[0], phi = rotate[1];
+	phi = phi > 1.57f ? 1.57f : phi;
+	phi = phi < -1.57f ? -1.57f : phi;
+
+	S2Vector3 zaxis(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));
+
+	trans.Translate(zaxis * distance);
 
 	return *this;
 }
 
 Camera & Camera::TranslateRight(float distance) {
 	Transform &trans = *GetTransform();
-	Vector3 real_right = Vector3(0.0f, 1.0f, 0.0f).Cross((trans.CalcualteRotateMatrix()*Vector4(forward, 0.0f)).ToVec3());
-	trans.Translate(real_right * distance);
-
-	return *this;
-}
-
-Matrix4x4 Camera::GetViewMatrix() const {
-	const Transform &trans = *GetTransform();
-
 	//Use spherical coordinate for forward vector.
-	const Vector3 & rotate = trans.GetRotate();
+	const S2Vector3 & rotate = trans.GetRotate();
 	float theta = rotate[0], phi = rotate[1];
 	phi = phi > 1.57f ? 1.57f : phi;
 	phi = phi < -1.57f ? -1.57f : phi;
 
-	Vector3 zaxis(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));
-	Vector3 xaxis = Vector3(0.0f, 1.0f, 0.0f).Cross(zaxis);
-	xaxis.Normalize();
-	Vector3 yaxis = zaxis.Cross(xaxis);
+	S2Vector3 zaxis(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));
+	S2Vector3 xaxis = S2Vector3(0.0f, 1.0f, 0.0f).Cross(zaxis);
 
-	Vector3 position = trans.GetTranslate();
+	trans.Translate(xaxis * distance);
+
+	return *this;
+}
+
+S2Matrix4x4 Camera::GetViewMatrix() const {
+	const Transform &trans = *GetTransform();
+
+	//Use spherical coordinate for forward vector.
+	const S2Vector3 & rotate = trans.GetRotate();
+	float theta = rotate[0], phi = rotate[1];
+	phi = phi > 1.57f ? 1.57f : phi;
+	phi = phi < -1.57f ? -1.57f : phi;
+
+	S2Vector3 zaxis(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));
+	S2Vector3 xaxis = S2Vector3(0.0f, 1.0f, 0.0f).Cross(zaxis);
+	xaxis.Normalize();
+	S2Vector3 yaxis = zaxis.Cross(xaxis);
+
+	S2Vector3 position = trans.GetTranslate();
 	float p_dot_x = position.Dot(xaxis);
 	float p_dot_y = position.Dot(yaxis);
 	float p_dot_z = position.Dot(zaxis);
 	
-	return Matrix4x4(
+	return S2Matrix4x4(
 		xaxis[0],  				xaxis[1], 				xaxis[2],			-p_dot_x,
 		yaxis[0],				yaxis[1], 				yaxis[2],			-p_dot_y,
 		zaxis[0], 				zaxis[1], 				zaxis[2],			-p_dot_z,

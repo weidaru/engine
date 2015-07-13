@@ -1,14 +1,14 @@
-#include "matrix4x4.h"
+#include "s2matrix4x4.h"
 
 #include <math.h>
 #include <assert.h>
 #include <string.h>
 
-Matrix4x4::Matrix4x4() {
+S2Matrix4x4::S2Matrix4x4() {
 	SetIdentity();
 }
 
-Matrix4x4::Matrix4x4(
+S2Matrix4x4::S2Matrix4x4(
 			float _00, float _01, float _02, float _03, 
 			float _10, float _11, float _12, float _13, 
 			float _20, float _21, float _22, float _23, 
@@ -47,7 +47,7 @@ void AddLine(float mat[4][8], int des, int source ,float scale)
 
 }
 
-bool Matrix4x4::Invert() {
+bool S2Matrix4x4::Invert() {
 	//use Gauss Jordan elimination
 	float augment[4][8];
 	for(uint32_t i=0; i<4; i++) {
@@ -86,7 +86,7 @@ bool Matrix4x4::Invert() {
 	return true;
 }
 
-void Matrix4x4::Transpose() {
+void S2Matrix4x4::Transpose() {
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=i+1; j<4; j++) {
 			float temp = data[i][j];
@@ -96,7 +96,7 @@ void Matrix4x4::Transpose() {
 	}
 }
 
-Matrix4x4 & Matrix4x4::operator+=(const Matrix4x4 &rhs) {
+S2Matrix4x4 & S2Matrix4x4::operator+=(const S2Matrix4x4 &rhs) {
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
 			data[i][j] += rhs[i][j];
@@ -105,7 +105,7 @@ Matrix4x4 & Matrix4x4::operator+=(const Matrix4x4 &rhs) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::operator-=(const Matrix4x4 &rhs) {
+S2Matrix4x4 & S2Matrix4x4::operator-=(const S2Matrix4x4 &rhs) {
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
 			data[i][j] -= rhs[i][j];
@@ -114,7 +114,7 @@ Matrix4x4 & Matrix4x4::operator-=(const Matrix4x4 &rhs) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::operator*=(const Matrix4x4 &rhs) {
+S2Matrix4x4 & S2Matrix4x4::operator*=(const S2Matrix4x4 &rhs) {
 	for(uint32_t i=0; i<4; i++) {
 		float temp[4] = {data[i][0], data[i][1], data[i][2], data[i][3]};
 		for(uint32_t j=0; j<4; j++) {
@@ -128,7 +128,7 @@ Matrix4x4 & Matrix4x4::operator*=(const Matrix4x4 &rhs) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::operator*=(float scale) {
+S2Matrix4x4 & S2Matrix4x4::operator*=(float scale) {
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
 			data[i][j] *= scale;
@@ -137,7 +137,7 @@ Matrix4x4 & Matrix4x4::operator*=(float scale) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetProjection(float aspect, float fov, float np, float fp) {
+S2Matrix4x4 & S2Matrix4x4::SetProjection(float aspect, float fov, float np, float fp) {
 	SetIdentity();
 	float yscale = 1.0f/tan(fov/2);
 	data[0][0] = yscale/aspect;
@@ -150,11 +150,11 @@ Matrix4x4 & Matrix4x4::SetProjection(float aspect, float fov, float np, float fp
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetTranslate(const Vector3& vec) {
+S2Matrix4x4 & S2Matrix4x4::SetTranslate(const S2Vector3& vec) {
 	return SetTranslate(vec[0], vec[1], vec[2]);
 }
 
-Matrix4x4 & Matrix4x4::SetTranslate(float x, float y, float z) {
+S2Matrix4x4 & S2Matrix4x4::SetTranslate(float x, float y, float z) {
 	SetIdentity();
 	data[0][3] = x;
 	data[1][3] = y;
@@ -162,11 +162,11 @@ Matrix4x4 & Matrix4x4::SetTranslate(float x, float y, float z) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetScale(const Vector3& vec) {
+S2Matrix4x4 & S2Matrix4x4::SetScale(const S2Vector3& vec) {
 	return SetScale(vec[0], vec[1], vec[2]);
 }
 
-Matrix4x4 & Matrix4x4::SetScale(float x, float y, float z) {
+S2Matrix4x4 & S2Matrix4x4::SetScale(float x, float y, float z) {
 	SetIdentity();
 	data[0][0] = x;
 	data[1][1] = y;
@@ -175,7 +175,7 @@ Matrix4x4 & Matrix4x4::SetScale(float x, float y, float z) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetIdentity() {
+S2Matrix4x4 & S2Matrix4x4::SetIdentity() {
 	memset(data, 0, 64);
 	data[0][0] = 1.0f;
 	data[1][1] = 1.0f;
@@ -185,7 +185,7 @@ Matrix4x4 & Matrix4x4::SetIdentity() {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetRotationX(float angle) {
+S2Matrix4x4 & S2Matrix4x4::SetRotationX(float angle) {
 	float c=cos(angle), s=sin(angle);
 	Set( 
 		1.0f,	0.0f,	0.0f,	0.0f,
@@ -195,7 +195,7 @@ Matrix4x4 & Matrix4x4::SetRotationX(float angle) {
 	return *this;
 }
 
-Matrix4x4 & Matrix4x4::SetRotationY(float angle) {
+S2Matrix4x4 & S2Matrix4x4::SetRotationY(float angle) {
 	float c=cos(angle), s=sin(angle);
 	Set(
 		c,		0.0f,	s,		0.0f,
@@ -205,7 +205,7 @@ Matrix4x4 & Matrix4x4::SetRotationY(float angle) {
 	return *this;
 }
 
- Matrix4x4 & Matrix4x4::SetRotationZ(float angle) {
+ S2Matrix4x4 & S2Matrix4x4::SetRotationZ(float angle) {
 	float c=cos(angle), s=sin(angle);
 	Set(
 		c,		-s,	0.0f,	0.0f,
@@ -215,8 +215,8 @@ Matrix4x4 & Matrix4x4::SetRotationY(float angle) {
 	return *this;
 }
 	
-Matrix4x4 operator+(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
-	Matrix4x4 result;
+S2Matrix4x4 operator+(const S2Matrix4x4 &lhs, const S2Matrix4x4 &rhs) {
+	S2Matrix4x4 result;
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
 			result[i][j] = lhs[i][j] + rhs[i][j];
@@ -225,8 +225,8 @@ Matrix4x4 operator+(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 	return result;
 }
 
-Matrix4x4 operator-(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
-	Matrix4x4 result;
+S2Matrix4x4 operator-(const S2Matrix4x4 &lhs, const S2Matrix4x4 &rhs) {
+	S2Matrix4x4 result;
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
 			result[i][j] = lhs[i][j] - rhs[i][j];
@@ -235,8 +235,8 @@ Matrix4x4 operator-(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 	return result;
 }
 
-Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
-	Matrix4x4 result;
+S2Matrix4x4 operator*(const S2Matrix4x4 &lhs, const S2Matrix4x4 &rhs) {
+	S2Matrix4x4 result;
 	
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
@@ -250,8 +250,8 @@ Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs) {
 	return result;
 }
 
-Vector4 operator*(const Matrix4x4 &lhs, const Vector4 &rhs) {
-	Vector4 result;
+S2Vector4 operator*(const S2Matrix4x4 &lhs, const S2Vector4 &rhs) {
+	S2Vector4 result;
 	
 	for(uint32_t i=0; i<4; i++) {
 		result[i] = 0.0f;
@@ -263,8 +263,8 @@ Vector4 operator*(const Matrix4x4 &lhs, const Vector4 &rhs) {
 	return result;
 }
 
-Vector4 operator*(const Vector4 &lhs, const Matrix4x4 &rhs) {
-	Vector4 result;
+S2Vector4 operator*(const S2Vector4 &lhs, const S2Matrix4x4 &rhs) {
+	S2Vector4 result;
 	
 	for(uint32_t i=0; i<4; i++) {
 		result[i] = 0.0f;
@@ -276,8 +276,8 @@ Vector4 operator*(const Vector4 &lhs, const Matrix4x4 &rhs) {
 	return result;
 }
 
-Matrix4x4 operator*(const Matrix4x4 &matrix, float scale) {
-	Matrix4x4 result;
+S2Matrix4x4 operator*(const S2Matrix4x4 &matrix, float scale) {
+	S2Matrix4x4 result;
 	for(uint32_t i=0; i<4; i++) {
 		for(uint32_t j=0; j<4; j++) {
 			result[i][j] = matrix[i][j] * scale;
@@ -286,6 +286,6 @@ Matrix4x4 operator*(const Matrix4x4 &matrix, float scale) {
 	return result;
 }
 
-Matrix4x4 operator*(float scale, const Matrix4x4 &matrix) {
+S2Matrix4x4 operator*(float scale, const S2Matrix4x4 &matrix) {
 	return matrix * scale;
 }
