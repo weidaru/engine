@@ -45,9 +45,9 @@ struct Matrix4x4 {
 	Matrix4x4 & SetRotationZ(float angle);
 	//Projection is LH.
 	Matrix4x4 & SetProjection(float aspect, float fov, float np, float fp);
-	Matrix4x4 & SetTranslate(const s2::Vector3& vec);
+	Matrix4x4 & SetTranslate(const Vector3& vec);
 	Matrix4x4 & SetTranslate(float x, float y, float z);
-	Matrix4x4 & SetScale(const s2::Vector3& vec);
+	Matrix4x4 & SetScale(const Vector3& vec);
 	Matrix4x4 & SetScale(float x, float y, float z);
 	
 	Matrix4x4 & operator+=(const Matrix4x4 &rhs);
@@ -62,8 +62,8 @@ Matrix4x4 operator*(const Matrix4x4 &lhs, const Matrix4x4 &rhs);
 Matrix4x4 operator*(const Matrix4x4 &matrix, float scale);
 Matrix4x4 operator*( float scale, const Matrix4x4 &matrix);
 
-s2::Vector4 operator*(const Matrix4x4 &lhs, const s2::Vector4 &rhs);
-s2::Vector4 operator*(const s2::Vector4 &lhs, const Matrix4x4 &rhs);
+Vector4 operator*(const Matrix4x4 &lhs, const Vector4 &rhs);
+Vector4 operator*(const Vector4 &lhs, const Matrix4x4 &rhs);
 
 
 

@@ -7,20 +7,20 @@
 
 namespace s2 {
 
-class Mesh;
+class MeshData;
 
 class Material : public Component{
 public:
 	Material(Entity *e);
 	virtual ~Material() override;
 
-	uint32_t AddMesh(Mesh *m);
+	uint32_t AddMesh(MeshData *m);
 	uint32_t GetMeshSize();
-	Mesh * GetMesh(uint32_t index);
-	Mesh * RemoveMesh(uint32_t index);
+	MeshData * GetMesh(uint32_t index);
+	MeshData * RemoveMesh(uint32_t index);
 
 private:
-	std::vector<Mesh *> meshes;
+	std::vector<MeshData *> meshes;
 };
 
 }

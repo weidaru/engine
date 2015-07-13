@@ -3,10 +3,9 @@
 
 #include <stdint.h>
 
-namespace s2 {
-
 struct Vector4;
 
+//[[TypeInfo]]//
 struct Vector3 {
 	float data[3];
 	
@@ -39,8 +38,6 @@ Vector3 operator+(const Vector3 &lhs, const Vector3 &rhs);
 Vector3 operator-(const Vector3 &lhs, const Vector3 &rhs);
 Vector3 operator*(const Vector3 &vec, float scale);
 Vector3 operator*(float scale, const Vector3 &vec);
-
-}
 
 
 

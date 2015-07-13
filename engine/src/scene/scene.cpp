@@ -26,6 +26,11 @@ Scene::~Scene() {
 	for(auto it=entities.begin(); it!=entities.end(); it++) {
 		delete system->Remove(it->second->GetId());
 	}
+	
+	for(auto it=mesh_data.begin(); it!=mesh_data.end(); it++) {
+		delete it->second;
+	}
+
 	delete importer;
 }
 
@@ -47,7 +52,10 @@ bool Scene::Initialize(const s2string &path) {
 		error = "No root node for scene " + path;
 		return false;
 	}
-	return ProcessNode(scene->mRootNode, scene);
+
+	bool succeed = ProcessNode(scene->mRootNode, scene);
+
+	return succeed;
 }
 
 bool Scene::ProcessNode(aiNode *node, const aiScene *scene) {
@@ -65,13 +73,20 @@ bool Scene::ProcessNode(aiNode *node, const aiScene *scene) {
 		Material *material = new Material(e);
 		Engine::GetSingleton()->GetMaterialSystem()->Register(material);
 		for(uint32_t i=0; i<node->mNumMeshes; i++) {
-			Mesh *m = new Mesh();
 			aiMesh *raw_mesh = scene->mMeshes[node->mMeshes[i]];
-			if(m->Initialize(raw_mesh) == false) {
-				delete e;
-				return false;
+			auto it = mesh_data.find(raw_mesh);
+			if(it != mesh_data.end()) {
+				material->AddMesh(it->second);
+			} else {
+				Mesh m;
+				if(m.Initialize(raw_mesh) == false) {
+					delete e;
+					return false;
+				}
+				MeshData *meshdata = new MeshData(m);
+				material->AddMesh(new MeshData(m));
+				mesh_data.insert(std::pair<aiMesh *, MeshData *>(raw_mesh, meshdata));
 			}
-			material->AddMesh(m);
 		}
 		for(uint32_t i=0; i<node->mNumChildren; i++) {
 			if(ProcessNode(node->mChildren[i], scene) == false) {

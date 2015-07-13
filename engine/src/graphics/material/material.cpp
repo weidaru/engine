@@ -10,7 +10,7 @@ Material::Material(Entity *e) : Component(e) {
 Material::~Material() {
 }
 
-uint32_t Material::AddMesh(Mesh *m) {
+uint32_t Material::AddMesh(MeshData *m) {
 	meshes.push_back(m);
 	return meshes.size()-1;
 }
@@ -19,12 +19,12 @@ uint32_t Material::GetMeshSize() {
 	return meshes.size();
 }
 
-Mesh * Material::GetMesh(uint32_t index) {
+MeshData * Material::GetMesh(uint32_t index) {
 	return meshes[index];
 }
 
-Mesh * Material::RemoveMesh(uint32_t index) {
-	Mesh *m = GetMesh(index);
+MeshData * Material::RemoveMesh(uint32_t index) {
+	MeshData *m = GetMesh(index);
 	meshes.erase(meshes.begin() + index);
 	return m;
 }

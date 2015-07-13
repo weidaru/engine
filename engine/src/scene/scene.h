@@ -3,6 +3,7 @@
 
 #include "utils/s2string.h"
 #include <map>
+#include <vector>
 
 namespace Assimp {
 class Importer;
@@ -10,9 +11,11 @@ class Importer;
 
 struct aiNode;
 struct aiScene;
+struct aiMesh;
 
 namespace s2  {
 class Entity;
+class MeshData;
 
 /**
  * Container of entities read from file.
@@ -32,6 +35,8 @@ private:
 private:
 	s2string error;
 	std::map<s2string, Entity *> entities;
+
+	std::map<aiMesh*, MeshData*> mesh_data;
 
 	Assimp::Importer *importer;
 };

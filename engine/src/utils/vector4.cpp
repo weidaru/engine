@@ -1,8 +1,5 @@
 #include "vector4.h"
 
-namespace s2 {
-
-
 Vector4::Vector4() {
 	data[0] = 0.0f;
 	data[1] = 0.0f;
@@ -34,7 +31,4 @@ Vector3 Vector4::ToVec3() const {
 		result[2] = data[2]/w;
 	}
 	return result;
-}
-
-
 }

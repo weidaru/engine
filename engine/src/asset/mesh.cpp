@@ -71,24 +71,30 @@ Vector3 Mesh::GetPosition(uint32_t index) const {
 	return ConvertVector(mesh->mVertices[index]);
 }
 
+bool Mesh::HasNormal() const {
+	Check();
+	return mesh->HasNormals();
+}
+
 Vector3 Mesh::GetNormal(uint32_t index) const {
 	Check();
+	CHECK(HasNormal())<<"Do not have normal.";
 	return ConvertVector(mesh->mNormals[index]);
 }
 
-uint32_t Mesh::GetTextureCoordinateSize() const {
+uint32_t Mesh::GetTextureCoordinateSetSize() const {
 	Check();
 	return mesh->GetNumUVChannels();
 }
 
-int32_t Mesh::GetTextureCoordinateComponentSize(uint32_t index) const {
+int32_t Mesh::GetTextureCoordinateComponentSize(uint32_t set_index) const {
 	Check();
-	return mesh->mNumUVComponents[index];
+	return mesh->mNumUVComponents[set_index];
 }
 
-Vector3 Mesh::GetTextureCoordinate(uint32_t index, uint32_t texture_index) const {
+Vector3 Mesh::GetTextureCoordinate(uint32_t set_index, uint32_t vertex_index) const {
 	Check();
-	return ConvertVector(mesh->mTextureCoords[index][texture_index]);
+	return ConvertVector(mesh->mTextureCoords[set_index][vertex_index]);
 }
 
 uint32_t Mesh::GetTriangleSize() const {
@@ -96,9 +102,9 @@ uint32_t Mesh::GetTriangleSize() const {
 	return mesh->mNumFaces;
 }
 
-uint32_t Mesh::GetTriangleVertexIndex(uint32_t index, uint32_t vertex_index) const {
+uint32_t Mesh::GetTriangleVertexIndex(uint32_t triangle_index, uint32_t vertex_index) const {
 	Check();
-	return mesh->mFaces[index].mIndices[vertex_index];
+	return mesh->mFaces[triangle_index].mIndices[vertex_index];
 }
 
 void Mesh::Check() const {

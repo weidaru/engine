@@ -4,8 +4,6 @@
 #include <assert.h>
 #include <string.h>
 
-using namespace s2;
-
 Matrix4x4::Matrix4x4() {
 	SetIdentity();
 }

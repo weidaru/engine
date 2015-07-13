@@ -66,6 +66,10 @@ public:
 			data = _data;
 		}
 
+	private:
+		//Avoid initialize with void *;
+		template<>
+		void Initialize(uint32_t size, void *_data);
 	};
 
 public:

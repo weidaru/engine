@@ -5,8 +5,7 @@
 
 #include <stdint.h>
 
-namespace s2 {
-
+//[[TypeInfo]]//
 struct Vector4 {
 	float data[4];
 	
@@ -22,11 +21,5 @@ struct Vector4 {
 	float & operator[](uint32_t index) { return data[index]; }
 	const float & operator[](uint32_t index) const { return data[index]; }
 };
-
-}
-
-
-
-
 
 #endif			//VECTOR4_H_

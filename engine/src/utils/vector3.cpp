@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <math.h>
 
-namespace s2 {
-
 Vector3::Vector3() {
 	Set(0.0f, 0.0f, 0.0f);
 }
@@ -99,7 +97,3 @@ Vector3 operator*(const Vector3 &vec, float scale) {
 Vector3 operator*(float scale, const Vector3 &vec) {
 	return vec*scale;
 }
-
-
-}
-
