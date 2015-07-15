@@ -159,6 +159,22 @@
   <ItemGroup>
     <None Include="test\streamout.gs" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="content\shader\simple_material_common.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="content\shader\simple_material_vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="content\shader\skybox.hlsl" />
+    <FxCompile Include="content\shader\sprite.hlsl" />
+    <FxCompile Include="content\shader\simple_material_ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+    </FxCompile>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E576F8B0-FD63-4150-B73D-597D14F5C6D0}</ProjectGuid>
     <RootNamespace>engine</RootNamespace>
