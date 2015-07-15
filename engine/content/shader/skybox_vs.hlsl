@@ -3,7 +3,7 @@ struct VertexInputType
 	float3 position : POSITION;
 };
 
-struct PixelInputType
+struct VertexOutputType
 {
 	float4 position : SV_POSITION;
 	float3 tex : TEXCOORD;
@@ -13,9 +13,9 @@ cbuffer WorldViewProjection {
 	float4x4 wvp;
 }
 
-PixelInputType vs_main(VertexInputType input)
+VertexOutputType main(VertexInputType input)
 {
-	PixelInputType output;
+	VertexOutputType output;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position.xyz = input.position.xyz;
@@ -25,18 +25,5 @@ PixelInputType vs_main(VertexInputType input)
 	
 	output.tex = input.position;
 
-	return output;
-}
-
-TextureCube env_cube;
-SamplerState shader_sampler;
-
-struct PixelOutputType {
-	float4 rt : SV_TARGET;
-};
-
-PixelOutputType ps_main(PixelInputType input) {
-	PixelOutputType output;
-	output.rt = env_cube.Sample(shader_sampler, input.tex);
 	return output;
 }

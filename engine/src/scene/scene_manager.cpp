@@ -20,6 +20,13 @@ SceneManager::SceneManager() : camera(0), ds(0) {
 	float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 	float fov=3.1415926f*35/180;
 	projection.SetProjection(aspect, fov, np, fp);
+
+	//Set the default render target and depth stencil.
+	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+	pipeline->Start();
+	pipeline->SetDepthStencil(GetDepthStencilBuffer()->AsDepthStencil());
+	pipeline->SetRenderTarget(0, GetBackBuffer()->AsRenderTarget());
+	pipeline->End();
 }
 
 SceneManager::~SceneManager() {
@@ -27,6 +34,10 @@ SceneManager::~SceneManager() {
 
 	manager->RemoveTexture2D(ds->GetID());
 	delete camera;
+}
+
+Texture2D * SceneManager::GetBackBuffer() {
+	 return Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
 }
 
 }

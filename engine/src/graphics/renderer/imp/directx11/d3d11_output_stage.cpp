@@ -208,7 +208,15 @@ s2string D3D11OutputStage::DumpStreamOutInfo(const std::vector<SOInfo> &infos) {
 ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs) {
 	ID3D11GeometryShader *raw_stream_out_shader = 0;
 
-	if (gs) {
+	bool new_streamout = false;
+	for(auto it=stream_outs.begin(); it!=stream_outs.end(); it++) {
+		if(it->is_new) {
+			new_streamout = true;
+			break;
+		}
+	}
+
+	if (gs && new_streamout) {
 		raw_stream_out_shader = BuildStreamOutGeometryShader(gs);
 	}
 
@@ -216,7 +224,15 @@ ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs) {
 }
 
 ID3D11GeometryShader * D3D11OutputStage::Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state) {
-	if (gs && draw_state->GetStreamOutGeometryShader() == 0) {
+	bool new_streamout = false;
+	for(auto it=stream_outs.begin(); it!=stream_outs.end(); it++) {
+		if(it->is_new) {
+			new_streamout = true;
+			break;
+		}
+	}
+
+	if (gs  && new_streamout && draw_state->GetStreamOutGeometryShader() == 0) {
 		draw_state->SetStreamOutGeometryShader(BuildStreamOutGeometryShader(gs));
 	}
 

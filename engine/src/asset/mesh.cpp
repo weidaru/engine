@@ -19,11 +19,12 @@ Mesh::~Mesh() {
 bool Mesh::Initialize(const s2string &path) {
 	importer = new Assimp::Importer;
 	const aiScene* scene = importer->ReadFile( path, 
-		aiProcess_CalcTangentSpace			| 
-		aiProcess_Triangulate						|
-		aiProcess_JoinIdenticalVertices		|
+		aiProcess_CalcTangentSpace		| 
+		aiProcess_Triangulate				|
+		aiProcess_JoinIdenticalVertices	|
 		aiProcess_FlipUVs 						|
-		aiProcess_GenNormals
+		aiProcess_GenSmoothNormals	|
+		aiProcess_MakeLeftHanded 
 		);
 
 	if(scene == 0) {

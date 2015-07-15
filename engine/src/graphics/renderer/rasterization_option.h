@@ -48,7 +48,7 @@ struct RasterizationOption {
 		enable_scissor = false;
 		fill_mode = SOLID;
 		cull_mode = BACK;
-		face_orient = CLOCKWISE;
+		face_orient = COUNTER_CLOCKWISE;
 	}
 };
 

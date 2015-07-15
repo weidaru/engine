@@ -14,6 +14,7 @@ class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class Mesh;
+class DrawingState;
 
 //[[TypeInfo]]//
 struct MaterialVertexData {
@@ -52,6 +53,8 @@ private:
 
 	VertexShader *vs;
 	PixelShader *ps;
+
+	DrawingState *drawing_state;
 };
 
 

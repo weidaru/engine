@@ -114,6 +114,7 @@ S2Matrix4x4 Camera::GetViewMatrix() const {
 }
 
 void Camera::OneFrame(float delta) {
+
 	InputSystem &is = *Engine::GetSingleton()->GetInputSystem();
 	int delta_x = is.GetMouseXMove();
 	int delta_y = is.GetMouseYMove();

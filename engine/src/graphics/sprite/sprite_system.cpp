@@ -22,10 +22,10 @@ SpriteSystem::SpriteSystem()
 	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 	vs = manager->CreateVertexShader();
-	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite.hlsl"), "fs_main")) << vs->GetLastError();
+	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite_vs.hlsl"), "main")) << vs->GetLastError();
 
 	ps = manager->CreatePixelShader();
-	CHECK(ps->Initialize(ResolveAssetPath("shader/sprite.hlsl"), "ps_main")) << ps->GetLastError();
+	CHECK(ps->Initialize(ResolveAssetPath("shader/sprite_ps.hlsl"), "main")) << ps->GetLastError();
 
 	vertex_buffer = manager->CreateGraphicBuffer();
 	GraphicBuffer::Option option;
@@ -99,9 +99,9 @@ void SpriteSystem::OneFrame(float delta) {
 	
 	delete[] instances;
 
-	
-	pipeline->Start();
 	pipeline->PushState();
+
+	pipeline->Start();	
 
 	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 	pipeline->SetVertexShader(vs);
@@ -111,8 +111,10 @@ void SpriteSystem::OneFrame(float delta) {
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
 	pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
 
-	pipeline->PopState();
 	pipeline->End();
+
+	pipeline->PopState();
+
 }
 
 

@@ -1,25 +1,36 @@
-#include "simple_material_common.hlsl"
-
-cbuffer {
+cbuffer WorldViewProjection {
 	float4x4 world;
 	float4x4 view;
 	float4x4 projection;
+}
+
+struct SimpleMaterialVertexInput {
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float4 color : COLOR;
 };
 
-SimpleMaterialPixelInput main(SimpleMaterialVertexInput input) {
-	SimpleMaterialPixelInput output;
+struct SimpleMaterialVertexOutput {
+	float4 position : SV_POSITION;
+	float3 normal : NORMAL;
+	float4 color : COLOR;
+};
+
+SimpleMaterialVertexOutput main(SimpleMaterialVertexInput input) {
+	SimpleMaterialVertexOutput output;
 
 	output.position = float4(input.position, 1.0);
 	output.position = mul(world, output.position);
 	output.position = mul(view, output.position);
 	output.position = mul(projection, output.position);
 
+	output.position = output.position/output.position.w;
+	output.position.w = 1.0f;
+
 	output.color = input.color;
 	
-	float4 normal_w = float4(normal_w, 0.0f);
-	normal_w = mul(world, normal_w);
-	
-	output.normal = normal_w.xyz;
+	output.normal = input.normal;
+	normalize(output.normal);
 
 	return output;
 }

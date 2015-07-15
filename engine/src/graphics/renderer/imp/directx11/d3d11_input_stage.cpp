@@ -305,6 +305,11 @@ D3D11InputLayout * D3D11InputStage::CreateInputLayout(const D3D11VertexShader *s
 			uint32_t byte_width = buffer->GetElementBytewidth();
 			uint32_t offset = 0;
 			while(offset < byte_width) {
+				if(head>=reflect.GetInputSize()) {
+					//It is OK to truncate.
+					break;
+				}
+
 				const D3D11ShaderReflection::Parameter &p = reflect.GetInput(head);
 				
 				descs[head].InputSlot = *it - vbs.begin();

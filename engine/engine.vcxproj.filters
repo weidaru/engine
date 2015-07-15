@@ -487,10 +487,11 @@
     <None Include="test\streamout.gs" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="content\shader\sprite.hlsl" />
-    <FxCompile Include="content\shader\skybox.hlsl" />
-    <FxCompile Include="content\shader\simple_material_ps.hlsl" />
     <FxCompile Include="content\shader\simple_material_vs.hlsl" />
-    <FxCompile Include="content\shader\simple_material_common.hlsl" />
+    <FxCompile Include="content\shader\simple_material_ps.hlsl" />
+    <FxCompile Include="content\shader\skybox_ps.hlsl" />
+    <FxCompile Include="content\shader\skybox_vs.hlsl" />
+    <FxCompile Include="content\shader\sprite_ps.hlsl" />
+    <FxCompile Include="content\shader\sprite_vs.hlsl" />
   </ItemGroup>
 </Project>

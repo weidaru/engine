@@ -16,6 +16,7 @@ class Component;
 class Entity {
 public:
 	Entity(EntitySystem *system);
+	Entity();
 	virtual ~Entity();
 
 	Transform * GetTransform() {return transform;}
@@ -39,6 +40,8 @@ public:
 	const s2string & GetName() const { return name; }
 
 	virtual void OneFrame(float delta);
+
+	void SetEntitySystem(EntitySystem* system);
 
 private :
 	void SetName(const s2string& _name) { name=_name; }

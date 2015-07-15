@@ -14,6 +14,8 @@ public:
 
 	Camera * GetCamera() { return camera; }
 	Texture2D * GetDepthStencilBuffer() { return ds; }
+	Texture2D * GetBackBuffer();
+
 	const S2Matrix4x4 & GetProjectionMatrix() { return projection; }
 
 private:

@@ -16,7 +16,7 @@ public:
 
 	template <typename T>
 	bool SetUniform(const s2string &name, const T &value) {
-		SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>().GetName(), &value);
+		return SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(), &value);
 	}
 	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) = 0;
 

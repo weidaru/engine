@@ -8,15 +8,20 @@
 namespace s2 {
 
 Entity::Entity(EntitySystem *_system) 
-	: transform(0), system(_system), parent(0), enabled(true), id(GetCurrentId()++) {
-	CHECK_NOTNULL(system);
-	
+	: transform(0), system(0), parent(0), enabled(true), id(GetCurrentId()++) {
 	transform = new Transform(this);
-	system->Add(this);
+	SetEntitySystem(_system);
+}
+
+Entity::Entity() : Entity(0) {
+
 }
 
 Entity::~Entity() {
-	system->Remove(GetId());
+	if(system) {
+		system->Remove(GetId());
+	}
+	
 	if(parent) {
 		parent->RemoveChild(GetId());
 	}
@@ -32,6 +37,17 @@ Entity::~Entity() {
 		Entity *e = it->second;
 		it = children.erase(it);
 		delete e;
+	}
+}
+
+void Entity::SetEntitySystem(EntitySystem* _system) {
+	if(system) {
+		system->Remove(GetId());
+	}
+
+	system = _system;
+	if(system) {
+		system->Add(this);
 	}
 }
 

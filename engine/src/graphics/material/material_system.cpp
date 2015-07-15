@@ -2,10 +2,16 @@
 #include "material.h"
 
 #include "asset/mesh.h"
+#include "asset/asset_path.h"
 
 #include <glog/logging.h>
-
 #include <algorithm>
+
+#include "entity/entity.h"
+#include "entity/transform.h"
+
+#include "scene/camera.h"
+#include "scene/scene_manager.h"
 
 #include "graphics/renderer/all.h"
 
@@ -56,12 +62,18 @@ MeshData::~MeshData() {
 }
 
 
-MaterialSystem::MaterialSystem() {
+MaterialSystem::MaterialSystem() : vs(0), ps(0), drawing_state(0) {
+	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+	
+	vs = manager->CreateVertexShader();
+	CHECK(vs->Initialize(ResolveAssetPath("shader/simple_material_vs.hlsl"), "main"))<<vs->GetLastError();
 
+	ps = manager->CreatePixelShader();
+	CHECK(ps->Initialize(ResolveAssetPath("shader/simple_material_ps.hlsl"), "main"))<<ps->GetLastError();
 }
 
 MaterialSystem::~MaterialSystem() {
-
+	delete drawing_state;
 }
 
 static const char * kComponentDestroyCallbackName = "material_system_component_destroy_cb";
@@ -88,7 +100,41 @@ void MaterialSystem::Deregister(Material *m) {
 }
 
 void MaterialSystem::OneFrame(float delta) {
+	RendererContext *renderer_context = Engine::GetSingleton()->GetRendererContext();
+	GraphicPipeline *pipeline = renderer_context->GetPipeline();
+	SceneManager *scene_manager = Engine::GetSingleton()->GetSceneManager();
+	Camera *camera = scene_manager->GetCamera();
 
+	pipeline->PushState();
+
+	for(uint32_t i=0; i<materials.size(); i++) {
+		Material *m = materials[i];
+		MeshData *mesh_data = m->GetMeshData();
+		Transform *transform = m->GetEntity()->GetTransform();
+
+		ps->SetUniform("world", transform->GetMatrix());
+		ps->SetUniform("view", camera->GetViewMatrix());
+		ps->SetUniform("projection", scene_manager->GetProjectionMatrix());
+
+		vs->SetUniform("world", transform->GetMatrix());
+		vs->SetUniform("view", camera->GetViewMatrix());
+		vs->SetUniform("projection", scene_manager->GetProjectionMatrix());
+
+		pipeline->Start();
+
+		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
+		pipeline->SetRenderTarget(0, renderer_context->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
+		pipeline->SetVertexShader(vs);
+		pipeline->SetPixelShader(ps);
+		pipeline->SetVertexBuffer(0,0, mesh_data->GetVertexBuffer()->AsVertexBuffer());
+		pipeline->SetIndexBuffer(mesh_data->GetIndexBuffer()->AsIndexBuffer());
+		pipeline->Draw(&drawing_state, 0, mesh_data->GetIndexBuffer()->GetElementCount());
+
+		pipeline->End();
+	}
+
+	pipeline->PopState();
 }
 
 

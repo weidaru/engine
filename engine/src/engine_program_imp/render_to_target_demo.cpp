@@ -171,9 +171,9 @@ public:
 		//Set vertex buffer
 		RTTTestTextureVertex vertices[4] = {
 			{{0.5f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-			{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, 
+			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}},
 			{{1.0f, 0.5f, 0.0f}, {1.0f, 1.0f}}, 
-			{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}}
+			{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}
 		};
 		tex_vb = manager->CreateGraphicBuffer();
 		GraphicBuffer::Option buffer_option;
@@ -258,7 +258,7 @@ private:
 	Camera *camera;
 };
 
-AddBeforeMain(RenderToTargetDemo)
+//AddBeforeMain(RenderToTargetDemo)
 
 }
 

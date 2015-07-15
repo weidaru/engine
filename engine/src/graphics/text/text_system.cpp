@@ -142,9 +142,10 @@ void TextSystem::OneFrame(float delta) {
 		//By default, FW1 use column major matrix. But our system uses row major matrix. Transpose to be compatible.
 		transform_matrix.Transpose();
 
-		pipeline->Start();
 		pipeline->PushState();
 
+		pipeline->Start();
+		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 		font_wrapper->DrawTextLayout(
 			pipeline->GetDeviceContext(), 
 			cur->GetLayout(this), 
@@ -153,7 +154,7 @@ void TextSystem::OneFrame(float delta) {
 			rect, 
 			transform_matrix.data[0],
 			flag);
-
+		
 		pipeline->PopState();
 		pipeline->End();
 		delete rect;

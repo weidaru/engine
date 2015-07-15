@@ -30,7 +30,7 @@ public:
 	s2string GetLastError() { return error; }
 
 private:
-	bool ProcessNode(aiNode *node, const aiScene *scene);
+	Entity * ProcessNode(aiNode *node, Entity *parent_entity, const aiScene *scene);
 
 private:
 	s2string error;

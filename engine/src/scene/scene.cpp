@@ -2,6 +2,7 @@
 
 #include "entity/entity.h"
 #include "entity/entity_system.h"
+#include "entity/transform.h"
 #include "engine.h"
 
 #include "graphics/material/material.h"
@@ -37,11 +38,12 @@ Scene::~Scene() {
 bool Scene::Initialize(const s2string &path) {
 	importer = new Assimp::Importer;
 	const aiScene* scene = importer->ReadFile( path, 
-		aiProcess_CalcTangentSpace			| 
-		aiProcess_Triangulate						|
-		aiProcess_JoinIdenticalVertices		|
+		aiProcess_CalcTangentSpace		| 
+		aiProcess_Triangulate				|
+		aiProcess_JoinIdenticalVertices	|
 		aiProcess_FlipUVs 						|
-		aiProcess_GenNormals
+		aiProcess_GenSmoothNormals	|
+		aiProcess_MakeLeftHanded 
 		);
 
 	if(scene == 0) {
@@ -53,49 +55,68 @@ bool Scene::Initialize(const s2string &path) {
 		return false;
 	}
 
-	bool succeed = ProcessNode(scene->mRootNode, scene);
-
-	return succeed;
+	return ProcessNode(scene->mRootNode, 0, scene) != 0;
 }
 
-bool Scene::ProcessNode(aiNode *node, const aiScene *scene) {
-	if(node->mParent == 0 && node->mNumChildren != 0) {
-		for(uint32_t i=0; i<node->mNumChildren; i++) {
-			if(ProcessNode(node->mChildren[i], scene) == false) {
-				return false;
-			}
-		}
-	} else {
-		s2string name = node->mName.C_Str();
-		Entity *e = new Entity(Engine::GetSingleton()->GetEntitySystem());
-		CHECK(entities.find(name)==entities.end()) << "entity "<<name<<" already exists.";
+Entity * Scene::ProcessNode(aiNode *node, Entity * parent_entity, const aiScene *scene) {
+	EntitySystem *entity_system = Engine::GetSingleton()->GetEntitySystem();
 
-		Material *material = new Material(e);
-		Engine::GetSingleton()->GetMaterialSystem()->Register(material);
-		for(uint32_t i=0; i<node->mNumMeshes; i++) {
-			aiMesh *raw_mesh = scene->mMeshes[node->mMeshes[i]];
-			auto it = mesh_data.find(raw_mesh);
-			if(it != mesh_data.end()) {
-				material->AddMesh(it->second);
-			} else {
-				Mesh m;
-				if(m.Initialize(raw_mesh) == false) {
-					delete e;
-					return false;
-				}
-				MeshData *meshdata = new MeshData(m);
-				material->AddMesh(new MeshData(m));
-				mesh_data.insert(std::pair<aiMesh *, MeshData *>(raw_mesh, meshdata));
-			}
-		}
+	if(node->mParent == 0) {
+		CHECK(parent_entity==0)<<"parent_entity must be 0 for root node.";
+
 		for(uint32_t i=0; i<node->mNumChildren; i++) {
-			if(ProcessNode(node->mChildren[i], scene) == false) {
-				return false;
+			s2string child_name = node->mChildren[i]->mName.C_Str();
+			CHECK(entities.find(child_name)==entities.end()) << "entity "<<child_name<<" already exists.";
+			Entity *child_entity =ProcessNode(node->mChildren[i], 0, scene);
+			if(child_entity) {
+				entities[child_name] = child_entity;
+			} else {
+				return 0;
 			}
 		}
-		entities[name] = e;
+
+		return (Entity *)1;			//Anything except for 0 should be OK.
 	}
 
-	return true;
+	s2string name = node->mName.C_Str();
+	if(node->mNumMeshes > 1) {
+		S2StringFormat(&error, "Node %s has more than 1 meshes which is not allowed.", name.c_str());
+		return 0;
+	}
+	CHECK(entities.find(name)==entities.end()) << "entity "<<name<<" already exists.";
+
+	Entity *entity = new Entity(entity_system);
+
+	if(node->mNumMeshes==1 ) {
+		Material *material = new Material(entity);
+		Engine::GetSingleton()->GetMaterialSystem()->Register(material);
+		aiMesh *raw_mesh = scene->mMeshes[node->mMeshes[0]];
+		auto it = mesh_data.find(raw_mesh);
+		if(it != mesh_data.end()) {
+			material->SetMeshData(it->second);
+		} else {
+			Mesh m;
+			if(m.Initialize(raw_mesh) == false) {
+				delete entity_system->Remove(entity->GetId());
+				return false;
+			}
+			MeshData *meshdata = new MeshData(m);
+			material->SetMeshData(new MeshData(m));
+			mesh_data.insert(std::pair<aiMesh *, MeshData *>(raw_mesh, meshdata));
+		}
+	}
+	
+	for(uint32_t i=0; i<node->mNumChildren; i++) {
+		if(ProcessNode(node->mChildren[i], entity, scene) == false) {
+			delete entity_system->Remove(entity->GetId());
+			return false;
+		}
+	}
+
+	if(parent_entity) {
+		parent_entity->AddChild(entity);
+	}
+
+	return entity;
 }
 }

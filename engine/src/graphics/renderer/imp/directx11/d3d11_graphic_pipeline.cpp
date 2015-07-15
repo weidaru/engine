@@ -460,8 +460,6 @@ void D3D11GraphicPipeline::DrawInstance(DrawingState **_state,
 }
 
 void D3D11GraphicPipeline::PushState() {
-	Check();
-
 	input_stage.PushState();
 	output_stage.PushState();
 
@@ -485,9 +483,13 @@ void D3D11GraphicPipeline::PushState() {
 }
 
 void D3D11GraphicPipeline::PopState() {
-	Check();
-
 	State &state = saved_states.top();
+
+	Start();
+
+	input_stage.PopState();
+	output_stage.PopState();
+
 	SetVertexShader(state.vs);
 	SetPixelShader(state.ps);
 	SetGeometryShader(state.gs);
@@ -503,6 +505,8 @@ void D3D11GraphicPipeline::PopState() {
 	blend_opt = state.blend_opt;
 	blend_state->Release();
 	blend_state = state.blend_state;
+	
+	End();
 }
 
 void D3D11GraphicPipeline::ClearSavedState() {
