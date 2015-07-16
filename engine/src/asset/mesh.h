@@ -22,6 +22,9 @@ public:
 	bool Initialize(aiMesh *mesh);
 
 	const s2string & GetLastError() const;
+
+	uint32_t GetColorSetSize() const;
+	S2Vector4 GetColor(uint32_t set_index, uint32_t vertex_index) const;
 	
 	uint32_t GetVertexSize() const;
 	S2Vector3 GetPosition(uint32_t index) const;

@@ -11,6 +11,12 @@ class Transform : public Component {
 public:
 	Transform(Entity *entity);
 
+	const S2Matrix4x4 & GetPrefixMatrix() const;
+	Transform & SetPrefixMatrix(const S2Matrix4x4 &m);
+
+	const S2Matrix4x4 & GetSuffixMatrix() const;
+	Transform & SetSuffixMatrix(const S2Matrix4x4 &m);
+
 	const S2Matrix4x4 & GetMatrix() const;
 	S2Matrix4x4 CalculateTranslateMatrix() const;
 	S2Matrix4x4 CalculateScaleMatrix() const;
@@ -40,8 +46,10 @@ public:
 	Transform & ResetRotation();
 
 private:
+	S2Matrix4x4 prefix_matrix, suffix_matrix;
+
 	mutable S2Matrix4x4 matrix;
-	mutable bool needCompute;
+	mutable bool need_compute;
 	S2Vector3 translate, scale, rotate;
 };
 

@@ -258,7 +258,7 @@ private:
 	Camera *camera;
 };
 
-//AddBeforeMain(RenderToTargetDemo)
+AddBeforeMain(RenderToTargetDemo)
 
 }
 

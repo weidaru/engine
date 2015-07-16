@@ -59,7 +59,7 @@ private:
 	Button *button;
 };
 
-//AddBeforeMain(UIDemo)
+AddBeforeMain(UIDemo)
 
 }
 

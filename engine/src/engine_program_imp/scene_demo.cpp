@@ -6,6 +6,10 @@
 #include "asset/asset_path.h"
 
 #include "scene/scene.h"
+#include "scene/scene_manager.h"
+#include "scene/camera.h"
+
+#include "entity/transform.h"
 
 #include <glog/logging.h>
 
@@ -18,7 +22,10 @@ public:
 
 	virtual bool Initialize() {
 		scene = new Scene();
-		CHECK(scene->Initialize(ResolveTestAssetPath("scene/cornell_box.blend")))<<scene->GetLastError();
+		CHECK(scene->Initialize(ResolveTestAssetPath("scene/cornell_box.fbx")))<<scene->GetLastError();
+		
+		Camera *camera = Engine::GetSingleton()->GetSceneManager()->GetCamera();
+		camera->GetTransform()->SetTranslate(-2.0f, 2.0f, -10.0f);
 
 		return true;
 	}
@@ -39,6 +46,6 @@ private:
 	Scene *scene;
 };
 
-//AddBeforeMain(SceneDemo)
+AddBeforeMain(SceneDemo)
 
 }

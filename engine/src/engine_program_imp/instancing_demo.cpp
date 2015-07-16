@@ -167,7 +167,7 @@ private:
 	Camera *camera;
 };
 
-//AddBeforeMain(InstancingDemo)
+AddBeforeMain(InstancingDemo)
 
 
 }

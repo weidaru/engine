@@ -126,5 +126,5 @@ private:
 	PixelShader *ps;
 };
 
-//AddBeforeMain(StreamoutDemo)
+AddBeforeMain(StreamoutDemo)
 }

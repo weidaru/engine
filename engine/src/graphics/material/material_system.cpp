@@ -33,7 +33,11 @@ MeshData::MeshData(const Mesh &mesh) {
 	for(uint32_t i=0; i<vertex_size; i++) {
 		vb_data[i].position = mesh.GetPosition(i);
 		vb_data[i].normal = mesh.GetNormal(i);
-		vb_data[i].color = S2Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+		if(mesh.GetColorSetSize()!=0) {
+			vb_data[i].color = mesh.GetColor(0, i);
+		} else {
+			vb_data[i].color = S2Vector4(0.8f, 0.8f, 0.8f, 1.0f);
+		}
 	}
 	vb = manager->CreateGraphicBuffer();
 	GraphicBuffer::Option vb_opt;
@@ -122,6 +126,10 @@ void MaterialSystem::OneFrame(float delta) {
 
 		pipeline->Start();
 
+		RasterizationOption rast_opt = pipeline->GetRasterizationOption();
+		rast_opt.cull_mode = rast_opt.NONE;
+
+		pipeline->SetRasterizationOption(rast_opt);
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
 		pipeline->SetRenderTarget(0, renderer_context->GetBackBuffer()->AsRenderTarget());
 		pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());

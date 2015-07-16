@@ -37,6 +37,12 @@ Scene::~Scene() {
 
 bool Scene::Initialize(const s2string &path) {
 	importer = new Assimp::Importer;
+
+	if(path.substr(path.size()-4, 4) != ".fbx") {
+		error = "Only support .fbx scene file.";
+		return false;
+	}
+
 	const aiScene* scene = importer->ReadFile( path, 
 		aiProcess_CalcTangentSpace		| 
 		aiProcess_Triangulate				|
@@ -105,6 +111,22 @@ Entity * Scene::ProcessNode(aiNode *node, Entity * parent_entity, const aiScene 
 			mesh_data.insert(std::pair<aiMesh *, MeshData *>(raw_mesh, meshdata));
 		}
 	}
+
+	//Set transform.
+	Transform *transform = entity->GetTransform();
+	aiQuaternion rotation;
+	aiVector3D translate, scaling;
+	node->mTransformation.Decompose(scaling, rotation, translate);
+	transform->SetScale(scaling.x, scaling.y, scaling.z);
+	transform->SetTranslate(translate.x, translate.y, translate.z);
+
+	S2Vector3 rotation_euler;
+	float q0=rotation.x, q1=rotation.y, q2=rotation.z, q3=rotation.w;
+	rotation_euler[2] = atan(2*(q0*q1+q2*q3)/(1-2*(q1*q1+q2*q2)));
+	rotation_euler[1] = -asin(2*(q0*q2-q3*q1));
+	rotation_euler[0] = -atan(2*(q0*q3+q1*q2)/(1-2*(q2*q2+q3*q3)));
+
+	transform->SetRotate(rotation_euler);
 	
 	for(uint32_t i=0; i<node->mNumChildren; i++) {
 		if(ProcessNode(node->mChildren[i], entity, scene) == false) {

@@ -29,7 +29,7 @@ SimpleMaterialVertexOutput main(SimpleMaterialVertexInput input) {
 
 	output.color = input.color;
 	
-	output.normal = input.normal;
+	output.normal = mul((float3x3)(world), input.normal);
 	normalize(output.normal);
 
 	return output;

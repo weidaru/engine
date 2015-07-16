@@ -91,5 +91,5 @@ private:
 	PixelShader *ps;
 };
 
-//AddBeforeMain(GeometryShaderDemo)
+AddBeforeMain(GeometryShaderDemo)
 }

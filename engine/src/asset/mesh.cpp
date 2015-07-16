@@ -67,6 +67,17 @@ S2Vector3 ConvertVector(const aiVector3D &origin) {
 
 }
 
+uint32_t Mesh::GetColorSetSize() const {
+	Check();
+	return mesh->GetNumColorChannels();
+}
+
+S2Vector4 Mesh::GetColor(uint32_t set_index, uint32_t vertex_index) const {
+	const aiColor4D &color = mesh->mColors[set_index][vertex_index];
+
+	return S2Vector4(color.r, color.g, color.b, color.a);
+}
+
 S2Vector3 Mesh::GetPosition(uint32_t index) const {
 	Check();
 	return ConvertVector(mesh->mVertices[index]);
