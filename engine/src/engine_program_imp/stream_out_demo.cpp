@@ -13,7 +13,7 @@ public:
 	StreamoutDemo()
 		: streamout_state(0), normal_state(0),
 		vb(0), stream_out(0),
-		vs(0), gs(0), ps(0) {
+		vs(0), input_layout(0), gs_bytecode(0), gs(0), ps(0) {
 
 	}
 
@@ -23,7 +23,8 @@ public:
 	}
 
 	virtual bool Initialize()  {
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+		GraphicResourceManager *manager = context->GetResourceManager();
 
 		float vb_data[][3] = {
 			{ -0.9f, -0.9f, 0.0f },
@@ -67,11 +68,27 @@ public:
 		vs = manager->CreateVertexShader();
 		CHECK(vs->Initialize(ResolveTestAssetPath("billboard.vs"), "main")) << vs->GetLastError();
 
+		gs_bytecode = manager->CreateShaderBytecode();
+		CHECK(gs_bytecode->Initialize(ResolveTestAssetPath("streamout.gs"), "main", ShaderType::GEOMETRY))<<gs_bytecode->GetLastError();
 		gs = manager->CreateGeometryShader();
-		CHECK(gs->Initialize(ResolveTestAssetPath("streamout.gs"), "main")) << gs->GetLastError();
+		CHECK(gs->Initialize(gs_bytecode, -1, {{0, 0}})) << gs->GetLastError();
 
 		ps = manager->CreatePixelShader();
 		CHECK(ps->Initialize(ResolveTestAssetPath("billboard.ps"), "main")) << ps->GetLastError();
+
+		input_layout = manager->CreateInputLayout();
+		input_layout->InitializeWithElement({{0,0}}, *vs);
+
+		streamout_state = context->CreatePipelineState();
+		streamout_state->SetVertexShader(vs);
+		streamout_state->SetInputLayout(input_layout);
+		streamout_state->SetGeometryShader(gs);
+		
+		normal_state = context->CreatePipelineState();
+		normal_state->SetVertexShader(vs);
+		normal_state->SetInputLayout(input_layout);
+		normal_state->SetGeometryShader(0);
+		normal_state->SetPixelShader(ps);
 
 		return true;
 	}
@@ -83,34 +100,26 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->Start();
-			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
-			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
-			pipeline->SetIndexBuffer(0);
-			pipeline->SetVertexShader(vs);
-			pipeline->SetGeometryShader(gs);
-			pipeline->SetStreamOut(0, 0, stream_out->AsStreamOut());
-			pipeline->SetRasterizedStream(-1);
-			pipeline->Draw(&streamout_state);
-		pipeline->End();
+		pipeline->SetState(*streamout_state);
+
+		pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
+		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
+		pipeline->SetIndexBuffer(0);
+		pipeline->SetStreamOut(0, 0, stream_out->AsStreamOut());
+		pipeline->Draw(0, vb->GetElementCount());
 	}
 
 	void DrawStreamOut(float delta) {
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
-		Texture2D *bf = Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
-
-		pipeline->Start();
-			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-			pipeline->SetDepthStencil(0);
-			pipeline->SetVertexShader(vs);
-			pipeline->SetGeometryShader(0);
-			pipeline->SetPixelShader(ps);
-			pipeline->SetStreamOut(0, 0, 0);
-			pipeline->SetVertexBuffer(0, 0, stream_out->AsVertexBuffer());
-			pipeline->SetRenderTarget(0, bf->AsRenderTarget());
-			pipeline->Draw(&normal_state);
-		pipeline->End();
+		pipeline->SetState(*normal_state);
+		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
+		pipeline->SetDepthStencil(0);
+		pipeline->SetStreamOut(0, 0, 0);
+		pipeline->SetVertexBuffer(0, stream_out->AsVertexBuffer());
+		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+		pipeline->Draw(0, stream_out->GetElementCount());
 	}
 
 	virtual void OneFrame(float delta) {
@@ -119,12 +128,14 @@ public:
 	}
 
 private:
-	DrawingState *streamout_state, *normal_state;
+	GraphicPipelineState *streamout_state, *normal_state;
 	GraphicBuffer *vb, *stream_out;
 	VertexShader *vs;
+	InputLayout *input_layout;
+	ShaderBytecode *gs_bytecode;
 	GeometryShader *gs;
 	PixelShader *ps;
 };
 
-AddBeforeMain(StreamoutDemo)
+//AddBeforeMain(StreamoutDemo)
 }

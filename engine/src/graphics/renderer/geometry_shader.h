@@ -6,29 +6,27 @@
 #include "utils/type_info.h"
 
 namespace s2 {
-class Sampler;
-class ShaderResource;
+class ShaderBytecode;
+
+struct StreamOutDescriptor {
+	uint32_t index;
+	uint32_t stream_index;
+};
 
 class GeometryShader : public Resource {
 public:
 	virtual ~GeometryShader() {}
-	virtual bool Initialize(const s2string &path, const s2string &entry_point) = 0;
+	virtual bool Initialize(ShaderBytecode *bytecode) = 0;
+	virtual bool Initialize(const s2string &path, const s2string &entry_point)  = 0;
+	virtual bool Initialize(ShaderBytecode *bytecode, int rasterized_stream, const std::vector<StreamOutDescriptor> &streamouts) = 0;
 
-	template <typename T>
-	bool SetUniform(const s2string &name, const T &value) {
-		return SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(), &value);
-	}
-	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) = 0;
+	virtual const ShaderBytecode * GetShaderBytecode() const = 0;
+	virtual ShaderBytecode * GetShaderBytecode() = 0;
 
-	virtual bool SetSampler(const s2string &name, Sampler *sampler) = 0;
-	virtual Sampler * GetSampler(const s2string &name) = 0;
-	virtual bool SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
-	virtual ShaderResource * GetShaderResource(const s2string &name) = 0;
-
-	virtual const s2string & GetLastError() = 0;
+	s2string GetError() { return error; }
 
 protected:
-	virtual bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) = 0;
+	s2string error;
 };
 
 }

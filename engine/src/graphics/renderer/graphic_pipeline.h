@@ -4,120 +4,90 @@
 #include <stdint.h>
 #include <vector>
 
-#include "utils/s2string.h"
-#include "utils/type_info.h"
-
 namespace s2 {
 
-class GraphicResourceManger;
-class VertexShader;
-class PixelShader;
-class GeometryShader;
+class GraphicPipelineState;
 class VertexBuffer;
 class IndexBuffer;
-class Texture2D;
-class Resource;
+class ShaderData;
 class RenderTarget;
 class DepthStencil;
-class DrawingState;
 class StreamOut;
-struct RasterizationOption;
-struct DepthStencilOption;
-struct BlendOption; 
 
-/**
- * The core part of renderer is modelled as stateful pipeline.
- * We can modify multiple things, such as shaders, rasterization, depth, stencil, blend and so on.
- * The intention is to switch to new state easily but still be able to maintain old states. At the same time,
- * we will able to easily serialize the state for debug use.
- * This is essentially the same idea as OpenGL. In addition we get better validation and concept grouping.
- * Validation is made before the command/state really get pushed/set in GPU. 
- * Options for the same stage are grouped together in class for consistent access.
- */
+struct VertexBufferBinding {
+	VertexBuffer *buffer;
+	uint32_t stride;
+	uint32_t offset;
+};
+
+struct StreamOutBinding {
+	uint32_t stream_index;
+	StreamOut *streamout;
+};
+
 class GraphicPipeline {
 public:
-	enum PrimitiveTopology {
-		POINT_LIST,
-		LINE_LIST,
-		LINE_STRIP,
-		TRIANGLE_LIST,
-		TRIANGLE_STRIP
-	};
+enum PrimitiveTopology {
+	POINT_LIST,
+	LINE_LIST,
+	LINE_STRIP,
+	TRIANGLE_LIST,
+	TRIANGLE_STRIP
+};
 
 public:
-	//Input
+	virtual ~GraphicPipeline() {}
+
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
 
-	virtual void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf) = 0;
-	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index=0) = 0;
-
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf) = 0;
+	virtual void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &iput) = 0;
+	//If stride = 0, element bytewith will be used as stride.
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) = 0;
+	virtual void SetVertexBuffer(uint32_t start_index, 
+				const std::vector<VertexBufferBinding> &input) = 0;
+	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) = 0;
+	
 	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) = 0;
 	virtual IndexBuffer * GetIndexBuffer(uint32_t *vertex_base) = 0;
 
-	//Shaders
-	/**
-	 * The whole shader concept is the program itself and its data, which is stateful. 
-	 * The concern is data validation. We can catch the error early in the setting up stage.
-	 * And we can easily switch between different ways of drawing stuffs.
-	 *
-	 * Shaders passed in as pointers which means any change to shaders will affect the pipeline.
-	 */
-	virtual void SetVertexShader(VertexShader *vs) = 0;
-	virtual VertexShader * GetVertexShader() = 0;
-	
-	virtual void SetPixelShader(PixelShader *ps) = 0;
-	virtual PixelShader * GetPixelShader() = 0;
+	virtual void SetVertexShaderData(ShaderData *data) = 0;
+	virtual ShaderData * GetVertexShaderData() = 0;
 
-	virtual void SetGeometryShader(GeometryShader *gs) = 0;
-	virtual GeometryShader * GetGeometryShader() = 0;
-	
-	//Rasterization
-	virtual void SetRasterizationOption(const RasterizationOption &option) = 0;
-	virtual const RasterizationOption & GetRasterizationOption() const = 0;
+	virtual void SetPixelShaderData(ShaderData *data) = 0;
+	virtual ShaderData * GetPixelShaderData() = 0;
 
-	//DepthStencil
-	virtual void SetDepthStencilOption(const DepthStencilOption &option) = 0;
-	virtual const DepthStencilOption & GetDepthStencilOption() const = 0;
-	
-	//Blend
-	virtual void SetBlendOption(const BlendOption &option) = 0;
-	virtual const BlendOption & GetBlendOption() const = 0;
-	
-	//Output
+	virtual void SetGeometryShaderData(ShaderData *data) = 0;
+	virtual ShaderData * GetGeometryShaderData() = 0;
+
 	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) = 0;
+	virtual void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts) = 0;
 	virtual RenderTarget * GetRenderTarget(uint32_t index) = 0;
 	
 	virtual void SetDepthStencil(DepthStencil *buffer) = 0;
 	virtual DepthStencil* GetDepthStencil() = 0;
 
-	//Stream Out will always go before render  target if set.
+	virtual void SetStencilRef(uint8_t stencil_ref) = 0;
+	virtual uint8_t GetStencilRef() = 0;
+
+	virtual void SetBlendFactor(float factor[4]) = 0;
+	virtual std::tuple<float, float, float, float> GetBlendFactor() = 0;
+
 	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) = 0;
+	virtual void SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &stream_outs) = 0;
 	virtual StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) = 0;
-	//negative index means no stream get rasterized.
-	virtual void SetRasterizedStream(int index) = 0;
-	virtual int GetRasterizedStream() = 0;
-	
+
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) = 0;
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	
-	virtual void Draw(DrawingState **state = 0,  uint32_t start_index=0, uint32_t vertex_count = 0) = 0;
-	virtual void DrawInstance(DrawingState **state = 0, 
-		uint32_t vertex_start=0, uint32_t vertex_count=0, uint32_t instance_start=0, uint32_t instance_count=0) = 0;
+	virtual void Draw(uint32_t vertex_start, uint32_t vertex_count) = 0;
+	virtual void DrawIndex( uint32_t index_start, uint32_t index_count) = 0;
+	virtual void DrawInstance(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) = 0;
+	virtual void DrawInstanceIndex(uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) = 0;
 
-	virtual void PushState() = 0;
-	virtual void PopState() = 0;
-	virtual void ClearSavedState() = 0;
-
-	/**
-	 * A state machine may always be in a state that only part of the attributes is concerned by the user.
-	 * The Start and End function defineds those attributes  which defineds an execution block.
-	 * It explicitly define all the resources that will be used in the draw call so that the pipeline will figure out
-	 * some configuration automatically. For example, in the sense of directx, it will figure out the inputlayout 
-	 * based on input inside the Start End pair.
-	 */
-	virtual void Start() = 0;
-	virtual void End() = 0;
+	virtual void SetState(const GraphicPipelineState &state) = 0;
+	virtual GraphicPipelineState * QueryState() const = 0;
 };
 
 }

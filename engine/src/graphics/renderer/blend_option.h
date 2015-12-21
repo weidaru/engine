@@ -55,17 +55,12 @@ struct BlendOption {
 	
 	bool enable;
 	//bool enable_alpha_to_coverage;				//This is multisampling related, disable for now.
-	float factor[4];										//Used to get modulation of source or dest if BLEND_FACTOR or INV_BLEND_FACTOR is used.
 	//I suppose it refers to samples in standard patterns. http://msdn.microsoft.com/en-us/library/windows/desktop/ff476218(v=vs.85).aspx
 	uint32_t sample_mask;							
 	std::vector<RenderTargetBlendOption> rt_options;
 
 	BlendOption() {
 		enable = false;
-		factor[0] = 1.0f;
-		factor[1] = 1.0f;
-		factor[2] = 1.0f;
-		factor[3] = 1.0f;
 		sample_mask = 0xFFFFFFFF;
 		rt_options.push_back(RenderTargetBlendOption());
 	}

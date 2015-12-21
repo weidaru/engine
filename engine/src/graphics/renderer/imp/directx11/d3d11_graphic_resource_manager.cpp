@@ -15,6 +15,17 @@
 #include "graphics/renderer/texture1d.h"
 #include "graphics/renderer/texture3d.h"
 
+#include "d3d11_texture2d.h"
+#include "d3d11_texture_cube.h"
+#include "d3d11_graphic_buffer.h"
+#include "d3d11_shader_bytecode.h"
+#include "d3d11_vertex_shader.h"
+#include "d3d11_pixel_shader.h"
+#include "d3d11_sampler.h"
+#include "d3d11_geometry_shader.h"
+#include "d3d11_input_layout.h"
+#include "d3d11_shader_data.h"
+
 
 namespace s2 {
 
@@ -36,9 +47,12 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(D3D11TextureCube, texcube_map);
 	MapClean(Texture3D, tex3d_map);
 	MapClean(D3D11Sampler, sampler_map);
+	MapClean(D3D11ShaderBytecode, bytecode_map);
 	MapClean(D3D11VertexShader, vs_map);
 	MapClean(D3D11PixelShader, ps_map);
 	MapClean(D3D11GeometryShader, gs_map);
+	MapClean(D3D11InputLayout, input_layout_map);
+	MapClean(D3D11ShaderData, shader_data_map);
 
 	//Report memory leak.
 	ID3D11Debug* debug;
@@ -53,7 +67,7 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 #define Mangle(type) D3D11##type
 
 #define ResourceImp(Type, name) \
-Mangle(Type) * D3D11GraphicResourceManager::Create##Type() { \
+Type * D3D11GraphicResourceManager::Create##Type() { \
 	Mangle(Type) *temp = new Mangle(Type)(this); \
 	name[temp->GetID()] = temp; \
 	return temp; \
@@ -64,7 +78,7 @@ void D3D11GraphicResourceManager::Remove##Type(uint32_t id) { \
 		name.erase(id); \
 	} \
 } \
-Mangle(Type) * D3D11GraphicResourceManager::Get##Type(uint32_t id) { \
+Type * D3D11GraphicResourceManager::Get##Type(uint32_t id) { \
 	if(name.find(id) == name.end()) { \
 		return 0; \
 	} else { \
@@ -76,10 +90,12 @@ ResourceImp(GraphicBuffer, buffer_map)
 ResourceImp(Texture2D, tex2d_map)
 ResourceImp(TextureCube, texcube_map)
 ResourceImp(Sampler, sampler_map)
+ResourceImp(ShaderBytecode, bytecode_map)
 ResourceImp(VertexShader, vs_map)
 ResourceImp(PixelShader, ps_map)
 ResourceImp(GeometryShader, gs_map)
-
+ResourceImp(InputLayout, input_layout_map)
+ResourceImp(ShaderData, shader_data_map)
 
 Texture1D * D3D11GraphicResourceManager::CreateTexture1D() {
 	CHECK(false)<<"Disabled.";

@@ -107,11 +107,9 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	input_system = new InputSystem(hwnd);
 	entity_system = new EntitySystem();
 	sprite_system = new SpriteSystem();
-	text_system = new TextSystem();
-	material_system = new MaterialSystem();
-
 	scene_manager = new SceneManager();
-	
+	text_system = new TextSystem();
+	material_system = new MaterialSystem(renderer_context->GetResourceManager());
 
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);

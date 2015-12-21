@@ -8,6 +8,7 @@ namespace s2 {
 
 SceneManager::SceneManager() : camera(0), ds(0) {
 	camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+	camera->SetEnabled(false);
 
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
@@ -21,12 +22,6 @@ SceneManager::SceneManager() : camera(0), ds(0) {
 	float fov=3.1415926f*35/180;
 	projection.SetProjection(aspect, fov, np, fp);
 
-	//Set the default render target and depth stencil.
-	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-	pipeline->Start();
-	pipeline->SetDepthStencil(GetDepthStencilBuffer()->AsDepthStencil());
-	pipeline->SetRenderTarget(0, GetBackBuffer()->AsRenderTarget());
-	pipeline->End();
 }
 
 SceneManager::~SceneManager() {

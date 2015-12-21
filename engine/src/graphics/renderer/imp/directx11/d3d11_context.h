@@ -21,14 +21,15 @@ public:
 	void Initialize(void *hwnd);
 	
 	virtual ~D3D11Context();
-	virtual D3D11GraphicPipeline * GetPipeline() { return pipeline; }
-	virtual D3D11GraphicResourceManager * GetResourceManager() { return resource_manager; }
-	virtual bool SetSetting(const RendererSetting &_setting) ;
-	virtual const RendererSetting & GetSetting() const;
-	virtual const s2string & GetLastError() { return error; }
-	virtual void PropagateSetting();
-	virtual void SwapBuffer();
-	virtual D3D11Texture2D * GetBackBuffer();
+	virtual GraphicPipelineState * CreatePipelineState() override;
+	virtual D3D11GraphicPipeline * GetPipeline() override { return pipeline; }
+	virtual D3D11GraphicResourceManager * GetResourceManager() override { return resource_manager; }
+	virtual bool SetSetting(const RendererSetting &_setting) override ;
+	virtual const RendererSetting & GetSetting() const override;
+	virtual const s2string & GetLastError() override { return error; }
+	virtual void PropagateSetting() override;
+	virtual void SwapBuffer() override;
+	virtual D3D11Texture2D * GetBackBuffer() override;
 
 private:
 	void InitDeviceAndContextAndSwapchain(

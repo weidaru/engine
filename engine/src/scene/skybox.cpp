@@ -17,11 +17,15 @@ namespace s2 {
 
 Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 	:	Entity(system),env_texture(0), sampler(0), 
-		vb(0), ib(0), vs(0), ps(0), drawing_state(0){
+		vb(0), ib(0), vs(0), ps(0), vs_data(0), ps_data(0), input_layout(0), pipeline_state(0){
+	Camera *camera = Engine::GetSingleton()->GetSceneManager()->GetCamera();
+	camera->SetEnabled(true);
+
 	Mesh mesh;
 	CHECK(mesh.Initialize(ResolveAssetPath("model/sphere.obj")))<<mesh.GetLastError();
 	CHECK(image)<<"Image cannot be null.";
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+	RendererContext *context = Engine::GetSingleton()->GetRendererContext();
 
 	{
 		uint32_t size = mesh.GetVertexSize();
@@ -75,11 +79,31 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 
 	vs = manager->CreateVertexShader();
 	CHECK(vs->Initialize(ResolveAssetPath("shader/skybox_vs.hlsl"), "main"))<<vs->GetLastError();
+	vs_data = manager->CreateShaderData();
+	CHECK(vs_data->Initialize(vs->GetShaderBytecode()))<<vs_data->GetLastError();
 
 	ps = manager->CreatePixelShader();
 	CHECK(ps->Initialize(ResolveAssetPath("shader/skybox_ps.hlsl"), "main"))<<ps->GetLastError();
-	ps->SetSampler("shader_sampler", sampler);
-	ps->SetShaderResource("env_cube", env_texture->AsShaderResource());
+	ps_data = manager->CreateShaderData();
+	CHECK(ps_data->Initialize(ps->GetShaderBytecode()))<<ps_data->GetLastError();
+
+	ps_data->SetSampler("shader_sampler", sampler);
+	ps_data->SetShaderResource("env_cube", env_texture->AsShaderResource());
+	ps_data->FlushConstantBuffer(context->GetPipeline());
+
+	input_layout = manager->CreateInputLayout();
+	input_layout->InitializeWithElement({{0,0}}, *vs);
+
+	SceneManager *scene_manager = Engine::GetSingleton()->GetSceneManager();
+
+	pipeline_state = context->CreatePipelineState();
+	RasterizationOption rast_opt = pipeline_state->GetRasterizationOption();
+	rast_opt.cull_mode = RasterizationOption::NONE;
+
+	pipeline_state->SetRasterizationOption(rast_opt);
+	pipeline_state->SetInputLayout(input_layout);
+	pipeline_state->SetVertexShader(vs);
+	pipeline_state->SetPixelShader(ps);
 }
 
 Skybox::~Skybox() {
@@ -87,7 +111,13 @@ Skybox::~Skybox() {
 	manager->RemoveTextureCube(env_texture->GetID());
 	manager->RemoveGraphicBuffer(ib->GetID());
 	manager->RemoveGraphicBuffer(vb->GetID());
+	manager->RemoveInputLayout(input_layout->GetID());
+	manager->RemoveVertexShader(vs->GetID());
+	manager->RemovePixelShader(ps->GetID());
+	manager->RemoveShaderData(vs_data->GetID());
+	manager->RemoveShaderData(ps_data->GetID());
 
+	delete pipeline_state;
 }
 
 
@@ -104,27 +134,19 @@ void Skybox::OneFrame(float delta) {
 	temp.SetScale(5.0f, 5.0f, 5.0f);
 	wvp *= temp;
 
-	vs->SetUniform("wvp", wvp);
+	vs_data->SetUniform("wvp", wvp);
+	vs_data->FlushConstantBuffer(pipeline);
 
-	pipeline->PushState();
-
-	pipeline->Start();
-	
-	RasterizationOption rast_opt = pipeline->GetRasterizationOption();
-	rast_opt.cull_mode = RasterizationOption::NONE;
+	pipeline->SetState(*pipeline_state);
 	pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
 	pipeline->SetRenderTarget(0, scene_manager->GetBackBuffer()->AsRenderTarget());
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-	pipeline->SetRasterizationOption(rast_opt);
-	pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+	pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 	pipeline->SetIndexBuffer(ib->AsIndexBuffer(), 0);
-	pipeline->SetVertexShader(vs);
-	pipeline->SetPixelShader(ps);
-	pipeline->Draw(&drawing_state, 0, ib->GetElementCount());
+	pipeline->SetVertexShaderData(vs_data);
+	pipeline->SetPixelShaderData(ps_data);
+	pipeline->DrawIndex(0, ib->GetElementCount());
 
-	pipeline->End();
-
-	pipeline->PopState();
 }
 
 

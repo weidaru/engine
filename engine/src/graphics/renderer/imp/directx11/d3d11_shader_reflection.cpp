@@ -390,29 +390,6 @@ bool IsArray(const s2string &type_name) {
 
 }
 
-bool D3D11ShaderReflection::CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type, s2string *message) const {
-	if(!HasTypeInfo(shader_typename))
-		return false;
-	const TypeInfo &info = GetTypeInfo(shader_typename);
-	if(cpp_type.HasCustomMetadata("CoreData")) {
-		s2string core_index_str = cpp_type.GetCustomMetadata("CoreData");
-		uint32_t core_index = atoi(core_index_str.c_str());
-		return this->CheckCompatible(shader_typename, cpp_type.GetMemberType(core_index), message);
-	}
-	if(info.GetMemberSize()!=cpp_type.GetMemberSize()) {
-		return false;
-	}
-	if(IsArray(shader_typename) && IsArray(cpp_type.GetName())) {
-		return CheckCompatible(info.GetMemberType(0).GetName(), cpp_type.GetMemberType(0));
-	}
-	for(uint32_t i=0; i<info.GetMemberSize(); i++) {
-		if(	info.GetMemberOffset(i) != cpp_type.GetMemberOffset(i) ||
-			!this->CheckCompatible(info.GetMemberType(i).GetName(), cpp_type.GetMemberType(i)))
-			return false;
-	}
-	return true;
-}
-
 const TypeInfo & D3D11ShaderReflection::GetTypeInfo(const s2string &shader_typename) const {
 	return typeinfo_manager.GetTypeInfo(shader_typename);
 }

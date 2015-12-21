@@ -14,7 +14,8 @@ class Sprite;
 class GraphicBuffer;
 class VertexShader;
 class PixelShader;
-class DrawingState;
+class GraphicPipelineState;
+class InputLayout;
 
 class SpriteSystem{
 public:
@@ -32,8 +33,9 @@ private:
 	VertexShader *vs;
 	PixelShader *ps;
 	GraphicBuffer *vertex_buffer, *instance_buffer;
+	InputLayout *input_layout;
 	
-	DrawingState *drawing_state;
+	GraphicPipelineState *pipeline_state;
 
 	static uint32_t kSpriteBatchSize;
 };

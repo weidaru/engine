@@ -7,6 +7,8 @@
 #include "graphics/renderer/imp/directx11/d3d11_graphic_resource_manager.h"
 #include "graphics/renderer/imp/directx11/d3d11_graphic_pipeline.h"
 
+#include "graphics/renderer/texture2d.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include <FW1FontWrapper.h>
 #undef ERROR
@@ -99,6 +101,7 @@ void TextSystem::OneFrame(float delta) {
 			continue;
 		}
 
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
 		GraphicPipeline *_pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 		CHECK_NOTNULL(pipeline);
@@ -108,7 +111,7 @@ void TextSystem::OneFrame(float delta) {
 
 		uint32_t color_uint = ColorToUnsignedInt(cur->GetColor());
 
-		RendererSetting setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+		RendererSetting setting = context->GetSetting();
 		float w_height = (float)setting.window_height, w_width = (float)setting.window_width;
 		
 		auto bound = cur->GetBoundingBox(this);
@@ -142,10 +145,8 @@ void TextSystem::OneFrame(float delta) {
 		//By default, FW1 use column major matrix. But our system uses row major matrix. Transpose to be compatible.
 		transform_matrix.Transpose();
 
-		pipeline->PushState();
 
-		pipeline->Start();
-		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
 		font_wrapper->DrawTextLayout(
 			pipeline->GetDeviceContext(), 
 			cur->GetLayout(this), 
@@ -155,8 +156,6 @@ void TextSystem::OneFrame(float delta) {
 			transform_matrix.data[0],
 			flag);
 		
-		pipeline->PopState();
-		pipeline->End();
 		delete rect;
 	}
 }

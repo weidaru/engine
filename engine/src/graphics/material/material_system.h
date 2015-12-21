@@ -12,9 +12,12 @@ namespace s2 {
 class Material;
 class GraphicBuffer;
 class VertexShader;
+class InputLayout;
 class PixelShader;
 class Mesh;
-class DrawingState;
+class GraphicPipelineState;
+class GraphicResourceManager;
+class ShaderData;
 
 //[[TypeInfo]]//
 struct MaterialVertexData {
@@ -38,7 +41,7 @@ private:
 
 class MaterialSystem {
 public:
-	MaterialSystem();
+	MaterialSystem(GraphicResourceManager *_manager);
 	~MaterialSystem();
 
 	void Register(Material *m);
@@ -49,12 +52,16 @@ public:
 	MeshData *CreateMeshdata();
 
 private:
+	GraphicResourceManager *manager;
+
 	std::vector<Material *> materials;
 
 	VertexShader *vs;
 	PixelShader *ps;
+	ShaderData *vs_data, *ps_data;
+	InputLayout *input_layout;
 
-	DrawingState *drawing_state;
+	GraphicPipelineState *pipeline_state;
 };
 
 

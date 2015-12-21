@@ -10,6 +10,7 @@
 
 #include "d3d11_context.h"
 
+#include "d3d11_graphic_pipeline_state.h"
 #include "video_card_info.h"
 
 namespace s2 {
@@ -23,6 +24,10 @@ D3D11Context::~D3D11Context() {
 	swap_chain->Release();
 	delete pipeline;
 	delete resource_manager;
+}
+
+GraphicPipelineState * D3D11Context::CreatePipelineState() {
+	return new D3D11GraphicPipelineState(resource_manager, false);
 }
 
 void D3D11Context::Initialize(void *hwnd) {

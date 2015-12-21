@@ -10,16 +10,17 @@ namespace s2 {
 
 class GeometryShaderDemo : public EngineProgram {
 public:
-	GeometryShaderDemo() : vb(0), vs(0), gs(0), ps(0) {
+	GeometryShaderDemo() : vb(0), vs(0), gs(0), ps(0), input_layout(0), state(0)  {
 		
 	}
 
 	virtual ~GeometryShaderDemo() {
-		
+		delete state;
 	}
 
 	virtual bool Initialize()  {
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+		GraphicResourceManager *manager = context->GetResourceManager();
 		
 		float vb_data[][3] = {
 			{-0.9f, -0.9f, 0.0f},
@@ -61,6 +62,16 @@ public:
 		ps = manager->CreatePixelShader();
 		CHECK(ps->Initialize(ResolveTestAssetPath("billboard.ps"), "main"))<<ps->GetLastError();
 
+		input_layout = manager->CreateInputLayout();
+		input_layout->InitializeWithElement({{0, 0}}, *vs);
+
+		state = context->CreatePipelineState();
+
+		state->SetVertexShader(vs);
+		state->SetInputLayout(input_layout);
+		state->SetPixelShader(ps);
+		state->SetGeometryShader(gs);
+
 		return true;
 	}
 	virtual s2string GetName() const {
@@ -68,20 +79,16 @@ public:
 	}
 
 	virtual void OneFrame(float delta) {
-		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+		GraphicPipeline *pipeline = context->GetPipeline();
 
-		Texture2D *bf = Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
-		pipeline->Start();
-			pipeline->SetDepthStencil(0);
-			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
-			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
-			pipeline->SetIndexBuffer(0);
-			pipeline->SetVertexShader(vs);
-			pipeline->SetPixelShader(ps);
-			pipeline->SetGeometryShader(gs);
-			pipeline->SetRenderTarget(0, bf->AsRenderTarget());
-			pipeline->Draw();
-		pipeline->End();
+		pipeline->SetState(*state);
+		pipeline->SetDepthStencil(0);
+		pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
+		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
+		pipeline->SetIndexBuffer(0);
+		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+		pipeline->Draw(0, vb->GetElementCount());
 	}
 
 private:
@@ -89,7 +96,10 @@ private:
 	VertexShader *vs;
 	GeometryShader *gs;
 	PixelShader *ps;
+	InputLayout *input_layout;
+
+	GraphicPipelineState *state;
 };
 
-AddBeforeMain(GeometryShaderDemo)
+//AddBeforeMain(GeometryShaderDemo)
 }

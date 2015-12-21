@@ -18,8 +18,10 @@ namespace s2 {
 uint32_t SpriteSystem::kSpriteBatchSize = 400;
 
 SpriteSystem::SpriteSystem() 
-		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), drawing_state(0) {
-	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), input_layout(0), pipeline_state(0) {
+
+	RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+	GraphicResourceManager * manager = context->GetResourceManager();
 
 	vs = manager->CreateVertexShader();
 	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite_vs.hlsl"), "main")) << vs->GetLastError();
@@ -43,6 +45,26 @@ SpriteSystem::SpriteSystem()
 	option.Initialize<SpriteInstance>(kSpriteBatchSize, 0);
 	option.resource_write = RendererEnum::CPU_WRITE_FREQUENT;
 	instance_buffer->Initialize(option);
+
+	input_layout = manager->CreateInputLayout();
+	input_layout->InitializeWithElement(
+	{
+		{0, 0},
+		{1, 0},
+		{1, 16},
+		{1, 32},
+		{1, 48},
+		{1, 64}
+	}, 
+	*vs);
+
+	
+	pipeline_state = context->CreatePipelineState();
+	
+	pipeline_state->SetVertexShader(vs);
+	pipeline_state->SetPixelShader(ps);
+	pipeline_state->SetInputLayout(input_layout);
+
 }
 
 SpriteSystem::~SpriteSystem() {
@@ -52,7 +74,8 @@ SpriteSystem::~SpriteSystem() {
 	manager->RemoveGraphicBuffer(vertex_buffer->GetID());
 	manager->RemovePixelShader(ps->GetID());
 	manager->RemoveVertexShader(vs->GetID());
-	delete drawing_state;
+	manager->RemoveInputLayout(input_layout->GetID());
+	delete pipeline_state;
 }
 
 static const char * kComponentDestroyCallbackName = "sprite_system_component_destroy_cb";
@@ -99,21 +122,12 @@ void SpriteSystem::OneFrame(float delta) {
 	
 	delete[] instances;
 
-	pipeline->PushState();
-
-	pipeline->Start();	
-
-	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-	pipeline->SetVertexShader(vs);
-	pipeline->SetPixelShader(ps);
-	pipeline->SetVertexBuffer(0,0,vertex_buffer->AsVertexBuffer());
-	pipeline->SetVertexBuffer(1,1,instance_buffer->AsVertexBuffer());
+	pipeline->SetState(*pipeline_state);
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-	pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
-
-	pipeline->End();
-
-	pipeline->PopState();
+	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+	pipeline->SetVertexBuffer(0,vertex_buffer->AsVertexBuffer());
+	pipeline->SetVertexBuffer(1,instance_buffer->AsVertexBuffer());
+	pipeline->DrawInstance(0, 4, 0, sprites.size());
 
 }
 

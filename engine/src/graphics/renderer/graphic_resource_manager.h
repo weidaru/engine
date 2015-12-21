@@ -10,10 +10,13 @@ class Texture2D;
 class TextureCube;
 class Texture3D;
 class Sampler;
+class ShaderBytecode;
 class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class GeometryShader;
+class InputLayout;
+class ShaderData;
 
 class GraphicResourceManager {
 public:
@@ -48,6 +51,11 @@ public:
 	virtual Sampler * CreateSampler() = 0;
 	virtual Sampler * GetSampler(uint32_t id) = 0;
 	virtual void RemoveSampler(uint32_t id) = 0;
+
+	//ShaderBytecode
+	virtual ShaderBytecode * CreateShaderBytecode() = 0;
+	virtual ShaderBytecode * GetShaderBytecode(uint32_t id) = 0;
+	virtual void RemoveShaderBytecode(uint32_t id) = 0;
 	
 	//VertexShader
 	virtual VertexShader * CreateVertexShader() = 0;
@@ -63,7 +71,16 @@ public:
 	virtual GeometryShader * CreateGeometryShader() = 0;
 	virtual GeometryShader * GetGeometryShader(uint32_t id) = 0;
 	virtual void RemoveGeometryShader(uint32_t id) = 0;
-	
+
+	//InputLayout
+	virtual InputLayout * CreateInputLayout() = 0;
+	virtual InputLayout * GetInputLayout(uint32_t id) = 0;
+	virtual void RemoveInputLayout(uint32_t id) = 0;
+
+	//ShaderData
+	virtual ShaderData * CreateShaderData() = 0;
+	virtual ShaderData * GetShaderData(uint32_t id) = 0;
+	virtual void RemoveShaderData(uint32_t id) = 0;
 };
 
 }
