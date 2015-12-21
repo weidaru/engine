@@ -9,29 +9,17 @@
 
 namespace s2 {
 
-D3D11DrawingState::D3D11DrawingState() : layout(0), stream_out_gs(0) {
+D3D11DrawingState::D3D11DrawingState() : stream_out_gs(0) {
 
 }
 
 D3D11DrawingState::~D3D11DrawingState() {
-	delete layout;
 	if (stream_out_gs) {
 		stream_out_gs->Release();
 	}
 	
 }
 
-const D3D11DrawingState & D3D11DrawingState::SetInputLayout(D3D11InputLayout *input_layout) {
-	if (input_layout != this->layout) {
-		delete this->layout;
-	}
-	this->layout = input_layout;
-	return *this;
-}
-
-D3D11InputLayout * D3D11DrawingState::GetInputLayout() {
-	return layout;
-}
 
 const D3D11DrawingState & D3D11DrawingState::SetStreamOutGeometryShader(ID3D11GeometryShader *gs) {
 	if (stream_out_gs && gs != stream_out_gs) {

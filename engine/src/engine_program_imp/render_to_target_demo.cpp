@@ -26,8 +26,8 @@ class RenderToTargetDemo : public EngineProgram {
 public:
 	RenderToTargetDemo() :
 		ds_buffer(0), texture(0),
-		vb(0), ib(0), vs(0), ps(0), rotate(0.0f),
-		tex_vb(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0),
+		vb(0), ib(0), input_layout(0), vs(0), ps(0), rotate(0.0f),
+		tex_vb(0), tex_input_layout(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0),
 		normal_draw_state(0), rtt_draw_state(0),
 		camera(0){
 	}
@@ -135,6 +135,10 @@ public:
 			ib->Initialize(option);
 			delete[] indices;
 		}
+
+		//Create InputLayout
+		input_layout = manager->CreateInputLayout();
+		input_layout->InitializeWithVertexBuffer({VertexBufferDescriptor::Create<RTTTestVertex>(0)}, *vs);
 	}
 	
 	void CreateTextureProgram() {
@@ -186,6 +190,13 @@ public:
 		buffer_option.InitializeAsIndexBuffer(6, indices);
 		buffer_option.resource_write = RendererEnum::IMMUTABLE;
 		tex_ib->Initialize(buffer_option);
+
+		//Create input layout
+		tex_input_layout = manager->CreateInputLayout();
+		tex_input_layout->InitializeWithElement(
+		{{0, 0}, {0, 12}}, 
+			*tex_vs);
+
 	}
 	
 	void DrawNormal(float delta) {
@@ -205,9 +216,10 @@ public:
 			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
 			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetRenderTarget(1, texture->AsRenderTarget());
-			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(ib->AsIndexBuffer());
-			pipeline->Draw(&normal_draw_state);
+			pipeline->SetInputLayout(input_layout);
+			pipeline->Draw(&normal_draw_state, 0, ib->GetElementCount());
 		pipeline->End();
 	}
 	
@@ -221,9 +233,10 @@ public:
 			pipeline->SetVertexShader(tex_vs);
 			pipeline->SetPixelShader(tex_ps);
 			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-			pipeline->SetVertexBuffer(0, 0, tex_vb->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, tex_vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
-			pipeline->Draw(&rtt_draw_state);
+			pipeline->SetInputLayout(tex_input_layout);
+			pipeline->Draw(&rtt_draw_state, 0, tex_ib->GetElementCount());
 		pipeline->End();
 	}
 	
@@ -243,12 +256,14 @@ private:
 	
 	GraphicBuffer *vb;
 	GraphicBuffer *ib;
+	InputLayout *input_layout;
 	VertexShader *vs;
 	PixelShader *ps;
 	float rotate;
 	
 	GraphicBuffer *tex_vb;
 	GraphicBuffer *tex_ib;
+	InputLayout *tex_input_layout;
 	VertexShader *tex_vs;
 	PixelShader *tex_ps;
 	Sampler *sampler;
@@ -258,7 +273,7 @@ private:
 	Camera *camera;
 };
 
-AddBeforeMain(RenderToTargetDemo)
+//AddBeforeMain(RenderToTargetDemo)
 
 }
 

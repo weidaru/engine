@@ -10,6 +10,7 @@
 namespace s2 {
 
 class GraphicResourceManger;
+class InputLayout;
 class VertexShader;
 class PixelShader;
 class GeometryShader;
@@ -49,8 +50,11 @@ public:
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
 
-	virtual void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf) = 0;
-	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index=0) = 0;
+	virtual void SetInputLayout(InputLayout *layout) = 0;
+	virtual InputLayout * GetInputLayout() = 0;
+
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf) = 0;
+	virtual VertexBuffer * GetVertexBuffer(uint32_t index) = 0;
 
 	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) = 0;
 	virtual IndexBuffer * GetIndexBuffer(uint32_t *vertex_base) = 0;
@@ -101,9 +105,9 @@ public:
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) = 0;
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	
-	virtual void Draw(DrawingState **state = 0,  uint32_t start_index=0, uint32_t vertex_count = 0) = 0;
-	virtual void DrawInstance(DrawingState **state = 0, 
-		uint32_t vertex_start=0, uint32_t vertex_count=0, uint32_t instance_start=0, uint32_t instance_count=0) = 0;
+	virtual void Draw(DrawingState **state,  uint32_t start_index, uint32_t vertex_count) = 0;
+	virtual void DrawInstance(DrawingState **state, 
+		uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) = 0;
 
 	virtual void PushState() = 0;
 	virtual void PopState() = 0;

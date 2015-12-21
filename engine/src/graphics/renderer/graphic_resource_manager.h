@@ -14,6 +14,7 @@ class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class GeometryShader;
+class InputLayout;
 
 class GraphicResourceManager {
 public:
@@ -63,7 +64,11 @@ public:
 	virtual GeometryShader * CreateGeometryShader() = 0;
 	virtual GeometryShader * GetGeometryShader(uint32_t id) = 0;
 	virtual void RemoveGeometryShader(uint32_t id) = 0;
-	
+
+	//InputLayout
+	virtual InputLayout * CreateInputLayout() = 0;
+	virtual InputLayout * GetInputLayout(uint32_t id) = 0;
+	virtual void RemoveInputLayout(uint32_t) = 0;
 };
 
 }

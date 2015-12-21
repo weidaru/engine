@@ -22,11 +22,13 @@ class InstancingDemo : public EngineProgram {
 public:
 	InstancingDemo()
 		:	position_buffer(0), color_buffer(0), instance_buffer(0), 
-			index_buffer(0), vs(0), ps(0), ds_buffer(0), camera(0) {
+			index_buffer(0), vs(0), ps(0), ds_buffer(0), camera(0), input_layout(0), state(0) {
 		
 	}
 	
-	virtual ~InstancingDemo() { }
+	virtual ~InstancingDemo() {
+		delete state;
+	}
 	
 	virtual bool Initialize() {
 		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
@@ -129,6 +131,15 @@ public:
 			instance_buffer->Initialize(option);
 		}	
 
+		input_layout = manager->CreateInputLayout();
+		input_layout->InitializeWithVertexBuffer(
+		{
+			{VertexBufferDescriptor::Create<InstancingTestPosition>(2), },
+			{VertexBufferDescriptor::Create<InstancingTestColor>(0), },
+			{VertexBufferDescriptor::Create<InstancingTestInstancePosition>(1), }
+		}, 
+			*vs);
+
 		return true;
 	}
 	
@@ -148,11 +159,12 @@ public:
 			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 			pipeline->SetVertexShader(vs);
 			pipeline->SetPixelShader(ps);
-			pipeline->SetVertexBuffer(2, 0, position_buffer->AsVertexBuffer());
-			pipeline->SetVertexBuffer(0, 1, color_buffer->AsVertexBuffer());
-			pipeline->SetVertexBuffer(1, 2, instance_buffer->AsVertexBuffer());
+			pipeline->SetVertexBuffer(2, position_buffer->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, color_buffer->AsVertexBuffer());
+			pipeline->SetVertexBuffer(1, instance_buffer->AsVertexBuffer());
 			pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
-			pipeline->DrawInstance();
+			pipeline->SetInputLayout(input_layout);
+			pipeline->DrawInstance(&state, 0, index_buffer->GetElementCount(), 0, instance_buffer->GetElementCount());
 		pipeline->End();
 	}
 	
@@ -163,11 +175,14 @@ private:
 	VertexShader *vs;
 	PixelShader *ps;
 	Texture2D *ds_buffer;
+	InputLayout *input_layout;
+
+	DrawingState *state;
 
 	Camera *camera;
 };
 
-AddBeforeMain(InstancingDemo)
+//AddBeforeMain(InstancingDemo)
 
 
 }

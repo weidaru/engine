@@ -109,8 +109,6 @@ public:
 	uint32_t GetShaderResourceIndex(const s2string &name) const;
 	
 	//message is ignored for now.
-	//TODO: Added support to check message indicating why false is returned.
-	bool CheckCompatible(const s2string &shader_typename, const TypeInfo &cpp_type, s2string *message=0) const;
 	const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
 	bool HasTypeInfo(const s2string &shader_typename) const;
 	

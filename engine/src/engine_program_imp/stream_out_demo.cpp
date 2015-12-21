@@ -13,7 +13,7 @@ public:
 	StreamoutDemo()
 		: streamout_state(0), normal_state(0),
 		vb(0), stream_out(0),
-		vs(0), gs(0), ps(0) {
+		vs(0), input_layout(0), gs(0), ps(0) {
 
 	}
 
@@ -73,6 +73,9 @@ public:
 		ps = manager->CreatePixelShader();
 		CHECK(ps->Initialize(ResolveTestAssetPath("billboard.ps"), "main")) << ps->GetLastError();
 
+		input_layout = manager->CreateInputLayout();
+		input_layout->InitializeWithElement({{0,0}}, *vs);
+
 		return true;
 	}
 	virtual s2string GetName() const {
@@ -85,13 +88,14 @@ public:
 
 		pipeline->Start();
 			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
-			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(0);
 			pipeline->SetVertexShader(vs);
+			pipeline->SetInputLayout(input_layout);
 			pipeline->SetGeometryShader(gs);
 			pipeline->SetStreamOut(0, 0, stream_out->AsStreamOut());
 			pipeline->SetRasterizedStream(-1);
-			pipeline->Draw(&streamout_state);
+			pipeline->Draw(&streamout_state, 0, vb->GetElementCount());
 		pipeline->End();
 	}
 
@@ -104,12 +108,13 @@ public:
 			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
 			pipeline->SetDepthStencil(0);
 			pipeline->SetVertexShader(vs);
+			pipeline->SetInputLayout(input_layout);
 			pipeline->SetGeometryShader(0);
 			pipeline->SetPixelShader(ps);
 			pipeline->SetStreamOut(0, 0, 0);
-			pipeline->SetVertexBuffer(0, 0, stream_out->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, stream_out->AsVertexBuffer());
 			pipeline->SetRenderTarget(0, bf->AsRenderTarget());
-			pipeline->Draw(&normal_state);
+			pipeline->Draw(&normal_state,  0, stream_out->GetElementCount());
 		pipeline->End();
 	}
 
@@ -122,9 +127,10 @@ private:
 	DrawingState *streamout_state, *normal_state;
 	GraphicBuffer *vb, *stream_out;
 	VertexShader *vs;
+	InputLayout *input_layout;
 	GeometryShader *gs;
 	PixelShader *ps;
 };
 
-AddBeforeMain(StreamoutDemo)
+//AddBeforeMain(StreamoutDemo)
 }

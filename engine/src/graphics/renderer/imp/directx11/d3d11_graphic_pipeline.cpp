@@ -83,13 +83,22 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 	return input_stage.GetPrimitiveTopology();
 }
 
-void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf) {
+void D3D11GraphicPipeline::SetInputLayout(InputLayout *layout) {
 	Check();
-	input_stage.SetVertexBuffer(index, start_input_index, buf);
+	input_stage.SetInputLayout(layout);
 }
 
-D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index, uint32_t *start_input_index) {
-	return input_stage.GetVertexBuffer(index, start_input_index);
+D3D11InputLayout * D3D11GraphicPipeline::GetInputLayout() {
+	return input_stage.GetInputLayout();
+}
+
+void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
+	Check();
+	input_stage.SetVertexBuffer(index, buf);
+}
+
+D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index) {
+	return input_stage.GetVertexBuffer(index);
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf, uint32_t vertex_base) {
@@ -117,7 +126,7 @@ void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
 	}
 }
 
-VertexShader * D3D11GraphicPipeline::GetVertexShader() {
+D3D11VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 	return vs;
 }
 
@@ -137,7 +146,7 @@ void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 	}
 }
 
-PixelShader * D3D11GraphicPipeline::GetPixelShader() {
+D3D11PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 	return ps;
 }
 
@@ -157,7 +166,7 @@ void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
 	}
 }
 
-GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
+D3D11GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
 	return gs;
 }
 

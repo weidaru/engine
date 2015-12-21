@@ -69,10 +69,6 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 		return false;
 	}
 	const D3D11ShaderReflection::Uniform &uniform = reflect->GetUniform(name);
-	if(!reflect->CheckCompatible(uniform.type_name, cpp_type)) {
-		S2StringFormat(error, "shader type %s and cpp type %s are not compatible,", uniform.type_name.c_str(), cpp_type.GetName().c_str());
-		return false;
-	}
 	D3D11ConstantBuffer *cb = 0;
 	for(uint32_t i=0; i<cbs.size(); i++) {
 		if(cbs[i].first == uniform.cb_slot_index) {

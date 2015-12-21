@@ -18,7 +18,7 @@ namespace s2 {
 uint32_t SpriteSystem::kSpriteBatchSize = 400;
 
 SpriteSystem::SpriteSystem() 
-		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), drawing_state(0) {
+		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), input_layout(0), drawing_state(0) {
 	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
 	vs = manager->CreateVertexShader();
@@ -43,6 +43,18 @@ SpriteSystem::SpriteSystem()
 	option.Initialize<SpriteInstance>(kSpriteBatchSize, 0);
 	option.resource_write = RendererEnum::CPU_WRITE_FREQUENT;
 	instance_buffer->Initialize(option);
+
+	input_layout = manager->CreateInputLayout();
+	input_layout->InitializeWithElement(
+	{
+		{0, 0},
+		{1, 0},
+		{1, 16},
+		{1, 32},
+		{1, 48},
+		{1, 64}
+	}, 
+	*vs);
 }
 
 SpriteSystem::~SpriteSystem() {
@@ -52,6 +64,7 @@ SpriteSystem::~SpriteSystem() {
 	manager->RemoveGraphicBuffer(vertex_buffer->GetID());
 	manager->RemovePixelShader(ps->GetID());
 	manager->RemoveVertexShader(vs->GetID());
+	manager->RemoveInputLayout(input_layout->GetID());
 	delete drawing_state;
 }
 
@@ -103,13 +116,14 @@ void SpriteSystem::OneFrame(float delta) {
 
 	pipeline->Start();	
 
-	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-	pipeline->SetVertexShader(vs);
-	pipeline->SetPixelShader(ps);
-	pipeline->SetVertexBuffer(0,0,vertex_buffer->AsVertexBuffer());
-	pipeline->SetVertexBuffer(1,1,instance_buffer->AsVertexBuffer());
-	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-	pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
+		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetVertexShader(vs);
+		pipeline->SetPixelShader(ps);
+		pipeline->SetVertexBuffer(0,vertex_buffer->AsVertexBuffer());
+		pipeline->SetVertexBuffer(1,instance_buffer->AsVertexBuffer());
+		pipeline->SetInputLayout(input_layout);
+		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
+		pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
 
 	pipeline->End();
 

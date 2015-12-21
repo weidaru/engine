@@ -66,17 +66,30 @@ MeshData::~MeshData() {
 }
 
 
-MaterialSystem::MaterialSystem() : vs(0), ps(0), drawing_state(0) {
-	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+MaterialSystem::MaterialSystem(GraphicResourceManager *_manager) 
+		: manager(_manager), vs(0), ps(0), input_layout(0), drawing_state(0) {
+	CHECK_NOTNULL(manager);
 	
 	vs = manager->CreateVertexShader();
 	CHECK(vs->Initialize(ResolveAssetPath("shader/simple_material_vs.hlsl"), "main"))<<vs->GetLastError();
 
 	ps = manager->CreatePixelShader();
 	CHECK(ps->Initialize(ResolveAssetPath("shader/simple_material_ps.hlsl"), "main"))<<ps->GetLastError();
+
+	input_layout = manager->CreateInputLayout();
+	input_layout->InitializeWithVertexBuffer(
+		{
+			VertexBufferDescriptor::Create<MaterialVertexData>(0)
+		}, 
+		*vs);
 }
 
 MaterialSystem::~MaterialSystem() {
+	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+	manager->RemoveVertexShader(vs->GetID());
+	manager->RemovePixelShader(ps->GetID());
+	manager->RemoveInputLayout(input_layout->GetID());
+	
 	delete drawing_state;
 }
 
@@ -135,8 +148,9 @@ void MaterialSystem::OneFrame(float delta) {
 		pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
 		pipeline->SetVertexShader(vs);
 		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(0,0, mesh_data->GetVertexBuffer()->AsVertexBuffer());
+		pipeline->SetVertexBuffer(0,mesh_data->GetVertexBuffer()->AsVertexBuffer());
 		pipeline->SetIndexBuffer(mesh_data->GetIndexBuffer()->AsIndexBuffer());
+		pipeline->SetInputLayout(input_layout);
 		pipeline->Draw(&drawing_state, 0, mesh_data->GetIndexBuffer()->GetElementCount());
 
 		pipeline->End();

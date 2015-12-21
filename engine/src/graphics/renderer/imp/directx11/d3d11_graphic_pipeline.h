@@ -12,6 +12,10 @@
 #include "d3d11_input_stage.h"
 #include "d3d11_output_stage.h"
 #include "d3d11_drawing_state.h"
+#include "d3d11_vertex_shader.h"
+#include "d3d11_pixel_shader.h"
+#include "d3d11_geometry_shader.h"
+#include "d3d11_input_layout.h"
 
 #include <map>
 #include <stack>
@@ -22,9 +26,6 @@ struct ID3D11BlendState;
 struct ID3D11DeviceContext;
 
 namespace s2 {
-class D3D11VertexShader;
-class D3D11PixelShader;
-class D3D11GeometryShader;
 class D3D11GraphicResourceManager;
 class D3D11Texture2D;
 
@@ -50,56 +51,59 @@ public:
 	virtual ~D3D11GraphicPipeline();
 	
 	//Input
-	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue);
-	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
-	
-	virtual void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf);
-	virtual D3D11VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index=0);
+	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) override;
+	virtual GraphicPipeline::PrimitiveTopology GetPrimitiveTopology() override;
 
-	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0);
-	virtual D3D11IndexBuffer * GetIndexBuffer(uint32_t *vertex_base);
+	virtual void SetInputLayout(InputLayout *layout) override;
+	virtual D3D11InputLayout *GetInputLayout() override;
+	
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf) override;
+	virtual D3D11VertexBuffer * GetVertexBuffer(uint32_t index) override;
+
+	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) override;
+	virtual D3D11IndexBuffer * GetIndexBuffer(uint32_t *vertex_base) override;
 	
 	//Shaders
-	virtual void SetVertexShader(VertexShader *shader);
-	virtual VertexShader * GetVertexShader();
+	virtual void SetVertexShader(VertexShader *shader) override;
+	virtual D3D11VertexShader * GetVertexShader() override;
 	
-	virtual void SetPixelShader(PixelShader *shader);
-	virtual PixelShader * GetPixelShader();
+	virtual void SetPixelShader(PixelShader *shader) override;
+	virtual D3D11PixelShader * GetPixelShader() override;
 
-	virtual void SetGeometryShader(GeometryShader *gs);
-	virtual GeometryShader * GetGeometryShader();
+	virtual void SetGeometryShader(GeometryShader *gs) override;
+	virtual D3D11GeometryShader * GetGeometryShader() override;
 	
 	//Rasterization
-	virtual void SetRasterizationOption(const RasterizationOption &option);
-	virtual const RasterizationOption & GetRasterizationOption() const;
+	virtual void SetRasterizationOption(const RasterizationOption &option) override;
+	virtual const RasterizationOption & GetRasterizationOption() const override;
 
 	//DepthStencil
-	virtual void SetDepthStencilOption(const DepthStencilOption &option);
-	virtual const DepthStencilOption & GetDepthStencilOption() const;
+	virtual void SetDepthStencilOption(const DepthStencilOption &option) override;
+	virtual const DepthStencilOption & GetDepthStencilOption() const override;
 	
 	//Blend
-	virtual void SetBlendOption(const BlendOption &option);
-	virtual const BlendOption & GetBlendOption() const;
+	virtual void SetBlendOption(const BlendOption &option) override;
+	virtual const BlendOption & GetBlendOption() const override;
 	
 	//Output
-	virtual void SetRenderTarget(uint32_t index, RenderTarget *target);
-	virtual D3D11RenderTarget * GetRenderTarget(uint32_t index);
+	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) override;
+	virtual D3D11RenderTarget * GetRenderTarget(uint32_t index) override;
 	
-	virtual void SetDepthStencil(DepthStencil *buffer);
-	virtual D3D11DepthStencil * GetDepthStencil();
+	virtual void SetDepthStencil(DepthStencil *buffer) override;
+	virtual D3D11DepthStencil * GetDepthStencil() override;
 
-	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out);
-	virtual D3D11StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0);
-	virtual void SetRasterizedStream(int index);
-	virtual int GetRasterizedStream();
+	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) override;
+	virtual D3D11StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) override;
+	virtual void SetRasterizedStream(int index) override;
+	virtual int GetRasterizedStream() override;
 
-	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
-	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-	virtual void Draw(DrawingState **state = 0,  uint32_t start_index=0, uint32_t vertex_count = 0);
-	virtual void DrawInstance(DrawingState **state = 0, 
-		uint32_t vertex_start=0, uint32_t vertex_count=0, uint32_t instance_start=0, uint32_t instance_count=0);
-	virtual void Start();
-	virtual void End();
+	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) override;
+	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) override;
+	virtual void Draw(DrawingState **state,  uint32_t start_index, uint32_t vertex_count) override;
+	virtual void DrawInstance(DrawingState **state, 
+		uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) override;
+	virtual void Start() override;
+	virtual void End() override;
 
 	virtual void PushState() override;
 	virtual void PopState() override;

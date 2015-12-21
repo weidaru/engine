@@ -12,6 +12,7 @@ class PixelShader;
 class Sampler;
 class DrawingState;
 class SkyboxImage;
+class InputLayout;
 
 class Skybox : public Entity {
 public:
@@ -34,6 +35,8 @@ private:
 
 	VertexShader *vs;
 	PixelShader *ps;
+
+	InputLayout *input_layout;
 
 	DrawingState *drawing_state;
 };

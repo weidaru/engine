@@ -8,6 +8,7 @@ namespace s2 {
 
 SceneManager::SceneManager() : camera(0), ds(0) {
 	camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+	camera->SetEnabled(false);
 
 	GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();

@@ -108,7 +108,7 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	entity_system = new EntitySystem();
 	sprite_system = new SpriteSystem();
 	text_system = new TextSystem();
-	material_system = new MaterialSystem();
+	material_system = new MaterialSystem(renderer_context->GetResourceManager());
 
 	scene_manager = new SceneManager();
 	

@@ -25,6 +25,7 @@ public:
 		CHECK(scene->Initialize(ResolveTestAssetPath("scene/cornell_box.fbx")))<<scene->GetLastError();
 		
 		Camera *camera = Engine::GetSingleton()->GetSceneManager()->GetCamera();
+		camera->SetEnabled(true);
 		camera->GetTransform()->SetTranslate(-2.0f, 2.0f, -10.0f);
 
 		return true;

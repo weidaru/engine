@@ -10,7 +10,7 @@ namespace s2 {
 
 class GeometryShaderDemo : public EngineProgram {
 public:
-	GeometryShaderDemo() : vb(0), vs(0), gs(0), ps(0) {
+	GeometryShaderDemo() : vb(0), vs(0), gs(0), ps(0), input_layout(0), state(0) {
 		
 	}
 
@@ -61,6 +61,9 @@ public:
 		ps = manager->CreatePixelShader();
 		CHECK(ps->Initialize(ResolveTestAssetPath("billboard.ps"), "main"))<<ps->GetLastError();
 
+		input_layout = manager->CreateInputLayout();
+		input_layout->InitializeWithElement({{0, 0}}, *vs);
+
 		return true;
 	}
 	virtual s2string GetName() const {
@@ -74,13 +77,14 @@ public:
 		pipeline->Start();
 			pipeline->SetDepthStencil(0);
 			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
-			pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
+			pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 			pipeline->SetIndexBuffer(0);
 			pipeline->SetVertexShader(vs);
+			pipeline->SetInputLayout(input_layout);
 			pipeline->SetPixelShader(ps);
 			pipeline->SetGeometryShader(gs);
 			pipeline->SetRenderTarget(0, bf->AsRenderTarget());
-			pipeline->Draw();
+			pipeline->Draw(&state, 0, vb->GetElementCount());
 		pipeline->End();
 	}
 
@@ -89,7 +93,10 @@ private:
 	VertexShader *vs;
 	GeometryShader *gs;
 	PixelShader *ps;
+	InputLayout *input_layout;
+
+	DrawingState *state;
 };
 
-AddBeforeMain(GeometryShaderDemo)
+//AddBeforeMain(GeometryShaderDemo)
 }

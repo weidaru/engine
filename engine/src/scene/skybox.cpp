@@ -17,7 +17,7 @@ namespace s2 {
 
 Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 	:	Entity(system),env_texture(0), sampler(0), 
-		vb(0), ib(0), vs(0), ps(0), drawing_state(0){
+		vb(0), ib(0), vs(0), ps(0), input_layout(0), drawing_state(0){
 	Mesh mesh;
 	CHECK(mesh.Initialize(ResolveAssetPath("model/sphere.obj")))<<mesh.GetLastError();
 	CHECK(image)<<"Image cannot be null.";
@@ -80,6 +80,9 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 	CHECK(ps->Initialize(ResolveAssetPath("shader/skybox_ps.hlsl"), "main"))<<ps->GetLastError();
 	ps->SetSampler("shader_sampler", sampler);
 	ps->SetShaderResource("env_cube", env_texture->AsShaderResource());
+
+	input_layout = manager->CreateInputLayout();
+	input_layout->InitializeWithElement({{0,0}}, *vs);
 }
 
 Skybox::~Skybox() {
@@ -87,7 +90,7 @@ Skybox::~Skybox() {
 	manager->RemoveTextureCube(env_texture->GetID());
 	manager->RemoveGraphicBuffer(ib->GetID());
 	manager->RemoveGraphicBuffer(vb->GetID());
-
+	manager->RemoveInputLayout(input_layout->GetID());
 }
 
 
@@ -110,17 +113,18 @@ void Skybox::OneFrame(float delta) {
 
 	pipeline->Start();
 	
-	RasterizationOption rast_opt = pipeline->GetRasterizationOption();
-	rast_opt.cull_mode = RasterizationOption::NONE;
-	pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
-	pipeline->SetRenderTarget(0, scene_manager->GetBackBuffer()->AsRenderTarget());
-	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-	pipeline->SetRasterizationOption(rast_opt);
-	pipeline->SetVertexBuffer(0, 0, vb->AsVertexBuffer());
-	pipeline->SetIndexBuffer(ib->AsIndexBuffer(), 0);
-	pipeline->SetVertexShader(vs);
-	pipeline->SetPixelShader(ps);
-	pipeline->Draw(&drawing_state, 0, ib->GetElementCount());
+		RasterizationOption rast_opt = pipeline->GetRasterizationOption();
+		rast_opt.cull_mode = RasterizationOption::NONE;
+		pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
+		pipeline->SetRenderTarget(0, scene_manager->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
+		pipeline->SetRasterizationOption(rast_opt);
+		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
+		pipeline->SetIndexBuffer(ib->AsIndexBuffer(), 0);
+		pipeline->SetInputLayout(input_layout);
+		pipeline->SetVertexShader(vs);
+		pipeline->SetPixelShader(ps);
+		pipeline->Draw(&drawing_state, 0, ib->GetElementCount());
 
 	pipeline->End();
 

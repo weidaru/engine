@@ -123,8 +123,8 @@ Entity * Scene::ProcessNode(aiNode *node, Entity * parent_entity, const aiScene 
 	S2Vector3 rotation_euler;
 	float q0=rotation.x, q1=rotation.y, q2=rotation.z, q3=rotation.w;
 	rotation_euler[2] = atan(2*(q0*q1+q2*q3)/(1-2*(q1*q1+q2*q2)));
-	rotation_euler[1] = -asin(2*(q0*q2-q3*q1));
-	rotation_euler[0] = -atan(2*(q0*q3+q1*q2)/(1-2*(q2*q2+q3*q3)));
+	rotation_euler[1] = asin(2*(q0*q2-q3*q1));
+	rotation_euler[0] = atan(2*(q0*q3+q1*q2)/(1-2*(q2*q2+q3*q3)));
 
 	transform->SetRotate(rotation_euler);
 	

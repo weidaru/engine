@@ -5,10 +5,9 @@
 #include <vector>
 #include <stack>
 
-struct ID3D11InputLayout;
-
 namespace s2 {
 
+class D3D11InputLayout;
 class D3D11VertexBuffer;
 class D3D11IndexBuffer;
 class D3D11VertexShader;
@@ -17,19 +16,10 @@ class D3D11GraphicResourceManager;
 class D3D11GraphicPipeline;
 class D3D11DrawingState;
 
-struct D3D11InputLayout {
-	ID3D11InputLayout *layout;
-	uint32_t first_instance_count;
-
-	D3D11InputLayout() : layout(0), first_instance_count(0) {}
-	~D3D11InputLayout();
-};
-
 class D3D11InputStage {
 private:
 	struct VBInfo {
 		bool is_new;
-		uint32_t start_index;
 		D3D11VertexBuffer *vb;
 		
 		VBInfo() {
@@ -38,7 +28,6 @@ private:
 		
 		void Reset() {
 			is_new = false;
-			start_index = 0;
 			vb = 0;
 		}
 	};
@@ -59,6 +48,7 @@ private:
 		IBInfo ib;
 		std::vector<VBInfo> vbs;
 		GraphicPipeline::PrimitiveTopology topology;
+		D3D11InputLayout *input_layout;
 	};
 
 public:
@@ -68,8 +58,10 @@ public:
 	void SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue);
 	GraphicPipeline::PrimitiveTopology GetPrimitiveTopology();
 	
-	void SetVertexBuffer(uint32_t index, uint32_t start_input_index, VertexBuffer *buf);
-	D3D11VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *start_input_index);
+	void SetInputLayout(InputLayout *_layout);
+	D3D11InputLayout *GetInputLayout();
+	void SetVertexBuffer(uint32_t index, VertexBuffer *buf);
+	D3D11VertexBuffer * GetVertexBuffer(uint32_t index);
 	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base);
 	D3D11IndexBuffer * GetIndexBuffer(uint32_t * vertex_base);
 	
@@ -91,11 +83,6 @@ public:
 	void ClearSavedState();
 	
 private:
-	D3D11InputLayout * CreateInputLayout(const D3D11VertexShader *shader);
-	
-	static bool VBCompare(const std::vector<VBInfo>::iterator lhs, const std::vector<VBInfo>::iterator rhs);
-	s2string DumpVertexBufferInfo(const std::vector<VBInfo> &infos);
-
 	D3D11InputStage(const D3D11InputStage &);
 	D3D11InputStage & operator=(const D3D11InputStage &);
 	
@@ -107,8 +94,7 @@ private:
 	std::vector<VBInfo> vbs;
 	GraphicPipeline::PrimitiveTopology topology;
 	
-	uint32_t current_first_instance_count;
-	ID3D11InputLayout *owned_layout;
+	D3D11InputLayout *input_layout;
 
 	std::stack<State> saved_states;
 };
