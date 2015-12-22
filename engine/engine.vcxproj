@@ -29,6 +29,8 @@
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_input_layout.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_texture_cube.h" />
     <ClInclude Include="src\graphics\renderer\input_layout.h" />
+    <ClInclude Include="src\graphics\renderer\shader_bytecode.h" />
+    <ClInclude Include="src\graphics\renderer\shader_data.h" />
     <ClInclude Include="src\graphics\renderer\texture_cube.h" />
     <ClInclude Include="src\graphics\renderer\texture_data.h" />
     <ClInclude Include="src\graphics\sprite\sprite_system.h" />

@@ -6,33 +6,20 @@
 #include "utils/type_info.h"
 
 namespace s2 {
-class Sampler;
-class VertexBuffer;
-class IndexBuffer;
-class	ShaderResource;
+
+class ShaderBytecode;
+class ShaderData;
 
 class VertexShader : public Resource {
 public:
-	virtual 							~VertexShader() {}
-	virtual bool 					Initialize(const s2string &path, const s2string &entry_point) = 0;
+	virtual ~VertexShader() {}
+	virtual bool Initialize(const ShaderBytecode &bytecode) = 0;
+	virtual ShaderData *GetShaderData() = 0;
 
-	template <typename T>
-	bool SetUniform(const s2string &name, const T &value) {
-		return SetUniform(name, TypeInfoManager::GetSingleton()->Get<T>(),&value);
-	}
-	
-	//This will be version without compatibility check, more like a c style.
-	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) = 0;
-	
-	virtual bool 					SetSampler(const s2string &name, Sampler *sampler) = 0;
-	virtual Sampler * 			GetSampler(const s2string &name) = 0;
-	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
-	virtual ShaderResource *		GetShaderResource(const s2string &name) = 0;
-	
-	virtual const s2string &	GetLastError() = 0;
-	
+	s2string GetError() { return error; }
+
 protected:
-	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) = 0;
+	s2string error;
 };
 
 }
