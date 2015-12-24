@@ -1,11 +1,13 @@
-#ifndef D3D11_SHADER_HELPER_h
-#define D3D11_SHADER_HELPER_h
+#ifndef D3D11_SHADER_DATA_H
+#define D3D11_SHADER_DATA_H
 
 #include <vector>
 #include <map>
 #include <stdint.h>
 
 #include "utils/s2string.h"
+
+#include "graphics/renderer/shader_data.h"
 
 struct ID3D11ShaderResourceView;
 
@@ -22,8 +24,8 @@ class ShaderResource;
 class Sampler;
 class Resource;
 
-struct D3D11ShaderHelper {
-	enum ShaderType {VERTEX, PIXEL, GEOMETRY};
+enum class ShaderType {
+	VERTEX, PIXEL, GEOMETRY
 };
 
 class ConstantBufferContainer{
@@ -37,8 +39,7 @@ public:
 	bool SetUniform(const s2string &name, const void * value, uint32_t size, s2string *error);
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
-	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
-	void Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
+	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -56,8 +57,7 @@ public:
 	bool SetSampler(const s2string &name, Sampler *sampler, s2string *error);
 	D3D11Sampler* GetSampler(const s2string &name, s2string *error);
 	
-	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
-	void Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
+	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -66,9 +66,6 @@ private:
 };
 
 class ShaderResourceContainer {
-public:
-	typedef std::vector<std::pair<uint32_t, Resource *> > BindingVector;
-
 private:
 	struct Info {
 		uint32_t reflect_index;
@@ -83,13 +80,7 @@ public:
 	bool SetShaderResource(const s2string &name, ShaderResource *_shader_resource, s2string *error);
 	D3D11ShaderResource * GetShaderResource(const s2string &name, s2string *error);
 	
-	void Setup(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
-	void Unbind(D3D11GraphicPipeline *pipeline, D3D11ShaderHelper::ShaderType shader_type);
-	
-	/**
-	 * New bindings since last draw call.
-	 */
-	BindingVector GetNewBindings() const;
+	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 	
 private:
@@ -97,7 +88,31 @@ private:
 	
 	ShaderResourceVector shader_resources;
 };
+
+class D3D11ShaderData : public ShaderData {
+public:
+	D3D11ShaderData(D3D11GraphicResourceManager *manager, D3D11ShaderReflection *reflect);
+
+	virtual ~D3D11ShaderData();
+
+	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) override;
+	
+	virtual bool 					SetSampler(const s2string &name, Sampler *sampler) override;
+	virtual Sampler * 			GetSampler(const s2string &name) override;
+	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) override;
+	virtual ShaderResource *		GetShaderResource(const s2string &name) override;
+
+	void Setup(D3D11GraphicPipeline *pipeline, ShaderType type);
+	
+protected:
+	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) override;
+
+private:
+	ConstantBufferContainer cb_container;
+	SamplerContainer sampler_container;
+	ShaderResourceContainer sr_container;
+};
 	
 }
 
-#endif		//D3D11_SHADER_HELPER_h
+#endif		//D3D11_SHADER_DATA_H

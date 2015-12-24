@@ -27,10 +27,13 @@ public:
 	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
 	virtual ShaderResource *		GetShaderResource(const s2string &name) = 0;
 	
-	virtual const s2string &	GetLastError() = 0;
+	s2string GetLastError() { return error; }
 	
 protected:
 	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) = 0;
+
+protected:
+	s2string error;
 };
 
 }

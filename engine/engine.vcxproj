@@ -27,6 +27,7 @@
     <ClInclude Include="src\graphics\material\material.h" />
     <ClInclude Include="src\graphics\material\material_system.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_input_layout.h" />
+    <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_shader_bytecode.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_texture_cube.h" />
     <ClInclude Include="src\graphics\renderer\input_layout.h" />
     <ClInclude Include="src\graphics\renderer\shader_bytecode.h" />
@@ -62,7 +63,7 @@
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_pixel_shader.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_resource_helper.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_sampler.h" />
-    <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_shader_helper.h" />
+    <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_shader_data.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_shader_reflection.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_texture2d.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_vertex_shader.h" />
@@ -119,6 +120,7 @@
     <ClCompile Include="src\graphics\material\material.cpp" />
     <ClCompile Include="src\graphics\material\material_system.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_input_layout.cpp" />
+    <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_shader_bytecode.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_texture_cube.cpp" />
     <ClCompile Include="src\graphics\renderer\texture_data.cpp" />
     <ClCompile Include="src\graphics\sprite\sprite_system.cpp" />
@@ -141,7 +143,7 @@
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_resource_helper.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_resource_view.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_sampler.cpp" />
-    <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_shader_helper.cpp" />
+    <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_shader_data.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_shader_reflection.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_texture2d.cpp" />
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_vertex_shader.cpp" />
