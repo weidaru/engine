@@ -120,9 +120,6 @@
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_context.h">
       <Filter>Header Files\renderer\imp\directx11</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_drawing_state.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_enum_converter.h">
       <Filter>Header Files\renderer\imp\directx11</Filter>
     </ClInclude>
@@ -179,9 +176,6 @@
     </ClInclude>
     <ClInclude Include="src\graphics\renderer\depth_stencil_option.h">
       <Filter>Header Files\renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphics\renderer\drawing_state.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\renderer\geometry_shader.h">
       <Filter>Header Files</Filter>
@@ -367,9 +361,6 @@
     </ClCompile>
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_context.cpp">
       <Filter>Source Files\renderer\imp\directx11</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_drawing_state.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_enum_converter.cpp">
       <Filter>Source Files\renderer\imp\directx11</Filter>
