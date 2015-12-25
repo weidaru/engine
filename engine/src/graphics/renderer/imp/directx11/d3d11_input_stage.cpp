@@ -17,7 +17,7 @@
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_graphic_pipeline.h"
 #include "d3d11_enum_converter.h"
-#include "d3d11_drawing_state.h"
+#include "d3d11_resource_view.h"
 
 #ifdef NDEBUG
 #define NiceCast(Type, Ptr) static_cast<Type>(Ptr)
@@ -108,67 +108,6 @@ void D3D11InputStage::SetIndexBuffer(IndexBuffer *_buf, uint32_t vertex_base) {
 D3D11IndexBuffer * D3D11InputStage::GetIndexBuffer(uint32_t *vertex_base) {
 	*vertex_base = ib.vertex_base;
 	return ib.buffer;
-}
-
-void D3D11InputStage::Setup(const D3D11VertexShader *shader) {
-	//TODO: Remove after pipeline clean up.
-}
-
-void D3D11InputStage::Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state) {
-	//TODO: Remove after pipeline clean up.
-}
-
-void D3D11InputStage::Flush(uint32_t start_index, uint32_t vertex_count) {
-	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
-	
-	if (vertex_count == 0) {
-		if (ib.is_new && ib.buffer) {
-			vertex_count = ib.buffer->GetResource()->GetElementCount() - start_index;
-		}
-		else {
-			for (uint32_t i = 0; i<vbs.size(); i++) {
-				if (vbs[i].vb) {
-					vertex_count = vbs[i].vb->GetResource()->GetElementCount() - start_index;
-					break;
-				}
-			}
-		}
-	}
-
-	
-	if(ib.is_new && ib.buffer) {
-		context->DrawIndexed(vertex_count, start_index, ib.vertex_base);
-	} else {
-		context->Draw(vertex_count, start_index);
-	}
-}
-
-void D3D11InputStage::FlushWithInstancing(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
-	if (vertex_count == 0) {
-		if (ib.is_new && ib.buffer) {
-			vertex_count = ib.buffer->GetResource()->GetElementCount() - vertex_start;
-		}
-		else {
-			for (uint32_t i = 0; i<vbs.size(); i++) {
-				if (vbs[i].vb) {
-					vertex_count = vbs[i].vb->GetResource()->GetElementCount() - vertex_start;
-					break;
-				}
-			}
-		}
-	}
-
-	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
-	if(ib.is_new && ib.buffer) {
-		context->DrawIndexedInstanced(vertex_count, instance_count, vertex_start, ib.vertex_base, instance_start);
-	} else {
-		context->DrawInstanced(vertex_count, instance_count, vertex_start, instance_start);
-	}
-}
-
-bool D3D11InputStage::Validate(const D3D11VertexShader &shader, s2string *message) const {
-	CHECK(false) << "Disabled";
-	return true;
 }
 
 void D3D11InputStage::PushState() {

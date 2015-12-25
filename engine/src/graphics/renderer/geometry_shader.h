@@ -6,8 +6,7 @@
 #include "utils/type_info.h"
 
 namespace s2 {
-class Sampler;
-class ShaderResource;
+class ShaderBytecode;
 
 struct StreamOutDescriptor {
 	uint32_t index;
@@ -17,10 +16,11 @@ struct StreamOutDescriptor {
 class GeometryShader : public Resource {
 public:
 	virtual ~GeometryShader() {}
-	virtual bool Initialize(const ShaderBytecode &bytecode) = 0;
-	virtual bool Initialize(const ShaderBytecode &bytecode, const std::vector<StreamOutDescriptor> &streamouts) = 0;
+	virtual bool Initialize(ShaderBytecode *bytecode) = 0;
+	virtual bool Initialize(const s2string &path, const s2string &entry_point)  = 0;
+	virtual bool Initialize(ShaderBytecode *bytecode, int rasterized_stream, const std::vector<StreamOutDescriptor> &streamouts) = 0;
 
-	virtual ShaderData *GetShaderData() = 0;
+	virtual ShaderBytecode *GetShaderBytecode() = 0;
 
 	s2string GetError() { return error; }
 

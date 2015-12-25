@@ -18,6 +18,9 @@
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_graphic_pipeline.h"
 #include "d3d11_constant_buffer.h"
+#include "d3d11_resource_view.h"
+#include "d3d11_sampler.h"
+
 #include "utils/type_info.h"
 
 #ifdef NDEBUG
@@ -81,6 +84,8 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 }
 
 void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+
+
 	for(uint32_t i=0; i<cbs.size(); i++) {
 		D3D11ConstantBuffer *cb = cbs[i].second;
 		if(cb == 0) {
@@ -242,6 +247,8 @@ D3D11ShaderResource * ShaderResourceContainer::GetShaderResource(const s2string 
 }
 
 void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+
+
 	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
 		ID3D11ShaderResourceView *view = 0;
@@ -301,6 +308,12 @@ void D3D11ShaderData::Setup(D3D11GraphicPipeline *pipeline, ShaderType type) {
 	cb_container.Setup(pipeline, type);
 	sampler_container.Setup(pipeline, type);
 	sr_container.Setup(pipeline, type);
+}
+
+void D3D11ShaderData::UnBind(D3D11GraphicPipeline *pipeline, ShaderType type) {
+	cb_container.UnBind(pipeline, type);
+	sampler_container.UnBind(pipeline, type);
+	sr_container.UnBind(pipeline, type);
 }
 
 }

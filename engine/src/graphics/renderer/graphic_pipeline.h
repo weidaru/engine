@@ -20,8 +20,8 @@ class Texture2D;
 class Resource;
 class RenderTarget;
 class DepthStencil;
-class DrawingState;
 class StreamOut;
+class ShaderData;
 struct RasterizationOption;
 struct DepthStencilOption;
 struct BlendOption; 
@@ -69,12 +69,18 @@ public:
 	 */
 	virtual void SetVertexShader(VertexShader *vs) = 0;
 	virtual VertexShader * GetVertexShader() = 0;
+	virtual void SetVertexShaderData(ShaderData *data) = 0;
+	virtual ShaderData * GetVertexShaderData() = 0;
 	
 	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() = 0;
+	virtual void SetPixelShaderData(ShaderData *data);
+	virtual ShaderData * GetPixelShaderData() = 0;
 
 	virtual void SetGeometryShader(GeometryShader *gs) = 0;
 	virtual GeometryShader * GetGeometryShader() = 0;
+	virtual void SetGeometryShaderData(ShaderData *data) = 0;
+	virtual ShaderData * GetGeometryShaderData() = 0;
 	
 	//Rasterization
 	virtual void SetRasterizationOption(const RasterizationOption &option) = 0;
@@ -105,23 +111,14 @@ public:
 	virtual void ClearRenderTarget(RenderTarget *rt, const float rgba[4]) = 0;
 	virtual void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) = 0;
 	
-	virtual void Draw(DrawingState **state,  uint32_t start_index, uint32_t vertex_count) = 0;
-	virtual void DrawInstance(DrawingState **state, 
-		uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) = 0;
+	virtual void Draw(uint32_t vertex_start, uint32_t vertex_count) = 0;
+	virtual void DrawIndex( uint32_t index_start, uint32_t index_count) = 0;
+	virtual void DrawInstance(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) = 0;
+	virtual void DrawInstanceIndex(uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) = 0;
 
 	virtual void PushState() = 0;
 	virtual void PopState() = 0;
 	virtual void ClearSavedState() = 0;
-
-	/**
-	 * A state machine may always be in a state that only part of the attributes is concerned by the user.
-	 * The Start and End function defineds those attributes  which defineds an execution block.
-	 * It explicitly define all the resources that will be used in the draw call so that the pipeline will figure out
-	 * some configuration automatically. For example, in the sense of directx, it will figure out the inputlayout 
-	 * based on input inside the Start End pair.
-	 */
-	virtual void Start() = 0;
-	virtual void End() = 0;
 };
 
 }

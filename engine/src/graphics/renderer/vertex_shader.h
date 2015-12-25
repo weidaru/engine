@@ -13,8 +13,10 @@ class ShaderData;
 class VertexShader : public Resource {
 public:
 	virtual ~VertexShader() {}
-	virtual bool Initialize(const ShaderBytecode &bytecode) = 0;
-	virtual ShaderData *GetShaderData() = 0;
+	virtual bool Initialize(ShaderBytecode *bytecode) = 0;
+	virtual bool Initialize(const s2string &path, const s2string &entry_point)  = 0;
+
+	virtual ShaderBytecode * GetShaderBytecode() = 0;
 
 	s2string GetError() { return error; }
 

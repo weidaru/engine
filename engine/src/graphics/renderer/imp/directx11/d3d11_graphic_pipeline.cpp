@@ -17,7 +17,9 @@
 #include "d3d11_geometry_shader.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
-#include "d3d11_shader_helper.h"
+#include "d3d11_resource_view.h"
+#include "d3d11_input_layout.h"
+#include "d3d11_shader_data.h"
 
 #include "engine.h"
 
@@ -30,10 +32,10 @@
 namespace s2 {
 
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager,  ID3D11DeviceContext *_context)
-	:  active(true),
-		manager(_manager),  context(_context),
+	:	manager(_manager),  context(_context),
 		input_stage(_manager, this),
 		vs(0), ps(0), gs(0),
+		vs_data(0), ps_data(0), gs_data(0),
 		rast_state(0), ds_state(0), blend_state(0),
 		output_stage(_manager, this) {
 	CHECK_NOTNULL(manager);
@@ -49,11 +51,6 @@ D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager
 	SetDepthStencilOption(DepthStencilOption());
 	
 	SetBlendOption(BlendOption());
-	active = false;
-}
-
-void D3D11GraphicPipeline::Check() {
-	CHECK(active)<<"All the Set operation should be surrounded by Start and End";
 }
 
 D3D11GraphicPipeline::~D3D11GraphicPipeline() {
@@ -75,7 +72,7 @@ D3D11GraphicPipeline::~D3D11GraphicPipeline() {
 }
 
 void D3D11GraphicPipeline::SetPrimitiveTopology(PrimitiveTopology newvalue) {
-	Check();
+	
 	input_stage.SetPrimitiveTopology(newvalue);
 }
 
@@ -84,91 +81,104 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 }
 
 void D3D11GraphicPipeline::SetInputLayout(InputLayout *layout) {
-	Check();
+	
 	input_stage.SetInputLayout(layout);
 }
 
-D3D11InputLayout * D3D11GraphicPipeline::GetInputLayout() {
+InputLayout * D3D11GraphicPipeline::GetInputLayout() {
 	return input_stage.GetInputLayout();
 }
 
 void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
-	Check();
+	
 	input_stage.SetVertexBuffer(index, buf);
 }
 
-D3D11VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index) {
+VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index) {
 	return input_stage.GetVertexBuffer(index);
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf, uint32_t vertex_base) {
-	Check();
+	
 	input_stage.SetIndexBuffer( _buf, vertex_base);
 }
 
-D3D11IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer(uint32_t *vertex_base) {
+IndexBuffer * D3D11GraphicPipeline::GetIndexBuffer(uint32_t *vertex_base) {
 	return input_stage.GetIndexBuffer(vertex_base);
 }
 
 void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
-	Check();
-	if (vs) {
-		vs->Unbind(this);
-	}
-	vs = NiceCast(D3D11VertexShader *, shader);
-	if(shader) {
-		CHECK(vs)<<"Shader cannot be cast to D3D11VertexShader";
-	}
-	if (vs) {
-		vs->Setup(this);
-	} else {
+	if (shader == 0) {
 		context->VSSetShader(0, 0, 0);
+		
+	} else {
+		vs = NiceCast(D3D11VertexShader *, shader);
+		if (vs) {
+			context->VSSetShader(vs->GetInternal(), 0, 0);
+		} else {
+			context->VSSetShader(0, 0, 0);
+		}
 	}
 }
 
-D3D11VertexShader * D3D11GraphicPipeline::GetVertexShader() {
+VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 	return vs;
 }
 
-void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
-	Check();
-	if (ps) {
-		ps->Unbind(this);
-	}
-	ps = NiceCast(D3D11PixelShader *, shader);
-	if(shader) {
-		CHECK(ps)<<"Shader cannot be cast to D3D11PixelShader";
-	}
-	if (ps) {
-		ps->Setup(this);
+void D3D11GraphicPipeline::SetVertexShaderData(ShaderData *data) {
+	if(data == 0) {
+	
 	} else {
-		context->PSSetShader(0, 0, 0);
+		vs_data = static_cast<D3D11ShaderData *>(data);
+		vs_data->Setup(this, ShaderType::VERTEX);
 	}
 }
 
-D3D11PixelShader * D3D11GraphicPipeline::GetPixelShader() {
+ShaderData * D3D11GraphicPipeline::GetVertexShaderData() {
+	return vs_data;
+}
+
+void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
+	if (shader == 0) {
+		context->PSSetShader(0, 0, 0);
+		
+	} else {
+		ps = NiceCast(D3D11PixelShader *, shader);
+		if (vs) {
+			context->PSSetShader(ps->GetInternal(), 0, 0);
+		} else {
+			context->PSSetShader(0, 0, 0);
+		}
+	}
+}
+
+PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 	return ps;
 }
 
+	virtual void SetPixelShaderData(ShaderData *data) override;
+	virtual ShaderData * GetPixelShaderData() override;
+
 void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
-	Check();
-	if (gs) {
-		gs->Unbind(this);
-	}
-	gs = NiceCast(D3D11GeometryShader *, shader);
-	if (shader) {
-		CHECK(gs) <<"Shader cannot be cast to D3D11GeometryShader";
-	}
-	if (gs) {
-		gs->Setup(this);
-	} else {
+	if (shader == 0) {
 		context->GSSetShader(0, 0, 0);
+		
+	} else {
+		gs = NiceCast(D3D11GeometryShader *, shader);
+		if (vs) {
+			context->GSSetShader(gs->GetInternal(), 0, 0);
+		} else {
+			context->GSSetShader(0, 0, 0);
+		}
 	}
 }
 
-D3D11GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
+GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
 	return gs;
 }
+
+	virtual void SetGeometryShaderData(ShaderData *data) override;
+	virtual ShaderData * GetGeometryShaderData() override;
 
 namespace {
 
@@ -278,7 +288,7 @@ ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &opt
 }
 
 void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &option) {
-	Check();
+	
 	rast_opt = option;
 	if(rast_state)
 		rast_state->Release();
@@ -291,7 +301,7 @@ const RasterizationOption & D3D11GraphicPipeline::GetRasterizationOption() const
 }
 
 void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &option) {
-	Check();
+	
 	ds_opt = option;
 	if(ds_state)
 		ds_state->Release();
@@ -304,7 +314,7 @@ const DepthStencilOption & D3D11GraphicPipeline::GetDepthStencilOption() const {
 }
 
 void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
-	Check();
+	
 	blend_opt = option;
 	if(blend_state)
 		blend_state->Release();
@@ -317,34 +327,34 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 }
 
 void D3D11GraphicPipeline::SetRenderTarget(uint32_t index, RenderTarget *target) {
-	Check();
+	
 	output_stage.SetRenderTarget(index, target);
 }
 
-D3D11RenderTarget * D3D11GraphicPipeline::GetRenderTarget(uint32_t index) {
+RenderTarget * D3D11GraphicPipeline::GetRenderTarget(uint32_t index) {
 	return output_stage.GetRenderTarget(index);
 }
 
 void D3D11GraphicPipeline::SetDepthStencil(DepthStencil *buffer) {
-	Check();
+	
 	output_stage.SetDepthStencil(buffer);
 }
 
-D3D11DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
+DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
 	return output_stage.GetDepthStencil();
 }
 
 void D3D11GraphicPipeline::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) {
-	Check();
+	
 	output_stage.SetStreamOut(index, stream_index, stream_out);
 }
 
-D3D11StreamOut * D3D11GraphicPipeline::GetStreamOut(uint32_t index, uint32_t *stream_index) {
+StreamOut * D3D11GraphicPipeline::GetStreamOut(uint32_t index, uint32_t *stream_index) {
 	return output_stage.GetStreamOut(index, stream_index);
 }
 
 void D3D11GraphicPipeline::SetRasterizedStream(int index) {
-	Check();
+	
 	output_stage.SetRasterizedStream(index);
 }
 
@@ -404,68 +414,20 @@ void D3D11GraphicPipeline::ClearDepthStencil(DepthStencil *ds, bool clear_depth,
 	output_stage.ClearDepthStencil(ds, clear_depth, depth , clear_stencil, stencil);
 }
 
-void D3D11GraphicPipeline::DrawSetup(D3D11DrawingState *state) {
+void Draw(uint32_t vertex_start, uint32_t vertex_count) {
 
-	//Setup output 
-	ID3D11GeometryShader *raw_stream_out_shader = 0;
-	if (state == 0) {
-		raw_stream_out_shader = output_stage.Setup(gs);
-	}
-	else {
-		raw_stream_out_shader = output_stage.Setup(gs, state);
-	}
+}
+
+void DrawIndex( uint32_t index_start, uint32_t index_count) {
+
+}
+
+void DrawInstance(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
+
+}
+
+void DrawInstanceIndex(uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) {
 	
-	if(raw_stream_out_shader) {
-		gs->UseShader(this, raw_stream_out_shader);
-	}
-
-	//Setup input
-	if (vs) {
-		if (state == 0) {
-			input_stage.Setup(vs);
-		}
-		else {
-			input_stage.Setup(vs, state);
-		}
-	}
-}
-
-void D3D11GraphicPipeline::DrawCleanup(D3D11DrawingState *state) {
-	gs->UseShader(this, gs->GetShader());
-}
-
-void D3D11GraphicPipeline::Draw(DrawingState **_state,  uint32_t start_index, uint32_t vertex_count) {
-	Check();
-	D3D11DrawingState *state = 0;
-	if (_state) {
-		state = NiceCast(D3D11DrawingState *, *_state);
-		if (*_state) {
-			CHECK(state) << "Cannot cast state to D3D11 DrawState";
-		}
-		state = state == 0 ? new D3D11DrawingState : state;
-		*_state = state;
-	}
-
-	DrawSetup(state);
-
-	input_stage.Flush(start_index, vertex_count);
-}
-
-void D3D11GraphicPipeline::DrawInstance(DrawingState **_state, 
-		uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
-	Check();
-	D3D11DrawingState *state = 0;
-	if (_state) {
-		state = NiceCast(D3D11DrawingState *, *_state);
-		if (*_state) {
-			CHECK(state) << "Cannot cast state to D3D11 DrawState";
-		}
-		state = state == 0 ? new D3D11DrawingState : state;
-		*_state = state;
-	}
-	DrawSetup(state);
-
-	input_stage.FlushWithInstancing(vertex_start, vertex_count, instance_start, instance_count);
 }
 
 void D3D11GraphicPipeline::PushState() {
@@ -494,8 +456,6 @@ void D3D11GraphicPipeline::PushState() {
 void D3D11GraphicPipeline::PopState() {
 	State &state = saved_states.top();
 
-	Start();
-
 	input_stage.PopState();
 	output_stage.PopState();
 
@@ -515,7 +475,6 @@ void D3D11GraphicPipeline::PopState() {
 	blend_state->Release();
 	blend_state = state.blend_state;
 	
-	End();
 }
 
 void D3D11GraphicPipeline::ClearSavedState() {
@@ -528,16 +487,6 @@ void D3D11GraphicPipeline::ClearSavedState() {
 
 		saved_states.pop();
 	}
-}
-
-void D3D11GraphicPipeline::Start() {
-	active = true;
-	input_stage.Refresh();
-	output_stage.Refresh();
-}
-
-void D3D11GraphicPipeline::End() {
-	active = false;
 }
 
 }

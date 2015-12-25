@@ -10,6 +10,7 @@ class Texture2D;
 class TextureCube;
 class Texture3D;
 class Sampler;
+class ShaderBytecode;
 class GraphicBuffer;
 class VertexShader;
 class PixelShader;
@@ -49,6 +50,11 @@ public:
 	virtual Sampler * CreateSampler() = 0;
 	virtual Sampler * GetSampler(uint32_t id) = 0;
 	virtual void RemoveSampler(uint32_t id) = 0;
+
+	//ShaderBytecode
+	virtual ShaderBytecode * CreateShaderBytecode() = 0;
+	virtual ShaderBytecode * GetShaderBytecode(uint32_t id) = 0;
+	virtual void RemoveShaderBytecode(uint32_t id) = 0;
 	
 	//VertexShader
 	virtual VertexShader * CreateVertexShader() = 0;

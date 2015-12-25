@@ -40,7 +40,8 @@ public:
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
-	
+	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+
 private:
 	D3D11ShaderReflection *reflect;
 
@@ -58,6 +59,7 @@ public:
 	D3D11Sampler* GetSampler(const s2string &name, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -81,7 +83,7 @@ public:
 	D3D11ShaderResource * GetShaderResource(const s2string &name, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
-	
+	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -103,6 +105,7 @@ public:
 	virtual ShaderResource *		GetShaderResource(const s2string &name) override;
 
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType type);
+	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType type);
 	
 protected:
 	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) override;

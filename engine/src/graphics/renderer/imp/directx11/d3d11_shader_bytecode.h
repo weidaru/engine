@@ -20,6 +20,7 @@ public:
 	virtual bool Initialize(const s2string &path, const s2string &entry_point) override;
 
 	ID3DBlob * GetBlob() { return blob; }
+	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
 
 private:
 	D3D11GraphicResourceManager *manager;

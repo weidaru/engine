@@ -65,11 +65,6 @@ public:
 	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base);
 	D3D11IndexBuffer * GetIndexBuffer(uint32_t * vertex_base);
 	
-	//Validate input stage with vertex shader, set message to NULL if you don't care.
-	bool Validate(const D3D11VertexShader &shader, s2string *message) const;
-	//Given an not NULL reflect, the input layout will be recomputed.
-	void Setup(const D3D11VertexShader *shader);
-	void Setup(const D3D11VertexShader *shader, D3D11DrawingState *draw_state);
 
 	void Flush(uint32_t start_index,uint32_t vertex_count);
 	void FlushWithInstancing(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count);

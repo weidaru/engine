@@ -15,6 +15,17 @@
 #include "graphics/renderer/texture1d.h"
 #include "graphics/renderer/texture3d.h"
 
+#include "d3d11_texture2d.h"
+#include "d3d11_texture_cube.h"
+#include "d3d11_graphic_buffer.h"
+#include "d3d11_shader_bytecode.h"
+#include "d3d11_vertex_shader.h"
+#include "d3d11_pixel_shader.h"
+#include "d3d11_sampler.h"
+#include "d3d11_geometry_shader.h"
+#include "d3d11_input_layout.h"
+
+
 
 namespace s2 {
 
@@ -36,6 +47,7 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(D3D11TextureCube, texcube_map);
 	MapClean(Texture3D, tex3d_map);
 	MapClean(D3D11Sampler, sampler_map);
+	MapClean(D3D11ShaderBytecode, bytecode_map);
 	MapClean(D3D11VertexShader, vs_map);
 	MapClean(D3D11PixelShader, ps_map);
 	MapClean(D3D11GeometryShader, gs_map);
@@ -77,6 +89,7 @@ ResourceImp(GraphicBuffer, buffer_map)
 ResourceImp(Texture2D, tex2d_map)
 ResourceImp(TextureCube, texcube_map)
 ResourceImp(Sampler, sampler_map)
+ResourceImp(ShaderBytecode, bytecode_map)
 ResourceImp(VertexShader, vs_map)
 ResourceImp(PixelShader, ps_map)
 ResourceImp(GeometryShader, gs_map)

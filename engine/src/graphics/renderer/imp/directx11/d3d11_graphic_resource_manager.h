@@ -3,21 +3,21 @@
 
 #include "graphics/renderer/graphic_resource_manager.h"
 
-#include "d3d11_texture2d.h"
-#include "d3d11_texture_cube.h"
-#include "d3d11_graphic_buffer.h"
-#include "d3d11_vertex_shader.h"
-#include "d3d11_pixel_shader.h"
-#include "d3d11_sampler.h"
-#include "d3d11_geometry_shader.h"
-#include "d3d11_input_layout.h"
-
-
 #include <map>
 
 struct ID3D11Device;
 
 namespace s2 {
+
+class D3D11Texture2D;
+class D3D11TextureCube;
+class D3D11GraphicBuffer;
+class D3D11ShaderBytecode;
+class D3D11VertexShader;
+class D3D11PixelShasder;
+class D3D11GeometryShasder;
+class D3D11Sampler;
+class D3D11InputLayout;
 
 /**
  * Right now, only single window is  used. So world is simple, single window, single swapchain, single backbuffer(We only use double buffering.)
@@ -38,13 +38,13 @@ public:
 	virtual void RemoveTexture1D(uint32_t id) override;
 	
 	//Texture2D
-	virtual D3D11Texture2D * CreateTexture2D() override;
-	virtual D3D11Texture2D * GetTexture2D(uint32_t id) override;
+	virtual Texture2D * CreateTexture2D() override;
+	virtual Texture2D * GetTexture2D(uint32_t id) override;
 	virtual void RemoveTexture2D(uint32_t id) override;
 
 	//TextureCube
-	virtual D3D11TextureCube * CreateTextureCube() override;
-	virtual D3D11TextureCube * GetTextureCube(uint32_t id) override;
+	virtual TextureCube * CreateTextureCube() override;
+	virtual TextureCube * GetTextureCube(uint32_t id) override;
 	virtual void RemoveTextureCube(uint32_t id) override;
 	
 	//Texture3D
@@ -53,28 +53,33 @@ public:
 	virtual void RemoveTexture3D(uint32_t id) override;
 	
 	//Sampler
-	virtual D3D11Sampler * CreateSampler() override;
-	virtual D3D11Sampler * GetSampler(uint32_t id) override;
+	virtual Sampler * CreateSampler() override;
+	virtual Sampler * GetSampler(uint32_t id) override;
 	virtual void RemoveSampler(uint32_t id) override;
  
+	//ShaderBytecode
+	virtual ShaderBytecode * CreateShaderBytecode() override;
+	virtual ShaderBytecode * GetShaderBytecode(uint32_t id) override;
+	virtual void RemoveShaderBytecode(uint32_t id) override;
+
 	//VertexShader
-	virtual D3D11VertexShader * CreateVertexShader() override;
-	virtual D3D11VertexShader * GetVertexShader(uint32_t id) override;
+	virtual VertexShader * CreateVertexShader() override;
+	virtual VertexShader * GetVertexShader(uint32_t id) override;
 	virtual void RemoveVertexShader(uint32_t id) override;
 	
 	//PixelShader
-	virtual D3D11PixelShader * CreatePixelShader() override;
-	virtual D3D11PixelShader * GetPixelShader(uint32_t id) override;
+	virtual PixelShader * CreatePixelShader() override;
+	virtual PixelShader * GetPixelShader(uint32_t id) override;
 	virtual void RemovePixelShader(uint32_t id) override;
 
 	//GeometryShader
-	virtual D3D11GeometryShader * CreateGeometryShader() override;
-	virtual D3D11GeometryShader * GetGeometryShader(uint32_t id) override;
+	virtual GeometryShader * CreateGeometryShader() override;
+	virtual GeometryShader * GetGeometryShader(uint32_t id) override;
 	virtual void RemoveGeometryShader(uint32_t id) override;
 
 	//InputLayout
-	virtual D3D11InputLayout * CreateInputLayout() override;
-	virtual D3D11InputLayout * GetInputLayout(uint32_t id) override;
+	virtual InputLayout * CreateInputLayout() override;
+	virtual InputLayout * GetInputLayout(uint32_t id) override;
 	virtual void RemoveInputLayout(uint32_t) override;
 	
 	/****************D3D11 exclusive*****************/
@@ -95,6 +100,7 @@ private:
 	std::map<uint32_t, D3D11TextureCube *> texcube_map;
 	std::map<uint32_t, Texture3D *> tex3d_map;
 	std::map<uint32_t, D3D11Sampler *> sampler_map;
+	std::map<uint32_t, D3D11ShaderBytecode *> bytecode_map;
 	std::map<uint32_t, D3D11VertexShader *> vs_map;
 	std::map<uint32_t, D3D11PixelShader *> ps_map;
 	std::map<uint32_t, D3D11GeometryShader *> gs_map;
