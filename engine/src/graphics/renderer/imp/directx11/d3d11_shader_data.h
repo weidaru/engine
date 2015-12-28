@@ -20,9 +20,7 @@ class D3D11ConstantBuffer;
 class D3D11ShaderReflection;
 class D3D11Sampler;
 class D3D11ShaderResource;
-class ShaderResource;
-class Sampler;
-class Resource;
+class D3D11ShaderBytecode;
 
 enum class ShaderType {
 	VERTEX, PIXEL, GEOMETRY
@@ -40,7 +38,7 @@ public:
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
-	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 
 private:
 	D3D11ShaderReflection *reflect;
@@ -59,7 +57,7 @@ public:
 	D3D11Sampler* GetSampler(const s2string &name, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
-	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -83,7 +81,7 @@ public:
 	D3D11ShaderResource * GetShaderResource(const s2string &name, s2string *error);
 	
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
-	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	
 private:
 	D3D11ShaderReflection *reflect;
@@ -93,9 +91,10 @@ private:
 
 class D3D11ShaderData : public ShaderData {
 public:
-	D3D11ShaderData(D3D11GraphicResourceManager *manager, D3D11ShaderReflection *reflect);
-
+	D3D11ShaderData(D3D11GraphicResourceManager *manager);
 	virtual ~D3D11ShaderData();
+
+	virtual bool Initialize(ShaderBytecode *bytecode) override;
 
 	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) override;
 	
@@ -105,15 +104,19 @@ public:
 	virtual ShaderResource *		GetShaderResource(const s2string &name) override;
 
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType type);
-	void UnBind(D3D11GraphicPipeline *pipeline, ShaderType type);
+
+	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType type);
 	
 protected:
 	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) override;
 
 private:
-	ConstantBufferContainer cb_container;
-	SamplerContainer sampler_container;
-	ShaderResourceContainer sr_container;
+	D3D11GraphicResourceManager *manager;
+	ConstantBufferContainer *cb_container;
+	SamplerContainer *sampler_container;
+	ShaderResourceContainer *sr_container;
+
+	D3D11ShaderBytecode *bytecode;
 };
 	
 }

@@ -6,12 +6,11 @@
 
 #include <stack>
 
-struct ID3D11GeometryShader;
+struct ID3D11DeviceContext;
 
 namespace s2 {
 
 class D3D11Texture2D;
-class Resource;
 class D3D11GraphicResourceManager;
 class D3D11GraphicPipeline;
 class D3D11RenderTarget;
@@ -44,12 +43,10 @@ private:
 	};
 	struct  SOInfo {
 		D3D11StreamOut *data;
-		bool is_new;
 		uint32_t stream_index;
 
 		SOInfo() {
 			data = 0;
-			is_new = false;
 			stream_index = 0;
 		}
 	};
@@ -63,10 +60,11 @@ private:
 	};
 
 public:
-	D3D11OutputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
+	D3D11OutputStage(D3D11GraphicResourceManager *_manager, ID3D11DeviceContext *_context);
 	~D3D11OutputStage();
 	
 	void SetRenderTarget(uint32_t index, RenderTarget *target);
+	void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts);
 	D3D11RenderTarget * GetRenderTarget(uint32_t index);
 	uint32_t GetRenderTargetCapacity() const;
 
@@ -74,6 +72,7 @@ public:
 	D3D11DepthStencil * GetDepthStencil();
 
 	void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out);
+	void SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs);
 	D3D11StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index);
 
 	void SetRasterizedStream(int index);
@@ -81,25 +80,20 @@ public:
 
 	void ClearRenderTarget(RenderTarget *rt, const float rgba[4]);
 	void ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil);
-
-	ID3D11GeometryShader * Setup(D3D11GeometryShader *gs);
-	ID3D11GeometryShader * Setup(D3D11GeometryShader *gs, D3D11DrawingState *draw_state);
-	void Refresh();
 	
 	void PushState();
 	void PopState();
 	void ClearSavedState();
 	
-private:
-	ID3D11GeometryShader * D3D11OutputStage::BuildStreamOutGeometryShader(D3D11GeometryShader *gs);
-	s2string DumpStreamOutInfo(const std::vector<SOInfo> &infos);
+	void Sync(ID3D11DeviceContext *context);
 
-	void SyncRenderTargetsAndDepthStencil();
-	void SyncStreamOuts();
+private:
+	void SyncRenderTargetsAndDepthStencil(ID3D11DeviceContext *context);
+	void SyncStreamOuts(ID3D11DeviceContext *context);
 	
 private:
 	D3D11GraphicResourceManager *manager;
-	D3D11GraphicPipeline *pipeline;
+	ID3D11DeviceContext *context;
 
 	std::vector<RTInfo > rts;
 	DSInfo ds;

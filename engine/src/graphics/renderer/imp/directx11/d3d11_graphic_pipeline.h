@@ -9,14 +9,12 @@
 #include "d3d11_input_stage.h"
 #include "d3d11_output_stage.h"
 
-#include <map>
 #include <stack>
 
 struct ID3D11RasterizerState;
 struct ID3D11DepthStencilState;
 struct ID3D11BlendState;
 struct ID3D11DeviceContext;
-
 
 namespace s2 {
 class D3D11GraphicResourceManager;
@@ -31,6 +29,7 @@ private:
 		D3D11VertexShader *vs;
 		D3D11PixelShader *ps;
 		D3D11GeometryShader *gs;
+		D3D11ShaderData *vs_data, *ps_data, *gs_data;
 	
 		RasterizationOption rast_opt;
 		ID3D11RasterizerState *rast_state;
@@ -54,7 +53,11 @@ public:
 	virtual InputLayout *GetInputLayout() override;
 	
 	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf) override;
-	virtual VertexBuffer * GetVertexBuffer(uint32_t index) override;
+	virtual void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &vbs) override;
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) override;
+	virtual void SetVertexBuffer(uint32_t start_index, 
+				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input) override;
+	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) override;
 
 	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) override;
 	virtual IndexBuffer * GetIndexBuffer(uint32_t *vertex_base) override;
@@ -89,12 +92,14 @@ public:
 	
 	//Output
 	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) override;
+	virtual void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts) override;
 	virtual RenderTarget * GetRenderTarget(uint32_t index) override;
 	
 	virtual void SetDepthStencil(DepthStencil *buffer) override;
 	virtual DepthStencil * GetDepthStencil() override;
 
 	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) override;
+	virtual void SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs) override;
 	virtual StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) override;
 	virtual void SetRasterizedStream(int index) override;
 	virtual int GetRasterizedStream() override;
@@ -112,6 +117,14 @@ public:
 	virtual void ClearSavedState() override;
 
 	ID3D11DeviceContext * GetDeviceContext() { return context; }
+
+	static ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const RasterizationOption &option);
+	static ID3D11DepthStencilState * ParseDepthStencilOption(ID3D11Device *device,const DepthStencilOption &option);
+	static ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &option);
+
+	void SetRasterizationOption(const RasterizationOption &opt, ID3D11RasterizerState *state);
+	void SetDepthStencilOption(const DepthStencilOption &opt, ID3D11DepthStencilState *state);
+	void SetBlendOption(const BlendOption &opt, ID3D11BlendState *state);
 
 private:
 	void SetupRasterizationOption();

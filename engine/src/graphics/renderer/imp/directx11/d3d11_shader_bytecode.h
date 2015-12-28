@@ -21,6 +21,7 @@ public:
 
 	ID3DBlob * GetBlob() { return blob; }
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }
+	D3D11ShaderReflection * GetReflection() { return reflect; }
 
 private:
 	D3D11GraphicResourceManager *manager;

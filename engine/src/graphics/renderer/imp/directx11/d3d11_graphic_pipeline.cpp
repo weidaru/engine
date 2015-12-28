@@ -33,11 +33,11 @@ namespace s2 {
 
 D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager,  ID3D11DeviceContext *_context)
 	:	manager(_manager),  context(_context),
-		input_stage(_manager, this),
+		input_stage(_manager, _context),
 		vs(0), ps(0), gs(0),
 		vs_data(0), ps_data(0), gs_data(0),
 		rast_state(0), ds_state(0), blend_state(0),
-		output_stage(_manager, this) {
+		output_stage(_manager, _context) {
 	CHECK_NOTNULL(manager);
 	CHECK_NOTNULL(context);
 
@@ -90,12 +90,24 @@ InputLayout * D3D11GraphicPipeline::GetInputLayout() {
 }
 
 void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
-	
 	input_stage.SetVertexBuffer(index, buf);
 }
 
-VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index) {
-	return input_stage.GetVertexBuffer(index);
+void D3D11GraphicPipeline::SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &vbs) {
+	input_stage.SetVertexBuffer(start_index, vbs);
+}
+
+void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) {
+	input_stage.SetVertexBuffer(index, buf, stride, offset);
+}
+
+void D3D11GraphicPipeline::SetVertexBuffer(uint32_t start_index,  
+				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input) {
+	input_stage.SetVertexBuffer(start_index, input);
+}
+
+VertexBuffer * D3D11GraphicPipeline::GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) {
+	return input_stage.GetVertexBuffer(index, stride, offset);
 }
 
 void D3D11GraphicPipeline::SetIndexBuffer(IndexBuffer *_buf, uint32_t vertex_base) {
@@ -127,7 +139,7 @@ VertexShader * D3D11GraphicPipeline::GetVertexShader() {
 
 void D3D11GraphicPipeline::SetVertexShaderData(ShaderData *data) {
 	if(data == 0) {
-	
+		D3D11ShaderData::UnBind(this, ShaderType::VERTEX);
 	} else {
 		vs_data = static_cast<D3D11ShaderData *>(data);
 		vs_data->Setup(this, ShaderType::VERTEX);
@@ -156,8 +168,18 @@ PixelShader * D3D11GraphicPipeline::GetPixelShader() {
 	return ps;
 }
 
-	virtual void SetPixelShaderData(ShaderData *data) override;
-	virtual ShaderData * GetPixelShaderData() override;
+void D3D11GraphicPipeline::SetPixelShaderData(ShaderData *data) {
+	if(data == 0) {
+		D3D11ShaderData::UnBind(this, ShaderType::PIXEL);
+	} else {
+		ps_data = static_cast<D3D11ShaderData *>(data);
+		ps_data->Setup(this, ShaderType::PIXEL);
+	}
+}
+
+ShaderData * D3D11GraphicPipeline::GetPixelShaderData() {
+	return ps_data;
+}
 
 void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
 	if (shader == 0) {
@@ -177,12 +199,21 @@ GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
 	return gs;
 }
 
-	virtual void SetGeometryShaderData(ShaderData *data) override;
-	virtual ShaderData * GetGeometryShaderData() override;
+void D3D11GraphicPipeline::SetGeometryShaderData(ShaderData *data) {
+	if(data == 0) {
+		D3D11ShaderData::UnBind(this, ShaderType::GEOMETRY);
+	} else {
+		gs_data = static_cast<D3D11ShaderData *>(data);
+		gs_data->Setup(this, ShaderType::GEOMETRY);
+	}
+}
 
-namespace {
+ShaderData * D3D11GraphicPipeline::GetGeometryShaderData() {
+	return ps_data;
+}
 
-ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const RasterizationOption &option) {
+ID3D11RasterizerState * D3D11GraphicPipeline::ParseRasterizationOption(
+				ID3D11Device *device, const RasterizationOption &option) {
 	D3D11_RASTERIZER_DESC desc;
 	switch(option.fill_mode) {
 	case RasterizationOption::WIREFRAME:
@@ -234,7 +265,8 @@ ID3D11RasterizerState * ParseRasterizationOption(ID3D11Device *device, const Ras
 	return state;
 }
 
-ID3D11DepthStencilState * ParseDepthStencilOption(ID3D11Device *device,const DepthStencilOption &option) {
+ID3D11DepthStencilState * D3D11GraphicPipeline::ParseDepthStencilOption(
+			ID3D11Device *device,const DepthStencilOption &option) {
 	D3D11_DEPTH_STENCIL_DESC desc;
 	//Depth
 	desc.DepthEnable = option.enable_depth;
@@ -261,7 +293,8 @@ ID3D11DepthStencilState * ParseDepthStencilOption(ID3D11Device *device,const Dep
 	return state;
 }
 
-ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &option) {
+ID3D11BlendState * D3D11GraphicPipeline::ParseBlendOption(
+					ID3D11Device *device, const BlendOption &option) {
 	D3D11_BLEND_DESC desc;
 	desc.AlphaToCoverageEnable = false;		//Disabled for now, see class BlendOption.
 	desc.IndependentBlendEnable= option.rt_options.size()>1;
@@ -285,14 +318,24 @@ ID3D11BlendState * ParseBlendOption(ID3D11Device *device, const BlendOption &opt
 	return state;
 }
 	
-}
-
 void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &option) {
 	
 	rast_opt = option;
-	if(rast_state)
+	if(rast_state) {
 		rast_state->Release();
+	}
 	rast_state = ParseRasterizationOption(manager->GetDevice(), rast_opt);
+	SetupRasterizationOption();
+}
+
+void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &opt, ID3D11RasterizerState *state) {
+	CHECK_NOTNULL(state);
+	state->AddRef();
+	rast_opt = opt;
+	if(rast_state) {
+		rast_state->Release();
+	}
+	rast_state = state;
 	SetupRasterizationOption();
 }
 
@@ -309,16 +352,36 @@ void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &optio
 	SetupDepthStencilOption();
 }
 
+void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &opt, ID3D11DepthStencilState *state){
+	CHECK_NOTNULL(state);
+	state->AddRef();
+	ds_opt = opt;
+	if(ds_state) {
+		ds_state->Release();
+	}
+	ds_state = state;
+	SetupDepthStencilOption();
+}
+
 const DepthStencilOption & D3D11GraphicPipeline::GetDepthStencilOption() const {
 	return ds_opt;
 }
 
 void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
-	
 	blend_opt = option;
 	if(blend_state)
 		blend_state->Release();
 	blend_state = ParseBlendOption(manager->GetDevice(), blend_opt);
+	SetupBlendOption();
+}
+
+void D3D11GraphicPipeline::SetBlendOption(const BlendOption &opt, ID3D11BlendState *state){
+	CHECK_NOTNULL(state);
+	state->AddRef();
+	if(blend_state) {
+		blend_state->Release();
+	}
+	blend_state = state;
 	SetupBlendOption();
 }
 
@@ -329,6 +392,10 @@ const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
 void D3D11GraphicPipeline::SetRenderTarget(uint32_t index, RenderTarget *target) {
 	
 	output_stage.SetRenderTarget(index, target);
+}
+
+void D3D11GraphicPipeline::SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts){
+	output_stage.SetRenderTarget(start_index, rts);
 }
 
 RenderTarget * D3D11GraphicPipeline::GetRenderTarget(uint32_t index) {
@@ -344,9 +411,12 @@ DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {
 	return output_stage.GetDepthStencil();
 }
 
-void D3D11GraphicPipeline::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) {
-	
+void D3D11GraphicPipeline::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) {	
 	output_stage.SetStreamOut(index, stream_index, stream_out);
+}
+
+void D3D11GraphicPipeline::SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs) {
+	output_stage.SetStreamOut(start_index, stream_outs);
 }
 
 StreamOut * D3D11GraphicPipeline::GetStreamOut(uint32_t index, uint32_t *stream_index) {
@@ -410,24 +480,33 @@ void D3D11GraphicPipeline::ClearRenderTarget(RenderTarget *rt, const float rgba[
 	output_stage.ClearRenderTarget(rt, rgba);
 }
 
-void D3D11GraphicPipeline::ClearDepthStencil(DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) {
+void D3D11GraphicPipeline::ClearDepthStencil(
+		DepthStencil *ds, bool clear_depth, float depth, bool clear_stencil, int stencil) {
 	output_stage.ClearDepthStencil(ds, clear_depth, depth , clear_stencil, stencil);
 }
 
-void Draw(uint32_t vertex_start, uint32_t vertex_count) {
-
+void D3D11GraphicPipeline::Draw(
+		uint32_t vertex_start, uint32_t vertex_count) {
+	context->Draw(vertex_count, vertex_start);
 }
 
-void DrawIndex( uint32_t index_start, uint32_t index_count) {
-
+void D3D11GraphicPipeline::DrawIndex(
+		uint32_t index_start, uint32_t index_count) {
+	uint32_t vertex_base = 0;
+	GetIndexBuffer(&vertex_base);
+	context->DrawIndexed(index_count, index_start, vertex_base);
 }
 
-void DrawInstance(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
-
+void D3D11GraphicPipeline::DrawInstance(
+		uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) {
+	context->DrawInstanced(vertex_count, instance_count, vertex_start, instance_start);
 }
 
-void DrawInstanceIndex(uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) {
-	
+void D3D11GraphicPipeline::DrawInstanceIndex(
+		uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) {
+	uint32_t vertex_base=0;
+	GetIndexBuffer(&vertex_base);
+	context->DrawIndexedInstanced(index_count, instance_count, index_start, vertex_base, instance_start);
 }
 
 void D3D11GraphicPipeline::PushState() {
@@ -439,6 +518,10 @@ void D3D11GraphicPipeline::PushState() {
 	new_state.vs = vs;
 	new_state.ps = ps;
 	new_state.gs = gs;
+
+	new_state.vs_data = vs_data;
+	new_state.ps_data = ps_data;
+	new_state.gs_data = gs_data;
 
 	new_state.rast_opt = rast_opt;
 	new_state.rast_state = rast_state;
@@ -462,6 +545,10 @@ void D3D11GraphicPipeline::PopState() {
 	SetVertexShader(state.vs);
 	SetPixelShader(state.ps);
 	SetGeometryShader(state.gs);
+
+	SetVertexShaderData(state.vs_data);
+	SetPixelShaderData(state.ps_data);
+	SetGeometryShaderData(state.gs_data);
 
 	rast_opt = state.rast_opt;
 	rast_state->Release();
@@ -488,6 +575,7 @@ void D3D11GraphicPipeline::ClearSavedState() {
 		saved_states.pop();
 	}
 }
+
 
 }
 

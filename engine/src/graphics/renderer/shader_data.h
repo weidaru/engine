@@ -10,10 +10,13 @@ namespace s2 {
 
 class Sampler;
 class ShaderResource;
+class ShaderBytecode;
 
 class ShaderData {
 public:
 	virtual ~ShaderData() {}
+
+	virtual bool Initialize(ShaderBytecode *bytecode) = 0;
 
 	template <typename T>
 	bool SetUniform(const s2string &name, const T &value) {

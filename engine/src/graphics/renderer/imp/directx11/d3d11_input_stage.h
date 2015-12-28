@@ -5,6 +5,8 @@
 #include <vector>
 #include <stack>
 
+struct ID3D11DeviceContext;
+
 namespace s2 {
 
 class D3D11InputLayout;
@@ -19,26 +21,26 @@ class D3D11DrawingState;
 class D3D11InputStage {
 private:
 	struct VBInfo {
-		bool is_new;
 		D3D11VertexBuffer *vb;
+		uint32_t stride;
+		uint32_t offset;
 		
 		VBInfo() {
 			Reset();
 		}
 		
 		void Reset() {
-			is_new = false;
 			vb = 0;
+			stride = 0;
+			offset = 0;
 		}
 	};
 
 	struct IBInfo {
-		bool is_new;
 		uint32_t vertex_base;
 		D3D11IndexBuffer *buffer;
 
 		IBInfo() {
-			is_new = false;
 			vertex_base = 0;
 			buffer = 0;
 		}
@@ -52,7 +54,7 @@ private:
 	};
 
 public:
-	D3D11InputStage(D3D11GraphicResourceManager *_manager, D3D11GraphicPipeline *_pipeline);
+	D3D11InputStage(D3D11GraphicResourceManager *_manager, ID3D11DeviceContext *_context);
 	~D3D11InputStage();
 	
 	void SetPrimitiveTopology(GraphicPipeline::PrimitiveTopology newvalue);
@@ -60,22 +62,22 @@ public:
 	
 	void SetInputLayout(InputLayout *_layout);
 	D3D11InputLayout *GetInputLayout();
+
 	void SetVertexBuffer(uint32_t index, VertexBuffer *buf);
-	D3D11VertexBuffer * GetVertexBuffer(uint32_t index);
+	void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &vbs);
+	void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset);
+	void SetVertexBuffer(uint32_t start_index, 
+			const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input);
+	D3D11VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset);
+
 	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base);
 	D3D11IndexBuffer * GetIndexBuffer(uint32_t * vertex_base);
-	
-
-	void Flush(uint32_t start_index,uint32_t vertex_count);
-	void FlushWithInstancing(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count);
-	void Refresh();
-
-	void SetAutoSizeOnDraw(bool auto_size);
-	bool GetAutoSizeOnDraw();
 
 	void PushState();
 	void PopState();
 	void ClearSavedState();
+
+	void Sync(ID3D11DeviceContext *context);
 	
 private:
 	D3D11InputStage(const D3D11InputStage &);
@@ -83,7 +85,7 @@ private:
 	
 private:
 	D3D11GraphicResourceManager *manager;
-	D3D11GraphicPipeline *pipeline;
+	ID3D11DeviceContext *context;
 	
 	IBInfo ib;
 	std::vector<VBInfo> vbs;

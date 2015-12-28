@@ -20,6 +20,7 @@
 #include "d3d11_constant_buffer.h"
 #include "d3d11_resource_view.h"
 #include "d3d11_sampler.h"
+#include "d3d11_shader_bytecode.h"
 
 #include "utils/type_info.h"
 
@@ -84,29 +85,48 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 }
 
 void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
-
-
+	ID3D11Buffer *buffer_array[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT]={0};
+	
 	for(uint32_t i=0; i<cbs.size(); i++) {
 		D3D11ConstantBuffer *cb = cbs[i].second;
 		if(cb == 0) {
 			continue;
 		}
 		cb->Flush(pipeline);
-		ID3D11Buffer *buffer = cb->GetInternal();
-		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
-		switch(shader_type) {
-			case ShaderType::VERTEX:
-				context->VSSetConstantBuffers(cbs[i].first, 1, &buffer);
-				break;
-			case ShaderType::PIXEL:
-				context->PSSetConstantBuffers(cbs[i].first, 1, &buffer);
-				break;
-			case ShaderType::GEOMETRY:
-				context->GSSetConstantBuffers(cbs[i].first, 1, &buffer);
-			default:
-				CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
-				break;
-		}
+		buffer_array[cbs[i].first] =  cb->GetInternal();
+	}
+
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::VERTEX:
+			context->VSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
+		case ShaderType::PIXEL:
+			context->PSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
+		case ShaderType::GEOMETRY:
+			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
+	}
+}
+
+void ConstantBufferContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+	ID3D11Buffer *buffer_array[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT]={0};
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::VERTEX:
+			context->VSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
+		case ShaderType::PIXEL:
+			context->PSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
+		case ShaderType::GEOMETRY:
+			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
 	}
 }
 
@@ -163,28 +183,52 @@ D3D11Sampler* SamplerContainer::GetSampler(const s2string &name, s2string *error
 	return 0;
 }
 	
-void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type)  {
+	ID3D11SamplerState * sampler_array[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {0};
+	
+
 	for(uint32_t i=0; i<samplers.size(); i++) {
 		D3D11Sampler *sampler = samplers[i].second;
 		if(sampler == 0) {
 			continue;
 		}
-		ID3D11SamplerState *state = sampler->GetInternal();
-		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
-		switch(shader_type) {
-			case ShaderType::VERTEX:
-				context->VSSetSamplers(samplers[i].first, 1, &state);
-				break;
-			case ShaderType::PIXEL:
-				context->PSSetSamplers(samplers[i].first, 1, &state);
-				break;
-			case ShaderType::GEOMETRY:
-				context->GSSetSamplers(samplers[i].first, 1, &state);
-				break;
-			default:
-				CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
-				break;
-		}
+		
+		sampler_array[samplers[i].first] =  sampler->GetInternal();
+	}
+
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::VERTEX:
+			context->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		case ShaderType::PIXEL:
+			context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		case ShaderType::GEOMETRY:
+			context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
+	}
+}
+
+void SamplerContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+	ID3D11SamplerState * sampler_array[D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT] = {0};
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::VERTEX:
+			context->VSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		case ShaderType::PIXEL:
+			context->PSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		case ShaderType::GEOMETRY:
+			context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
 	}
 }
 
@@ -247,73 +291,110 @@ D3D11ShaderResource * ShaderResourceContainer::GetShaderResource(const s2string 
 }
 
 void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
-
+	ID3D11ShaderResourceView *sr_view_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ] = {};
+	
 
 	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(shader_resources[i].reflect_index);
-		ID3D11ShaderResourceView *view = 0;
-		if (shader_resources[i].shader_resource) {
-			view = shader_resources[i].shader_resource->GetShaderResourceView();
+		if(shader_resources[i].shader_resource == 0) {
+			continue;
 		}
 
-		ID3D11DeviceContext *context = pipeline->GetDeviceContext();
-		switch(shader_type) {
-			case ShaderType::VERTEX:
-				context->VSSetShaderResources(info.slot_index, 1, &view);
-				break;
-			case ShaderType::PIXEL:
-				context->PSSetShaderResources(info.slot_index, 1, &view);
-				break;
-			case ShaderType::GEOMETRY:
-				context->GSSetShaderResources(info.slot_index, 1, &view);
-				break;
-			default:
-				CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
-				break;
-		}
+		sr_view_array[info.slot_index] = shader_resources[i].shader_resource->GetShaderResourceView();	
+	}
+
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::VERTEX:
+			context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		case ShaderType::PIXEL:
+			context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		case ShaderType::GEOMETRY:
+			context->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
+	}
+}
+
+void ShaderResourceContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+	ID3D11ShaderResourceView *sr_view_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ] = {};
+	
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::VERTEX:
+			context->VSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		case ShaderType::PIXEL:
+			context->PSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		case ShaderType::GEOMETRY:
+			context->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
 	}
 }
 
 
-D3D11ShaderData::D3D11ShaderData(D3D11GraphicResourceManager *manager, D3D11ShaderReflection *reflect) 
-	: cb_container(manager, reflect), sampler_container(reflect), sr_container(reflect){
-
+D3D11ShaderData::D3D11ShaderData(D3D11GraphicResourceManager *_manager) 
+	: manager(_manager), cb_container(0), sampler_container(0), sr_container(0){
+	CHECK_NOTNULL(manager);
 }
 
 D3D11ShaderData::~D3D11ShaderData() {
 
 }
 
+
+bool D3D11ShaderData::Initialize(ShaderBytecode *_bytecode) {
+	if(bytecode != 0) {
+		error = "Cannot initialize twice.";
+	}
+	if(_bytecode == 0) {
+		error = "Input is NULL";
+	}
+
+	cb_container = new ConstantBufferContainer(manager, bytecode->GetReflection());
+	sampler_container = new SamplerContainer(bytecode->GetReflection());
+	sr_container = new ShaderResourceContainer(bytecode->GetReflection());
+}
+
+
 bool D3D11ShaderData::SetUniform(const s2string &name, const void * value, uint32_t size) {
-	return cb_container.SetUniform(name, value, size, &error);
+	return cb_container->SetUniform(name, value, size, &error);
 }
 	
 bool D3D11ShaderData::SetSampler(const s2string &name, Sampler *sampler) {
-	return sampler_container.SetSampler(name, sampler, &error);
+	return sampler_container->SetSampler(name, sampler, &error);
 }
 
 Sampler * D3D11ShaderData::GetSampler(const s2string &name) {
-	return sampler_container.GetSampler(name, &error);
+	return sampler_container->GetSampler(name, &error);
 }
 
 bool D3D11ShaderData::SetShaderResource(const s2string &name, ShaderResource *shader_resource) {
-	return sr_container.SetShaderResource(name, shader_resource, &error);
+	return sr_container->SetShaderResource(name, shader_resource, &error);
 }
 
 ShaderResource * D3D11ShaderData::GetShaderResource(const s2string &name) {
-	return sr_container.GetShaderResource(name, &error);
+	return sr_container->GetShaderResource(name, &error);
 }
 
 void D3D11ShaderData::Setup(D3D11GraphicPipeline *pipeline, ShaderType type) {
-	cb_container.Setup(pipeline, type);
-	sampler_container.Setup(pipeline, type);
-	sr_container.Setup(pipeline, type);
+	cb_container->Setup(pipeline, type);
+	sampler_container->Setup(pipeline, type);
+	sr_container->Setup(pipeline, type);
 }
 
 void D3D11ShaderData::UnBind(D3D11GraphicPipeline *pipeline, ShaderType type) {
-	cb_container.UnBind(pipeline, type);
-	sampler_container.UnBind(pipeline, type);
-	sr_container.UnBind(pipeline, type);
+	ConstantBufferContainer::UnBind(pipeline, type);
+	SamplerContainer::UnBind(pipeline, type);
+	ShaderResourceContainer::UnBind(pipeline, type);
 }
 
 }

@@ -6,6 +6,7 @@
 
 namespace  s2 {
 class GraphicPipeline;
+class GraphicPipelineState;
 class GraphicResourceManager;
 class Texture2D;
 
@@ -27,6 +28,7 @@ class RendererContext {
 public:
 	virtual ~RendererContext() {}
 	virtual GraphicPipeline * GetPipeline() = 0;
+	virtual GraphicPipelineState * CreatePipelineState() = 0;
 	virtual GraphicResourceManager * GetResourceManager() = 0;
 	virtual bool SetSetting(const RendererSetting &_setting) = 0;
 	virtual const RendererSetting & GetSetting() const = 0;
