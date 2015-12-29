@@ -10,9 +10,10 @@ class GraphicBuffer;
 class VertexShader;
 class PixelShader;
 class Sampler;
-class DrawingState;
+class GraphicPipelineState;
 class SkyboxImage;
 class InputLayout;
+class ShaderData;
 
 class Skybox : public Entity {
 public:
@@ -35,10 +36,11 @@ private:
 
 	VertexShader *vs;
 	PixelShader *ps;
+	ShaderData *vs_data, *ps_data;
 
 	InputLayout *input_layout;
 
-	DrawingState *drawing_state;
+	GraphicPipelineState *pipeline_state;
 };
 
 }

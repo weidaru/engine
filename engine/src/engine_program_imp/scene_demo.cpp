@@ -47,6 +47,6 @@ private:
 	Scene *scene;
 };
 
-AddBeforeMain(SceneDemo)
+//AddBeforeMain(SceneDemo)
 
 }

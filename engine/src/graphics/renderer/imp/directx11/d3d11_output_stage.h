@@ -6,6 +6,8 @@
 
 #include <stack>
 
+#include "graphics/renderer/graphic_pipeline.h"
+
 struct ID3D11DeviceContext;
 
 namespace s2 {
@@ -23,8 +25,6 @@ class StreamOut;
 class D3D11DrawingState;
 
 class D3D11OutputStage {
-public:
-	typedef std::vector<std::pair<uint32_t, Resource * > > RTBindingVector;
 
 private:
 	struct  RTInfo {
@@ -65,6 +65,7 @@ public:
 	
 	void SetRenderTarget(uint32_t index, RenderTarget *target);
 	void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts);
+	void SetRenderTargetsAndDepthStencil(uint32_t rt_start_index, const std::vector<RenderTarget *> &rts, DepthStencil *ds);
 	D3D11RenderTarget * GetRenderTarget(uint32_t index);
 	uint32_t GetRenderTargetCapacity() const;
 

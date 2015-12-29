@@ -48,6 +48,8 @@ public:
 	};
 
 public:
+	virtual ~GraphicPipelineCommon() {}
+
 	//Input
 	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) = 0;
 	virtual PrimitiveTopology GetPrimitiveTopology() = 0;
@@ -73,7 +75,7 @@ public:
 	
 	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() = 0;
-	virtual void SetPixelShaderData(ShaderData *data);
+	virtual void SetPixelShaderData(ShaderData *data) = 0;
 	virtual ShaderData * GetPixelShaderData() = 0;
 
 	virtual void SetGeometryShader(GeometryShader *gs) = 0;

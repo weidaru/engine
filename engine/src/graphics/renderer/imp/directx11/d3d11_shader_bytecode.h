@@ -17,7 +17,7 @@ public:
 
 	virtual ~D3D11ShaderBytecode();
 
-	virtual bool Initialize(const s2string &path, const s2string &entry_point) override;
+	virtual bool Initialize(const s2string &path, const s2string &entry_point, ShaderType type) override;
 
 	ID3DBlob * GetBlob() { return blob; }
 	const D3D11ShaderReflection & GetReflection() const { return *reflect; }

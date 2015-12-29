@@ -71,7 +71,7 @@ void D3D11InputStage::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
 
 void D3D11InputStage::SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &_input){
 	std::vector<VertexBufferBinding> input(_input.size());
-	for(int i=0; i<_input.size(); i++) {
+	for(uint32_t i=0; i<_input.size(); i++) {
 		input.push_back({_input[i], 0, 0});
 	}
 	SetVertexBuffer(start_index, input);
@@ -117,11 +117,11 @@ void D3D11InputStage::SetVertexBuffer(uint32_t start_index,
 		for(uint32_t i=0; i<input.size(); i++) {
 			VBInfo &info = vbs[start_index+i];
 
-			buffer_array[i] = info.vb ? 0 : info.vb->GetBuffer();
+			buffer_array[i] = info.vb ?  info.vb->GetBuffer() : 0;
 			offsets[i] = info.offset;
 			strides[i] = info.stride;
 		}
-		context->IAGetVertexBuffers(start_index, input.size(), buffer_array, strides, offsets);
+		context->IASetVertexBuffers(start_index, input.size(), buffer_array, strides, offsets);
 
 		delete[] buffer_array;
 		delete[] strides;

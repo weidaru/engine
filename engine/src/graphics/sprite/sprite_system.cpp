@@ -58,6 +58,7 @@ SpriteSystem::SpriteSystem()
 	}, 
 	*vs);
 
+	
 	pipeline_state = context->CreatePipelineState();
 	pipeline_state->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 	pipeline_state->SetVertexShader(vs);

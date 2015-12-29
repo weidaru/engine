@@ -47,7 +47,7 @@ bool D3D11PixelShader::Initialize(const s2string &path, const s2string &entry_po
 	CHECK(bytecode==0)<<"Cannot initialize twice";
 
 	D3D11ShaderBytecode *b = new D3D11ShaderBytecode(manager);
-	if( b->Initialize(path, entry_point) == false ) {
+	if( b->Initialize(path, entry_point, ShaderType::PIXEL) == false ) {
 		error = b->GetLastError();
 		delete b;
 		return false;

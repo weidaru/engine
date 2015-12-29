@@ -23,7 +23,7 @@ D3D11GraphicPipelineState::D3D11GraphicPipelineState(D3D11GraphicResourceManager
 
 	topology = TRIANGLE_LIST;
 	input_layout = 0;
-	vbs.resize(32);
+	vbs.resize(D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT);
 	ib = 0;
 	vertex_base = 0;
 	vs = 0;
@@ -38,13 +38,16 @@ D3D11GraphicPipelineState::D3D11GraphicPipelineState(D3D11GraphicResourceManager
 	option.viewports.clear();
 	option.viewports.push_back(RasterizationOption::Rectangle(0.0f, 0.0f, 
 								(float)renderer_setting.window_width, (float)renderer_setting.window_height));
+	rast_state= 0;
 	SetRasterizationOption(rast_opt);
+	ds_state=0;
 	SetDepthStencilOption(DepthStencilOption());
+	blend_state=0;
 	SetBlendOption(BlendOption());
 
-	rts.resize(8);
+	rts.resize(D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT);
 	ds = 0;
-	stream_outs.resize(4);
+	stream_outs.resize(D3D11_SO_STREAM_COUNT);
 	rasterized_stream = 0;
 }
 
@@ -173,11 +176,14 @@ void D3D11GraphicPipelineState::SetGeometryShaderData(ShaderData *data) {
 }
 
 ShaderData * D3D11GraphicPipelineState::GetGeometryShaderData() {
-	return ps_data;
+	return gs_data;
 }
 	
 void D3D11GraphicPipelineState::SetRasterizationOption(const RasterizationOption &option) {
 	rast_opt = option;
+	if(rast_state) {
+		rast_state->Release();
+	}
 	rast_state = D3D11GraphicPipeline::ParseRasterizationOption(manager->GetDevice(), rast_opt);
 }
 
@@ -187,6 +193,9 @@ const RasterizationOption & D3D11GraphicPipelineState::GetRasterizationOption() 
 
 void D3D11GraphicPipelineState::SetDepthStencilOption(const DepthStencilOption &option) {
 	ds_opt = option;
+	if(ds_state) {
+		ds_state->Release();
+	}
 	ds_state = D3D11GraphicPipeline::ParseDepthStencilOption(manager->GetDevice(), ds_opt);
 }
 
@@ -196,6 +205,9 @@ const DepthStencilOption & D3D11GraphicPipelineState::GetDepthStencilOption() co
 
 void D3D11GraphicPipelineState::SetBlendOption(const BlendOption &option) {
 	blend_opt = option;
+	if(blend_state) {
+		blend_state->Release();
+	}
 	blend_state = D3D11GraphicPipeline::ParseBlendOption(manager->GetDevice(), blend_opt);
 }
 
@@ -266,15 +278,18 @@ void D3D11GraphicPipelineState::Flush(GraphicPipeline *_pipeline) {
 	pipeline->SetVertexShader(vs);
 	pipeline->SetPixelShader(ps);
 	pipeline->SetGeometryShader(gs);
-	pipeline->SetVertexShaderData(vs_data);
-	pipeline->SetPixelShaderData(ps_data);
-	pipeline->SetGeometryShaderData(gs_data);
 	pipeline->SetRasterizationOption(rast_opt, rast_state);
 	pipeline->SetDepthStencilOption(ds_opt, ds_state);
 	pipeline->SetBlendOption(blend_opt, blend_state);
-	pipeline->SetRenderTarget(0, rts);
+	
+	pipeline->SetRenderTargetsAndDepthStencil(0, rts, ds);
+
 	pipeline->SetStreamOut(0, stream_outs);
 	pipeline->SetRasterizedStream(rasterized_stream);
+
+	pipeline->SetVertexShaderData(vs_data);
+	pipeline->SetPixelShaderData(ps_data);
+	pipeline->SetGeometryShaderData(gs_data);
 }
 
 }

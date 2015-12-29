@@ -92,6 +92,7 @@ MaterialSystem::MaterialSystem(GraphicResourceManager *_manager)
 	
 	RendererContext *context = Engine::GetSingleton()->GetRendererContext();
 	SceneManager *scene_manager = Engine::GetSingleton()->GetSceneManager();
+	
 	pipeline_state = context->CreatePipelineState();
 	RasterizationOption rast_opt = pipeline_state->GetRasterizationOption();
 	rast_opt.cull_mode = rast_opt.NONE;
@@ -142,6 +143,10 @@ void MaterialSystem::Deregister(Material *m) {
 }
 
 void MaterialSystem::OneFrame(float delta) {
+	if(materials.empty()) {
+		return;
+	}
+
 	RendererContext *renderer_context = Engine::GetSingleton()->GetRendererContext();
 	GraphicPipeline *pipeline = renderer_context->GetPipeline();
 	SceneManager *scene_manager = Engine::GetSingleton()->GetSceneManager();
@@ -157,10 +162,12 @@ void MaterialSystem::OneFrame(float delta) {
 		ps_data->SetUniform("world", transform->GetMatrix());
 		ps_data->SetUniform("view", camera->GetViewMatrix());
 		ps_data->SetUniform("projection", scene_manager->GetProjectionMatrix());
+		ps_data->FlushConstantBuffer(pipeline);
 
 		vs_data->SetUniform("world", transform->GetMatrix());
 		vs_data->SetUniform("view", camera->GetViewMatrix());
 		vs_data->SetUniform("projection", scene_manager->GetProjectionMatrix());
+		vs_data->FlushConstantBuffer(pipeline);
 
 		pipeline->SetVertexBuffer(0, mesh_data->GetVertexBuffer()->AsVertexBuffer());
 		pipeline->SetIndexBuffer(mesh_data->GetIndexBuffer()->AsIndexBuffer());

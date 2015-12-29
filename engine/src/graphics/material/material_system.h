@@ -17,6 +17,7 @@ class PixelShader;
 class Mesh;
 class GraphicPipelineState;
 class GraphicResourceManager;
+class ShaderData;
 
 //[[TypeInfo]]//
 struct MaterialVertexData {

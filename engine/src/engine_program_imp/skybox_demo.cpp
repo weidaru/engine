@@ -40,6 +40,6 @@ private:
 	Skybox *skybox;
 };
 
-AddBeforeMain(SkyboxDemo)
+//AddBeforeMain(SkyboxDemo)
 
 }

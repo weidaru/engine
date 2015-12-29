@@ -125,6 +125,7 @@ public:
 	void SetRasterizationOption(const RasterizationOption &opt, ID3D11RasterizerState *state);
 	void SetDepthStencilOption(const DepthStencilOption &opt, ID3D11DepthStencilState *state);
 	void SetBlendOption(const BlendOption &opt, ID3D11BlendState *state);
+	void SetRenderTargetsAndDepthStencil(uint32_t rt_start_index, const std::vector<RenderTarget *> &rts, DepthStencil *ds);
 
 private:
 	void SetupRasterizationOption();

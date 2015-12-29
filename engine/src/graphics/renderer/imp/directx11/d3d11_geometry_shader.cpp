@@ -34,9 +34,9 @@ bool D3D11GeometryShader::Initialize(ShaderBytecode *_bytecode) {
 
 	ID3DBlob *blob = bytecode->GetBlob();
 	HRESULT result = 1;
-	result = manager->GetDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &shader);
+	result = manager->GetDevice()->CreateGeometryShader(blob->GetBufferPointer(), blob->GetBufferSize(), 0, &shader);
 	if(FAILED(result)) {
-		S2StringFormat(&error, "Cannot create pixel shader. Error code %d", ::GetLastError());
+		S2StringFormat(&error, "Cannot create geometry shader. Error code %d", ::GetLastError());
 		return false;
 	} else {
 		return true;
@@ -46,7 +46,7 @@ bool D3D11GeometryShader::Initialize(ShaderBytecode *_bytecode) {
 bool D3D11GeometryShader::Initialize(const s2string &path, const s2string &entry_point) {
 	CHECK(bytecode==0)<<"Cannot initialize twice";
 	D3D11ShaderBytecode *b = new D3D11ShaderBytecode(manager);
-	if( b->Initialize(path, entry_point) == false ) {
+	if( b->Initialize(path, entry_point, ShaderType::GEOMETRY) == false ) {
 		error = b->GetLastError();
 		delete b;
 		return false;
@@ -62,7 +62,7 @@ bool D3D11GeometryShader::Initialize(ShaderBytecode *_bytecode,
 
 	bytecode = static_cast<D3D11ShaderBytecode *>(_bytecode);
 
-	const D3D11ShaderReflection &reflect = bytecode->GetReflection();
+	const D3D11ShaderReflection &reflect = *bytecode->GetReflection();
 	std::vector<D3D11_SO_DECLARATION_ENTRY> entries;
 
 	uint32_t size = reflect.GetOutputSize();

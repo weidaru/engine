@@ -133,6 +133,7 @@ void ConstantBufferContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType 
 			break;
 		case ShaderType::GEOMETRY:
 			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
 		default:
 			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
 			break;
@@ -351,31 +352,41 @@ void ShaderResourceContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType 
 
 
 D3D11ShaderData::D3D11ShaderData(D3D11GraphicResourceManager *_manager) 
-	: manager(_manager), cb_container(0), sampler_container(0), sr_container(0){
+	: manager(_manager), cb_container(0), sampler_container(0), sr_container(0), bytecode(0){
 	CHECK_NOTNULL(manager);
 }
 
 D3D11ShaderData::~D3D11ShaderData() {
-
+	delete cb_container;
+	delete sampler_container;
+	delete sr_container;
 }
 
 
 bool D3D11ShaderData::Initialize(ShaderBytecode *_bytecode) {
 	if(bytecode != 0) {
 		error = "Cannot initialize twice.";
+		return false;
 	}
 	if(_bytecode == 0) {
 		error = "Input is NULL";
+		return false;
 	}
-
+	bytecode = static_cast<D3D11ShaderBytecode *>(_bytecode);
 	cb_container = new ConstantBufferContainer(manager, bytecode->GetReflection());
 	sampler_container = new SamplerContainer(bytecode->GetReflection());
 	sr_container = new ShaderResourceContainer(bytecode->GetReflection());
+
+	return true;
 }
 
 
 bool D3D11ShaderData::SetUniform(const s2string &name, const void * value, uint32_t size) {
 	return cb_container->SetUniform(name, value, size, &error);
+}
+
+bool 	D3D11ShaderData::SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) {
+	return cb_container->SetUniform(name, cpp_type, value, &error);
 }
 	
 bool D3D11ShaderData::SetSampler(const s2string &name, Sampler *sampler) {

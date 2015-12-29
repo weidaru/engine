@@ -5,11 +5,17 @@
 
 namespace s2 {
 
+enum class ShaderType {
+	VERTEX,
+	PIXEL,
+	GEOMETRY
+};
+
 class ShaderBytecode : public Resource {
 public:
 	virtual ~ShaderBytecode() {}
 
-	virtual bool Initialize(const s2string &path, const s2string &entry_point)  = 0;
+	virtual bool Initialize(const s2string &path, const s2string &entry_point, ShaderType type)  = 0;
 
 	s2string GetLastError() { return error; }
 

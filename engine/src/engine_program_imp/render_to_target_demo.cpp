@@ -53,9 +53,8 @@ public:
 		
 		camera->GetTransform()->SetTranslate(S2Vector3(0.0, 1.0, -40.0f));
 
-		CreateColorProgram();
 		CreateTextureProgram();
-		
+		CreateColorProgram();
 		
 		return true;
 	}
@@ -74,7 +73,7 @@ public:
 		CHECK(vs->Initialize(ResolveTestAssetPath("gouraud.vs"), "main")) <<
 			vs->GetLastError();
 		vs_data = manager->CreateShaderData();
-		vs_data->Initialize(vs->GetShaderBytecode());
+		CHECK(vs_data->Initialize(vs->GetShaderBytecode()))<<vs_data->GetLastError();
 
 		{
 			S2Matrix4x4 identity;
@@ -242,14 +241,14 @@ public:
 		vs_data->FlushConstantBuffer(pipeline);
 
 		normal_state->Flush(pipeline);
-		pipeline->Draw(0, ib->GetElementCount());
+		pipeline->DrawIndex(0, ib->GetElementCount());
 	}
 	
 	void DrawTexture(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
 		tex_state->Flush(pipeline);
-		pipeline->Draw(0, tex_ib->GetElementCount());
+		pipeline->DrawIndex(0, tex_ib->GetElementCount());
 	}
 	
 	virtual void OneFrame(float delta) {
@@ -286,7 +285,7 @@ private:
 	Camera *camera;
 };
 
-//AddBeforeMain(RenderToTargetDemo)
+AddBeforeMain(RenderToTargetDemo)
 
 }
 

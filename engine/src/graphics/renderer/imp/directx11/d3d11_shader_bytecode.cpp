@@ -7,6 +7,8 @@
 #include <D3Dcompiler.h>
 #undef ERROR
 
+#include <glog/logging.h>
+
 #include "d3d11_shader_bytecode.h"
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_shader_reflection.h"
@@ -25,7 +27,7 @@ D3D11ShaderBytecode::~D3D11ShaderBytecode() {
 	}
 }
 
-bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry_point) {
+bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry_point, ShaderType type) {
 	uint32_t flag = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 #ifndef NDEBUG
 	flag |= D3DCOMPILE_DEBUG;
@@ -45,7 +47,24 @@ bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry
 		fseek(file, 0, SEEK_SET);
 		char *buffer = new char[size];
 		fread(buffer, size, 1, file);
-		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), "vs_5_0", flag, 0, &shader_blob, &error_blob);
+
+		s2string target;
+		switch(type) {
+		case ShaderType::VERTEX:
+			target = "vs_5_0";
+			break;
+		case ShaderType::PIXEL:
+			target = "ps_5_0";
+			break;
+		case ShaderType::GEOMETRY:
+			target = "vs_5_0";
+			break;
+		default:
+			CHECK(0)<<"Unknown ShaderType " << static_cast<int>(type);
+			break;
+		}
+
+		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), target.c_str(), flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}
 
@@ -59,8 +78,7 @@ bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry
 		}
 		return false;
 	}
-	
-	manager->GetDevice()->CreateVertexShader(shader_blob->GetBufferPointer(), shader_blob->GetBufferSize(), 0, &shader);
+
 	
 	//Setup reflection
 	reflect = new D3D11ShaderReflection(path, shader_blob);

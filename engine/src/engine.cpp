@@ -87,6 +87,7 @@ void Engine::OneFrame(float delta) {
 	sprite_system->OneFrame(delta);
 	text_system->OneFrame(delta);
 	material_system->OneFrame(delta);
+	
 
 	program_manager->Get("RenderToTargetDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
@@ -107,11 +108,9 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	input_system = new InputSystem(hwnd);
 	entity_system = new EntitySystem();
 	sprite_system = new SpriteSystem();
+	scene_manager = new SceneManager();
 	text_system = new TextSystem();
 	material_system = new MaterialSystem(renderer_context->GetResourceManager());
-
-	scene_manager = new SceneManager();
-	
 
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);

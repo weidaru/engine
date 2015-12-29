@@ -87,6 +87,17 @@ void D3D11OutputStage::SetDepthStencil(DepthStencil *_depth_stencil) {
 	SyncRenderTargetsAndDepthStencil(context);
 }
 
+void D3D11OutputStage::SetRenderTargetsAndDepthStencil(uint32_t rt_start_index, 
+	const std::vector<RenderTarget *> &_rts, DepthStencil *_depth_stencil) {
+	D3D11DepthStencil * depth_stencil = static_cast<D3D11DepthStencil *>(_depth_stencil);
+
+	ds.data = depth_stencil;
+	for(uint32_t i=0; i<_rts.size(); i++) {
+		rts[rt_start_index+i].data = static_cast<D3D11RenderTarget *>(_rts[i]);
+	}
+	SyncRenderTargetsAndDepthStencil(context);
+}
+
 D3D11DepthStencil * D3D11OutputStage::GetDepthStencil() {
 	return ds.data;
 }

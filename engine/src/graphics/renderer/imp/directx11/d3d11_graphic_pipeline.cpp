@@ -403,8 +403,11 @@ RenderTarget * D3D11GraphicPipeline::GetRenderTarget(uint32_t index) {
 }
 
 void D3D11GraphicPipeline::SetDepthStencil(DepthStencil *buffer) {
-	
 	output_stage.SetDepthStencil(buffer);
+}
+
+void D3D11GraphicPipeline::SetRenderTargetsAndDepthStencil(uint32_t rt_start_index, const std::vector<RenderTarget *> &rts, DepthStencil *ds) {
+	output_stage.SetRenderTargetsAndDepthStencil(rt_start_index, rts, ds);
 }
 
 DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {

@@ -8,6 +8,7 @@
 #include "utils/s2string.h"
 
 #include "graphics/renderer/shader_data.h"
+#include "graphics/renderer/shader_bytecode.h"
 
 struct ID3D11ShaderResourceView;
 
@@ -21,10 +22,6 @@ class D3D11ShaderReflection;
 class D3D11Sampler;
 class D3D11ShaderResource;
 class D3D11ShaderBytecode;
-
-enum class ShaderType {
-	VERTEX, PIXEL, GEOMETRY
-};
 
 class ConstantBufferContainer{
 private:
