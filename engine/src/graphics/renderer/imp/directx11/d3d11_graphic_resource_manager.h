@@ -18,6 +18,7 @@ class D3D11PixelShasder;
 class D3D11GeometryShasder;
 class D3D11Sampler;
 class D3D11InputLayout;
+class D3D11ShaderData;
 
 /**
  * Right now, only single window is  used. So world is simple, single window, single swapchain, single backbuffer(We only use double buffering.)
@@ -28,8 +29,8 @@ public:
 	virtual ~D3D11GraphicResourceManager();
 	
 	//Buffer
-	virtual D3D11GraphicBuffer * CreateGraphicBuffer() override;
-	virtual D3D11GraphicBuffer * GetGraphicBuffer(uint32_t id) override;
+	virtual GraphicBuffer * CreateGraphicBuffer() override;
+	virtual GraphicBuffer * GetGraphicBuffer(uint32_t id) override;
 	virtual void RemoveGraphicBuffer(uint32_t id) override;
 	
 	//Texture1D
@@ -80,7 +81,12 @@ public:
 	//InputLayout
 	virtual InputLayout * CreateInputLayout() override;
 	virtual InputLayout * GetInputLayout(uint32_t id) override;
-	virtual void RemoveInputLayout(uint32_t) override;
+	virtual void RemoveInputLayout(uint32_t id) override;
+
+	//ShaderData
+	virtual ShaderData * CreateShaderData() override;
+	virtual ShaderData * GetShaderData(uint32_t id) override;
+	virtual void RemoveShaderData(uint32_t id) override;
 	
 	/****************D3D11 exclusive*****************/
 public:
@@ -105,6 +111,7 @@ private:
 	std::map<uint32_t, D3D11PixelShader *> ps_map;
 	std::map<uint32_t, D3D11GeometryShader *> gs_map;
 	std::map<uint32_t, D3D11InputLayout *> input_layout_map;
+	std::map<uint32_t, D3D11ShaderData *> shader_data_map;
 };
 
 

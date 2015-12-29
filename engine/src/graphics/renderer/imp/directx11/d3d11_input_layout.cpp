@@ -54,7 +54,8 @@ bool D3D11InputLayout::InitializeWithElement(const std::vector<ElementDescriptor
 		return false;
 	}
 	const D3D11VertexShader &shader = static_cast<const D3D11VertexShader &>(_shader);
-	const D3D11ShaderReflection &reflect = shader.GetReflection();
+	D3D11ShaderBytecode *bytecode = const_cast<D3D11ShaderBytecode *>(static_cast<const D3D11ShaderBytecode *>(shader.GetShaderBytecode()));
+	const D3D11ShaderReflection &reflect = *bytecode->GetReflection();
 	
 	uint32_t size = reflect.GetInputSize();
 	if(elements.size() != size) {
@@ -84,7 +85,7 @@ bool D3D11InputLayout::InitializeWithElement(const std::vector<ElementDescriptor
 
 	ID3D11Device *device = manager->GetDevice();
 	HRESULT result = 1;
-	result = device->CreateInputLayout(descs, size, shader.GetBlob()->GetBufferPointer(), shader.GetBlob()->GetBufferSize(), &(layout));
+	result = device->CreateInputLayout(descs, size, bytecode->GetBlob()->GetBufferPointer(), bytecode->GetBlob()->GetBufferSize(), &(layout));
 	CHECK(!FAILED(result)) << "Fail to create input layout error " << ::GetLastError();
 	delete[] descs;
 

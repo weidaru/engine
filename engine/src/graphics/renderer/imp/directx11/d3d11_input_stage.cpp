@@ -70,9 +70,9 @@ void D3D11InputStage::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
 }
 
 void D3D11InputStage::SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &_input){
-	std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> input(_input.size());
+	std::vector<VertexBufferBinding> input(_input.size());
 	for(int i=0; i<_input.size(); i++) {
-		input.push_back(std::make_tuple(_input[i], 0, 0));
+		input.push_back({_input[i], 0, 0});
 	}
 	SetVertexBuffer(start_index, input);
 }
@@ -96,17 +96,17 @@ void D3D11InputStage::SetVertexBuffer(uint32_t index, VertexBuffer *_buf, uint32
 }
 
 void D3D11InputStage::SetVertexBuffer(uint32_t start_index, 
-			const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input){
+			const std::vector<VertexBufferBinding> &input){
 	for(uint32_t i=0; i<input.size(); i++) {
-		const std::tuple<VertexBuffer *, uint32_t, uint32_t> &item = input[i];
+		const VertexBufferBinding &item = input[i];
 		VBInfo &info = vbs[start_index+i];
-		info.vb = static_cast<D3D11VertexBuffer *>(std::get<0>(item));
-		if(std::get<1>(item) == 0 && std::get<0>(item) != 0) {
+		info.vb = static_cast<D3D11VertexBuffer *>(item.buffer);
+		if(item.stride == 0 && item.buffer != 0) {
 			info.stride = info.vb->GetResource()->GetElementBytewidth();
 		} else {
-			info.stride = std::get<1>(item);
+			info.stride = item.stride;
 		}
-		info.offset = std::get<2>(item);
+		info.offset = item.offset;
 	}
 	
 	if(context) {

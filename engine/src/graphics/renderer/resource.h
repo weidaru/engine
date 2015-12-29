@@ -18,11 +18,16 @@ public:
 	 * Yes, name can change. Use it for debug.
 	 */
 	Resource & 				SetName(const s2string &new_name);
+
+	s2string GetLastError() { return error; }
 	
 private:
 	static uint32_t & 	GetCurrentID();
 	Resource(const Resource &);
 	Resource & operator=(const Resource &);
+
+protected:
+	s2string error;
 	
 private:
 	uint32_t 	id;

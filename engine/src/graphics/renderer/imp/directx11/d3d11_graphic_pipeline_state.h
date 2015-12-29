@@ -16,72 +16,75 @@ namespace s2 {
 class D3D11GraphicPipeline;
 class D3D11GraphicResourceManager;
 
-class D3D11GraphicPipelineState : public GraphicPipelineCommon {
+class D3D11GraphicPipelineState : public GraphicPipelineState {
 public:
 	D3D11GraphicPipelineState(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11GraphicPipelineState();
 
 	//Input
-	void SetPrimitiveTopology(PrimitiveTopology newvalue);
-	PrimitiveTopology GetPrimitiveTopology();
+	virtual void SetPrimitiveTopology(PrimitiveTopology newvalue) override;
+	virtual PrimitiveTopology GetPrimitiveTopology() override;
 
-	void SetInputLayout(InputLayout *layout);
-	InputLayout * GetInputLayout();
+	virtual void SetInputLayout(InputLayout *layout) override;
+	virtual InputLayout * GetInputLayout() override;
 
-	void SetVertexBuffer(uint32_t index, VertexBuffer *buf);
-	void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &iput);
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf) override;
+	virtual void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &iput) override;
 	//If stride = 0, element bytewith will be used as stride.
-	void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset);
-	void SetVertexBuffer(uint32_t start_index, 
-				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input);
-	VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset);
+	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) override;
+	virtual void SetVertexBuffer(uint32_t start_index, 
+				const std::vector<VertexBufferBinding> &input) override;
+	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) override;
 
-	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0);
-	IndexBuffer * GetIndexBuffer(uint32_t *vertex_base);
+	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) override;
+	virtual IndexBuffer * GetIndexBuffer(uint32_t *vertex_base) override;
 
-	void SetVertexShader(VertexShader *vs);
-	VertexShader * GetVertexShader();
-	void SetVertexShaderData(ShaderData *data);
-	ShaderData * GetVertexShaderData();
+	virtual void SetVertexShader(VertexShader *vs) override;
+	virtual VertexShader * GetVertexShader() override;
+	virtual void SetVertexShaderData(ShaderData *data) override;
+	virtual ShaderData * GetVertexShaderData() override;
 	
-	void SetPixelShader(PixelShader *ps);
-	PixelShader * GetPixelShader();
-	void SetPixelShaderData(ShaderData *data);
-	ShaderData * GetPixelShaderData();
+	virtual void SetPixelShader(PixelShader *ps) override;
+	virtual PixelShader * GetPixelShader() override;
+	virtual void SetPixelShaderData(ShaderData *data) override;
+	virtual ShaderData * GetPixelShaderData() override;
 
-	void SetGeometryShader(GeometryShader *gs);
-	GeometryShader * GetGeometryShader();
-	void SetGeometryShaderData(ShaderData *data);
-	ShaderData * GetGeometryShaderData();
+	virtual void SetGeometryShader(GeometryShader *gs) override;
+	virtual GeometryShader * GetGeometryShader() override;
+	virtual void SetGeometryShaderData(ShaderData *data) override;
+	virtual ShaderData * GetGeometryShaderData() override;
 	
 	//Rasterization
-	void SetRasterizationOption(const RasterizationOption &option);
-	const RasterizationOption & GetRasterizationOption() const;
+	virtual void SetRasterizationOption(const RasterizationOption &option) override;
+	virtual const RasterizationOption & GetRasterizationOption() const override;
 
 	//DepthStencil
-	void SetDepthStencilOption(const DepthStencilOption &option);
-	const DepthStencilOption & GetDepthStencilOption() const;
+	virtual void SetDepthStencilOption(const DepthStencilOption &option) override;
+	virtual const DepthStencilOption & GetDepthStencilOption() const override;
 	
 	//Blend
-	void SetBlendOption(const BlendOption &option);
-	const BlendOption & GetBlendOption() const;
+	virtual void SetBlendOption(const BlendOption &option) override;
+	virtual const BlendOption & GetBlendOption() const override;
 	
 	//Output
-	void SetRenderTarget(uint32_t index, RenderTarget *target);
-	void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts);
-	RenderTarget * GetRenderTarget(uint32_t index);
+	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) override;
+	virtual void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts) override;
+	virtual RenderTarget * GetRenderTarget(uint32_t index) override;
 	
-	void SetDepthStencil(DepthStencil *buffer);
-	DepthStencil* GetDepthStencil();
+	virtual void SetDepthStencil(DepthStencil *buffer) override;
+	virtual DepthStencil* GetDepthStencil() override;
 
-	void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out);
-	void SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs);
-	StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0);
+	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) override;
+	virtual void SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &stream_outs) override;
+	virtual StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) override;
 	//negative index means no stream get rasterized.
-	void SetRasterizedStream(int index);
-	int GetRasterizedStream();
+	virtual void SetRasterizedStream(int index) override;
+	virtual int GetRasterizedStream() override;
 
-	void Flush(GraphicPipeline *pipeline);
+	virtual void Flush(GraphicPipeline *pipeline) override;
+
+	//Do nothing for preparing.
+	virtual void Prepare() override { }
 
 private:
 	D3D11GraphicResourceManager *manager;
@@ -89,7 +92,7 @@ private:
 	PrimitiveTopology topology;
 	InputLayout *input_layout;
 	
-	std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> vbs;
+	std::vector<VertexBufferBinding> vbs;
 
 	IndexBuffer *ib;
 	uint32_t vertex_base;
@@ -109,7 +112,7 @@ private:
 	std::vector<RenderTarget *> rts;
 	DepthStencil *ds;
 
-	std::vector<std::tuple<uint32_t, StreamOut *>> stream_outs;
+	std::vector<StreamOutBinding> stream_outs;
 	uint32_t rasterized_stream;
 };
 

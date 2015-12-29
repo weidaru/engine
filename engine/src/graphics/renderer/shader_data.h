@@ -4,6 +4,8 @@
 #include "utils/s2string.h"
 #include "utils/type_info.h"
 
+#include "resource.h"
+
 #include <stdint.h>
 
 namespace s2 {
@@ -11,8 +13,9 @@ namespace s2 {
 class Sampler;
 class ShaderResource;
 class ShaderBytecode;
+class GraphicPipeline;
 
-class ShaderData {
+class ShaderData : public Resource {
 public:
 	virtual ~ShaderData() {}
 
@@ -29,14 +32,12 @@ public:
 	virtual Sampler * 			GetSampler(const s2string &name) = 0;
 	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
 	virtual ShaderResource *		GetShaderResource(const s2string &name) = 0;
-	
-	s2string GetLastError() { return error; }
+
+	virtual void FlushConstantBuffer(GraphicPipeline *pipeline) = 0;
 	
 protected:
 	virtual bool 					SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value) = 0;
 
-protected:
-	s2string error;
 };
 
 }

@@ -14,12 +14,8 @@ public:
 	virtual bool Initialize(ShaderBytecode *bytecode) = 0;
 	virtual bool Initialize(const s2string &path, const s2string &entry_point)  = 0;
 
-	virtual ShaderBytecode *GetShaderData() = 0;
-
-	s2string GetError() { return error; }
-
-protected:
-	s2string error;
+	virtual const ShaderBytecode * GetShaderBytecode() const = 0;
+	virtual ShaderBytecode * GetShaderBytecode() = 0;
 };
 
 }

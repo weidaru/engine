@@ -35,11 +35,6 @@ public:
 
 	virtual bool InitializeWithElement(const std::vector<ElementDescriptor> &elements, const VertexShader &shader) = 0;
 	virtual bool InitializeWithVertexBuffer(const std::vector<VertexBufferDescriptor> &vbs, const VertexShader &shader) = 0;
-
-	s2string GetLastError() { return error; }
-
-protected:
-	s2string error;
 };
 
 }

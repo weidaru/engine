@@ -120,10 +120,10 @@ void D3D11OutputStage::SetStreamOut(uint32_t index, uint32_t stream_index, Strea
 	SyncStreamOuts(context);
 }
 
-void D3D11OutputStage::SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &input) {
+void D3D11OutputStage::SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &input) {
 	for(uint32_t i=0; i<input.size(); i++) {
-		stream_outs[start_index+i].data = static_cast<D3D11StreamOut *>(std::get<1>(input[i]));
-		stream_outs[start_index+1].stream_index = std::get<0>(input[i]);
+		stream_outs[start_index+i].data = static_cast<D3D11StreamOut *>(input[i].streamout);
+		stream_outs[start_index+1].stream_index = input[i].stream_index;
 	}
 
 	SyncStreamOuts(context);

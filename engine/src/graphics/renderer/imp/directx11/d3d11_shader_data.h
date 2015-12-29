@@ -37,6 +37,8 @@ public:
 	bool SetUniform(const s2string &name, const void * value, uint32_t size, s2string *error);
 	bool SetUniform(const s2string &name, const TypeInfo &cpp_type, const void *value, s2string *error);
 	
+	void Flush(D3D11GraphicPipeline *pipeline);
+
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
 
@@ -102,9 +104,9 @@ public:
 	virtual Sampler * 			GetSampler(const s2string &name) override;
 	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) override;
 	virtual ShaderResource *		GetShaderResource(const s2string &name) override;
+	virtual void FlushConstantBuffer(GraphicPipeline *pipeline) override;
 
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType type);
-
 	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType type);
 	
 protected:

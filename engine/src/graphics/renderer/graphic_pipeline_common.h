@@ -26,6 +26,17 @@ struct RasterizationOption;
 struct DepthStencilOption;
 struct BlendOption; 
 
+struct VertexBufferBinding {
+	VertexBuffer *buffer;
+	uint32_t stride;
+	uint32_t offset;
+};
+
+struct StreamOutBinding {
+	uint32_t stream_index;
+	StreamOut *streamout;
+};
+
 class GraphicPipelineCommon {
 public:
 	enum PrimitiveTopology {
@@ -49,7 +60,7 @@ public:
 	//If stride = 0, element bytewith will be used as stride.
 	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) = 0;
 	virtual void SetVertexBuffer(uint32_t start_index, 
-				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input) = 0;
+				const std::vector<VertexBufferBinding> &input) = 0;
 	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) = 0;
 
 	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) = 0;
@@ -91,7 +102,7 @@ public:
 	virtual DepthStencil* GetDepthStencil() = 0;
 
 	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) = 0;
-	virtual void SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs) = 0;
+	virtual void SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &stream_outs) = 0;
 	virtual StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) = 0;
 	//negative index means no stream get rasterized.
 	virtual void SetRasterizedStream(int index) = 0;

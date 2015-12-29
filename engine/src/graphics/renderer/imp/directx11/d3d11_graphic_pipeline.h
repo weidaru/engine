@@ -56,7 +56,7 @@ public:
 	virtual void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &vbs) override;
 	virtual void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) override;
 	virtual void SetVertexBuffer(uint32_t start_index, 
-				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input) override;
+				const std::vector<VertexBufferBinding> &input) override;
 	virtual VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) override;
 
 	virtual void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base = 0) override;
@@ -99,7 +99,7 @@ public:
 	virtual DepthStencil * GetDepthStencil() override;
 
 	virtual void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) override;
-	virtual void SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs) override;
+	virtual void SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &stream_outs) override;
 	virtual StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index = 0) override;
 	virtual void SetRasterizedStream(int index) override;
 	virtual int GetRasterizedStream() override;

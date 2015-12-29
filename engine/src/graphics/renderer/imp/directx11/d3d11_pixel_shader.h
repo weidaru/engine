@@ -19,7 +19,8 @@ public:
 	virtual bool Initialize(ShaderBytecode *bytecode) override;
 	virtual bool Initialize(const s2string &path, const s2string &entry_point) override;
 
-	virtual ShaderBytecode * GetShaderBytecode() { return bytecode; }
+	virtual const ShaderBytecode * GetShaderBytecode() const override { return bytecode; }
+	virtual ShaderBytecode * GetShaderBytecode() override { return bytecode; }
 
 	ID3D11PixelShader * GetInternal() { return shader; }
 

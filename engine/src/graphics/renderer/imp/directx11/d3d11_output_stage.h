@@ -72,7 +72,7 @@ public:
 	D3D11DepthStencil * GetDepthStencil();
 
 	void SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out);
-	void SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs);
+	void SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &stream_outs);
 	D3D11StreamOut * GetStreamOut(uint32_t index, uint32_t *stream_index);
 
 	void SetRasterizedStream(int index);

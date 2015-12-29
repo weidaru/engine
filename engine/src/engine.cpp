@@ -88,7 +88,7 @@ void Engine::OneFrame(float delta) {
 	text_system->OneFrame(delta);
 	material_system->OneFrame(delta);
 
-	program_manager->Get("SceneDemo")->OneFrame(delta);
+	program_manager->Get("RenderToTargetDemo")->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 

@@ -20,7 +20,8 @@ public:
 	virtual bool Initialize(const s2string &path, const s2string &entry_point)  = 0;
 	virtual bool Initialize(ShaderBytecode *bytecode, int rasterized_stream, const std::vector<StreamOutDescriptor> &streamouts) = 0;
 
-	virtual ShaderBytecode *GetShaderBytecode() = 0;
+	virtual const ShaderBytecode * GetShaderBytecode() const = 0;
+	virtual ShaderBytecode * GetShaderBytecode() = 0;
 
 	s2string GetError() { return error; }
 

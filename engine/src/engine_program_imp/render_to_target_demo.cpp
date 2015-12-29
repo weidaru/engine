@@ -26,15 +26,14 @@ class RenderToTargetDemo : public EngineProgram {
 public:
 	RenderToTargetDemo() :
 		ds_buffer(0), texture(0),
-		vb(0), ib(0), input_layout(0), vs(0), ps(0), rotate(0.0f),
-		tex_vb(0), tex_input_layout(0), tex_ib(0), tex_vs(0), tex_ps(0), sampler(0),
-		normal_draw_state(0), rtt_draw_state(0),
-		camera(0){
+		vb(0), ib(0), input_layout(0), vs(0), vs_data(0), ps(0), rotate(0.0f),
+		tex_vb(0), tex_input_layout(0), tex_ib(0), tex_vs(0), tex_ps(0), tex_ps_data(0), sampler(0),
+		camera(0), normal_state(0), tex_state(0) {
 	}
 
 	virtual ~RenderToTargetDemo() {
-		delete normal_draw_state;
-		delete rtt_draw_state;
+		delete tex_state;
+		delete normal_state;
 		delete camera;
 	}
 
@@ -66,17 +65,21 @@ public:
 	}
 	
 	void CreateColorProgram() {
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+		GraphicResourceManager *manager = context->GetResourceManager();
+		const RendererSetting &renderer_setting = context->GetSetting();
 		
 		//Create vertex shader
 		vs = manager->CreateVertexShader();
 		CHECK(vs->Initialize(ResolveTestAssetPath("gouraud.vs"), "main")) <<
 			vs->GetLastError();
+		vs_data = manager->CreateShaderData();
+		vs_data->Initialize(vs->GetShaderBytecode());
+
 		{
 			S2Matrix4x4 identity;
-			vs->SetUniform("world", identity);
-			vs->SetUniform("view", camera->GetViewMatrix());
+			vs_data->SetUniform("world", identity);
+			vs_data->SetUniform("view", camera->GetViewMatrix());
 			
 			float np=0.5f, fp =1000.0f;
 			float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
@@ -84,7 +87,7 @@ public:
 			S2Matrix4x4 projection;
 			projection.SetProjection(aspect, fov, np, fp);
 
-			vs->SetUniform("projection", projection);
+			vs_data->SetUniform("projection", projection);
 		}
 
 		//Create PixelShader;
@@ -139,12 +142,26 @@ public:
 		//Create InputLayout
 		input_layout = manager->CreateInputLayout();
 		input_layout->InitializeWithVertexBuffer({VertexBufferDescriptor::Create<RTTTestVertex>(0)}, *vs);
+
+		//Cache pipeline state.
+		normal_state = context->CreatePipelineState();
+		normal_state->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
+		normal_state->SetVertexShader(vs);
+		normal_state->SetVertexShaderData(vs_data);
+		normal_state->SetPixelShader(ps);
+		normal_state->SetDepthStencil(ds_buffer->AsDepthStencil());
+		normal_state->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+		normal_state->SetRenderTarget(1, texture->AsRenderTarget());
+		normal_state->SetVertexBuffer(0, vb->AsVertexBuffer());
+		normal_state->SetIndexBuffer(ib->AsIndexBuffer());
+		normal_state->SetInputLayout(input_layout);
 	}
 	
 	void CreateTextureProgram() {
-		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
-		const RendererSetting &renderer_setting = Engine::GetSingleton()->GetRendererContext()->GetSetting();
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+		GraphicPipeline *pipeline = context->GetPipeline();
+		GraphicResourceManager *manager = context->GetResourceManager();
+		const RendererSetting &renderer_setting = context->GetSetting();
 
 		//Create texture.
 		Texture2D::Option tex_option;
@@ -169,8 +186,10 @@ public:
 		tex_ps = manager->CreatePixelShader();
 		CHECK(tex_ps->Initialize(ResolveTestAssetPath("texture.ps"), "main")) <<
 			tex_ps->GetLastError();
-		tex_ps->SetSampler("shader_sampler", sampler);
-		tex_ps->SetShaderResource("shader_texture", texture->AsShaderResource());
+		tex_ps_data = manager->CreateShaderData();
+		tex_ps_data->Initialize(tex_ps->GetShaderBytecode());
+		tex_ps_data->SetSampler("shader_sampler", sampler);
+		tex_ps_data->SetShaderResource("shader_texture", texture->AsShaderResource());
 		
 		//Set vertex buffer
 		RTTTestTextureVertex vertices[4] = {
@@ -197,6 +216,18 @@ public:
 		{{0, 0}, {0, 12}}, 
 			*tex_vs);
 
+		//Create pipeline state
+		tex_state = context->CreatePipelineState();
+		tex_state->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
+		tex_state->SetRenderTarget(1, 0);
+		tex_state->SetDepthStencil(ds_buffer->AsDepthStencil());
+		tex_state->SetVertexShader(tex_vs);
+		tex_state->SetPixelShader(tex_ps);
+		tex_state->SetPixelShaderData(tex_ps_data);
+		tex_state->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+		tex_state->SetVertexBuffer(0, tex_vb->AsVertexBuffer());
+		tex_state->SetIndexBuffer(tex_ib->AsIndexBuffer());
+		tex_state->SetInputLayout(tex_input_layout);
 	}
 	
 	void DrawNormal(float delta) {
@@ -206,38 +237,19 @@ public:
 		rotate = rotate>2 * PI ? rotate - 2 * PI : rotate;
 		S2Matrix4x4 rotation_mat;
 		rotation_mat.SetRotationY(rotate);
-		vs->SetUniform("world", rotation_mat);
-		vs->SetUniform("view", camera->GetViewMatrix());
+		vs_data->SetUniform("world", rotation_mat);
+		vs_data->SetUniform("view", camera->GetViewMatrix());
+		vs_data->FlushConstantBuffer(pipeline);
 
-		pipeline->Start();
-			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-			pipeline->SetVertexShader(vs);
-			pipeline->SetPixelShader(ps);
-			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-			pipeline->SetRenderTarget(1, texture->AsRenderTarget());
-			pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
-			pipeline->SetIndexBuffer(ib->AsIndexBuffer());
-			pipeline->SetInputLayout(input_layout);
-			pipeline->Draw(&normal_draw_state, 0, ib->GetElementCount());
-		pipeline->End();
+		normal_state->Flush(pipeline);
+		pipeline->Draw(0, ib->GetElementCount());
 	}
 	
 	void DrawTexture(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
-		pipeline->Start();
-			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-			pipeline->SetRenderTarget(1, 0);
-			pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-			pipeline->SetVertexShader(tex_vs);
-			pipeline->SetPixelShader(tex_ps);
-			pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-			pipeline->SetVertexBuffer(0, tex_vb->AsVertexBuffer());
-			pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
-			pipeline->SetInputLayout(tex_input_layout);
-			pipeline->Draw(&rtt_draw_state, 0, tex_ib->GetElementCount());
-		pipeline->End();
+		tex_state->Flush(pipeline);
+		pipeline->Draw(0, tex_ib->GetElementCount());
 	}
 	
 	virtual void OneFrame(float delta) {
@@ -258,6 +270,7 @@ private:
 	GraphicBuffer *ib;
 	InputLayout *input_layout;
 	VertexShader *vs;
+	ShaderData *vs_data;
 	PixelShader *ps;
 	float rotate;
 	
@@ -266,10 +279,10 @@ private:
 	InputLayout *tex_input_layout;
 	VertexShader *tex_vs;
 	PixelShader *tex_ps;
+	ShaderData *tex_ps_data;
 	Sampler *sampler;
 
-	DrawingState *normal_draw_state, *rtt_draw_state;
-	
+	GraphicPipelineState *normal_state, *tex_state;
 	Camera *camera;
 };
 

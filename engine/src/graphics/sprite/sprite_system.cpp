@@ -18,8 +18,10 @@ namespace s2 {
 uint32_t SpriteSystem::kSpriteBatchSize = 400;
 
 SpriteSystem::SpriteSystem() 
-		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), input_layout(0), drawing_state(0) {
-	auto manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		: vs(0), ps(0), vertex_buffer(0), instance_buffer(0), input_layout(0), pipeline_state(0) {
+
+	RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+	GraphicResourceManager * manager = context->GetResourceManager();
 
 	vs = manager->CreateVertexShader();
 	CHECK(vs->Initialize(ResolveAssetPath("shader/sprite_vs.hlsl"), "main")) << vs->GetLastError();
@@ -55,6 +57,15 @@ SpriteSystem::SpriteSystem()
 		{1, 64}
 	}, 
 	*vs);
+
+	pipeline_state = context->CreatePipelineState();
+	pipeline_state->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+	pipeline_state->SetVertexShader(vs);
+	pipeline_state->SetPixelShader(ps);
+	pipeline_state->SetVertexBuffer(0,vertex_buffer->AsVertexBuffer());
+	pipeline_state->SetVertexBuffer(1,instance_buffer->AsVertexBuffer());
+	pipeline_state->SetInputLayout(input_layout);
+	pipeline_state->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
 }
 
 SpriteSystem::~SpriteSystem() {
@@ -65,7 +76,7 @@ SpriteSystem::~SpriteSystem() {
 	manager->RemovePixelShader(ps->GetID());
 	manager->RemoveVertexShader(vs->GetID());
 	manager->RemoveInputLayout(input_layout->GetID());
-	delete drawing_state;
+	delete pipeline_state;
 }
 
 static const char * kComponentDestroyCallbackName = "sprite_system_component_destroy_cb";
@@ -112,22 +123,8 @@ void SpriteSystem::OneFrame(float delta) {
 	
 	delete[] instances;
 
-	pipeline->PushState();
-
-	pipeline->Start();	
-
-		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetVertexShader(vs);
-		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(0,vertex_buffer->AsVertexBuffer());
-		pipeline->SetVertexBuffer(1,instance_buffer->AsVertexBuffer());
-		pipeline->SetInputLayout(input_layout);
-		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-		pipeline->DrawInstance(&drawing_state, 0, 4, 0, sprites.size());
-
-	pipeline->End();
-
-	pipeline->PopState();
+	pipeline_state->Flush(pipeline);
+	pipeline->DrawInstance(0, 4, 0, sprites.size());
 
 }
 

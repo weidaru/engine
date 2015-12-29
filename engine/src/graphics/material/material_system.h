@@ -15,7 +15,7 @@ class VertexShader;
 class InputLayout;
 class PixelShader;
 class Mesh;
-class DrawingState;
+class GraphicPipelineState;
 class GraphicResourceManager;
 
 //[[TypeInfo]]//
@@ -57,9 +57,10 @@ private:
 
 	VertexShader *vs;
 	PixelShader *ps;
+	ShaderData *vs_data, *ps_data;
 	InputLayout *input_layout;
 
-	DrawingState *drawing_state;
+	GraphicPipelineState *pipeline_state;
 };
 
 

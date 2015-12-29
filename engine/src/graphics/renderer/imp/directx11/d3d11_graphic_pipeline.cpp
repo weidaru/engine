@@ -102,7 +102,7 @@ void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *buf, ui
 }
 
 void D3D11GraphicPipeline::SetVertexBuffer(uint32_t start_index,  
-				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input) {
+				const std::vector<VertexBufferBinding> &input) {
 	input_stage.SetVertexBuffer(start_index, input);
 }
 
@@ -415,7 +415,7 @@ void D3D11GraphicPipeline::SetStreamOut(uint32_t index, uint32_t stream_index, S
 	output_stage.SetStreamOut(index, stream_index, stream_out);
 }
 
-void D3D11GraphicPipeline::SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &stream_outs) {
+void D3D11GraphicPipeline::SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &stream_outs) {
 	output_stage.SetStreamOut(start_index, stream_outs);
 }
 

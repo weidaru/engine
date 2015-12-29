@@ -67,7 +67,7 @@ public:
 	void SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &vbs);
 	void SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset);
 	void SetVertexBuffer(uint32_t start_index, 
-			const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input);
+			const std::vector<VertexBufferBinding> &input);
 	D3D11VertexBuffer * GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset);
 
 	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base);

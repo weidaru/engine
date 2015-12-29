@@ -84,6 +84,16 @@ bool ConstantBufferContainer::SetUniform(const s2string &name, const TypeInfo &c
 	return true;
 }
 
+void ConstantBufferContainer::Flush(D3D11GraphicPipeline *pipeline) {
+	for(uint32_t i=0; i<cbs.size(); i++) {
+		D3D11ConstantBuffer *cb = cbs[i].second;
+		if(cb == 0) {
+			continue;
+		}
+		cb->Flush(pipeline);
+	}
+}
+
 void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
 	ID3D11Buffer *buffer_array[D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT]={0};
 	
@@ -92,7 +102,6 @@ void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType s
 		if(cb == 0) {
 			continue;
 		}
-		cb->Flush(pipeline);
 		buffer_array[cbs[i].first] =  cb->GetInternal();
 	}
 
@@ -383,6 +392,11 @@ bool D3D11ShaderData::SetShaderResource(const s2string &name, ShaderResource *sh
 
 ShaderResource * D3D11ShaderData::GetShaderResource(const s2string &name) {
 	return sr_container->GetShaderResource(name, &error);
+}
+
+void D3D11ShaderData::FlushConstantBuffer(GraphicPipeline *_pipeline) {
+	D3D11GraphicPipeline *pipeline = static_cast<D3D11GraphicPipeline *>(_pipeline);
+	cb_container->Flush(pipeline);
 }
 
 void D3D11ShaderData::Setup(D3D11GraphicPipeline *pipeline, ShaderType type) {

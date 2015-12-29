@@ -10,7 +10,8 @@ class GraphicPipeline;
 
 class GraphicPipelineState : public GraphicPipelineCommon {
 public:
-	void Flush(GraphicPipeline *pipeline);
+	virtual void Flush(GraphicPipeline *pipeline) = 0;
+	virtual void Prepare() = 0;
 };
 
 }

@@ -20,7 +20,8 @@ public:
 	virtual bool Initialize(const s2string &path, const s2string &entry_point) override;
 	virtual bool Initialize(ShaderBytecode *bytecode, int rasterized_stream, const std::vector<StreamOutDescriptor> &streamouts) override;
 
-	virtual ShaderBytecode * GetShaderBytecode() { return bytecode; }
+	virtual const ShaderBytecode * GetShaderBytecode() const override { return bytecode; }
+	virtual ShaderBytecode * GetShaderBytecode() override { return bytecode; }
 
 	ID3D11GeometryShader * GetInternal() { return shader; }
 

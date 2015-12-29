@@ -67,7 +67,7 @@ MeshData::~MeshData() {
 
 
 MaterialSystem::MaterialSystem(GraphicResourceManager *_manager) 
-		: manager(_manager), vs(0), ps(0), input_layout(0), drawing_state(0) {
+		: manager(_manager), vs(0), ps(0), vs_data(0), ps_data(0), input_layout(0), pipeline_state(0) {
 	CHECK_NOTNULL(manager);
 	
 	vs = manager->CreateVertexShader();
@@ -82,15 +82,40 @@ MaterialSystem::MaterialSystem(GraphicResourceManager *_manager)
 			VertexBufferDescriptor::Create<MaterialVertexData>(0)
 		}, 
 		*vs);
+
+	vs_data = manager->CreateShaderData();
+	vs_data->Initialize(vs->GetShaderBytecode());
+	
+	ps_data = manager->CreateShaderData();
+	ps_data->Initialize(ps->GetShaderBytecode());
+
+	
+	RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+	SceneManager *scene_manager = Engine::GetSingleton()->GetSceneManager();
+	pipeline_state = context->CreatePipelineState();
+	RasterizationOption rast_opt = pipeline_state->GetRasterizationOption();
+	rast_opt.cull_mode = rast_opt.NONE;
+
+	pipeline_state->SetRasterizationOption(rast_opt);
+	pipeline_state->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
+	pipeline_state->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+	pipeline_state->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
+	pipeline_state->SetVertexShader(vs);
+	pipeline_state->SetPixelShader(ps);
+	pipeline_state->SetVertexShaderData(vs_data);
+	pipeline_state->SetPixelShaderData(ps_data);
+	pipeline_state->SetInputLayout(input_layout);
 }
 
 MaterialSystem::~MaterialSystem() {
 	GraphicResourceManager *manager= Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 	manager->RemoveVertexShader(vs->GetID());
 	manager->RemovePixelShader(ps->GetID());
+	manager->RemoveShaderData(vs_data->GetID());
+	manager->RemoveShaderData(ps_data->GetID());
 	manager->RemoveInputLayout(input_layout->GetID());
 	
-	delete drawing_state;
+	delete pipeline_state;
 }
 
 static const char * kComponentDestroyCallbackName = "material_system_component_destroy_cb";
@@ -122,41 +147,25 @@ void MaterialSystem::OneFrame(float delta) {
 	SceneManager *scene_manager = Engine::GetSingleton()->GetSceneManager();
 	Camera *camera = scene_manager->GetCamera();
 
-	pipeline->PushState();
+	pipeline_state->Flush(pipeline);
 
 	for(uint32_t i=0; i<materials.size(); i++) {
 		Material *m = materials[i];
 		MeshData *mesh_data = m->GetMeshData();
 		Transform *transform = m->GetEntity()->GetTransform();
 
-		ps->SetUniform("world", transform->GetMatrix());
-		ps->SetUniform("view", camera->GetViewMatrix());
-		ps->SetUniform("projection", scene_manager->GetProjectionMatrix());
+		ps_data->SetUniform("world", transform->GetMatrix());
+		ps_data->SetUniform("view", camera->GetViewMatrix());
+		ps_data->SetUniform("projection", scene_manager->GetProjectionMatrix());
 
-		vs->SetUniform("world", transform->GetMatrix());
-		vs->SetUniform("view", camera->GetViewMatrix());
-		vs->SetUniform("projection", scene_manager->GetProjectionMatrix());
+		vs_data->SetUniform("world", transform->GetMatrix());
+		vs_data->SetUniform("view", camera->GetViewMatrix());
+		vs_data->SetUniform("projection", scene_manager->GetProjectionMatrix());
 
-		pipeline->Start();
-
-		RasterizationOption rast_opt = pipeline->GetRasterizationOption();
-		rast_opt.cull_mode = rast_opt.NONE;
-
-		pipeline->SetRasterizationOption(rast_opt);
-		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-		pipeline->SetRenderTarget(0, renderer_context->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
-		pipeline->SetVertexShader(vs);
-		pipeline->SetPixelShader(ps);
-		pipeline->SetVertexBuffer(0,mesh_data->GetVertexBuffer()->AsVertexBuffer());
+		pipeline->SetVertexBuffer(0, mesh_data->GetVertexBuffer()->AsVertexBuffer());
 		pipeline->SetIndexBuffer(mesh_data->GetIndexBuffer()->AsIndexBuffer());
-		pipeline->SetInputLayout(input_layout);
-		pipeline->Draw(&drawing_state, 0, mesh_data->GetIndexBuffer()->GetElementCount());
-
-		pipeline->End();
+		pipeline->Draw(0, mesh_data->GetIndexBuffer()->GetElementCount());
 	}
-
-	pipeline->PopState();
 }
 
 

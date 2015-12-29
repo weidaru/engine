@@ -23,7 +23,8 @@ public:
 	}
 
 	virtual bool Initialize()  {
-		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
+		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
+		GraphicResourceManager *manager = context->GetResourceManager();
 
 		float vb_data[][3] = {
 			{ -0.9f, -0.9f, 0.0f },
@@ -76,6 +77,27 @@ public:
 		input_layout = manager->CreateInputLayout();
 		input_layout->InitializeWithElement({{0,0}}, *vs);
 
+		streamout_state = context->CreatePipelineState();
+		streamout_state->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
+		streamout_state->SetVertexBuffer(0, vb->AsVertexBuffer());
+		streamout_state->SetIndexBuffer(0);
+		streamout_state->SetVertexShader(vs);
+		streamout_state->SetInputLayout(input_layout);
+		streamout_state->SetGeometryShader(gs);
+		streamout_state->SetStreamOut(0, 0, stream_out->AsStreamOut());
+		streamout_state->SetRasterizedStream(-1);
+		
+		normal_state = context->CreatePipelineState();
+		normal_state->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
+		normal_state->SetDepthStencil(0);
+		normal_state->SetVertexShader(vs);
+		normal_state->SetInputLayout(input_layout);
+		normal_state->SetGeometryShader(0);
+		normal_state->SetPixelShader(ps);
+		normal_state->SetStreamOut(0, 0, 0);
+		normal_state->SetVertexBuffer(0, stream_out->AsVertexBuffer());
+		normal_state->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+
 		return true;
 	}
 	virtual s2string GetName() const {
@@ -86,36 +108,15 @@ public:
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 
-		pipeline->Start();
-			pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
-			pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
-			pipeline->SetIndexBuffer(0);
-			pipeline->SetVertexShader(vs);
-			pipeline->SetInputLayout(input_layout);
-			pipeline->SetGeometryShader(gs);
-			pipeline->SetStreamOut(0, 0, stream_out->AsStreamOut());
-			pipeline->SetRasterizedStream(-1);
-			pipeline->Draw(&streamout_state, 0, vb->GetElementCount());
-		pipeline->End();
+		streamout_state->Flush(pipeline);
+		pipeline->Draw(0, vb->GetElementCount());
 	}
 
 	void DrawStreamOut(float delta) {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
-		Texture2D *bf = Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
-
-		pipeline->Start();
-			pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-			pipeline->SetDepthStencil(0);
-			pipeline->SetVertexShader(vs);
-			pipeline->SetInputLayout(input_layout);
-			pipeline->SetGeometryShader(0);
-			pipeline->SetPixelShader(ps);
-			pipeline->SetStreamOut(0, 0, 0);
-			pipeline->SetVertexBuffer(0, stream_out->AsVertexBuffer());
-			pipeline->SetRenderTarget(0, bf->AsRenderTarget());
-			pipeline->Draw(&normal_state,  0, stream_out->GetElementCount());
-		pipeline->End();
+		normal_state->Flush(pipeline);
+		pipeline->Draw(0, stream_out->GetElementCount());
 	}
 
 	virtual void OneFrame(float delta) {
@@ -124,7 +125,7 @@ public:
 	}
 
 private:
-	DrawingState *streamout_state, *normal_state;
+	GraphicPipelineState *streamout_state, *normal_state;
 	GraphicBuffer *vb, *stream_out;
 	VertexShader *vs;
 	InputLayout *input_layout;

@@ -79,41 +79,41 @@ InputLayout * D3D11GraphicPipelineState::GetInputLayout() {
 }
 
 void D3D11GraphicPipelineState::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
-	std::get<0>(vbs[index]) = buf;
-	std::get<1>(vbs[index]) = 0;
-	std::get<2>(vbs[index]) = 0;
+	vbs[index].buffer = buf;
+	vbs[index].stride = 0;
+	vbs[index].offset = 0;
 }
 
 void D3D11GraphicPipelineState::SetVertexBuffer(uint32_t start_index, const std::vector<VertexBuffer *> &input) {
 	for(uint32_t i=0; i<input.size(); i++) {
-		std::get<0>(vbs[start_index+i]) = input[i];
-		std::get<1>(vbs[start_index+i]) = 0;
-		std::get<2>(vbs[start_index+i]) = 0;
+		vbs[start_index+i].buffer = input[i];
+		vbs[start_index+i].stride = 0;
+		vbs[start_index+i].offset = 0;
 	}
 }
 
 void D3D11GraphicPipelineState::SetVertexBuffer(uint32_t index, VertexBuffer *buf, uint32_t stride, uint32_t offset) {
-	std::get<0>(vbs[index]) = buf;
-	std::get<1>(vbs[index]) = stride;
-	std::get<2>(vbs[index]) = offset;
+	vbs[index].buffer = buf;
+	vbs[index].stride = stride;
+	vbs[index].offset = offset;
 }
 
 void D3D11GraphicPipelineState::SetVertexBuffer(uint32_t start_index,  
-				const std::vector<std::tuple<VertexBuffer *, uint32_t, uint32_t>> &input) {
+				const std::vector<VertexBufferBinding> &input) {
 	for(uint32_t i=0; i<input.size(); i++) {
 		vbs[start_index+i] = input[i];
 	}
 }
 
 VertexBuffer * D3D11GraphicPipelineState::GetVertexBuffer(uint32_t index, uint32_t *stride, uint32_t *offset) {
-	const std::tuple<VertexBuffer *, uint32_t, uint32_t> &info = vbs[index];
+	const VertexBufferBinding &info = vbs[index];
 	if(stride) {
-		*stride = std::get<1>(info);
+		*stride = info.stride;
 	}
 	if(offset) {
-		*offset = std::get<2>(info);
+		*offset = info.offset;
 	}
-	return std::get<0>(info);
+	return info.buffer;
 }
 
 void D3D11GraphicPipelineState::SetIndexBuffer(IndexBuffer *_buf, uint32_t _vertex_base) {
@@ -226,13 +226,13 @@ DepthStencil* D3D11GraphicPipelineState::GetDepthStencil() {
 }
 
 void D3D11GraphicPipelineState::SetStreamOut(uint32_t index, uint32_t stream_index, StreamOut *stream_out) {	
-	std::tuple<uint32_t, StreamOut*> &info = stream_outs[index];
+	StreamOutBinding &info = stream_outs[index];
 
-	std::get<0>(info) = stream_index;
-	std::get<1>(info) = stream_out;
+	info.stream_index = stream_index;
+	info.streamout = stream_out;
 }
 
-void D3D11GraphicPipelineState::SetStreamOut(uint32_t start_index, const std::vector<std::tuple<uint32_t, StreamOut *>> &input) {
+void D3D11GraphicPipelineState::SetStreamOut(uint32_t start_index, const std::vector<StreamOutBinding> &input) {
 	for(uint32_t i=0; i<input.size(); i++) {
 		stream_outs[start_index+i] = input[i];
 	}
@@ -240,12 +240,12 @@ void D3D11GraphicPipelineState::SetStreamOut(uint32_t start_index, const std::ve
 }
 
 StreamOut * D3D11GraphicPipelineState::GetStreamOut(uint32_t index, uint32_t *stream_index) {
-	std::tuple<uint32_t, StreamOut*> &info = stream_outs[index];
+	StreamOutBinding &info = stream_outs[index];
 	
 	if(stream_index) {
-		*stream_index = std::get<0>(info);
+		*stream_index = info.stream_index;
 	}
-	return std::get<1>(info);
+	return info.streamout;
 }
 
 void D3D11GraphicPipelineState::SetRasterizedStream(int index) {
