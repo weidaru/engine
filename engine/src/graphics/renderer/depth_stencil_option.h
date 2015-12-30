@@ -35,7 +35,6 @@ struct DepthStencilOption {
 	bool enable_stencil;
 	uint8_t stencil_read_mask;
 	uint8_t stencil_write_mask;
-	uint8_t stencil_replace_value;
 	ComparisonFunc front_compare;
 	StencilOp front_fail;
 	StencilOp front_pass;
@@ -53,7 +52,6 @@ struct DepthStencilOption {
 		enable_stencil = false;
 		stencil_read_mask = 0xFF;
 		stencil_write_mask = 0xFF;
-		stencil_replace_value = 0xFF;
 		front_compare = NEVER;
 		front_fail = KEEP;
 		front_pass = KEEP;

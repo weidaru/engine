@@ -46,13 +46,6 @@ private:
 		}
 	};
 
-	struct State {
-		IBInfo ib;
-		std::vector<VBInfo> vbs;
-		GraphicPipeline::PrimitiveTopology topology;
-		D3D11InputLayout *input_layout;
-	};
-
 public:
 	D3D11InputStage(D3D11GraphicResourceManager *_manager, ID3D11DeviceContext *_context);
 	~D3D11InputStage();
@@ -72,10 +65,6 @@ public:
 
 	void SetIndexBuffer(IndexBuffer *buf, uint32_t vertex_base);
 	D3D11IndexBuffer * GetIndexBuffer(uint32_t * vertex_base);
-
-	void PushState();
-	void PopState();
-	void ClearSavedState();
 
 	void Sync(ID3D11DeviceContext *context);
 	

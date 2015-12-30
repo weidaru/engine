@@ -26,7 +26,6 @@
     <ClInclude Include="src\engine_program.h" />
     <ClInclude Include="src\graphics\material\material.h" />
     <ClInclude Include="src\graphics\material\material_system.h" />
-    <ClInclude Include="src\graphics\renderer\graphic_pipeline_common.h" />
     <ClInclude Include="src\graphics\renderer\graphic_pipeline_state.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_input_layout.h" />
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_shader_bytecode.h" />

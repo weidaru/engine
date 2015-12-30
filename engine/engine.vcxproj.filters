@@ -309,9 +309,6 @@
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_shader_bytecode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\renderer\graphic_pipeline_common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\renderer\graphic_pipeline_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>

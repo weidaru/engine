@@ -80,15 +80,6 @@ GraphicPipeline::PrimitiveTopology D3D11GraphicPipeline::GetPrimitiveTopology() 
 	return input_stage.GetPrimitiveTopology();
 }
 
-void D3D11GraphicPipeline::SetInputLayout(InputLayout *layout) {
-	
-	input_stage.SetInputLayout(layout);
-}
-
-InputLayout * D3D11GraphicPipeline::GetInputLayout() {
-	return input_stage.GetInputLayout();
-}
-
 void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *buf) {
 	input_stage.SetVertexBuffer(index, buf);
 }
@@ -133,10 +124,6 @@ void D3D11GraphicPipeline::SetVertexShader(VertexShader *shader) {
 	}
 }
 
-VertexShader * D3D11GraphicPipeline::GetVertexShader() {
-	return vs;
-}
-
 void D3D11GraphicPipeline::SetVertexShaderData(ShaderData *data) {
 	if(data == 0) {
 		D3D11ShaderData::UnBind(this, ShaderType::VERTEX);
@@ -162,10 +149,6 @@ void D3D11GraphicPipeline::SetPixelShader(PixelShader *shader) {
 			context->PSSetShader(0, 0, 0);
 		}
 	}
-}
-
-PixelShader * D3D11GraphicPipeline::GetPixelShader() {
-	return ps;
 }
 
 void D3D11GraphicPipeline::SetPixelShaderData(ShaderData *data) {
@@ -195,9 +178,6 @@ void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
 	}
 }
 
-GeometryShader * D3D11GraphicPipeline::GetGeometryShader() {
-	return gs;
-}
 
 void D3D11GraphicPipeline::SetGeometryShaderData(ShaderData *data) {
 	if(data == 0) {
@@ -339,9 +319,6 @@ void D3D11GraphicPipeline::SetRasterizationOption(const RasterizationOption &opt
 	SetupRasterizationOption();
 }
 
-const RasterizationOption & D3D11GraphicPipeline::GetRasterizationOption() const {
-	return rast_opt;
-}
 
 void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &option) {
 	
@@ -363,10 +340,6 @@ void D3D11GraphicPipeline::SetDepthStencilOption(const DepthStencilOption &opt, 
 	SetupDepthStencilOption();
 }
 
-const DepthStencilOption & D3D11GraphicPipeline::GetDepthStencilOption() const {
-	return ds_opt;
-}
-
 void D3D11GraphicPipeline::SetBlendOption(const BlendOption &option) {
 	blend_opt = option;
 	if(blend_state)
@@ -383,10 +356,6 @@ void D3D11GraphicPipeline::SetBlendOption(const BlendOption &opt, ID3D11BlendSta
 	}
 	blend_state = state;
 	SetupBlendOption();
-}
-
-const BlendOption & D3D11GraphicPipeline::GetBlendOption() const {
-	return blend_opt;
 }
 
 void D3D11GraphicPipeline::SetRenderTarget(uint32_t index, RenderTarget *target) {
@@ -426,15 +395,6 @@ StreamOut * D3D11GraphicPipeline::GetStreamOut(uint32_t index, uint32_t *stream_
 	return output_stage.GetStreamOut(index, stream_index);
 }
 
-void D3D11GraphicPipeline::SetRasterizedStream(int index) {
-	
-	output_stage.SetRasterizedStream(index);
-}
-
-int D3D11GraphicPipeline::GetRasterizedStream() {
-	return output_stage.GetRasterizedStream();
-}
-
 void D3D11GraphicPipeline::SetupRasterizationOption() {
 	CHECK(rast_state);
 	RasterizationOption &option = rast_opt;
@@ -470,7 +430,7 @@ void D3D11GraphicPipeline::SetupRasterizationOption() {
 
 void D3D11GraphicPipeline::SetupDepthStencilOption() {
 	CHECK(ds_state);
-	context->OMSetDepthStencilState(ds_state, ds_opt.stencil_replace_value);
+	context->OMSetDepthStencilState(ds_state, ds_opt.stencil_ref);
 	
 }
 
@@ -511,74 +471,6 @@ void D3D11GraphicPipeline::DrawInstanceIndex(
 	GetIndexBuffer(&vertex_base);
 	context->DrawIndexedInstanced(index_count, instance_count, index_start, vertex_base, instance_start);
 }
-
-void D3D11GraphicPipeline::PushState() {
-	input_stage.PushState();
-	output_stage.PushState();
-
-	saved_states.push(State());
-	State &new_state= saved_states.top();
-	new_state.vs = vs;
-	new_state.ps = ps;
-	new_state.gs = gs;
-
-	new_state.vs_data = vs_data;
-	new_state.ps_data = ps_data;
-	new_state.gs_data = gs_data;
-
-	new_state.rast_opt = rast_opt;
-	new_state.rast_state = rast_state;
-	rast_state->AddRef();
-
-	new_state.ds_opt = ds_opt;
-	new_state.ds_state = ds_state;
-	ds_state->AddRef();
-
-	new_state.blend_opt = blend_opt;
-	new_state.blend_state = blend_state;
-	blend_state->AddRef();
-}
-
-void D3D11GraphicPipeline::PopState() {
-	State &state = saved_states.top();
-
-	input_stage.PopState();
-	output_stage.PopState();
-
-	SetVertexShader(state.vs);
-	SetPixelShader(state.ps);
-	SetGeometryShader(state.gs);
-
-	SetVertexShaderData(state.vs_data);
-	SetPixelShaderData(state.ps_data);
-	SetGeometryShaderData(state.gs_data);
-
-	rast_opt = state.rast_opt;
-	rast_state->Release();
-	rast_state = state.rast_state;
-
-	ds_opt = state.ds_opt;
-	ds_state->Release();
-	ds_state = state.ds_state;
-
-	blend_opt = state.blend_opt;
-	blend_state->Release();
-	blend_state = state.blend_state;
-	
-}
-
-void D3D11GraphicPipeline::ClearSavedState() {
-	while(saved_states.empty() == false) {
-		State &state = saved_states.top();
-
-		state.rast_state->Release();
-		state.ds_state->Release();
-		state.blend_state->Release();
-
-		saved_states.pop();
-	}
-}
-
 
 }
 
