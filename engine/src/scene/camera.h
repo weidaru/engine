@@ -27,6 +27,9 @@ public:
 	Camera & TranslateForward(float distance);
 	Camera & TranslateRight(float distance);
 
+	Camera & SetMouseReset(bool new_value) { mouse_reset = new_value; }
+	bool GetMouseReset() { return mouse_reset; }
+
 protected:
 	virtual void OneFrame(float delta) override;
 
@@ -36,6 +39,7 @@ private:
 
 private:
 	S2Vector3 forward;
+	bool mouse_reset;
 };
 
 }

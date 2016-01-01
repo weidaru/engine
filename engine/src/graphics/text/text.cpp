@@ -21,8 +21,9 @@ Text::Text(Entity *entity)
 	:	Component(entity),
 		layout(0), need_new_layout(true), 
 		font_name(TextSystem::GetDefaultFontName()), font_size(32),
-		isClipped(false), clipper_size(0.0f, 0.0f),
-		depth(0.0f){
+		is_clipped(false), clipper_size(0.0f, 0.0f),
+		depth(0.0f),
+		wrap_mode(NO_WRAP){
 
 }
 
@@ -116,12 +117,12 @@ std::tuple<float, float, float, float> Text::GetBoundingBox(TextSystem *system) 
 }
 
 Text & Text::SetClipped(bool new_value) {
-	isClipped = new_value;
+	is_clipped = new_value;
 	return *this;
 }
 
 bool Text::IsClipped() const {
-	return isClipped;
+	return is_clipped;
 }
 
 Text & Text::SetDepth(float _depth) {
@@ -131,6 +132,35 @@ Text & Text::SetDepth(float _depth) {
 
 float Text::GetDepth() const {
 	return depth;
+}
+
+Text & Text::SetWarpMode(WrapMode new_value) {
+	wrap_mode = new_value;
+	if(layout) {
+		switch(wrap_mode) {
+		case WRAP:
+			layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WRAP);
+			break;
+		case EMERGENCY_BREAK:
+			layout->SetWordWrapping(DWRITE_WORD_WRAPPING_EMERGENCY_BREAK);
+			break;
+		case WHOLE_WORD:
+			layout->SetWordWrapping(DWRITE_WORD_WRAPPING_WHOLE_WORD);
+			break;
+		case CHARACTER:
+			layout->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+			break;
+		default:
+		case NO_WRAP:
+			layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+			break;
+		}
+	}
+	return *this;
+}
+
+Text::WrapMode Text::GetWrapMode() const {
+	return wrap_mode;
 }
 
 
@@ -167,7 +197,7 @@ IDWriteTextLayout *Text::GetLayout(TextSystem *system) {
 			&layout
 		);
 		CHECK(!FAILED(result))<<"Fail to create layout.";
-		layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
+		SetWarpMode(wrap_mode);
 
 		format->Release();
 	}

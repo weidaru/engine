@@ -30,6 +30,7 @@ void Camera::Reset() {
 	trans.ResetTranslate();
 
 	forward.Set(0.0f, 0.0f, 1.0f);
+	mouse_reset = true;
 }
 
 
@@ -121,10 +122,13 @@ void Camera::OneFrame(float delta) {
 		
 	GetTransform()->Rotate(delta_x/1000.0f,  -delta_y/1000.0f, 0.0f);
 	
-	float mouse_x_p = is.GetMouseXPercent(), mouse_y_p = is.GetMouseYPercent();
-	if(mouse_x_p<0.4f || mouse_x_p>0.6f || mouse_y_p<0.4f || mouse_y_p>0.6f ) {
-		is.SetMousePositionPercent(0.5f, 0.5f);
+	if(mouse_reset) {
+		float mouse_x_p = is.GetMouseXPercent(), mouse_y_p = is.GetMouseYPercent();
+		if(mouse_x_p<0.4f || mouse_x_p>0.6f || mouse_y_p<0.4f || mouse_y_p>0.6f ) {
+			is.SetMousePositionPercent(0.5f, 0.5f);
+		}
 	}
+
 
 	if(is.IsKeyDown(InputSystem::K_W)) {
 		TranslateForward(20.0f*delta);

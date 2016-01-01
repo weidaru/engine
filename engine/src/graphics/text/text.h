@@ -16,6 +16,28 @@ class TextSystem;
 
 class Text : public Component {
 public:
+	enum WrapMode {
+		/// Words are broken across lines to avoid text overflowing the layout box.
+		WRAP = 0,
+
+		/// Words are kept within the same line even when it overflows the layout box.
+		/// This option is often used with scrolling to reveal overflow text. 
+		/// This is the default behavior.
+		NO_WRAP = 1,
+
+		/// Words are broken across lines to avoid text overflowing the layout box.
+		/// Emergency wrapping occurs if the word is larger than the maximum width.
+		EMERGENCY_BREAK = 2,
+
+		/// Only wrap whole words, never breaking words (emergency wrapping) when the
+		/// layout width is too small for even a single word.
+		WHOLE_WORD = 3,
+
+		/// Wrap between any valid characters clusters.
+		CHARACTER = 4,
+	};
+
+public:
 	Text(Entity *entity);
 	virtual ~Text() override;
 
@@ -41,6 +63,9 @@ public:
 	Text & SetAbsoluteClipperHeight(float new_value);
 	float GetAbsoluteClipperHeight() const;
 
+	Text & SetWarpMode(WrapMode new_value);
+	WrapMode GetWrapMode() const;
+
 	Text & SetClipped(bool new_value);
 	bool IsClipped() const;
 
@@ -64,9 +89,10 @@ private:
 	s2string font_name;
 	uint32_t font_size;
 	S2Vector4 color;
-	bool isClipped;
+	bool is_clipped;
 	std::pair<float, float> clipper_size;
 	float depth;
+	WrapMode wrap_mode;
 };
 
 }
