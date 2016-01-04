@@ -21,7 +21,6 @@ SceneManager::SceneManager() : camera(0), ds(0) {
 	float aspect=((float)renderer_setting.window_width)/((float)renderer_setting.window_height);
 	float fov=3.1415926f*35/180;
 	projection.SetProjection(aspect, fov, np, fp);
-
 }
 
 SceneManager::~SceneManager() {

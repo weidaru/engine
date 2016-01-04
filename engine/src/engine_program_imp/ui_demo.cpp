@@ -26,12 +26,11 @@ public:
 	}
 
 	virtual bool Initialize() {
-		button = new Button(Engine::GetSingleton()->GetEntitySystem());
+		button = new Button(&entity_system);
 		button->SetFontSize(64).
 			SetTextColor(S2Vector4(1.0f, 1.0f, 1.0f, 1.0f)).
 			SetText("Click").
-			SetAbsolutePosition(100.0f, 100.0f, 0.1f).
-			SetWidth(0.2f).
+			SetAbsoluteWidth(100.0f).
 			SetAbsoluteHeight(80.0f).
 			SetBackgroundColor(S2Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 
@@ -42,7 +41,6 @@ public:
 				self->SetBackgroundColor(S2Vector4(0.5f, 0.0f, 0.0f, 1.0f));
 			}
 		});
-		button->SetEnabled(false);
 
 		return true;
 	}
@@ -52,14 +50,17 @@ public:
 	}
 
 	virtual void OneFrame(float delta) {
-		button->SetEnabled(true);
+	}
+
+	virtual void OnEnter() override {
+		Engine::GetSingleton()->GetInputSystem()->SetMouseVisible(true);
 	}
 	
 private:
 	Button *button;
 };
 
-//AddBeforeMain(UIDemo)
+AddBeforeMain(UIDemo)
 
 }
 

@@ -18,14 +18,13 @@
 
 namespace s2 {
 
-Scene::Scene() : importer(0) {
-
+Scene::Scene(EntitySystem *_entity_system) : entity_system(_entity_system), importer(0) {
+	CHECK_NOTNULL(entity_system);
 }
 
 Scene::~Scene() {
-	EntitySystem *system = Engine::GetSingleton()->GetEntitySystem();
 	for(auto it=entities.begin(); it!=entities.end(); it++) {
-		delete system->Remove(it->second->GetId());
+		delete entity_system->Remove(it->second->GetId());
 	}
 	
 	for(auto it=mesh_data.begin(); it!=mesh_data.end(); it++) {
@@ -65,8 +64,6 @@ bool Scene::Initialize(const s2string &path) {
 }
 
 Entity * Scene::ProcessNode(aiNode *node, Entity * parent_entity, const aiScene *scene) {
-	EntitySystem *entity_system = Engine::GetSingleton()->GetEntitySystem();
-
 	if(node->mParent == 0) {
 		CHECK(parent_entity==0)<<"parent_entity must be 0 for root node.";
 

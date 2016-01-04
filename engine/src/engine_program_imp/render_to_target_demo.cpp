@@ -34,12 +34,11 @@ public:
 	virtual ~RenderToTargetDemo() {
 		delete tex_state;
 		delete normal_state;
-		delete camera;
 	}
 
-	virtual bool Initialize(){
+	virtual bool Initialize() override {
 		printf("Initialize test program.\n");
-		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+		camera = new Camera(&entity_system);
 
 		//Create and set depth stencil buffer
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
@@ -59,7 +58,7 @@ public:
 		return true;
 	}
 	
-	virtual s2string GetName() const {
+	virtual s2string GetName() const override {
 		return "RenderToTargetDemo";
 	}
 	
@@ -255,7 +254,7 @@ public:
 		pipeline->DrawIndex(0, tex_ib->GetElementCount());
 	}
 	
-	virtual void OneFrame(float delta) {
+	virtual void OneFrame(float delta) override {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 		GraphicResourceManager *manager = Engine::GetSingleton()->GetRendererContext()->GetResourceManager();
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
@@ -263,6 +262,10 @@ public:
 		pipeline->ClearRenderTarget(texture->AsRenderTarget(), red);
 		DrawNormal(delta);
 		DrawTexture(delta);
+	}
+
+	virtual void OnEnter() override {
+		Engine::GetSingleton()->GetInputSystem()->SetMouseVisible(false);
 	}
 	
 private:
@@ -289,7 +292,7 @@ private:
 	Camera *camera;
 };
 
-//AddBeforeMain(RenderToTargetDemo)
+AddBeforeMain(RenderToTargetDemo)
 
 }
 

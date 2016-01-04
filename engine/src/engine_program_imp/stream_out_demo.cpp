@@ -3,6 +3,7 @@
 
 #include "graphics/renderer/all.h"
 #include "asset/asset_path.h"
+#include "input/input_system.h"
 
 #include <glog/logging.h>
 
@@ -127,6 +128,10 @@ public:
 		DrawStreamOut(delta);
 	}
 
+	virtual void OnEnter() override {
+		Engine::GetSingleton()->GetInputSystem()->SetMouseVisible(false);
+	}
+
 private:
 	GraphicPipelineState *streamout_state, *normal_state;
 	GraphicBuffer *vb, *stream_out;
@@ -137,5 +142,5 @@ private:
 	PixelShader *ps;
 };
 
-//AddBeforeMain(StreamoutDemo)
+AddBeforeMain(StreamoutDemo)
 }

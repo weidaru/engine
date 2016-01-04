@@ -2,7 +2,30 @@
 
 #include <glog/logging.h>
 
+#include "entity/entity.h"
+
 namespace s2 {
+
+EngineProgram::~EngineProgram() {}
+
+void EngineProgram::SaveEntityEnabledState() {
+	std::vector<Entity *> entities;
+	entity_system.GetAll(&entities);
+
+	for(uint32_t i=0; i<entities.size(); i++) {
+		enabled_map.insert(std::make_pair(entities[i]->GetId(), entities[i]->IsEnabled()));
+	}
+}
+
+void EngineProgram::RestoreEntityEnabledState() {
+	for(auto it=enabled_map.begin(); it!=enabled_map.end(); it++) {
+		Entity *entity = entity_system.Get(it->first); 
+		bool new_enabled = it->second;
+		if(new_enabled != entity->IsEnabled()) {
+			entity->SetEnabled(new_enabled);
+		}
+	}
+}
 
 EngineProgramManager::EngineProgramManager() {}
 

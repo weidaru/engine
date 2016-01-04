@@ -30,8 +30,8 @@ public:
 		delete state;
 	}
 	
-	virtual bool Initialize() {
-		camera = new Camera(Engine::GetSingleton()->GetEntitySystem());
+	virtual bool Initialize() override {
+		camera = new Camera(&entity_system);
 		camera->GetTransform()->Translate(S2Vector3(20.0f, 20.0f, -75.0f));
 
 		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
@@ -151,11 +151,11 @@ public:
 		return true;
 	}
 	
-	virtual s2string GetName() const {
+	virtual s2string GetName() const override {
 		return "InstancingDemo";
 	}
 	
-	virtual void OneFrame(float delta) {
+	virtual void OneFrame(float delta) override {
 		GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 
 		pipeline->ClearDepthStencil(ds_buffer->AsDepthStencil(), true, 1.0f, true, 0);
@@ -174,6 +174,10 @@ public:
 		pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
 		pipeline->DrawInstanceIndex(0, index_buffer->GetElementCount(), 0, instance_buffer->GetElementCount());
 	}
+
+	virtual void OnEnter() override {
+		Engine::GetSingleton()->GetInputSystem()->SetMouseVisible(true);
+	}
 	
 private:
 	GraphicBuffer *position_buffer, *color_buffer;
@@ -190,7 +194,7 @@ private:
 	Camera *camera;
 };
 
-//AddBeforeMain(InstancingDemo)
+AddBeforeMain(InstancingDemo)
 
 
 }

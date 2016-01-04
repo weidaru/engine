@@ -36,6 +36,18 @@ int KeyToVirtualKey(InputSystem::Key key) {
 		switch(key) {
 		case InputSystem::K_SPACE:
 			return VK_SPACE;
+		case InputSystem::K_LEFT:
+			return VK_LEFT;
+		case InputSystem::K_UP:
+			return VK_UP;
+		case InputSystem::K_RIGHT:
+			return VK_RIGHT;
+		case InputSystem::K_DOWN:
+			return VK_DOWN;
+		case InputSystem::K_ENTER:
+			return VK_RETURN;
+		case InputSystem::K_ESCAPE:
+			return VK_ESCAPE;
 		default:
 			CHECK(false)<<"Unknown key "<<key;
 			return 0;
@@ -52,6 +64,8 @@ T Clamp(T value, const T &floor, const T &ceiling) {
 RECT GetDrawingRect(HWND hwnd) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
+
+	
 	DWORD style = GetWindowStyle(hwnd);
 	if(style & WS_DLGFRAME) {
 		int	caption_height = GetSystemMetrics(SM_CYCAPTION);
@@ -66,6 +80,7 @@ RECT GetDrawingRect(HWND hwnd) {
 		rect.top += border_height;
 		rect.bottom -= border_height;
 	}
+	
 
 	return rect;
 }
@@ -82,14 +97,26 @@ void InputSystem::SetMousePosition(int x, int y) {
 	}
 }
 
+void InputSystem::SetMouseVisible(bool visible) {
+	if(mouse_visible != visible) {
+		mouse_visible = visible;
+		ShowCursor(mouse_visible);
+	}
+}
+
+bool InputSystem::GetMouseVisible() {
+	return mouse_visible;
+}
+
 void InputSystem::SetMousePositionPercent(float x, float y) {
 	const RendererSetting &rs = Engine::GetSingleton()->GetRendererContext()->GetSetting();
 	SetMousePosition((int)(x*rs.window_width), (int)(y*rs.window_height));
 }
 
 InputSystem::InputSystem(void *_hwnd) 
-			: hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0){
-	SetMousePositionPercent(0.5f,0.5f);
+			:	hwnd(_hwnd),current(256), mouse_x(-1), mouse_y(-1), mouse_x_delta(0), mouse_y_delta(0), 
+				mouse_visible(true){
+	SetMousePositionPercent(0.5f,0.5f), SetMouseVisible(false);
 }
 
 int InputSystem::GetMouseXMove() const {

@@ -22,6 +22,12 @@ void EntitySystem::Add(Entity * e) {
 	entities[e->GetId()] = e;
 }
 
+void EntitySystem::GetAll(std::vector<Entity *> *result) {
+	for(auto it=entities.begin(); it!=entities.end(); it++) {
+		result->push_back(it->second);
+	}
+}
+
 Entity * EntitySystem::Get(uint32_t id) {
 	auto it = entities.find(id);
 	if(it == entities.end()) {

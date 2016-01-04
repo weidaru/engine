@@ -104,8 +104,13 @@ float Text::GetAbsoluteClipperHeight() const {
 	return GetClipperHeight() * w_height / 2.0f;
 }
 
-std::tuple<float, float, float, float> Text::GetBoundingBox(TextSystem *system) {
-	GetLayout(system);
+std::tuple<float, float> Text::GetBoundingSize() {
+	std::tuple<float, float, float, float> box = GetBoundingBox();
+	return std::make_tuple(std::get<1>(box)-std::get<0>(box), std::get<3>(box)-std::get<2>(box) );
+}
+
+std::tuple<float, float, float, float> Text::GetBoundingBox() {
+	Prepare();
 	DWRITE_OVERHANG_METRICS metrics;
 	layout->GetOverhangMetrics(&metrics);
 
@@ -163,13 +168,10 @@ Text::WrapMode Text::GetWrapMode() const {
 	return wrap_mode;
 }
 
+void Text::Prepare() {
+	TextSystem *system = Engine::GetSingleton()->GetTextSystem();
 
-IDWriteTextLayout *Text::GetLayout(TextSystem *system) {
 	if(need_new_layout) {	
-		if(system == 0) {
-			return 0;
-		}
-
 		if(layout) {
 			layout->Release();
 		}
@@ -177,7 +179,7 @@ IDWriteTextLayout *Text::GetLayout(TextSystem *system) {
 		IDWriteFactory *factory = system->GetDWriteFactory();
 		IDWriteTextFormat *format;
 		result = factory->CreateTextFormat(
-			s2wstring(system->GetDefaultFontName().begin(), system->GetDefaultFontName().end()).c_str(),
+			s2wstring(font_name.begin(), font_name.end()).c_str(),
 			NULL,
 			DWRITE_FONT_WEIGHT_NORMAL,
 			DWRITE_FONT_STYLE_NORMAL,
@@ -202,7 +204,11 @@ IDWriteTextLayout *Text::GetLayout(TextSystem *system) {
 		format->Release();
 	}
 	need_new_layout = false;
+}
 
+
+IDWriteTextLayout *Text::GetLayout() {
+	Prepare();
 	return layout;
 }
 

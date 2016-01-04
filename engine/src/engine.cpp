@@ -1,9 +1,11 @@
 #include "engine.h"
 
+#include "start_menu.h"
 #include "graphics/renderer/imp/directx11/d3d11_context.h"
 #include "engine_program.h"
 #include "input/input_system.h"
 #include "entity/entity_system.h"
+#include "entity/entity.h"
 #include "graphics/text/text_system.h"
 #include "graphics/sprite/sprite_system.h"
 #include "scene/scene_manager.h"
@@ -36,7 +38,10 @@ Engine::Engine()
 	: 	hinstance(0), hwnd(0), renderer_context(0), window_name(PISSED_STR),
 		program_manager(new EngineProgramManager),
 		input_system(0), entity_system(0), sprite_system(0), text_system(0),
-		material_system(0), scene_manager(0){
+		material_system(0), scene_manager(0),
+		start_menu(0),
+		cur_state(START_MENU),
+		stop(false){
 
 }
 
@@ -88,7 +93,35 @@ void Engine::OneFrame(float delta) {
 	text_system->OneFrame(delta);
 	material_system->OneFrame(delta);
 
-	program_manager->Get("SceneDemo")->OneFrame(delta);
+	if(cur_state == START_MENU) {
+		start_menu->OneFrame(delta);
+
+		if(input_system->IsKeyDown(InputSystem::K_SPACE) || input_system->IsKeyDown(InputSystem::K_ENTER)) {
+			start_menu->OnLeave();
+
+			EngineProgram *cur_program = start_menu->GetProgram(start_menu->GetSelectedIndex());
+			cur_program->RestoreEntityEnabledState();
+			cur_program->OnEnter();
+			cur_state = PROGRAM;
+		}
+	} else if(cur_state == PROGRAM) {
+		EngineProgram *cur_program = start_menu->GetProgram(start_menu->GetSelectedIndex());
+		cur_program->GetEntitySystem()->OneFrame(delta);
+		cur_program->OneFrame(delta);
+		if(input_system->IsKeyDown(InputSystem::K_ESCAPE)) {
+			cur_program->OnLeave();
+			cur_program->SaveEntityEnabledState();
+			std::vector<Entity *> entities;
+			cur_program->GetEntitySystem()->GetAll(&entities);
+			for(int i=0; i<entities.size(); i++) {
+				entities[i]->SetEnabled(false);
+			}
+
+			cur_state = START_MENU;
+			start_menu->OnEnter();
+		}
+	}
+
 	renderer_context->SwapBuffer();
 }
 
@@ -114,8 +147,17 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	std::vector<EngineProgram *> programs;
 	program_manager->GetAll(&programs);
 	for(uint32_t i=0; i<programs.size(); i++) {
-		programs[i]->Initialize();
+		EngineProgram *cur_program = programs[i];
+		cur_program->Initialize();
+		cur_program->SaveEntityEnabledState();
+		std::vector<Entity *> entities;
+			cur_program->GetEntitySystem()->GetAll(&entities);
+			for(int i=0; i<entities.size(); i++) {
+				entities[i]->SetEnabled(false);
+			}
 	}
+
+	start_menu = new StartMenu(program_manager);
 }
 
 void Engine::Shutdown() {
@@ -194,7 +236,7 @@ void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint
 
 	// Create the window with the screen settings and get the handle to it.
 	hwnd = CreateWindowEx(WS_EX_APPWINDOW, (LPCSTR )window_name.c_str(), (LPCSTR )window_name.c_str(),
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUPWINDOW | WS_CAPTION,
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP ,
 		posX, posY, window_width, window_height, NULL, NULL, hinstance, NULL);
 	CHECK(hwnd)<<"Cannot create window handle";
 
@@ -202,7 +244,6 @@ void Engine::InitWindow(const s2string &window_name, uint32_t window_width, uint
 	ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	SetFocus(hwnd);
-	ShowCursor(true);
 	RECT clip;
 	GetWindowRect(hwnd, &clip);
 	ClipCursor(&clip);

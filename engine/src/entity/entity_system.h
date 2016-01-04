@@ -2,9 +2,11 @@
 #define ENTITY_SYSTEM_H_
 
 #include <map>
+#include <vector>
+#include <stdint.h>
 
 #include "utils/s2string.h"
-#include <stdint.h>
+
 
 namespace s2 {
 class Entity;
@@ -25,6 +27,8 @@ public:
 	Entity * Remove(uint32_t id);
 
 	void OneFrame(float delta);
+
+	void GetAll(std::vector<Entity *> *result);
 
 private:
 	std::map<uint32_t, Entity *> entities;

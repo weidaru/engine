@@ -158,6 +158,10 @@ void MaterialSystem::OneFrame(float delta) {
 
 	for(uint32_t i=0; i<materials.size(); i++) {
 		Material *m = materials[i];
+		if(m->IsEnabled() == false) {
+			continue;
+		}
+
 		MeshData *mesh_data = m->GetMeshData();
 		Transform *transform = m->GetEntity()->GetTransform();
 

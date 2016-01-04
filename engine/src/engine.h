@@ -18,9 +18,17 @@ class SpriteSystem;
 class TextSystem;
 class MaterialSystem;
 
+class StartMenu;
+
 class SceneManager;
 
 class Engine : public Singleton<Engine>  {
+private:
+	enum EngineState {
+		START_MENU,
+		PROGRAM
+	};
+
 public:
 	Engine();
 	
@@ -29,7 +37,6 @@ public:
 
 	void Run();
 	void Stop();
-	void OneFrame(float delta);
 	
 	RendererContext * GetRendererContext() { return renderer_context; }
 	
@@ -48,6 +55,7 @@ public:
 
 private:
 	void InitWindow(const s2string &window_name, uint32_t window_width, uint32_t window_height, bool fullscreen);
+	void OneFrame(float delta);
 
 private:
 	HINSTANCE hinstance;
@@ -65,6 +73,9 @@ private:
 
 	SceneManager *scene_manager;
 	
+	StartMenu *start_menu;
+
+	EngineState cur_state;
 
 	//Need to be thread safe?
 	bool stop;

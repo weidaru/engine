@@ -3,6 +3,7 @@
 
 #include "graphics/renderer/all.h"
 #include "asset/asset_path.h"
+#include "input/input_system.h"
 
 #include <glog/logging.h>
 
@@ -18,7 +19,7 @@ public:
 		delete state;
 	}
 
-	virtual bool Initialize()  {
+	virtual bool Initialize() override {
 		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
 		GraphicResourceManager *manager = context->GetResourceManager();
 		
@@ -74,11 +75,11 @@ public:
 
 		return true;
 	}
-	virtual s2string GetName() const {
+	virtual s2string GetName() const override {
 		return "GeometryShaderDemo";
 	}
 
-	virtual void OneFrame(float delta) {
+	virtual void OneFrame(float delta) override {
 		RendererContext *context = Engine::GetSingleton()->GetRendererContext();
 		GraphicPipeline *pipeline = context->GetPipeline();
 
@@ -91,6 +92,11 @@ public:
 		pipeline->Draw(0, vb->GetElementCount());
 	}
 
+	virtual void OnEnter() override {
+		Engine::GetSingleton()->GetInputSystem()->SetMouseVisible(false);
+	}
+
+
 private:
 	GraphicBuffer *vb;
 	VertexShader *vs;
@@ -101,5 +107,5 @@ private:
 	GraphicPipelineState *state;
 };
 
-//AddBeforeMain(GeometryShaderDemo)
+AddBeforeMain(GeometryShaderDemo)
 }

@@ -16,6 +16,7 @@ struct aiMesh;
 namespace s2  {
 class Entity;
 class MeshData;
+class EntitySystem;
 
 /**
  * Container of entities read from file.
@@ -23,7 +24,7 @@ class MeshData;
  */
 class Scene {
 public:
-	Scene();
+	Scene(EntitySystem *entity_system);
 	~Scene();
 
 	bool Initialize(const s2string &path);
@@ -33,6 +34,8 @@ private:
 	Entity * ProcessNode(aiNode *node, Entity *parent_entity, const aiScene *scene);
 
 private:
+	EntitySystem *entity_system;
+
 	s2string error;
 	std::map<s2string, Entity *> entities;
 

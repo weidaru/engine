@@ -116,6 +116,11 @@ void SpriteSystem::OneFrame(float delta) {
 		}
 	}
 
+	if(count ==0 ) {
+		delete[] instances;
+		return;
+	}
+
 	instance_buffer->WriteMap(pipeline);
 	instance_buffer->Write(0, instances, count);
 	instance_buffer->WriteUnmap();
@@ -127,7 +132,7 @@ void SpriteSystem::OneFrame(float delta) {
 	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
 	pipeline->SetVertexBuffer(0,vertex_buffer->AsVertexBuffer());
 	pipeline->SetVertexBuffer(1,instance_buffer->AsVertexBuffer());
-	pipeline->DrawInstance(0, 4, 0, sprites.size());
+	pipeline->DrawInstance(0, 4, 0, count);
 
 }
 

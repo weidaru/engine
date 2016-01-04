@@ -20,7 +20,8 @@ public:
 		K_U, K_V, K_W, K_X, K_Y,
 		K_Z,
 		
-		K_SPACE
+		K_SPACE, K_ENTER, K_ESCAPE,
+		K_LEFT, K_UP, K_RIGHT, K_DOWN
 	};
 	
 	enum MouseButton {
@@ -57,12 +58,16 @@ public:
 	bool IsMouseButtonDown(MouseButton button) const;
 	
 	bool IsKeyDown(Key key) const;
+
+	void SetMouseVisible(bool visible);
+	bool GetMouseVisible();
 	
 private:
 	void *hwnd;
 	std::vector<unsigned char> current;
 	int mouse_x, mouse_y;
 	int mouse_x_delta, mouse_y_delta;
+	bool mouse_visible;
 };
 
 

@@ -114,12 +114,12 @@ void TextSystem::OneFrame(float delta) {
 		RendererSetting setting = context->GetSetting();
 		float w_height = (float)setting.window_height, w_width = (float)setting.window_width;
 		
-		auto bound = cur->GetBoundingBox(this);
+		auto bound = cur->GetBoundingBox();
 		float left=std::get<0>(bound), right=std::get<1>(bound), top=std::get<2>(bound), bottom=std::get<3>(bound);
 		float center_x = (left+right)/2.0f, center_y = (top+bottom)/2.0f;
 		
 		FW1_RECTF *rect = 0;
-		if(cur->isClipped) {
+		if(cur->IsClipped()) {
 			flag |= FW1_CLIPRECT;
 			rect = new FW1_RECTF;
 			
@@ -149,7 +149,7 @@ void TextSystem::OneFrame(float delta) {
 		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
 		font_wrapper->DrawTextLayout(
 			pipeline->GetDeviceContext(), 
-			cur->GetLayout(this), 
+			cur->GetLayout(), 
 			0.0f, 0.0f, 
 			color_uint, 
 			rect, 

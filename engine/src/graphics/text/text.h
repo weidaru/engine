@@ -72,11 +72,16 @@ public:
 	Text & SetDepth(float _depth);
 	float GetDepth() const;
 
+	//(WIDTH, HEIGHT)
+	std::tuple<float, float> GetBoundingSize();
+
 	//(LEFT, RIGHT, TOP, BOTTOM)
-	std::tuple<float, float, float, float> GetBoundingBox(TextSystem *system);
+	std::tuple<float, float, float, float> GetBoundingBox();
+
+	void Prepare();
 
 private:
-	IDWriteTextLayout *GetLayout(TextSystem *system);
+	IDWriteTextLayout *GetLayout();
 
 private:
 	friend class TextSystem;

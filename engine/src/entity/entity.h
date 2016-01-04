@@ -6,6 +6,7 @@
 
 #include <map>
 #include <stdint.h>
+#include <stack>
 
 namespace s2 {
 
@@ -60,6 +61,7 @@ private:
 	std::map<uint32_t, Component* > components;
 	std::map<uint32_t, Entity *> children;
 	bool enabled;
+	std::stack<bool> enable_stack;
 
 	uint32_t id;
 	s2string name;

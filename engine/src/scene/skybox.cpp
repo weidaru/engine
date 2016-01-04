@@ -18,8 +18,6 @@ namespace s2 {
 Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 	:	Entity(system),env_texture(0), sampler(0), 
 		vb(0), ib(0), vs(0), ps(0), vs_data(0), ps_data(0), input_layout(0), pipeline_state(0){
-	Camera *camera = Engine::GetSingleton()->GetSceneManager()->GetCamera();
-	camera->SetEnabled(true);
 
 	Mesh mesh;
 	CHECK(mesh.Initialize(ResolveAssetPath("model/sphere.obj")))<<mesh.GetLastError();

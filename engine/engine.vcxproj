@@ -85,6 +85,7 @@
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\scene_manager.h" />
     <ClInclude Include="src\scene\skybox.h" />
+    <ClInclude Include="src\start_menu.h" />
     <ClInclude Include="src\ui\button.h" />
     <ClInclude Include="src\graphics\sprite\sprite.h" />
     <ClInclude Include="src\utils\s2matrix4x4.h" />
@@ -151,6 +152,7 @@
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\scene_manager.cpp" />
     <ClCompile Include="src\scene\skybox.cpp" />
+    <ClCompile Include="src\start_menu.cpp" />
     <ClCompile Include="src\ui\button.cpp" />
     <ClCompile Include="src\graphics\sprite\sprite.cpp" />
     <ClCompile Include="src\utils\s2matrix4x4.cpp" />

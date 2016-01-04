@@ -5,15 +5,32 @@
 
 #include <map>
 #include <vector>
+#include <stdint.h>
+
+#include "entity/entity_system.h"
 
 namespace s2 {
 
+class Entity;
+
 class EngineProgram {
 public:
-	virtual ~EngineProgram() {}
+	virtual ~EngineProgram();
+	virtual void OnEnter() {}
+	virtual void OnLeave() {}
+	virtual void OneFrame(float delta) {}
+
 	virtual bool Initialize() = 0;
 	virtual s2string GetName() const = 0;
-	virtual void OneFrame(float delta) = 0;
+
+	EntitySystem *GetEntitySystem() { return &entity_system; }
+
+	void SaveEntityEnabledState();
+	void RestoreEntityEnabledState();
+	
+protected:
+	EntitySystem entity_system;
+	std::map<uint32_t, bool> enabled_map;
 };
 
 class EngineProgramManager {
