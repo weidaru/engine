@@ -3,7 +3,7 @@ Engine
 Toy toy toy!!!  
 
 TODO:  
-Build particle system.  
+1. Build particle system.  
 Steps:  
 * Spawn and recycle particles. Texture. CPU? Compute Shader?
 * Update speed and positions. Physics. Texture. In one Pass? CPU? Compute Shader?
@@ -14,4 +14,6 @@ Steps:
 First try (Top to down. Static particles. Simple move.):  
 * Initialize some particles at top of screen.
 * Update position with constant speed.
-* Render with instancing and geometry shader.
+* Render with instancing and geometry shader.  
+
+2. Clean up enum.
