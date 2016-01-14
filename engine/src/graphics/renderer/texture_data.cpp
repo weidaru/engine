@@ -8,8 +8,7 @@ TextureData::TextureData(uint32_t _array_size, uint32_t _mip_level){
 	Reset(_array_size, _mip_level);
 }
 
-TextureData::TextureData() {
-	TextureData(1, 1);
+TextureData::TextureData() : TextureData(1, 1) {
 }
 
 TextureData & TextureData::Reset(uint32_t _array_size, uint32_t _mip_level) {

@@ -146,7 +146,7 @@ void TextSystem::OneFrame(float delta) {
 		transform_matrix.Transpose();
 
 
-		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTargetAndDepthStencil(0, context->GetBackBuffer()->AsRenderTarget(), 0);
 		font_wrapper->DrawTextLayout(
 			pipeline->GetDeviceContext(), 
 			cur->GetLayout(), 

@@ -116,10 +116,9 @@ public:
 
 		pipeline->SetState(*normal_state);
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-		pipeline->SetDepthStencil(0);
 		pipeline->SetStreamOut(0, 0, 0);
 		pipeline->SetVertexBuffer(0, stream_out->AsVertexBuffer());
-		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTargetAndDepthStencil(0, context->GetBackBuffer()->AsRenderTarget(), 0);
 		pipeline->Draw(0, stream_out->GetElementCount());
 	}
 

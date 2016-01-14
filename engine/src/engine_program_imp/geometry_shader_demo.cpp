@@ -84,11 +84,10 @@ public:
 		GraphicPipeline *pipeline = context->GetPipeline();
 
 		pipeline->SetState(*state);
-		pipeline->SetDepthStencil(0);
 		pipeline->SetPrimitiveTopology(GraphicPipeline::POINT_LIST);
 		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 		pipeline->SetIndexBuffer(0);
-		pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTargetAndDepthStencil(0, context->GetBackBuffer()->AsRenderTarget(), 0);
 		pipeline->Draw(0, vb->GetElementCount());
 	}
 

@@ -231,9 +231,10 @@ public:
 
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
 		pipeline->SetVertexShaderData(vs_data);
-		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
-		pipeline->SetRenderTarget(1, texture->AsRenderTarget());
+		pipeline->SetRenderTargetAndDepthStencil(
+			0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget(), ds_buffer->AsDepthStencil());
+		pipeline->SetRenderTargetAndDepthStencil(
+			1, texture->AsRenderTarget(), ds_buffer->AsDepthStencil());
 		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 		pipeline->SetIndexBuffer(ib->AsIndexBuffer());
 		pipeline->DrawIndex(0, ib->GetElementCount());
@@ -245,10 +246,10 @@ public:
 		pipeline->SetState(*tex_state);
 
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-		pipeline->SetRenderTarget(1, 0);
-		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
+		pipeline->SetRenderTargetAndDepthStencil(1, 0, 0);
 		pipeline->SetPixelShaderData(tex_ps_data);
-		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTargetAndDepthStencil(
+			0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget(), ds_buffer->AsDepthStencil());
 		pipeline->SetVertexBuffer(0, tex_vb->AsVertexBuffer());
 		pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
 		pipeline->DrawIndex(0, tex_ib->GetElementCount());

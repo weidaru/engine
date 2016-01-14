@@ -2,10 +2,10 @@
 #define D3D11_SHADER_REFLECTION_H_
 
 #include "utils/s2string.h"
-#include "shader_typeinfo_manager.h"
 
 #include <vector>
 #include <map>
+#include <stdint.h>
 
 struct ID3D11ShaderReflection;
 struct ID3D10Blob;
@@ -108,19 +108,11 @@ public:
 	uint32_t GetShaderResourceSize() const;
 	uint32_t GetShaderResourceIndex(const s2string &name) const;
 	
-	//message is ignored for now.
-	const TypeInfo & GetTypeInfo(const s2string &shader_typename) const;
-	bool HasTypeInfo(const s2string &shader_typename) const;
-	
 private:
-	void PopulateScalarTypes();
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
 	void PopulateInputs(const D3D11_SHADER_DESC &desc);
 	void PopulateOutputs(const D3D11_SHADER_DESC &desc);
 	void PopulateResources(const D3D11_SHADER_DESC &desc);
-	//Only uniforms are parsed for now.
-	void ParseShaderType(ID3D11ShaderReflectionType &type);
-	void _ParseShaderType(ID3D11ShaderReflectionType &type, const D3D11_SHADER_TYPE_DESC &desc);
 
 	//No copy
 	D3D11ShaderReflection(const D3D11ShaderReflection&);
@@ -133,8 +125,6 @@ private:
 	
 	CBVector cbs;
 	UniformMap uniforms;
-	
-	ShaderTypeInfoManager typeinfo_manager;
 	
 	ParameterVector inputs;
 	ParameterVector outputs;

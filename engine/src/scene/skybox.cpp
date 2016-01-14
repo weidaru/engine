@@ -136,8 +136,9 @@ void Skybox::OneFrame(float delta) {
 	vs_data->FlushConstantBuffer(pipeline);
 
 	pipeline->SetState(*pipeline_state);
-	pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
-	pipeline->SetRenderTarget(0, scene_manager->GetBackBuffer()->AsRenderTarget());
+	pipeline->SetRenderTargetAndDepthStencil(
+		0, scene_manager->GetBackBuffer()->AsRenderTarget(),
+		scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
 	pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 	pipeline->SetIndexBuffer(ib->AsIndexBuffer(), 0);

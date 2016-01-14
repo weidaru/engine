@@ -129,7 +129,8 @@ void SpriteSystem::OneFrame(float delta) {
 
 	pipeline->SetState(*pipeline_state);
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
-	pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+	pipeline->SetRenderTargetAndDepthStencil(
+		0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget(), 0);
 	pipeline->SetVertexBuffer(0,vertex_buffer->AsVertexBuffer());
 	pipeline->SetVertexBuffer(1,instance_buffer->AsVertexBuffer());
 	pipeline->DrawInstance(0, 4, 0, count);

@@ -165,8 +165,8 @@ public:
 		pipeline->SetState(*state);
 
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-		pipeline->SetDepthStencil(ds_buffer->AsDepthStencil());
-		pipeline->SetRenderTarget(0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget());
+		pipeline->SetRenderTargetAndDepthStencil(
+			0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget(), ds_buffer->AsDepthStencil());
 		pipeline->SetVertexShaderData(vs_data);
 		pipeline->SetVertexBuffer(2, position_buffer->AsVertexBuffer());
 		pipeline->SetVertexBuffer(0, color_buffer->AsVertexBuffer());

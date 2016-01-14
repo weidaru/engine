@@ -113,11 +113,10 @@ public:
 	virtual ShaderData * GetGeometryShaderData() override;
 	
 	//Output
-	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) override;
-	virtual void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts) override;
+	virtual void SetRenderTargetAndDepthStencil(uint32_t index, RenderTarget *target, DepthStencil *ds) override;
+	virtual void SetRenderTargetAndDepthStencil(uint32_t start_index, const std::vector<RenderTarget *> &rts, DepthStencil *ds) override;
 	virtual RenderTarget * GetRenderTarget(uint32_t index) override;
-	
-	virtual void SetDepthStencil(DepthStencil *buffer) override;
+
 	virtual DepthStencil * GetDepthStencil() override;
 
 	virtual void SetStencilRef(uint8_t stencil_ref) override;

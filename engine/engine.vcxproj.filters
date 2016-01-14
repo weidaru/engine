@@ -156,9 +156,6 @@
     <ClInclude Include="src\graphics\renderer\imp\directx11\d3d11_vertex_shader.h">
       <Filter>Header Files\renderer\imp\directx11</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\renderer\imp\directx11\shader_typeinfo_manager.h">
-      <Filter>Header Files\renderer\imp\directx11</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\renderer\imp\directx11\video_card_info.h">
       <Filter>Header Files\renderer\imp\directx11</Filter>
     </ClInclude>
@@ -404,17 +401,11 @@
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_vertex_shader.cpp">
       <Filter>Source Files\renderer\imp\directx11</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphics\renderer\imp\directx11\shader_typeinfo_manager.cpp">
-      <Filter>Source Files\renderer\imp\directx11</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphics\renderer\imp\directx11\video_card_info.cpp">
       <Filter>Source Files\renderer\imp\directx11</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\renderer\resource.cpp">
       <Filter>Source Files\renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphics\renderer\sampler.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\generate\generated_type_info.cpp">
       <Filter>Source Files</Filter>
@@ -514,5 +505,11 @@
     <FxCompile Include="content\shader\skybox_vs.hlsl" />
     <FxCompile Include="content\shader\sprite_ps.hlsl" />
     <FxCompile Include="content\shader\sprite_vs.hlsl" />
+    <FxCompile Include="test\particle\update_ps.hlsl" />
+    <FxCompile Include="test\particle\update_vs.hlsl" />
+    <FxCompile Include="test\particle\texture_paint_vs.hlsl" />
+    <FxCompile Include="test\particle\texture_paint_ps.hlsl" />
+    <FxCompile Include="test\particle\render_vs.hlsl" />
+    <FxCompile Include="test\particle\render_ps.hlsl" />
   </ItemGroup>
 </Project>

@@ -153,8 +153,8 @@ void MaterialSystem::OneFrame(float delta) {
 	pipeline->SetVertexShaderData(vs_data);
 	pipeline->SetPixelShaderData(ps_data);
 	pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_LIST);
-	pipeline->SetRenderTarget(0, context->GetBackBuffer()->AsRenderTarget());
-	pipeline->SetDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
+	pipeline->SetRenderTargetAndDepthStencil(0, context->GetBackBuffer()->AsRenderTarget(), 
+		scene_manager->GetDepthStencilBuffer()->AsDepthStencil());
 
 	for(uint32_t i=0; i<materials.size(); i++) {
 		Material *m = materials[i];

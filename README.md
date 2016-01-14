@@ -16,4 +16,4 @@ First try (Top to down. Static particles. Simple move.):
 * Update position with constant speed.
 * Render with instancing and geometry shader.  
 
-2. Clean up enum.
+2. Clean up enum. Clean up resource manager.

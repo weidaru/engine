@@ -1,6 +1,6 @@
 local primitives = {
 "pointer", 
-"int", "unsigned int",
+"int", "unsigned int", "uint32_t",
 "char", "unsigned char", 
 "float", 
 "double", 

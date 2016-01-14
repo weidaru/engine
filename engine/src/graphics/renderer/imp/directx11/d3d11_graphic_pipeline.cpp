@@ -455,34 +455,28 @@ void D3D11GraphicPipeline::SyncRenderTargetsAndDepthStencil() {
 }
 
 
-void D3D11GraphicPipeline::SetRenderTarget(uint32_t index, RenderTarget *_target) {
+void D3D11GraphicPipeline::SetRenderTargetAndDepthStencil(
+		uint32_t index, RenderTarget *_target, DepthStencil *_ds) {
 	D3D11RenderTarget * target = NiceCast(D3D11RenderTarget *, _target);
 
 	rts[index].data = target;
+	ds.data = static_cast<D3D11DepthStencil *>(_ds);
 
 	SyncRenderTargetsAndDepthStencil();
 }
 
-void D3D11GraphicPipeline::SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &input){
+void D3D11GraphicPipeline::SetRenderTargetAndDepthStencil(
+		uint32_t start_index, const std::vector<RenderTarget *> &input, DepthStencil *_ds){
 	for(uint32_t i=0; i<input.size(); i++) {
 		rts[start_index+i].data = static_cast<D3D11RenderTarget *>(input[i]);
 	}
+	ds.data = static_cast<D3D11DepthStencil *>(_ds);
 	
 	SyncRenderTargetsAndDepthStencil();
 }
 
 RenderTarget * D3D11GraphicPipeline::GetRenderTarget(uint32_t index) {
 	return rts[index].data;
-}
-
-void D3D11GraphicPipeline::SetDepthStencil(DepthStencil *_depth_stencil) {
-		D3D11DepthStencil * depth_stencil = NiceCast(D3D11DepthStencil *, _depth_stencil);
-	if (_depth_stencil != 0) {
-		CHECK(depth_stencil) << "buffer cannot be cast to D3D11DepthStencil";
-	}
-	ds.data = depth_stencil;
-
-	SyncRenderTargetsAndDepthStencil();
 }
 
 DepthStencil* D3D11GraphicPipeline::GetDepthStencil() {

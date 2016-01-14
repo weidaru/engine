@@ -32,7 +32,9 @@ D3D11GraphicBuffer::~D3D11GraphicBuffer() {
 	delete vertex_buffer;
 	delete index_buffer;
 	delete mapped;
-	buffer->Release();
+	if(buffer) {
+		buffer->Release();
+	}
 }
 
 void D3D11GraphicBuffer::Check() const {

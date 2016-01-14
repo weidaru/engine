@@ -61,11 +61,9 @@ public:
 	virtual void SetGeometryShaderData(ShaderData *data) = 0;
 	virtual ShaderData * GetGeometryShaderData() = 0;
 
-	virtual void SetRenderTarget(uint32_t index, RenderTarget *target) = 0;
-	virtual void SetRenderTarget(uint32_t start_index, const std::vector<RenderTarget *> &rts) = 0;
+	virtual void SetRenderTargetAndDepthStencil(uint32_t index, RenderTarget *target, DepthStencil *ds) = 0;
+	virtual void SetRenderTargetAndDepthStencil(uint32_t start_index, const std::vector<RenderTarget *> &rts, DepthStencil *ds) = 0;
 	virtual RenderTarget * GetRenderTarget(uint32_t index) = 0;
-	
-	virtual void SetDepthStencil(DepthStencil *buffer) = 0;
 	virtual DepthStencil* GetDepthStencil() = 0;
 
 	virtual void SetStencilRef(uint8_t stencil_ref) = 0;
