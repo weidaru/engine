@@ -8,7 +8,8 @@ namespace s2 {
 enum class ShaderType {
 	VERTEX,
 	PIXEL,
-	GEOMETRY
+	GEOMETRY,
+	COMPUTE
 };
 
 class ShaderBytecode : public Resource {

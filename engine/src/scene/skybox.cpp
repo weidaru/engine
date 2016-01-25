@@ -42,7 +42,7 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 		option.element_member_count = 3;
 		option.element_bytewidth = sizeof(float)*3;
 		option.data = vertices;
-		option.resource_write = RendererEnum::IMMUTABLE;
+		option.resource_write = RendererResourceWrite::IMMUTABLE;
 		vb->Initialize(option);
 		delete[] vertices;
 	}
@@ -59,7 +59,7 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 		ib = manager->CreateGraphicBuffer();
 		GraphicBuffer::Option option;
 		option.InitializeAsIndexBuffer(size, indices);
-		option.resource_write = RendererEnum::IMMUTABLE;
+		option.resource_write = RendererResourceWrite::IMMUTABLE;
 		ib->Initialize(option);
 		delete[] indices;
 	}
@@ -68,7 +68,7 @@ Skybox::Skybox(EntitySystem *system, SkyboxImage *image)
 		env_texture = manager->CreateTextureCube();
 		TextureCube::Option option;
 		image->PopulateTextureCubeOption(&option);
-		option.resource_write = RendererEnum::IMMUTABLE;
+		option.resource_write = RendererResourceWrite::IMMUTABLE;
 		env_texture->Initialize(option);
 	}
 

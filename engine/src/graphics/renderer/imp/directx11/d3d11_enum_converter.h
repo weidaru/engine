@@ -20,8 +20,8 @@ namespace s2 {
 
 class D3D11EnumConverter {
 public:
-	static DXGI_FORMAT TextureFormatToDXGIFormat(RendererEnum::Format input);
-	static RendererEnum::Format DXGIFormatToTextureFormat(DXGI_FORMAT input);
+	static DXGI_FORMAT TextureFormatToDXGIFormat(RendererFormat input);
+	static RendererFormat DXGIFormatToTextureFormat(DXGI_FORMAT input);
 	
 	static D3D11_COMPARISON_FUNC DSCompareToD3D11Compare(DepthStencilOption::ComparisonFunc input);
 	static D3D11_STENCIL_OP StencilOpToD3D11StencilOp(DepthStencilOption::StencilOp input);

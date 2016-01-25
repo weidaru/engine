@@ -14,6 +14,7 @@ class Sampler;
 class ShaderResource;
 class ShaderBytecode;
 class GraphicPipeline;
+class UnorderedAccess;
 
 class ShaderData : public Resource {
 public:
@@ -28,10 +29,12 @@ public:
 	
 	virtual bool SetUniform(const s2string &name, const void * value, uint32_t size) = 0;
 	
-	virtual bool 					SetSampler(const s2string &name, Sampler *sampler) = 0;
-	virtual Sampler * 			GetSampler(const s2string &name) = 0;
-	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
-	virtual ShaderResource *		GetShaderResource(const s2string &name) = 0;
+	virtual bool SetSampler(const s2string &name, Sampler *sampler) = 0;
+	virtual Sampler * GetSampler(const s2string &name) = 0;
+	virtual bool SetShaderResource(const s2string &name, ShaderResource *shader_resource) = 0;
+	virtual ShaderResource * GetShaderResource(const s2string &name) = 0;
+	virtual bool SetUnorderedAccess(const s2string &name, UnorderedAccess *unordered_access, int initial_counter) = 0;
+	virtual UnorderedAccess * GetUnorderedAccess(const s2string &name) = 0;
 
 	virtual void FlushConstantBuffer(GraphicPipeline *pipeline) = 0;
 	

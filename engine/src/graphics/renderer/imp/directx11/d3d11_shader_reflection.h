@@ -63,15 +63,15 @@ public:
 		s2string name;
 		bool is_compare_sampler;
 	};
-	
-	enum ShaderResourceType {
-		TEXTURE
-	};
-	
+
 	struct ShaderResource {
 		uint32_t slot_index;
 		s2string name;
-		ShaderResourceType type;
+	};
+
+	struct UnorderedAccess {
+		uint32_t slot_index;
+		s2string name;
 	};
 
 private:
@@ -80,6 +80,7 @@ private:
 	typedef std::map<s2string, Uniform> UniformMap;
 	typedef std::vector<Sampler> SamplerVector;
 	typedef std::vector<ShaderResource> ShaderResourceVector;
+	typedef std::vector<UnorderedAccess> UnorderedAccessVector;
 	
 public:
 	D3D11ShaderReflection(const s2string &_filepath, ID3DBlob *shader_blob);
@@ -107,6 +108,12 @@ public:
 	bool HasShaderResource(const s2string &name) const;
 	uint32_t GetShaderResourceSize() const;
 	uint32_t GetShaderResourceIndex(const s2string &name) const;
+
+	const D3D11ShaderReflection::UnorderedAccess & GetUnorderedAccess(uint32_t index) const;
+	const D3D11ShaderReflection::UnorderedAccess & GetUnorderedAccess(const s2string &name) const;
+	bool HasUnorderedAccess(const s2string &name) const;
+	uint32_t GetUnorderedAccessSize() const;
+	uint32_t GetUnorderedAccessIndex(const s2string &name) const;
 	
 private:
 	void PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc);
@@ -130,6 +137,7 @@ private:
 	ParameterVector outputs;
 	SamplerVector samplers;
 	ShaderResourceVector shader_resources;
+	UnorderedAccessVector uavs;
 };
 
 }

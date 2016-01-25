@@ -12,7 +12,7 @@ class D3D11GraphicPipeline;
 
 class D3D11MappedResource {
 public:
-	D3D11MappedResource(ID3D11Resource *resource, RendererEnum::ResourceWrite _resource_write);
+	D3D11MappedResource(ID3D11Resource *resource, RendererResourceWrite _resource_write);
 	~D3D11MappedResource();
 	
 	void WriteMap(D3D11GraphicPipeline *pipeline, bool is_partial_map, uint32_t subresource_index);
@@ -33,13 +33,13 @@ public:
 	uint32_t GetReadRowPitch() { return read_row_pitch; }
 	uint32_t GetReadDepthPitch() { return read_depth_pitch; }
 	
-	RendererEnum::ResourceWrite GetResourceWrite() const { return resource_write; }
+	RendererResourceWrite GetResourceWrite() const { return resource_write; }
 
 	
 private:
 	ID3D11DeviceContext *context;
 	ID3D11Resource *resource;
-	RendererEnum::ResourceWrite resource_write;
+	RendererResourceWrite resource_write;
 	
 	void *mapped_data;
 	int write_index;

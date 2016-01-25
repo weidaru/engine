@@ -15,6 +15,7 @@ class D3D11GraphicBuffer;
 class D3D11ShaderBytecode;
 class D3D11VertexShader;
 class D3D11PixelShader;
+class D3D11ComputeShader;
 class D3D11GeometryShader;
 class D3D11Sampler;
 class D3D11InputLayout;
@@ -73,6 +74,11 @@ public:
 	virtual PixelShader * GetPixelShader(uint32_t id) override;
 	virtual void RemovePixelShader(uint32_t id) override;
 
+	//ComputeShader
+	virtual ComputeShader * CreateComputeShader() override;
+	virtual ComputeShader * GetComputeShader(uint32_t id) override;
+	virtual void RemoveComputeShader(uint32_t id) override;
+
 	//GeometryShader
 	virtual GeometryShader * CreateGeometryShader() override;
 	virtual GeometryShader * GetGeometryShader(uint32_t id) override;
@@ -109,6 +115,7 @@ private:
 	std::map<uint32_t, D3D11ShaderBytecode *> bytecode_map;
 	std::map<uint32_t, D3D11VertexShader *> vs_map;
 	std::map<uint32_t, D3D11PixelShader *> ps_map;
+	std::map<uint32_t, D3D11ComputeShader *> cs_map;
 	std::map<uint32_t, D3D11GeometryShader *> gs_map;
 	std::map<uint32_t, D3D11InputLayout *> input_layout_map;
 	std::map<uint32_t, D3D11ShaderData *> shader_data_map;

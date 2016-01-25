@@ -2,7 +2,6 @@
 #define TEXTURE2D_H_
 
 #include "resource.h"
-#include "texture_enum.h"
 #include "renderer_enum.h"
 #include "texture_data.h"
 
@@ -21,11 +20,11 @@ public:
 		uint32_t 	height;
 		uint32_t 	mip_level;				//0 is full mipmap.
 		uint32_t 	array_size;
-		RendererEnum::Format 	format;
+		RendererFormat format;
 		uint32_t 	sample_size;			//This is only useful for render target
-		RendererEnum::ResourceWrite resource_write;
-		TextureEnum::OutputBind output_bind;
-		TextureEnum::InputBind input_bind;
+		RendererResourceWrite resource_write;
+		RendererOutputBind output_bind;
+		RendererInputBind input_bind;
 		TextureData data;
 		
 		Option() {
@@ -33,11 +32,11 @@ public:
 			height = 0;
 			mip_level = 1;
 			array_size = 1;
-			format = RendererEnum::R8G8B8A8_UNORM;
-			output_bind = TextureEnum::NOT_OUTPUT;
-			input_bind = TextureEnum::SHADER_RESOURCE;
+			format = RendererFormat::R8G8B8A8_UNORM;
+			output_bind = RendererOutputBind::NOT_OUTPUT;
+			input_bind = RendererInputBind::SHADER_RESOURCE;
 			sample_size = 1;
-			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
 		}
 		
 		static void SetAsDepthStencilBuffer(Option *option, uint32_t width, uint32_t height) {
@@ -45,11 +44,11 @@ public:
 			option->height = height;
 			option->mip_level = 1;
 			option->array_size = 1;
-			option->format = RendererEnum::D24_UNORM_S8_UINT;
-			option->output_bind = TextureEnum::DEPTH_STENCIL;
-			option->input_bind = TextureEnum::NOT_INPUT;
+			option->format = RendererFormat::D24_UNORM_S8_UINT;
+			option->output_bind = RendererOutputBind::DEPTH_STENCIL;
+			option->input_bind = RendererInputBind::NOT_INPUT;
 			option->sample_size = 1;
-			option->resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			option->resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
 			option->data.Reset(1, 1);
 		}
 	};

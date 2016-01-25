@@ -17,6 +17,7 @@ namespace s2 {
 class D3D11GraphicResourceManager;
 class D3D11VertexShader;
 class D3D11PixelShader;
+class D3D11ComputeShader;
 class D3D11GeometryShader;
 class D3D11ShaderData;
 class D3D11VertexBuffer;
@@ -29,6 +30,7 @@ class D3D11InputLayout;
 class InputLayout;
 class VertexShader;
 class PixelShader;
+class ComputeShader;
 class GeometryShader;
 
 class D3D11GraphicPipeline : public GraphicPipeline {
@@ -109,6 +111,9 @@ public:
 	virtual void SetPixelShaderData(ShaderData *data) override;
 	virtual ShaderData * GetPixelShaderData() override;
 
+	virtual void SetComputeShaderData(ShaderData *data) override;
+	virtual ShaderData * GetComputeShaderData() override;
+
 	virtual void SetGeometryShaderData(ShaderData *data) override;
 	virtual ShaderData * GetGeometryShaderData() override;
 	
@@ -136,6 +141,7 @@ public:
 	virtual void DrawIndex( uint32_t index_start, uint32_t index_count) override;
 	virtual void DrawInstance(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) override;
 	virtual void DrawInstanceIndex(uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) override;
+	virtual void Dispatch(uint32_t thread_group_count_x, uint32_t thread_group_count_y,uint32_t thread_group_count_z) override;
 
 	virtual void SetState(const GraphicPipelineState &state) override;
 	virtual GraphicPipelineState * QueryState() const override;
@@ -150,6 +156,7 @@ public:
 private:
 	void SetInputLayout(InputLayout *_layout);
 	void SetVertexShader(VertexShader *shader);
+	void SetComputeShader(ComputeShader *shader);
 	void SetPixelShader(PixelShader *shader);
 	void SetGeometryShader(GeometryShader *shader);
 
@@ -180,8 +187,9 @@ private:
 	
 	D3D11VertexShader *vs;
 	D3D11PixelShader *ps;
+	D3D11ComputeShader *cs;
 	D3D11GeometryShader *gs;
-	D3D11ShaderData *vs_data, *ps_data, *gs_data;
+	D3D11ShaderData *vs_data, *ps_data, *cs_data, *gs_data;
 	
 	RasterizationOption rast_opt;
 	ID3D11RasterizerState *rast_state;

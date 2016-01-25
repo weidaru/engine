@@ -21,6 +21,7 @@
 #include "d3d11_shader_bytecode.h"
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
+#include "d3d11_compute_shader.h"
 #include "d3d11_sampler.h"
 #include "d3d11_geometry_shader.h"
 #include "d3d11_input_layout.h"
@@ -50,6 +51,7 @@ D3D11GraphicResourceManager::~D3D11GraphicResourceManager() {
 	MapClean(D3D11ShaderBytecode, bytecode_map);
 	MapClean(D3D11VertexShader, vs_map);
 	MapClean(D3D11PixelShader, ps_map);
+	MapClean(D3D11ComputeShader, cs_map);
 	MapClean(D3D11GeometryShader, gs_map);
 	MapClean(D3D11InputLayout, input_layout_map);
 	MapClean(D3D11ShaderData, shader_data_map);
@@ -93,6 +95,7 @@ ResourceImp(Sampler, sampler_map)
 ResourceImp(ShaderBytecode, bytecode_map)
 ResourceImp(VertexShader, vs_map)
 ResourceImp(PixelShader, ps_map)
+ResourceImp(ComputeShader, cs_map)
 ResourceImp(GeometryShader, gs_map)
 ResourceImp(InputLayout, input_layout_map)
 ResourceImp(ShaderData, shader_data_map)

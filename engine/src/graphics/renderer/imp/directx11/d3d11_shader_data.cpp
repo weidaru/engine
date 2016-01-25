@@ -116,7 +116,7 @@ void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType s
 		case ShaderType::GEOMETRY:
 			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
 		default:
-			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
 	}
 }
@@ -135,7 +135,7 @@ void ConstantBufferContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType 
 			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
 			break;
 		default:
-			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
 	}
 }
@@ -218,7 +218,7 @@ void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_t
 			context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
 			break;
 		default:
-			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
 	}
 }
@@ -237,7 +237,7 @@ void SamplerContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_
 			context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
 			break;
 		default:
-			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
 	}
 }
@@ -266,10 +266,6 @@ bool ShaderResourceContainer::SetShaderResource(const s2string &name, ShaderReso
 	}
 	uint32_t reflect_index = reflect->GetShaderResourceIndex(name);
 	const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(reflect_index);
-	if(info.type != D3D11ShaderReflection::TEXTURE) {
-		S2StringFormat(error, "Shader resource %s is not declared as a texture", name);
-		return false;
-	}
 	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		if(shader_resources[i].reflect_index == reflect_index) {
 			shader_resources[i].shader_resource = shader_resource;
@@ -287,10 +283,6 @@ D3D11ShaderResource * ShaderResourceContainer::GetShaderResource(const s2string 
 	}
 	uint32_t reflect_index = reflect->GetShaderResourceIndex(name);
 	const D3D11ShaderReflection::ShaderResource &info = reflect->GetShaderResource(reflect_index);
-	if(info.type != D3D11ShaderReflection::TEXTURE) {
-		S2StringFormat(error, "Shader resource %s is not declared as a texture", name);
-		return 0;
-	}
 	for(uint32_t i=0; i<shader_resources.size(); i++) {
 		if(shader_resources[i].reflect_index == reflect_index) {
 			return shader_resources[i].shader_resource;
@@ -325,7 +317,7 @@ void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType s
 			context->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
 			break;
 		default:
-			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
 	}
 }
@@ -345,14 +337,108 @@ void ShaderResourceContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType 
 			context->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
 			break;
 		default:
-			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
+			break;
+	}
+}
+
+UnorderedAccessContainer::UnorderedAccessContainer(D3D11ShaderReflection *_reflect)
+		: reflect(_reflect){
+	CHECK_NOTNULL(reflect);
+	uavs.resize(reflect->GetUnorderedAccessSize());
+	for(uint32_t i=0; i<uavs.size(); i++) {
+		const D3D11ShaderReflection::UnorderedAccess &info = reflect->GetUnorderedAccess(i);
+		uavs[i].reflect_index = i;
+		uavs[i].uav = 0;
+	}
+}
+
+bool UnorderedAccessContainer::SetUnorderedAccess(
+		const s2string &name, UnorderedAccess *_shader_resource, int initial_counter, s2string *error) {
+	D3D11UnorderedAccess *shader_resource = 0;
+	if (_shader_resource != 0) {
+		shader_resource = NiceCast(D3D11UnorderedAccess*, _shader_resource);
+		CHECK(shader_resource) << "Cannot cast shader resource to D3D11UnorderedAccess";
+	}
+	
+	if(!reflect->HasUnorderedAccess(name)) {
+		S2StringFormat(error, "Cannot find unordered access %s", name);
+		return false;
+	}
+	uint32_t reflect_index = reflect->GetUnorderedAccessIndex(name);
+	const D3D11ShaderReflection::UnorderedAccess &info = reflect->GetUnorderedAccess(reflect_index);
+	for(uint32_t i=0; i<uavs.size(); i++) {
+		if(uavs[i].reflect_index == reflect_index) {
+			uavs[i].uav = shader_resource;
+			uavs[i].initial_counter = initial_counter;
+			return true;
+		}
+	}
+	CHECK(false);
+	return false;
+}
+
+D3D11UnorderedAccess * UnorderedAccessContainer::GetUnorderedAccess(const s2string &name, s2string *error) {
+	if(!reflect->HasUnorderedAccess(name)) {
+		S2StringFormat(error, "Cannot find unordered access %s", name);
+		return 0;
+	}
+	uint32_t reflect_index = reflect->GetUnorderedAccessIndex(name);
+	const D3D11ShaderReflection::UnorderedAccess &info = reflect->GetUnorderedAccess(reflect_index);
+	for(uint32_t i=0; i<uavs.size(); i++) {
+		if(uavs[i].reflect_index == reflect_index) {
+			return uavs[i].uav;
+		}
+	}
+	CHECK(false);
+	return 0;
+}
+
+void UnorderedAccessContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+	ID3D11UnorderedAccessView *uav_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ] = {};
+	uint32_t counter_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {-1};
+
+	for(uint32_t i=0; i<uavs.size(); i++) {
+		const D3D11ShaderReflection::UnorderedAccess &info = reflect->GetUnorderedAccess(uavs[i].reflect_index);
+		if(uavs[i].uav == 0) {
+			continue;
+		} else {
+			uav_array[info.slot_index] = uavs[i].uav->GetUnorderedAccessView();
+			counter_array[info.slot_index] = uavs[i].initial_counter;
+		}
+	}
+
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::COMPUTE:
+			context->CSSetUnorderedAccessViews(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, uav_array, counter_array);
+			break;
+		default:
+			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
 	}
 }
 
 
+void UnorderedAccessContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
+	ID3D11UnorderedAccessView *uav_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ] = {0};
+	uint32_t counter_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {-1};
+	
+	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
+	switch(shader_type) {
+		case ShaderType::COMPUTE:
+			context->CSSetUnorderedAccessViews(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, uav_array, counter_array);
+			break;
+		default:
+			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);
+			break;
+	}
+}
+
 D3D11ShaderData::D3D11ShaderData(D3D11GraphicResourceManager *_manager) 
-	: manager(_manager), cb_container(0), sampler_container(0), sr_container(0), bytecode(0){
+	:	manager(_manager), 
+		cb_container(0), sampler_container(0), sr_container(0), uav_container(0), 
+		bytecode(0){
 	CHECK_NOTNULL(manager);
 }
 
@@ -360,6 +446,7 @@ D3D11ShaderData::~D3D11ShaderData() {
 	delete cb_container;
 	delete sampler_container;
 	delete sr_container;
+	delete uav_container;
 }
 
 
@@ -376,6 +463,7 @@ bool D3D11ShaderData::Initialize(ShaderBytecode *_bytecode) {
 	cb_container = new ConstantBufferContainer(manager, bytecode->GetReflection());
 	sampler_container = new SamplerContainer(bytecode->GetReflection());
 	sr_container = new ShaderResourceContainer(bytecode->GetReflection());
+	uav_container = new UnorderedAccessContainer(bytecode->GetReflection());
 
 	return true;
 }
@@ -405,6 +493,14 @@ ShaderResource * D3D11ShaderData::GetShaderResource(const s2string &name) {
 	return sr_container->GetShaderResource(name, &error);
 }
 
+bool D3D11ShaderData::SetUnorderedAccess(const s2string &name, UnorderedAccess *unordered_access, int initial_counter) {
+	return uav_container->SetUnorderedAccess(name, unordered_access, initial_counter, &error);
+}
+
+UnorderedAccess * D3D11ShaderData::GetUnorderedAccess(const s2string &name) {
+	return uav_container->GetUnorderedAccess(name, &error);
+}
+
 void D3D11ShaderData::FlushConstantBuffer(GraphicPipeline *_pipeline) {
 	D3D11GraphicPipeline *pipeline = static_cast<D3D11GraphicPipeline *>(_pipeline);
 	cb_container->Flush(pipeline);
@@ -414,12 +510,18 @@ void D3D11ShaderData::Setup(D3D11GraphicPipeline *pipeline, ShaderType type) {
 	cb_container->Setup(pipeline, type);
 	sampler_container->Setup(pipeline, type);
 	sr_container->Setup(pipeline, type);
+	if(type == ShaderType::COMPUTE ) {
+		uav_container->Setup(pipeline, type);
+	}
 }
 
 void D3D11ShaderData::UnBind(D3D11GraphicPipeline *pipeline, ShaderType type) {
 	ConstantBufferContainer::UnBind(pipeline, type);
 	SamplerContainer::UnBind(pipeline, type);
 	ShaderResourceContainer::UnBind(pipeline, type);
+	if(type == ShaderType::COMPUTE) {
+		UnorderedAccessContainer::UnBind(pipeline, type);
+	}
 }
 
 }

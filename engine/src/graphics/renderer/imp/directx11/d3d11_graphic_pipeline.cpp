@@ -15,6 +15,7 @@
 
 #include "d3d11_vertex_shader.h"
 #include "d3d11_pixel_shader.h"
+#include "d3d11_compute_shader.h"
 #include "d3d11_geometry_shader.h"
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
@@ -43,10 +44,12 @@ D3D11GraphicPipeline::D3D11GraphicPipeline(D3D11GraphicResourceManager *_manager
 
 	vs = 0;
 	ps = 0;
+	cs = 0;
 	gs = 0;
 
 	vs_data = 0;
 	ps_data = 0;
+	cs_data = 0;
 	gs_data = 0;
 	rast_state = 0;
 	ds_state = 0;
@@ -246,6 +249,34 @@ void D3D11GraphicPipeline::SetPixelShaderData(ShaderData *data) {
 ShaderData * D3D11GraphicPipeline::GetPixelShaderData() {
 	return ps_data;
 }
+
+void D3D11GraphicPipeline::SetComputeShader(ComputeShader *shader) {
+	if (shader == 0) {
+		context->CSSetShader(0, 0, 0);
+		
+	} else {
+		cs = NiceCast(D3D11ComputeShader *, shader);
+		if (cs) {
+			context->CSSetShader(cs->GetInternal(), 0, 0);
+		} else {
+			context->CSSetShader(0, 0, 0);
+		}
+	}
+}
+
+void D3D11GraphicPipeline::SetComputeShaderData(ShaderData *data) {
+	if(data == 0) {
+		D3D11ShaderData::UnBind(this, ShaderType::COMPUTE);
+	} else {
+		cs_data = static_cast<D3D11ShaderData *>(data);
+		cs_data->Setup(this, ShaderType::COMPUTE);
+	}
+}
+
+ShaderData * D3D11GraphicPipeline::GetComputeShaderData() {
+	return cs_data;
+}
+
 
 void D3D11GraphicPipeline::SetGeometryShader(GeometryShader *shader) {
 	if (shader == 0) {
@@ -638,12 +669,17 @@ void D3D11GraphicPipeline::DrawInstanceIndex(
 	context->DrawIndexedInstanced(index_count, instance_count, index_start, vertex_base, instance_start);
 }
 
+void D3D11GraphicPipeline::Dispatch(uint32_t thread_group_count_x, uint32_t thread_group_count_y,uint32_t thread_group_count_z) {
+	context->Dispatch(thread_group_count_x, thread_group_count_y, thread_group_count_z);
+}
+
 void D3D11GraphicPipeline::SetState(const GraphicPipelineState &_state) {
 	const D3D11GraphicPipelineState &state = static_cast<const D3D11GraphicPipelineState &>(_state);
 
 	SetInputLayout(state.GetInputLayout());
 	SetVertexShader(state.GetVertexShader());
 	SetPixelShader(state.GetPixelShader());
+	SetComputeShader(state.GetComputeShader());
 	SetGeometryShader(state.GetGeometryShader());
 	
 	SetRasterizationOption(state.GetRasterizationOption(), state.GetRasterizationState());

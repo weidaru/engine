@@ -2,7 +2,6 @@
 #define PIXEL_MAP_H_
 
 #include "utils/s2string.h"
-#include "graphics/renderer/texture_enum.h"
 #include "graphics/renderer/texture2d.h"
 #include "image_common.h"
 

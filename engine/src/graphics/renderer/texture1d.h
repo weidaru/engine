@@ -3,7 +3,6 @@
 
 #include "resource.h"
 #include "utils/s2string.h"
-#include "texture_enum.h"
 #include "renderer_enum.h"
 #include "resource_view.h"
 #include "texture_data.h"
@@ -17,20 +16,20 @@ public:
 		uint32_t width;
 		uint32_t mip_level;			//0 is full mipmap.
 		uint32_t array_size;
-		RendererEnum::Format format;
-		TextureEnum::OutputBind output_bind;
-		TextureEnum::InputBind input_bind;
-		RendererEnum::ResourceWrite resource_write;
+		RendererFormat format;
+		RendererOutputBind output_bind;
+		RendererInputBind input_bind;
+		RendererResourceWrite resource_write;
 		TextureData data;
 		
 		Option() {
 			width = 0;
 			mip_level = 1;
 			array_size = 1;
-			format = RendererEnum::R8G8B8A8_UNORM;
-			output_bind = TextureEnum::NOT_OUTPUT;
-			input_bind = TextureEnum::SHADER_RESOURCE;
-			resource_write = RendererEnum::IMMUTABLE;
+			format = RendererFormat::R8G8B8A8_UNORM;
+			output_bind = RendererOutputBind::NOT_OUTPUT;
+			input_bind = RendererInputBind::SHADER_RESOURCE;
+			resource_write = RendererResourceWrite::IMMUTABLE;
 		}
 	};
 

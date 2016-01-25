@@ -56,7 +56,7 @@ void D3D11GraphicBuffer::Initialize(const Option &_option) {
 	}
 	if ((option.binding & 0xF0) == STREAM_OUT) {
 		desc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
-		CHECK(option.resource_write != RendererEnum::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
+		CHECK(option.resource_write != RendererResourceWrite::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
 	}
 
 	HRESULT result = 1;
@@ -94,7 +94,7 @@ uint32_t D3D11GraphicBuffer::GetElementBytewidth() const {
 	return option.element_bytewidth;
 }
 
-RendererEnum::ResourceWrite D3D11GraphicBuffer::GetResourceWrite() const {
+RendererResourceWrite D3D11GraphicBuffer::GetResourceWrite() const {
 	Check();
 	return mapped->GetResourceWrite();
 }
@@ -181,7 +181,7 @@ void D3D11GraphicBuffer::Update(GraphicPipeline * _pipeline,
 		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
 	}
 	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
-	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL) <<
+	CHECK(mapped->GetResourceWrite() == RendererResourceWrite::CPU_WRITE_OCCASIONAL) <<
 		"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 
 	D3D11_BOX dest;

@@ -22,6 +22,7 @@ class D3D11ShaderReflection;
 class D3D11Sampler;
 class D3D11ShaderResource;
 class D3D11ShaderBytecode;
+class D3D11UnorderedAccess;
 
 class ConstantBufferContainer{
 private:
@@ -88,6 +89,36 @@ private:
 	ShaderResourceVector shader_resources;
 };
 
+class UnorderedAccessContainer {
+private:
+	struct Info {
+		uint32_t reflect_index;
+		int initial_counter;
+		D3D11UnorderedAccess *uav;
+
+		Info() {
+			reflect_index = 0;
+			initial_counter = -1;
+			uav = 0;
+		}
+	};
+	typedef std::vector<Info> UnorderedAccessVector;
+
+public:
+	UnorderedAccessContainer(D3D11ShaderReflection *_reflect);
+
+	bool SetUnorderedAccess(const s2string &name, UnorderedAccess * _unordered_access, int initial_counter, s2string *error);
+	D3D11UnorderedAccess * GetUnorderedAccess(const s2string &name, s2string *error);
+
+	void Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+	static void UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type);
+
+private:
+	D3D11ShaderReflection *reflect;
+
+	UnorderedAccessVector uavs;
+};
+
 class D3D11ShaderData : public ShaderData {
 public:
 	D3D11ShaderData(D3D11GraphicResourceManager *manager);
@@ -101,6 +132,9 @@ public:
 	virtual Sampler * 			GetSampler(const s2string &name) override;
 	virtual bool 					SetShaderResource(const s2string &name, ShaderResource *shader_resource) override;
 	virtual ShaderResource *		GetShaderResource(const s2string &name) override;
+	virtual bool SetUnorderedAccess(const s2string &name, UnorderedAccess *unordered_access, int initial_counter) override;
+	virtual UnorderedAccess * GetUnorderedAccess(const s2string &name) override;
+
 	virtual void FlushConstantBuffer(GraphicPipeline *pipeline) override;
 
 	void Setup(D3D11GraphicPipeline *pipeline, ShaderType type);
@@ -114,6 +148,7 @@ private:
 	ConstantBufferContainer *cb_container;
 	SamplerContainer *sampler_container;
 	ShaderResourceContainer *sr_container;
+	UnorderedAccessContainer *uav_container;
 
 	D3D11ShaderBytecode *bytecode;
 };

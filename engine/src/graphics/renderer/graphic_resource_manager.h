@@ -14,6 +14,7 @@ class ShaderBytecode;
 class GraphicBuffer;
 class VertexShader;
 class PixelShader;
+class ComputeShader;
 class GeometryShader;
 class InputLayout;
 class ShaderData;
@@ -66,6 +67,11 @@ public:
 	virtual PixelShader * CreatePixelShader() = 0;
 	virtual PixelShader * GetPixelShader(uint32_t id) = 0;
 	virtual void RemovePixelShader(uint32_t id) = 0;
+
+	//ComputeShader
+	virtual ComputeShader * CreateComputeShader() = 0;
+	virtual ComputeShader * GetComputeShader(uint32_t id) = 0;
+	virtual void RemoveComputeShader(uint32_t id) = 0;
 
 	//GeometryShader
 	virtual GeometryShader * CreateGeometryShader() = 0;

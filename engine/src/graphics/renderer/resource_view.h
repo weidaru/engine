@@ -5,6 +5,12 @@
 
 namespace s2 {
 
+class UnorderedAccess {
+public:
+	virtual ~UnorderedAccess() {}
+	virtual Resource *GetResource () = 0;
+};
+
 class RenderTarget {
 public:
 	virtual ~RenderTarget() {}

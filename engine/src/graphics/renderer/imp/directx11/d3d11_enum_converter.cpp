@@ -13,27 +13,27 @@
 
 namespace s2 {
 
-DXGI_FORMAT D3D11EnumConverter::TextureFormatToDXGIFormat(RendererEnum::Format input) {
+DXGI_FORMAT D3D11EnumConverter::TextureFormatToDXGIFormat(RendererFormat input) {
 	switch(input) {
-	case RendererEnum::R8G8B8A8_UNORM:
+	case RendererFormat::R8G8B8A8_UNORM:
 		return DXGI_FORMAT_R8G8B8A8_UNORM;
-	case RendererEnum::D24_UNORM_S8_UINT:
+	case RendererFormat::D24_UNORM_S8_UINT:
 		return DXGI_FORMAT_D24_UNORM_S8_UINT;
-	case RendererEnum::R32G32B32A32_FLOAT:
+	case RendererFormat::R32G32B32A32_FLOAT:
 		return DXGI_FORMAT_R32G32B32A32_FLOAT;
 	default:
-		CHECK(false)<<"Invalid input "<<input;
+		CHECK(false)<<"Invalid input "<<static_cast<int>(input);
 		return DXGI_FORMAT_FORCE_UINT;
 	}
 }
 
-RendererEnum::Format D3D11EnumConverter::DXGIFormatToTextureFormat(DXGI_FORMAT input) {
+RendererFormat D3D11EnumConverter::DXGIFormatToTextureFormat(DXGI_FORMAT input) {
 	switch(input) {
 	case DXGI_FORMAT_R8G8B8A8_UNORM:
-		return RendererEnum::R8G8B8A8_UNORM;
+		return RendererFormat::R8G8B8A8_UNORM;
 	default:
 		CHECK(false)<<"Invalid input "<<input;
-		return RendererEnum::R8G8B8A8_UNORM;
+		return RendererFormat::R8G8B8A8_UNORM;
 	}
 }
 

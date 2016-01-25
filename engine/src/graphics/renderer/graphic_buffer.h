@@ -33,8 +33,7 @@ public:
 		uint32_t element_bytewidth;
 		void * data;
 		s2string element_typename;
-		RendererEnum::Format format;
-		RendererEnum::ResourceWrite resource_write;
+		RendererResourceWrite resource_write;
 		uint32_t binding;
 
 		Option() {
@@ -42,8 +41,7 @@ public:
 			element_member_count = 0;
 			element_bytewidth = 0;
 			data = 0;
-			format = RendererEnum::R8G8B8A8_UNORM;
-			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
 			binding = VERTEX_BUFFER;
 		}
 
@@ -86,7 +84,7 @@ public:
 	//will return have "" TypeName.
 	virtual s2string 			GetElementTypeName() const { return ""; }
 
-	virtual RendererEnum::ResourceWrite GetResourceWrite() const = 0;
+	virtual RendererResourceWrite GetResourceWrite() const = 0;
 	virtual uint32_t GetBinding() const = 0;
 
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite = false) = 0;

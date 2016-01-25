@@ -59,6 +59,8 @@ bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry
 		case ShaderType::GEOMETRY:
 			target = "gs_5_0";
 			break;
+		case ShaderType::COMPUTE:
+			target = "cs_5_0";
 		default:
 			CHECK(0)<<"Unknown ShaderType " << static_cast<int>(type);
 			break;

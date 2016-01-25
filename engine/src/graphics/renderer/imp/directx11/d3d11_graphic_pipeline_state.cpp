@@ -24,6 +24,7 @@ D3D11GraphicPipelineState::D3D11GraphicPipelineState(D3D11GraphicResourceManager
 	input_layout = 0;
 	vs = 0;
 	ps = 0;
+	cs = 0;
 	gs = 0;
 
 	rast_state= 0;
@@ -83,6 +84,14 @@ void D3D11GraphicPipelineState::SetPixelShader(PixelShader *shader) {
 
 PixelShader * D3D11GraphicPipelineState::GetPixelShader() const {
 	return ps;
+}
+
+void D3D11GraphicPipelineState::SetComputeShader(ComputeShader *shader) {
+	cs = shader;
+}
+
+ComputeShader * D3D11GraphicPipelineState::GetComputeShader() const {
+	return cs;
 }
 
 void D3D11GraphicPipelineState::SetGeometryShader(GeometryShader *shader) {

@@ -58,6 +58,9 @@ public:
 	virtual void SetPixelShaderData(ShaderData *data) = 0;
 	virtual ShaderData * GetPixelShaderData() = 0;
 
+	virtual void SetComputeShaderData(ShaderData *data) = 0;
+	virtual ShaderData * GetComputeShaderData() = 0;
+
 	virtual void SetGeometryShaderData(ShaderData *data) = 0;
 	virtual ShaderData * GetGeometryShaderData() = 0;
 
@@ -83,6 +86,8 @@ public:
 	virtual void DrawIndex( uint32_t index_start, uint32_t index_count) = 0;
 	virtual void DrawInstance(uint32_t vertex_start, uint32_t vertex_count, uint32_t instance_start, uint32_t instance_count) = 0;
 	virtual void DrawInstanceIndex(uint32_t index_start, uint32_t index_count, uint32_t instance_start, uint32_t instance_count) = 0;
+
+	virtual void Dispatch(uint32_t thread_group_count_x, uint32_t thread_group_count_y,uint32_t thread_group_count_z) = 0;
 
 	virtual void SetState(const GraphicPipelineState &state) = 0;
 	virtual GraphicPipelineState * QueryState() const = 0;

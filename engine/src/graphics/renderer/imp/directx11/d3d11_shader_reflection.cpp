@@ -19,11 +19,34 @@
 namespace s2 {
 
 namespace {
-	const char *kFloat = "float";
-	const char *kInt = "int";
-	const char *kUint = "uint";
-	const char *kDouble = "double";
-	const char *kBool = "bool";
+const char *kFloat = "float";
+const char *kInt = "int";
+const char *kUint = "uint";
+const char *kDouble = "double";
+const char *kBool = "bool";
+
+s2string ComponentToTypeName(D3D_REGISTER_COMPONENT_TYPE input) {
+	switch(input) {
+	case D3D_REGISTER_COMPONENT_UINT32:
+		return kUint;
+	case D3D_REGISTER_COMPONENT_SINT32:
+		return kInt;
+	case D3D_REGISTER_COMPONENT_FLOAT32:
+		return kFloat;
+	default:
+		CHECK(false)<<"Unexpected type. "<<input;
+		return "";
+	}
+}
+
+uint32_t GetUsedComponentSize(char mask) {
+	uint32_t c;
+	for (c = 0; mask; c++) 
+		mask &= mask - 1;
+	return c*4;
+}
+
+
 }
 
 void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc) {
@@ -64,30 +87,6 @@ void D3D11ShaderReflection::PopulateCBAndUniforms(const D3D11_SHADER_DESC &desc)
 	}
 }
 
-namespace {
-
-s2string ComponentToTypeName(D3D_REGISTER_COMPONENT_TYPE input) {
-	switch(input) {
-	case D3D_REGISTER_COMPONENT_UINT32:
-		return kUint;
-	case D3D_REGISTER_COMPONENT_SINT32:
-		return kInt;
-	case D3D_REGISTER_COMPONENT_FLOAT32:
-		return kFloat;
-	default:
-		CHECK(false)<<"Unexpected type. "<<input;
-		return "";
-	}
-}
-
-uint32_t GetUsedComponentSize(char mask) {
-	uint32_t c;
-	for (c = 0; mask; c++) 
-		mask &= mask - 1;
-	return c*4;
-}
-
-}
 
 void D3D11ShaderReflection::PopulateInputs(const D3D11_SHADER_DESC &desc) {
 	HRESULT result = 1;
@@ -130,18 +129,27 @@ void D3D11ShaderReflection::PopulateResources(const D3D11_SHADER_DESC &desc) {
 		D3D11_SHADER_INPUT_BIND_DESC resource_desc;
 		reflect->GetResourceBindingDesc(i, &resource_desc);
 		
-		if(resource_desc.Type == D3D_SIT_SAMPLER) {		//Consider sampler
+		if(resource_desc.Type == D3D_SIT_SAMPLER) {
 			samplers.push_back(Sampler());
 			Sampler &cur = samplers.back();
 			cur.slot_index = resource_desc.BindPoint;
 			cur.name = resource_desc.Name;
 			cur.is_compare_sampler = ((resource_desc.uFlags | D3D_SIF_COMPARISON_SAMPLER)!=0);
-		} else if(resource_desc.Type == D3D_SIT_TEXTURE) {	//Consider texture
+		} else if(resource_desc.Type == D3D_SIT_TEXTURE) {
 			shader_resources.push_back(ShaderResource());
 			ShaderResource &cur = shader_resources.back();
 			cur.slot_index = resource_desc.BindPoint;
 			cur.name = resource_desc.Name;
-			cur.type = D3D11ShaderReflection::TEXTURE;
+		} else if(
+				resource_desc.Type == D3D_SIT_UAV_RWTYPED || 
+				resource_desc.Type == D3D_SIT_UAV_RWSTRUCTURED ||
+				resource_desc.Type == D3D_SIT_UAV_RWBYTEADDRESS ||
+				resource_desc.Type == D3D_SIT_UAV_CONSUME_STRUCTURED ||
+				resource_desc.Type == D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER) {
+			uavs.push_back(UnorderedAccess());
+			UnorderedAccess &cur = uavs.back();
+			cur.slot_index = resource_desc.BindPoint;
+			cur.name = resource_desc.Name;
 		}
 	}
 }
@@ -297,12 +305,35 @@ uint32_t D3D11ShaderReflection::GetShaderResourceSize() const {
 	return shader_resources.size();
 }
 
-namespace {
-
-bool IsArray(const s2string &type_name) {
-	return type_name.find('[') != std::string::npos;
+const D3D11ShaderReflection::UnorderedAccess & D3D11ShaderReflection::GetUnorderedAccess(uint32_t index) const {
+	return uavs[index];
 }
 
+const D3D11ShaderReflection::UnorderedAccess & D3D11ShaderReflection::GetUnorderedAccess(const s2string &name) const {
+	return uavs[GetUnorderedAccessIndex(name)];
+}
+
+bool D3D11ShaderReflection::HasUnorderedAccess(const s2string &name) const {
+	for(uint32_t i=0; i<uavs.size(); i++) {
+		if(uavs[i].name == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+uint32_t D3D11ShaderReflection::GetUnorderedAccessSize() const {
+	return uavs.size();
+}
+
+uint32_t D3D11ShaderReflection::GetUnorderedAccessIndex(const s2string &name) const {
+	for(uint32_t i=0; i<uavs.size(); i++) {
+		if(uavs[i].name == name) {
+			return i;
+		}
+	}
+	CHECK(false)<<"Cannot find shader resource "<<name;
+	return 0;
 }
 
 }

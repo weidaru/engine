@@ -86,7 +86,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	D3D11_SHADER_RESOURCE_VIEW_DESC *srv_desc = 0;
 	desc.BindFlags = 0;
 
-	if(_option.output_bind == TextureEnum::RENDER_TARGET) {
+	if(_option.output_bind == RendererOutputBind::RENDER_TARGET) {
 		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 		rtv_desc = new D3D11_RENDER_TARGET_VIEW_DESC;
 		
@@ -111,7 +111,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 		
 	}
-	else if(_option.output_bind == TextureEnum::DEPTH_STENCIL) {
+	else if(_option.output_bind == RendererOutputBind::DEPTH_STENCIL) {
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		dsv_desc = new D3D11_DEPTH_STENCIL_VIEW_DESC;
 		dsv_desc->Format = desc.Format;
@@ -137,7 +137,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 	}
 		
-	if(_option.input_bind == TextureEnum::SHADER_RESOURCE) {
+	if(_option.input_bind == RendererInputBind::SHADER_RESOURCE) {
 		desc.BindFlags = desc.BindFlags | D3D11_BIND_SHADER_RESOURCE;
 		srv_desc = new D3D11_SHADER_RESOURCE_VIEW_DESC;
 		srv_desc->Format = desc.Format;
@@ -164,13 +164,13 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 	
 	desc.CPUAccessFlags = 0;
-	if(_option.resource_write == RendererEnum::CPU_WRITE_FREQUENT) {
+	if(_option.resource_write == RendererResourceWrite::CPU_WRITE_FREQUENT) {
 		desc.Usage =  D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	} else if(_option.resource_write == RendererEnum::CPU_WRITE_OCCASIONAL) {
+	} else if(_option.resource_write == RendererResourceWrite::CPU_WRITE_OCCASIONAL) {
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
-	} else if(_option.resource_write == RendererEnum::IMMUTABLE) {
+	} else if(_option.resource_write == RendererResourceWrite::IMMUTABLE) {
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.CPUAccessFlags = 0;
 	} else {
@@ -184,7 +184,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 			for(uint32_t j=0; j<_option.data.GetMipLevel(); j++) {
 				D3D11_SUBRESOURCE_DATA &sub_resource = sub_resources[D3D11CalcSubresource(j, i, _option.mip_level)];
 				sub_resource.pSysMem = _option.data.GetData(i, j);
-				sub_resource.SysMemPitch = _option.width/(j+1)*RendererEnum::GetFormatSize(_option.format);
+				sub_resource.SysMemPitch = _option.width/(j+1)*GetFormatSize(_option.format);
 			}
 		}
 		result = manager->GetDevice()->CreateTexture2D(&desc, sub_resources, &tex);
@@ -238,7 +238,7 @@ void D3D11Texture2D::WriteUnmap() {
 void D3D11Texture2D::Write(uint32_t row, uint32_t col,  const void *data, uint32_t size) {
 	Check();
 	
-	mapped->Write(mapped->GetWriteRowPitch() + col*RendererEnum::GetFormatSize(option.format), data, size);
+	mapped->Write(mapped->GetWriteRowPitch() + col*GetFormatSize(option.format), data, size);
 }
 
 void D3D11Texture2D::ReadMap(GraphicPipeline *_pipeline, uint32_t mip_index, uint32_t array_index, bool wipe_cache) const {
@@ -271,7 +271,7 @@ void D3D11Texture2D::ReadUnmap() const {
 
 const void * D3D11Texture2D::Read(uint32_t row, uint32_t col) const {
 	Check();
-	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*RendererEnum::GetFormatSize(option.format);
+	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*GetFormatSize(option.format);
 }
 
 const Texture2D::Option & D3D11Texture2D::GetOption() const {
@@ -286,7 +286,7 @@ void D3D11Texture2D::Update(
 			uint32_t top, uint32_t bottom,
 			const void *data) {
 	Check();
-	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
+	CHECK(mapped->GetResourceWrite() == RendererResourceWrite::CPU_WRITE_OCCASIONAL)<<
 				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {
@@ -294,7 +294,7 @@ void D3D11Texture2D::Update(
 	}
 
 
-	uint32_t ele_size = RendererEnum::GetFormatSize(option.format);
+	uint32_t ele_size = GetFormatSize(option.format);
 	D3D11_BOX dest;
 	dest.left = left*ele_size;
 	dest.right = right*ele_size;

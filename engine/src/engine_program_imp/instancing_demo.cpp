@@ -91,11 +91,11 @@ public:
 				}
 				GraphicBuffer::Option option;
 				option.Initialize(size, positions);
-				option.resource_write = RendererEnum::IMMUTABLE;
+				option.resource_write = RendererResourceWrite::IMMUTABLE;
 
 				position_buffer->Initialize(option);
 				option.Initialize(size, colors);
-				option.resource_write = RendererEnum::IMMUTABLE;
+				option.resource_write = RendererResourceWrite::IMMUTABLE;
 				color_buffer->Initialize(option);
 				delete[] positions;
 				delete[] colors;
@@ -113,7 +113,7 @@ public:
 				}
 				GraphicBuffer::Option option;
 				option.InitializeAsIndexBuffer(size, indices);
-				option.resource_write = RendererEnum::IMMUTABLE;
+				option.resource_write = RendererResourceWrite::IMMUTABLE;
 				index_buffer->Initialize(option);
 				delete[] indices;
 			}
@@ -129,7 +129,7 @@ public:
 			}
 			GraphicBuffer::Option option;
 			option.Initialize(10, positions);
-			option.resource_write = RendererEnum::IMMUTABLE;
+			option.resource_write = RendererResourceWrite::IMMUTABLE;
 			instance_buffer->Initialize(option);
 		}	
 

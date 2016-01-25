@@ -2,7 +2,6 @@
 #define TEXTURE3D_H_
 
 #include "resource.h"
-#include "texture_enum.h"
 #include "utils/s2string.h"
 #include "renderer_enum.h"
 #include "texture_data.h"
@@ -18,11 +17,11 @@ public:
 		uint32_t 	depth;
 		uint32_t 	mip_level;			//0 is full mipmap.
 		uint32_t 	array_size;
-		RendererEnum::Format 	format;
+		RendererFormat 	format;
 		uint32_t 	sample_size;
-		RendererEnum::ResourceWrite resource_write;
-		TextureEnum::OutputBind output_bind;
-		TextureEnum::InputBind input_bind;
+		RendererResourceWrite resource_write;
+		RendererOutputBind output_bind;
+		RendererInputBind input_bind;
 		TextureData data;
 		
 		Option() {
@@ -31,11 +30,11 @@ public:
 			depth = 0;
 			mip_level = 1;
 			array_size = 1;
-			format = RendererEnum::R8G8B8A8_UNORM;
-			output_bind = TextureEnum::NOT_OUTPUT;
-			input_bind = TextureEnum::SHADER_RESOURCE;
+			format = RendererFormat::R8G8B8A8_UNORM;
+			output_bind = RendererOutputBind::NOT_OUTPUT;
+			input_bind = RendererInputBind::SHADER_RESOURCE;
 			sample_size = 1;
-			resource_write = RendererEnum::IMMUTABLE;
+			resource_write = RendererResourceWrite::IMMUTABLE;
 		}
 	};
 

@@ -23,7 +23,7 @@ public:
 	virtual uint32_t GetElementMemberCount() const;
 	virtual s2string GetElementTypeName() const;
 
-	virtual RendererEnum::ResourceWrite GetResourceWrite() const;
+	virtual RendererResourceWrite GetResourceWrite() const;
 	virtual uint32_t GetBinding() const;
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite);
 	virtual void WriteUnmap();

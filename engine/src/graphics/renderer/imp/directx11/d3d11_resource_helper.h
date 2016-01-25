@@ -12,7 +12,7 @@ namespace s2 {
 
 class D3D11ResourceHelper {
 public:
-	static void SetBufferDesc(D3D11_BUFFER_DESC *desc, uint32_t  byte_width, RendererEnum::ResourceWrite resource_write);
+	static void SetBufferDesc(D3D11_BUFFER_DESC *desc, uint32_t  byte_width, RendererResourceWrite resource_write);
 };
 
 }

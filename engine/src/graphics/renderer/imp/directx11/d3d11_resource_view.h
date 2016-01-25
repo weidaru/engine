@@ -9,9 +9,23 @@
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11ShaderResourceView;
+struct ID3D11UnorderedAccessView;
 struct ID3D11Buffer;
 
 namespace s2 {
+
+class D3D11UnorderedAccess : public UnorderedAccess, public NonCopyable {
+public:
+	D3D11UnorderedAccess(Resource *_resource, ID3D11UnorderedAccessView *_view);
+	virtual ~D3D11UnorderedAccess();
+	virtual Resource *GetResource() { return resource; }
+
+	ID3D11UnorderedAccessView * GetUnorderedAccessView() { return view; }
+
+private:
+	Resource *resource;
+	ID3D11UnorderedAccessView *view;
+};
 
 class D3D11RenderTarget : public RenderTarget, public NonCopyable {
 public:

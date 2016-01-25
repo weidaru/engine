@@ -6,6 +6,7 @@ namespace s2 {
 class InputLayout;
 class VertexShader;
 class PixelShader;
+class ComputeShader;
 class GeometryShader;
 struct RasterizationOption;
 struct DepthStencilOption;
@@ -24,6 +25,9 @@ public:
 	
 	virtual void SetPixelShader(PixelShader *ps) = 0;
 	virtual PixelShader * GetPixelShader() const = 0;
+
+	virtual void SetComputeShader(ComputeShader *cs) = 0;
+	virtual ComputeShader * GetComputeShader()  const = 0;
 
 	virtual void SetGeometryShader(GeometryShader *gs) = 0;
 	virtual GeometryShader * GetGeometryShader() const = 0;

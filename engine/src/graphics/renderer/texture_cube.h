@@ -23,8 +23,8 @@ public:
 		uint32_t 	height;
 		uint32_t 	mip_level;				//0 is full mipmap.
 		uint32_t 	array_size;
-		RendererEnum::Format 	format;
-		RendererEnum::ResourceWrite resource_write;
+		RendererFormat 	format;
+		RendererResourceWrite resource_write;
 
 		TextureCubeData data;
 		
@@ -33,8 +33,8 @@ public:
 			height = 0;
 			mip_level = 1;
 			array_size = 1;
-			format = RendererEnum::R8G8B8A8_UNORM;
-			resource_write = RendererEnum::CPU_WRITE_OCCASIONAL;
+			format = RendererFormat::R8G8B8A8_UNORM;
+			resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
 		}
 	};
 

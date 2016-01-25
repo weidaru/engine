@@ -56,11 +56,11 @@ void D3D11Context::Initialize(void *hwnd) {
 	bf_desc.height = setting.window_height;
 	bf_desc.mip_level= 1;
 	bf_desc.array_size = 1;
-	bf_desc.format = RendererEnum::R8G8B8A8_UNORM;
+	bf_desc.format = RendererFormat::R8G8B8A8_UNORM;
 	bf_desc.sample_size = 1;
-	bf_desc.resource_write = RendererEnum::IMMUTABLE;
-	bf_desc.output_bind = TextureEnum::RENDER_TARGET;
-	bf_desc.input_bind = TextureEnum::NOT_INPUT;
+	bf_desc.resource_write = RendererResourceWrite::IMMUTABLE;
+	bf_desc.output_bind = RendererOutputBind::RENDER_TARGET;
+	bf_desc.input_bind = RendererInputBind::NOT_INPUT;
 	back_buffer->InitAsBackBuffer(bf_ptr, bf_rt_view, bf_desc);
 }
 

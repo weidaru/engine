@@ -10,6 +10,16 @@
 
 namespace s2 {
 
+D3D11UnorderedAccess::D3D11UnorderedAccess(Resource *_resource, ID3D11UnorderedAccessView *_view)
+		: resource(_resource), view(_view){
+	CHECK_NOTNULL(resource);
+	CHECK_NOTNULL(view);
+}
+
+D3D11UnorderedAccess::~D3D11UnorderedAccess() {
+	view->Release();
+}
+
 D3D11RenderTarget::D3D11RenderTarget(Resource *_resource, ID3D11RenderTargetView *_view)
 			: resource(_resource), view(_view){
 	CHECK_NOTNULL(resource);

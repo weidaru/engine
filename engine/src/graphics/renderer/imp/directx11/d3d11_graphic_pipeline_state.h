@@ -30,6 +30,9 @@ public:
 	virtual void SetPixelShader(PixelShader *ps) override;
 	virtual PixelShader * GetPixelShader() const override;
 
+	virtual void SetComputeShader(ComputeShader *cs) override;
+	virtual ComputeShader * GetComputeShader() const override;
+
 	virtual void SetGeometryShader(GeometryShader *gs) override;
 	virtual GeometryShader * GetGeometryShader() const override;
 	
@@ -61,6 +64,7 @@ private:
 
 	VertexShader *vs;
 	PixelShader *ps;
+	ComputeShader *cs;
 	GeometryShader *gs;
 	
 	RasterizationOption rast_opt;	

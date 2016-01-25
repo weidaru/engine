@@ -132,7 +132,7 @@ public:
 			ib = manager->CreateGraphicBuffer();
 			GraphicBuffer::Option option;
 			option.InitializeAsIndexBuffer(size, indices);
-			option.resource_write = RendererEnum::IMMUTABLE;
+			option.resource_write = RendererResourceWrite::IMMUTABLE;
 			ib->Initialize(option);
 			delete[] indices;
 		}
@@ -157,9 +157,9 @@ public:
 
 		//Create texture.
 		Texture2D::Option tex_option;
-		tex_option.format = RendererEnum::R32G32B32A32_FLOAT;
+		tex_option.format = RendererFormat::R32G32B32A32_FLOAT;
 		texture = manager->CreateTexture2D();
-		tex_option.output_bind = TextureEnum::RENDER_TARGET;
+		tex_option.output_bind = RendererOutputBind::RENDER_TARGET;
 		tex_option.width = renderer_setting.window_width;
 		tex_option.height = renderer_setting.window_height;
 		texture->Initialize(tex_option);
@@ -199,7 +199,7 @@ public:
 		GraphicBuffer::IndexBufferElementType indices[6] = {0,1,2, 0,2,3};
 		tex_ib = manager->CreateGraphicBuffer();
 		buffer_option.InitializeAsIndexBuffer(6, indices);
-		buffer_option.resource_write = RendererEnum::IMMUTABLE;
+		buffer_option.resource_write = RendererResourceWrite::IMMUTABLE;
 		tex_ib->Initialize(buffer_option);
 
 		//Create input layout

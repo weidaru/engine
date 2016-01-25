@@ -16,7 +16,7 @@
 namespace s2 {
 
 D3D11MappedResource::D3D11MappedResource(
-		ID3D11Resource *_resource, RendererEnum::ResourceWrite _resource_write) 
+		ID3D11Resource *_resource, RendererResourceWrite _resource_write) 
 			: 	context(0), resource(_resource), resource_write(_resource_write) {
 	CHECK_NOTNULL(_resource);
 	mapped_data = 0;
@@ -43,12 +43,12 @@ void D3D11MappedResource::WriteMap(D3D11GraphicPipeline *pipeline, bool no_overw
 	context = pipeline->GetDeviceContext();
 	write_index = subresource_index;
 	CHECK(mapped_data == 0)<<"Cannot map a resource twice in a row. Call ReadUnmap first";
-	CHECK(resource_write != RendererEnum::IMMUTABLE) << 
+	CHECK(resource_write != RendererResourceWrite::IMMUTABLE) << 
 					"Not able to map as resource_write is indicated as IMMUTABLE ";
-	CHECK(resource_write != RendererEnum::CPU_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for MAP_WRITE_OCASSIONAL";
+	CHECK(resource_write != RendererResourceWrite::CPU_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for MAP_WRITE_OCASSIONAL";
 	
 	D3D11_MAP map_type = D3D11_MAP_WRITE_DISCARD;
-	if(resource_write == RendererEnum::CPU_WRITE_FREQUENT) {
+	if(resource_write == RendererResourceWrite::CPU_WRITE_FREQUENT) {
 		map_type = no_overwirte ? D3D11_MAP_WRITE_NO_OVERWRITE  : D3D11_MAP_WRITE_DISCARD;
 	}
 	D3D11_MAPPED_SUBRESOURCE subresource;
@@ -62,7 +62,7 @@ void D3D11MappedResource::WriteMap(D3D11GraphicPipeline *pipeline, bool no_overw
 
 void D3D11MappedResource::Write(uint32_t offset, const void *data, uint32_t size) {
 	CHECK(mapped_data) << "Must call WriteMap before Write.";
-	CHECK(resource_write != RendererEnum::CPU_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for CPU_WRITE_OCASSIONAL";
+	CHECK(resource_write != RendererResourceWrite::CPU_WRITE_OCCASIONAL) << "Map not allowed. Use Update directly for CPU_WRITE_OCASSIONAL";
 	memcpy(mapped_data, data, size);
 }
 

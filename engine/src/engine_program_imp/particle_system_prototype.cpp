@@ -159,9 +159,9 @@ public:
 			Texture2D::Option option;
 			option.width = 128;
 			option.height = 128;
-			option.format = RendererEnum::R32G32B32A32_FLOAT;
-			option.input_bind = TextureEnum::SHADER_RESOURCE;
-			option.output_bind = TextureEnum::RENDER_TARGET;
+			option.format = RendererFormat::R32G32B32A32_FLOAT;
+			option.input_bind = RendererInputBind::SHADER_RESOURCE;
+			option.output_bind = RendererOutputBind::RENDER_TARGET;
 			position_tex->Initialize(option);
 
 			std::vector<float> data(width * height*4);

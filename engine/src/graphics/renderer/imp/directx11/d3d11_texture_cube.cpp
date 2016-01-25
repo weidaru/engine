@@ -98,13 +98,13 @@ void D3D11TextureCube::Initialize(const Option &_option)  {
 	}
 	
 	desc.CPUAccessFlags = 0;
-	if(_option.resource_write == RendererEnum::CPU_WRITE_FREQUENT) {
+	if(_option.resource_write == RendererResourceWrite::CPU_WRITE_FREQUENT) {
 		desc.Usage =  D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	} else if(_option.resource_write == RendererEnum::CPU_WRITE_OCCASIONAL) {
+	} else if(_option.resource_write == RendererResourceWrite::CPU_WRITE_OCCASIONAL) {
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.CPUAccessFlags = 0;
-	} else if(_option.resource_write == RendererEnum::IMMUTABLE) {
+	} else if(_option.resource_write == RendererResourceWrite::IMMUTABLE) {
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.CPUAccessFlags = 0;
 	} else {
@@ -125,7 +125,7 @@ void D3D11TextureCube::Initialize(const Option &_option)  {
 					uint32_t index = D3D11CalcSubresource(j, k, real_mip_level) + i*6*real_mip_level;
 					D3D11_SUBRESOURCE_DATA &sub_resource = sub_resources[D3D11CalcSubresource(j, k, real_mip_level) + i*6*real_mip_level];
 					sub_resource.pSysMem = _option.data.GetData(i, j, (CubeFace)k);
-					sub_resource.SysMemPitch = _option.width/(j+1)*RendererEnum::GetFormatSize(_option.format);
+					sub_resource.SysMemPitch = _option.width/(j+1)*GetFormatSize(_option.format);
 				}
 			}
 		}
@@ -167,7 +167,7 @@ void D3D11TextureCube::WriteMap(
 void D3D11TextureCube::Write(uint32_t row, uint32_t col,  const void *data, uint32_t size) {
 	Check();
 	
-	mapped->Write(mapped->GetWriteRowPitch() + col*RendererEnum::GetFormatSize(option.format), data, size);
+	mapped->Write(mapped->GetWriteRowPitch() + col*GetFormatSize(option.format), data, size);
 }
 
 void D3D11TextureCube::WriteUnmap() {
@@ -203,7 +203,7 @@ void D3D11TextureCube::ReadMap(
 
 const void * D3D11TextureCube::Read(uint32_t row, uint32_t col) const {
 	Check();
-	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*RendererEnum::GetFormatSize(option.format);
+	return (const char *)mapped->Read() + mapped->GetReadRowPitch() + col*GetFormatSize(option.format);
 }
 
 void D3D11TextureCube::ReadUnmap() const {
@@ -218,14 +218,14 @@ void D3D11TextureCube::Update(
 		uint32_t top, uint32_t bottom,
 		const void *data) {
 	Check();
-	CHECK(mapped->GetResourceWrite() == RendererEnum::CPU_WRITE_OCCASIONAL)<<
+	CHECK(mapped->GetResourceWrite() == RendererResourceWrite::CPU_WRITE_OCCASIONAL)<<
 				"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 	D3D11GraphicPipeline *pipeline = NiceCast(D3D11GraphicPipeline *, _pipeline);
 	if(_pipeline) {
 		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
 	}
 
-	uint32_t ele_size = RendererEnum::GetFormatSize(option.format);
+	uint32_t ele_size = GetFormatSize(option.format);
 	D3D11_BOX dest;
 	dest.left = left*ele_size;
 	dest.right = right*ele_size;

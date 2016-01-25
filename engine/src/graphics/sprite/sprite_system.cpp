@@ -38,12 +38,12 @@ SpriteSystem::SpriteSystem()
 		{0.1f, 0.1f, 0.0f}
 	};
 	option.Initialize(4, verticies);
-	option.resource_write = RendererEnum::IMMUTABLE;
+	option.resource_write = RendererResourceWrite::IMMUTABLE;
 	vertex_buffer->Initialize(option);
 
 	instance_buffer = manager->CreateGraphicBuffer();
 	option.Initialize<SpriteInstance>(kSpriteBatchSize, 0);
-	option.resource_write = RendererEnum::CPU_WRITE_FREQUENT;
+	option.resource_write = RendererResourceWrite::CPU_WRITE_FREQUENT;
 	instance_buffer->Initialize(option);
 
 	input_layout = manager->CreateInputLayout();

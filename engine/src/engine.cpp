@@ -113,7 +113,7 @@ void Engine::OneFrame(float delta) {
 			cur_program->SaveEntityEnabledState();
 			std::vector<Entity *> entities;
 			cur_program->GetEntitySystem()->GetAll(&entities);
-			for(int i=0; i<entities.size(); i++) {
+			for(uint32_t i=0; i<entities.size(); i++) {
 				entities[i]->SetEnabled(false);
 			}
 
@@ -152,7 +152,7 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 		cur_program->SaveEntityEnabledState();
 		std::vector<Entity *> entities;
 			cur_program->GetEntitySystem()->GetAll(&entities);
-			for(int i=0; i<entities.size(); i++) {
+			for(uint32_t i=0; i<entities.size(); i++) {
 				entities[i]->SetEnabled(false);
 			}
 	}
