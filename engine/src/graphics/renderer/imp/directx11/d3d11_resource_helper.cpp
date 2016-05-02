@@ -31,10 +31,6 @@ void D3D11ResourceHelper::SetBufferDesc(D3D11_BUFFER_DESC *desc, uint32_t  byte_
 	}
 
 	desc->MiscFlags = 0;
-	/*
-	 * This is used by Compute Shader which is a more general way of using parallel GPU power.
-	 * In our use case, we only care about the graphic part. So make this 0 anyway.
-	 */
 	desc->StructureByteStride = 0;			
 }
 	

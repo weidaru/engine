@@ -17,6 +17,7 @@
     <ClInclude Include="src\asset\pixel_map.h" />
     <ClInclude Include="src\asset\skybox_image.h" />
     <ClInclude Include="src\cppformat\format.h" />
+    <ClInclude Include="src\engine_program_imp\compute_shader_demo.h" />
     <ClInclude Include="src\engine_program_imp\instancing_demo.h" />
     <ClInclude Include="src\engine_program_imp\particle_system_prototype.h" />
     <ClInclude Include="src\engine_program_imp\render_to_target_demo.h" />
@@ -105,6 +106,7 @@
     <ClCompile Include="src\asset\pixel_map.cpp" />
     <ClCompile Include="src\asset\skybox_image.cpp" />
     <ClCompile Include="src\cppformat\format.cc" />
+    <ClCompile Include="src\engine_program_imp\compute_shader_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\particle_system_prototype.cpp" />
     <ClCompile Include="src\engine_program_imp\scene_demo.cpp" />
     <ClCompile Include="src\engine_program_imp\skybox_demo.cpp" />
@@ -188,6 +190,10 @@
     </FxCompile>
     <FxCompile Include="content\shader\sprite_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="test\csdemo_cs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
     </FxCompile>
     <FxCompile Include="test\particle\render_ps.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -291,6 +297,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\vendor\assimp\bin;$(SolutionDir)\vendor\freeimage\bin;$(SolutionDir)\vendor\glog\bin;$(SolutionDir)\vendor\fw1_font_wrapper-1.1\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libglog.lib;assimp.lib;FreeImage.lib;FW1FontWrapper.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

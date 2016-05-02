@@ -55,7 +55,7 @@ public:
 		vb_option.element_member_count = 1;
 		vb_option.element_bytewidth = 12;
 		vb_option.data = vb_data;
-		vb_option.binding = GraphicBuffer::VERTEX_BUFFER;
+		vb_option.input_bind = RendererInputBind::VERTEX_BUFFER;
 		vb->Initialize(vb_option);
 
 		stream_out = manager->CreateGraphicBuffer();
@@ -63,7 +63,8 @@ public:
 		so_option.element_count = 80;
 		so_option.element_member_count = 1;
 		so_option.element_bytewidth = 16;
-		so_option.binding = GraphicBuffer::VERTEX_BUFFER | GraphicBuffer::STREAM_OUT;
+		so_option.input_bind = RendererInputBind::VERTEX_BUFFER;
+		so_option.output_bind = RendererOutputBind::STREAM_OUT;
 		stream_out->Initialize(so_option);
 
 		vs = manager->CreateVertexShader();

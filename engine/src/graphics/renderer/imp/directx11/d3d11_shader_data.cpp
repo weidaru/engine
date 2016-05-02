@@ -115,6 +115,10 @@ void ConstantBufferContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType s
 			break;
 		case ShaderType::GEOMETRY:
 			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
+		case ShaderType::COMPUTE:
+			context->CSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
@@ -133,6 +137,9 @@ void ConstantBufferContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType 
 			break;
 		case ShaderType::GEOMETRY:
 			context->GSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
+			break;
+		case ShaderType::COMPUTE:
+			context->CSSetConstantBuffers(0, D3D11_COMMONSHADER_CONSTANT_BUFFER_API_SLOT_COUNT, buffer_array);
 			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
@@ -217,6 +224,9 @@ void SamplerContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_t
 		case ShaderType::GEOMETRY:
 			context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
 			break;
+		case ShaderType::COMPUTE:
+			context->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
@@ -235,6 +245,9 @@ void SamplerContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_
 			break;
 		case ShaderType::GEOMETRY:
 			context->GSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
+			break;
+		case ShaderType::COMPUTE:
+			context->CSSetSamplers(0, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT, sampler_array);
 			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
@@ -316,6 +329,9 @@ void ShaderResourceContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType s
 		case ShaderType::GEOMETRY:
 			context->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
 			break;
+		case ShaderType::COMPUTE:
+			context->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
 			break;
@@ -335,6 +351,9 @@ void ShaderResourceContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType 
 			break;
 		case ShaderType::GEOMETRY:
 			context->GSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
+			break;
+		case ShaderType::COMPUTE:
+			context->CSSetShaderResources(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, sr_view_array );
 			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
@@ -395,8 +414,8 @@ D3D11UnorderedAccess * UnorderedAccessContainer::GetUnorderedAccess(const s2stri
 }
 
 void UnorderedAccessContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
-	ID3D11UnorderedAccessView *uav_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ] = {};
-	uint32_t counter_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {-1};
+	ID3D11UnorderedAccessView *uav_array[D3D11_1_UAV_SLOT_COUNT ] = {0};
+	uint32_t counter_array[D3D11_1_UAV_SLOT_COUNT] = {-1};
 
 	for(uint32_t i=0; i<uavs.size(); i++) {
 		const D3D11ShaderReflection::UnorderedAccess &info = reflect->GetUnorderedAccess(uavs[i].reflect_index);
@@ -411,7 +430,7 @@ void UnorderedAccessContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType 
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	switch(shader_type) {
 		case ShaderType::COMPUTE:
-			context->CSSetUnorderedAccessViews(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, uav_array, counter_array);
+			context->CSSetUnorderedAccessViews(0, 8, uav_array, counter_array);
 			break;
 		default:
 			CHECK(false)<<"Unsupported shader_type "<<static_cast<int>(shader_type);
@@ -421,13 +440,13 @@ void UnorderedAccessContainer::Setup(D3D11GraphicPipeline *pipeline, ShaderType 
 
 
 void UnorderedAccessContainer::UnBind(D3D11GraphicPipeline *pipeline, ShaderType shader_type) {
-	ID3D11UnorderedAccessView *uav_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT ] = {0};
-	uint32_t counter_array[D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT] = {-1};
+	ID3D11UnorderedAccessView *uav_array[D3D11_1_UAV_SLOT_COUNT ] = {0};
+	uint32_t counter_array[D3D11_1_UAV_SLOT_COUNT] = {-1};
 	
 	ID3D11DeviceContext *context = pipeline->GetDeviceContext();
 	switch(shader_type) {
 		case ShaderType::COMPUTE:
-			context->CSSetUnorderedAccessViews(0, D3D11_COMMONSHADER_INPUT_RESOURCE_SLOT_COUNT, uav_array, counter_array);
+			context->CSSetUnorderedAccessViews(0, 8, uav_array, counter_array);
 			break;
 		default:
 			CHECK(false)<<"Unknown shader_type "<<static_cast<int>(shader_type);

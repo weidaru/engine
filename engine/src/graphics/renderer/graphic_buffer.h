@@ -15,18 +15,6 @@ class GraphicBuffer : public Resource {
 public:
 	typedef uint32_t IndexBufferElementType;
 
-	enum Binding {
-		INDEX_BUFFER = 0x1,
-		VERTEX_BUFFER = 0x2,
-		STREAM_OUT = 0x10,
-		//Normally we won't need to bind a buffer as shader resource, render target or depth stencil
-		//And I am not entirely sure how hard and restricted it is.
-		//It may invovles some hardware memory access ability which should not be a concern for now.
-		//SHADER_RESOURCE = 0x100,
-		//RENDER_TARGET = 0x200,
-		//DEPTH_STENCIL = 0x300
-	};
-
 	struct Option {
 		uint32_t element_count;
 		uint32_t element_member_count;
@@ -34,7 +22,8 @@ public:
 		void * data;
 		s2string element_typename;
 		RendererResourceWrite resource_write;
-		uint32_t binding;
+		RendererInputBind input_bind;
+		RendererOutputBind output_bind;
 
 		Option() {
 			element_count = 0;
@@ -42,7 +31,8 @@ public:
 			element_bytewidth = 0;
 			data = 0;
 			resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
-			binding = VERTEX_BUFFER;
+			input_bind = RendererInputBind::VERTEX_BUFFER;
+			output_bind = RendererOutputBind::NOT_OUTPUT;
 		}
 
 		template<typename T>
@@ -60,7 +50,8 @@ public:
 			element_member_count = 1;
 			element_bytewidth = sizeof(IndexBufferElementType);
 			element_typename = "uint32_t";
-			binding = INDEX_BUFFER;
+			input_bind = RendererInputBind::INDEX_BUFFER;
+			output_bind = RendererOutputBind::NOT_OUTPUT;
 			data = _data;
 		}
 
@@ -85,7 +76,8 @@ public:
 	virtual s2string 			GetElementTypeName() const { return ""; }
 
 	virtual RendererResourceWrite GetResourceWrite() const = 0;
-	virtual uint32_t GetBinding() const = 0;
+	virtual RendererInputBind GetInputBind() const = 0;
+	virtual RendererOutputBind GetOutputBind() const = 0;
 
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite = false) = 0;
 	virtual void WriteUnmap() = 0;
@@ -112,6 +104,7 @@ public:
 	virtual IndexBuffer * AsIndexBuffer() const = 0;
 	virtual VertexBuffer * AsVertexBuffer() const = 0;
 	virtual StreamOut * AsStreamOut() const = 0;
+	virtual UnorderedAccess * AsUnorderedAccess() const = 0;
 };
 
 }

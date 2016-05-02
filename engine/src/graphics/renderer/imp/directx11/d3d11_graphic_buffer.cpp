@@ -24,10 +24,11 @@ namespace s2 {
 
 D3D11GraphicBuffer::D3D11GraphicBuffer(D3D11GraphicResourceManager *_manager)
 	:	manager(_manager), buffer(0), mapped(0),
-		index_buffer(0), vertex_buffer(0), stream_out(0) {
+		index_buffer(0), vertex_buffer(0), stream_out(0), unordered_access(0) {
 }
 
 D3D11GraphicBuffer::~D3D11GraphicBuffer() {
+	delete unordered_access;
 	delete stream_out;
 	delete vertex_buffer;
 	delete index_buffer;
@@ -49,14 +50,18 @@ void D3D11GraphicBuffer::Initialize(const Option &_option) {
 	D3D11_BUFFER_DESC desc;
 	D3D11ResourceHelper::SetBufferDesc(&desc, option.element_count * option.element_bytewidth, option.resource_write);
 	desc.BindFlags = 0;
-	if ((option.binding & 0xF) == VERTEX_BUFFER) {
+	if (option.input_bind == RendererInputBind::VERTEX_BUFFER) {
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	} else if ((option.binding & 0xF) == INDEX_BUFFER) {
+	} else if (option.input_bind == RendererInputBind::INDEX_BUFFER) {
 		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	}
-	if ((option.binding & 0xF0) == STREAM_OUT) {
+	if (option.output_bind == RendererOutputBind::STREAM_OUT) {
 		desc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
 		CHECK(option.resource_write != RendererResourceWrite::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
+	} else if(option.output_bind == RendererOutputBind::UNORDERED_ACCESS) {
+		desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
+		CHECK(option.resource_write != RendererResourceWrite::IMMUTABLE) << "UNORDERED_ACCESS binding cannot be used together with IMMUTABLE.";
+		desc.StructureByteStride = option.element_bytewidth;
 	}
 
 	HRESULT result = 1;
@@ -69,18 +74,32 @@ void D3D11GraphicBuffer::Initialize(const Option &_option) {
 		result = manager->GetDevice()->CreateBuffer(&desc, 0, &buffer);
 	}
 
-	CHECK(!FAILED(result)) << "Cannot create vertex buffer. Error code: " << ::GetLastError();
+	CHECK(!FAILED(result)) << "Cannot create buffer. Error code: " << ::GetLastError();
 
 	mapped = new D3D11MappedResource(buffer, option.resource_write);
 
 	//Create all the views.
-	if ((option.binding & 0xF) == VERTEX_BUFFER) {
+	if (option.input_bind == RendererInputBind::VERTEX_BUFFER) {
 		vertex_buffer = new D3D11VertexBuffer(this);
-	} else if ((option.binding & 0xF) == INDEX_BUFFER) {
+	} else if (option.input_bind == RendererInputBind::INDEX_BUFFER) {
 		index_buffer = new D3D11IndexBuffer(this);
 	} 
-	if ((option.binding & 0xF0) == STREAM_OUT) {
+	if (option.output_bind == RendererOutputBind::STREAM_OUT) {
 		stream_out = new D3D11StreamOut(this);
+	} else if(option.output_bind == RendererOutputBind::UNORDERED_ACCESS) {
+		//Create the view.
+		D3D11_UNORDERED_ACCESS_VIEW_DESC  uav_desc;
+		uav_desc.Format = DXGI_FORMAT_UNKNOWN;
+		uav_desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+		uav_desc.Buffer.FirstElement = 0;
+		uav_desc.Buffer.NumElements = 0;
+		uav_desc.Buffer.Flags = 0;
+
+		ID3D11UnorderedAccessView *view = 0;
+		result = manager->GetDevice()->CreateUnorderedAccessView(buffer, &uav_desc, &view);
+		CHECK(!FAILED(result)) << "Cannot create UnorderedAccessView. Error code: " << ::GetLastError();
+
+		unordered_access = new D3D11UnorderedAccess(this, view);
 	}
 }
 
@@ -99,9 +118,14 @@ RendererResourceWrite D3D11GraphicBuffer::GetResourceWrite() const {
 	return mapped->GetResourceWrite();
 }
 
-uint32_t D3D11GraphicBuffer::GetBinding() const {
+RendererInputBind D3D11GraphicBuffer::GetInputBind() const{
 	Check();
-	return option.binding;
+	return option.input_bind;
+}
+
+RendererOutputBind D3D11GraphicBuffer::GetOutputBind() const{
+	Check();
+	return option.output_bind;
 }
 
 uint32_t D3D11GraphicBuffer::GetElementMemberCount() const {
@@ -209,6 +233,11 @@ VertexBuffer * D3D11GraphicBuffer::AsVertexBuffer() const {
 StreamOut * D3D11GraphicBuffer::AsStreamOut() const {
 	CHECK(stream_out != 0) << "Buffer is not binded as stream out";
 	return stream_out;
+}
+
+UnorderedAccess * D3D11GraphicBuffer::AsUnorderedAccess() const{
+	CHECK(unordered_access != 0) << "Buffer is not binded as unordered access view";
+	return unordered_access;
 }
 
 }

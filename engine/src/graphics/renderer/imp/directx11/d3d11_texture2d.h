@@ -38,7 +38,8 @@ public:
 
 	virtual D3D11RenderTarget * AsRenderTarget() const;
 	virtual D3D11DepthStencil * AsDepthStencil() const;
-	virtual  D3D11ShaderResource * AsShaderResource() const;
+	virtual D3D11ShaderResource * AsShaderResource() const;
+	virtual D3D11UnorderedAccess * AsUnorderedAccess() const;
 
 	/**********************D3D11 exclusive***********************/
 	void InitAsBackBuffer(ID3D11Texture2D *_tex, ID3D11RenderTargetView *_rt_view, const Option &_option);
@@ -56,7 +57,7 @@ private:
 	D3D11RenderTarget *render_target;
 	D3D11DepthStencil *depth_stencil;
 	D3D11ShaderResource *shader_resource;
-
+	D3D11UnorderedAccess *unordered_access;
 };
 
 }

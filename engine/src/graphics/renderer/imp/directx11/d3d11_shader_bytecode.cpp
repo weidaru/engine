@@ -61,6 +61,7 @@ bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry
 			break;
 		case ShaderType::COMPUTE:
 			target = "cs_5_0";
+			break;
 		default:
 			CHECK(0)<<"Unknown ShaderType " << static_cast<int>(type);
 			break;

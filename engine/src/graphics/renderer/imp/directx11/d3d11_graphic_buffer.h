@@ -12,6 +12,7 @@ class D3D11MappedResource;
 class D3D11IndexBuffer;
 class D3D11VertexBuffer;
 class D3D11StreamOut;
+class D3D11UnorderedAccess;
 
 class D3D11GraphicBuffer : public GraphicBuffer {
 public:
@@ -24,7 +25,8 @@ public:
 	virtual s2string GetElementTypeName() const;
 
 	virtual RendererResourceWrite GetResourceWrite() const;
-	virtual uint32_t GetBinding() const;
+	virtual RendererInputBind GetInputBind() const;
+	virtual RendererOutputBind GetOutputBind() const;
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite);
 	virtual void WriteUnmap();
 	virtual void ReadMap(GraphicPipeline *pipeline, bool wipe_cache) const;
@@ -37,6 +39,7 @@ public:
 	virtual IndexBuffer * AsIndexBuffer() const;
 	virtual VertexBuffer * AsVertexBuffer() const;
 	virtual StreamOut * AsStreamOut() const;
+	virtual UnorderedAccess * AsUnorderedAccess() const;
 
 	/**************D3D11 exclusive************/
 	ID3D11Buffer * GetInternal() { return buffer; }
@@ -53,6 +56,7 @@ private:
 	D3D11IndexBuffer *index_buffer;
 	D3D11VertexBuffer *vertex_buffer;
 	D3D11StreamOut *stream_out;
+	D3D11UnorderedAccess *unordered_access;
 
 	Option option;
 };

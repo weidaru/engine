@@ -7,6 +7,7 @@
 
 namespace s2 {
 
+class UnorderedAccess;
 class RenderTarget;
 class DepthStencil;
 class ShaderResource;
@@ -76,6 +77,7 @@ public:
 	virtual RenderTarget * AsRenderTarget() const = 0;
 	virtual DepthStencil * AsDepthStencil() const = 0;
 	virtual ShaderResource * AsShaderResource() const = 0;
+	virtual UnorderedAccess * AsUnorderedAccess() const = 0;
 };
 
 }

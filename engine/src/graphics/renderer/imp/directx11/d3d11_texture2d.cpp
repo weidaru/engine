@@ -26,14 +26,15 @@ namespace s2 {
 
 D3D11Texture2D::D3D11Texture2D(D3D11GraphicResourceManager *_manager) 
 		:	manager(_manager), tex(0), mapped(0),
-			render_target(0), depth_stencil(0), shader_resource(0){
+			render_target(0), depth_stencil(0), shader_resource(0),unordered_access(0){
 	CHECK_NOTNULL(_manager);
 }
 
 D3D11Texture2D::~D3D11Texture2D() {
-	delete shader_resource;
+	delete unordered_access;
 	delete depth_stencil;
 	delete render_target;
+	delete shader_resource;
 	delete mapped;
 	if(tex) {
 		tex->Release();
@@ -84,6 +85,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	D3D11_RENDER_TARGET_VIEW_DESC *rtv_desc=0;
 	D3D11_DEPTH_STENCIL_VIEW_DESC *dsv_desc=0;
 	D3D11_SHADER_RESOURCE_VIEW_DESC *srv_desc = 0;
+	D3D11_UNORDERED_ACCESS_VIEW_DESC *uav_desc = 0;
 	desc.BindFlags = 0;
 
 	if(_option.output_bind == RendererOutputBind::RENDER_TARGET) {
@@ -134,6 +136,20 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		else  {
 			dsv_desc->ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			dsv_desc->Texture2D.MipSlice = 0;			//Always use the original texture.
+		}
+	} else if(_option.output_bind == RendererOutputBind::UNORDERED_ACCESS) {
+		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+		uav_desc = new D3D11_UNORDERED_ACCESS_VIEW_DESC;
+		uav_desc->Format = desc.Format;
+		CHECK(desc.SampleDesc.Count== 1)<<"UnorderedAccessView does not support multisampled texture.";
+		if(desc.ArraySize > 1) {
+			uav_desc->ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
+			uav_desc->Texture2DArray.MipSlice = 0;						//Always use the original texture
+			uav_desc->Texture2DArray.FirstArraySlice = 0;				//Always start from zero
+			uav_desc->Texture2DArray.ArraySize = desc.ArraySize;	
+		} else  {
+			uav_desc->ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+			uav_desc->Texture2D.MipSlice = 0;			//Always use the original texture.
 		}
 	}
 		
@@ -215,6 +231,13 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		CHECK(!FAILED(result))<<"Cannot create shader resource view. Error " << ::GetLastError();
 		shader_resource = new D3D11ShaderResource(this, sr_view);
 		delete srv_desc;
+	}
+	if(uav_desc) {
+		ID3D11UnorderedAccessView *ua_view = 0;
+		result = manager->GetDevice()->CreateUnorderedAccessView(tex, uav_desc, &ua_view);
+		CHECK(!FAILED(result))<<"Cannot create unordered access view. Error " << ::GetLastError();
+		unordered_access = new D3D11UnorderedAccess(this, ua_view);
+		delete uav_desc;
 	}
 
 	mapped = new D3D11MappedResource(tex, _option.resource_write);
@@ -326,6 +349,11 @@ D3D11ShaderResource * D3D11Texture2D::AsShaderResource() const {
 	return shader_resource;
 }
 
+D3D11UnorderedAccess * D3D11Texture2D::AsUnorderedAccess() const {
+	CHECK(unordered_access != 0) << "Texture is not created as unordered_access";
+
+	return unordered_access;
+}
 
 }
 

@@ -53,7 +53,7 @@ public:
 			vb_option.element_member_count = 1;
 			vb_option.element_bytewidth = 20;
 			vb_option.data = vb_data;
-			vb_option.binding = GraphicBuffer::VERTEX_BUFFER;
+			vb_option.input_bind = RendererInputBind::VERTEX_BUFFER;
 			quad_buffer->Initialize(vb_option);
 		}
 		
@@ -207,7 +207,7 @@ public:
 			vb_option.element_member_count = 1;
 			vb_option.element_bytewidth = 12;
 			vb_option.data = vb_data;
-			vb_option.binding = GraphicBuffer::VERTEX_BUFFER;
+			vb_option.input_bind = RendererInputBind::VERTEX_BUFFER;
 			quad_buffer->Initialize(vb_option);
 		}
 
@@ -288,13 +288,6 @@ public:
 		//Render
 		Texture2D *back_texture = Engine::GetSingleton()->GetRendererContext()->GetBackBuffer();
 		/*For debug.*/
-		/*
-		pipeline->SetRenderTargetAndDepthStencil(0, 0, 0);
-		texture_paint->Paint(
-			pipeline, position_tex->AsShaderResource(), back_texture->AsRenderTarget(),
-			std::make_tuple(0.0f, 0.0f, (float)width/setting.window_width*2.0f , (float)height/setting.window_height*2.0f));
-		*/
-		
 		render_vs_data->SetShaderResource("position_tex", position_tex->AsShaderResource());
 		render_vs_data->SetUniform("width", width);
 		render_vs_data->SetUniform("height", height);

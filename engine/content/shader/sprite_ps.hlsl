@@ -8,6 +8,7 @@ struct PixelOutputType {
 	float4 rt : SV_TARGET;
 };
 
+
 PixelOutputType main(PixelInputType input) {
 	PixelOutputType output;
 	output.rt = input.color;
