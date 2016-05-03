@@ -4,10 +4,8 @@
 #include <vector>
 #include <stdint.h>
 
-//[[TypeInfo]]//
-struct SpriteVertex {
-	float position[3];
-};
+
+struct SpriteInstance;
 
 namespace s2 {
 class Sprite;
@@ -16,6 +14,9 @@ class VertexShader;
 class PixelShader;
 class GraphicPipelineState;
 class InputLayout;
+class Sampler;
+class ShaderData;
+class Texture2D;
 
 class SpriteSystem{
 public:
@@ -28,15 +29,22 @@ public:
 	void OneFrame(float delta);
 
 private:
+	void RenderOneBatch(SpriteInstance *instances, int count, Texture2D *texture);
+
+private:
 	std::vector<Sprite *> sprites;
 
 	VertexShader *vs;
 	PixelShader *ps;
-	GraphicBuffer *vertex_buffer, *instance_buffer;
+	Sampler *sampler;
+	ShaderData *ps_data;
+	
+	GraphicBuffer *instance_buffer;
 	InputLayout *input_layout;
 	
 	GraphicPipelineState *pipeline_state;
 
+	SpriteInstance *instances;
 	static uint32_t kSpriteBatchSize;
 };
 }

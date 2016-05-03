@@ -87,11 +87,7 @@ void Engine::OneFrame(float delta) {
 	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
 	pipeline->ClearDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil(), true, 1.0f, 0.0f, 0);
 
-	entity_system->OneFrame(delta);
 	input_system->OneFrame(delta);
-	sprite_system->OneFrame(delta);
-	text_system->OneFrame(delta);
-	material_system->OneFrame(delta);
 
 	if(cur_state == START_MENU) {
 		start_menu->OneFrame(delta);
@@ -122,6 +118,10 @@ void Engine::OneFrame(float delta) {
 		}
 	}
 
+	material_system->OneFrame(delta);
+	entity_system->OneFrame(delta);
+	sprite_system->OneFrame(delta);
+	text_system->OneFrame(delta);
 	renderer_context->SwapBuffer();
 }
 

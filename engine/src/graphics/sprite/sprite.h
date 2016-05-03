@@ -13,6 +13,7 @@
 struct SpriteInstance {
 	S2Matrix4x4 transform;
 	float color[4];
+	float tex[4][2];
 };
 
 namespace s2 {
@@ -52,10 +53,19 @@ public:
 	Sprite & SetDepth(float new_value);
 
 	SpriteInstance *GetData();
-	uint32_t GetDataSize() { return 4; } 
+	uint32_t GetDataSize() { return 4; }
+
+	//[bottom_left, bottom_right, top_left, top_right]
+	std::pair<float, float> GetTexCoordinates(int index);
+	Sprite & SetTexCoordinates(int index, float u, float v);
+	
+	Texture2D * GetTexture();
+	Sprite & SetTexture(Texture2D * texture);
 
 private:
 	S2Vector4 bg_color;
+	Texture2D *texture;
+	float texCoordinates[4][2];
 
 	SpriteInstance data;
 };

@@ -9,8 +9,16 @@
 
 namespace s2 {
 
-Sprite::Sprite(Entity *entity) : Component(entity) {
-	SetBackgroundColor(S2Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+Sprite::Sprite(Entity *entity) : Component(entity), texture(0) {
+	SetBackgroundColor(S2Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+	texCoordinates[0][0] = 0.0;
+	texCoordinates[0][1] = 0.0;
+	texCoordinates[1][0] = 1.0;
+	texCoordinates[1][1] = 0.0;
+	texCoordinates[2][0] = 0.0;
+	texCoordinates[2][1] = 1.0;
+	texCoordinates[3][0] = 1.0;
+	texCoordinates[3][1] = 1.0;
 }
 
 Sprite::~Sprite() {
@@ -131,6 +139,28 @@ Sprite & Sprite::SetDepth(float new_value) {
 	return SetPosition(pos);
 }
 
+std::pair<float, float> Sprite::GetTexCoordinates(int index) {
+	return std::make_pair(texCoordinates[4][0], texCoordinates[4][1]);
+}
+
+Sprite & Sprite::SetTexCoordinates(int index, float u, float v) {
+	texCoordinates[index][0] = u;
+	texCoordinates[index][1] = v;
+	return *this;
+}
+	
+Texture2D * Sprite::GetTexture() {
+	return texture;
+}
+
+Sprite & Sprite::SetTexture(Texture2D * texture_) {
+	this->texture = texture_;
+	if(texture != 0) {
+		CHECK(texture->AsShaderResource())<<"Input texture must be bind as ShaderResourceView";
+	}
+	return *this;
+}
+
 namespace {
 
 inline void FillArrayWithVector4(float *dest, const S2Vector4 &source) {
@@ -143,6 +173,8 @@ inline void FillArrayWithVector4(float *dest, const S2Vector4 &source) {
 SpriteInstance * Sprite::GetData() {
 	FillArrayWithVector4(data.color, bg_color);
 	data.transform = GetEntity()->GetCascadeTransformMatrix();
+	
+	memcpy(data.tex, texCoordinates, sizeof(float)*8);
 	
 	return &data;
 }

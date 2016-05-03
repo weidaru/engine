@@ -318,9 +318,6 @@
     <ClInclude Include="src\cppformat\format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine_program_imp\compute_shader_demo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\utils\type_info.cpp">

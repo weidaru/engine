@@ -17,7 +17,6 @@
     <ClInclude Include="src\asset\pixel_map.h" />
     <ClInclude Include="src\asset\skybox_image.h" />
     <ClInclude Include="src\cppformat\format.h" />
-    <ClInclude Include="src\engine_program_imp\compute_shader_demo.h" />
     <ClInclude Include="src\engine_program_imp\instancing_demo.h" />
     <ClInclude Include="src\engine_program_imp\particle_system_prototype.h" />
     <ClInclude Include="src\engine_program_imp\render_to_target_demo.h" />
@@ -190,6 +189,7 @@
     </FxCompile>
     <FxCompile Include="content\shader\sprite_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="test\csdemo_cs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
