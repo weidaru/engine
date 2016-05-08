@@ -9,6 +9,7 @@
 #undef ERROR
 
 #include <glog/logging.h>
+#include <cppformat/format.h>
 
 #include "d3d11_enum_converter.h"
 #include "d3d11_graphic_resource_manager.h"
@@ -31,6 +32,10 @@ D3D11Texture2D::D3D11Texture2D(D3D11GraphicResourceManager *_manager)
 }
 
 D3D11Texture2D::~D3D11Texture2D() {
+	Clean();
+}
+
+void D3D11Texture2D::Clean() {
 	delete unordered_access;
 	delete depth_stencil;
 	delete render_target;
@@ -75,8 +80,11 @@ void SetDesc(const Texture2D::Option &option, D3D11_TEXTURE2D_DESC *_desc) {
 
 }
 
-void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
-	CHECK(tex==0)<<"Cannot initalize twice.";
+bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
+	if(tex != 0) {
+		error = "Cannot initalize twice.";
+		return false;
+	}
 
 	option = _option;
 	D3D11_TEXTURE2D_DESC desc;
@@ -88,7 +96,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	D3D11_UNORDERED_ACCESS_VIEW_DESC *uav_desc = 0;
 	desc.BindFlags = 0;
 
-	if(_option.output_bind == RendererOutputBind::RENDER_TARGET) {
+	if(_option.binding & RendererBinding::RENDER_TARGET) {
 		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 		rtv_desc = new D3D11_RENDER_TARGET_VIEW_DESC;
 		
@@ -113,7 +121,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 		
 	}
-	else if(_option.output_bind == RendererOutputBind::DEPTH_STENCIL) {
+	if(_option.binding & RendererBinding::DEPTH_STENCIL) {
 		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		dsv_desc = new D3D11_DEPTH_STENCIL_VIEW_DESC;
 		dsv_desc->Format = desc.Format;
@@ -137,11 +145,11 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 			dsv_desc->ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			dsv_desc->Texture2D.MipSlice = 0;			//Always use the original texture.
 		}
-	} else if(_option.output_bind == RendererOutputBind::UNORDERED_ACCESS) {
+	}
+	if(_option.binding & RendererBinding::UNORDERED_ACCESS) {
 		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
 		uav_desc = new D3D11_UNORDERED_ACCESS_VIEW_DESC;
 		uav_desc->Format = desc.Format;
-		CHECK(desc.SampleDesc.Count== 1)<<"UnorderedAccessView does not support multisampled texture.";
 		if(desc.ArraySize > 1) {
 			uav_desc->ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2DARRAY;
 			uav_desc->Texture2DArray.MipSlice = 0;						//Always use the original texture
@@ -153,7 +161,7 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 	}
 		
-	if(_option.input_bind == RendererInputBind::SHADER_RESOURCE) {
+	if(_option.binding & RendererBinding::SHADER_RESOURCE) {
 		desc.BindFlags = desc.BindFlags | D3D11_BIND_SHADER_RESOURCE;
 		srv_desc = new D3D11_SHADER_RESOURCE_VIEW_DESC;
 		srv_desc->Format = desc.Format;
@@ -189,8 +197,6 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	} else if(_option.resource_write == RendererResourceWrite::IMMUTABLE) {
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.CPUAccessFlags = 0;
-	} else {
-		CHECK(false)<<"Not supported.";
 	}
 	
 	HRESULT result=1;
@@ -209,12 +215,21 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		result = manager->GetDevice()->CreateTexture2D(&desc, 0, &tex);
 	}
 		
-	CHECK(!FAILED(result))<<"Cannot create texture 2d. Error " << ::GetLastError();
+	if(FAILED(result)) {
+		error = fmt::format("{}{}", "Cannot create texture 2d. Error ", ::GetLastError());
+		Clean();
+		return false;
+	}
 	
 	if(rtv_desc) {
 		ID3D11RenderTargetView *rt_view = 0;
 		result = manager->GetDevice()->CreateRenderTargetView(tex, rtv_desc, &rt_view);
-		CHECK(!FAILED(result))<<"Cannot create render target view. Error " << ::GetLastError();
+		if(FAILED(result)) {
+			error = fmt::format("{}{}", "Cannot create render target view. Error ", ::GetLastError());
+			Clean();
+			delete rtv_desc;
+			return false;
+		}
 		render_target = new D3D11RenderTarget(this, rt_view);
 		delete rtv_desc;
 	}
@@ -222,25 +237,42 @@ void D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		ID3D11DepthStencilView *ds_view = 0;
 		result = manager->GetDevice()->CreateDepthStencilView(tex, dsv_desc, &ds_view);
 		CHECK(!FAILED(result))<<"Cannot create depth stencil view. Error " << ::GetLastError();
+		if(FAILED(result)) {
+			error = fmt::format("{}{}", "Cannot create depth stencil view. Error ", ::GetLastError());
+			Clean();
+			delete dsv_desc;
+			return false;
+		}
 		depth_stencil = new  D3D11DepthStencil(this, ds_view);
 		delete dsv_desc;
 	}
 	if(srv_desc) {
 		ID3D11ShaderResourceView *sr_view = 0;
 		result = manager->GetDevice()->CreateShaderResourceView(tex, srv_desc, &sr_view);
-		CHECK(!FAILED(result))<<"Cannot create shader resource view. Error " << ::GetLastError();
+		if(FAILED(result)) {
+			error = fmt::format("{}{}", "Cannot create shader resource view. Error ", ::GetLastError());
+			Clean();
+			delete srv_desc;
+			return false;
+		}
 		shader_resource = new D3D11ShaderResource(this, sr_view);
 		delete srv_desc;
 	}
 	if(uav_desc) {
 		ID3D11UnorderedAccessView *ua_view = 0;
 		result = manager->GetDevice()->CreateUnorderedAccessView(tex, uav_desc, &ua_view);
-		CHECK(!FAILED(result))<<"Cannot create unordered access view. Error " << ::GetLastError();
+		if(FAILED(result)) {
+			error = fmt::format("{}{}", "Cannot create unordered access view. Error ", ::GetLastError());
+			Clean();
+			delete uav_desc;
+			return false;
+		}
 		unordered_access = new D3D11UnorderedAccess(this, ua_view);
 		delete uav_desc;
 	}
 
 	mapped = new D3D11MappedResource(tex, _option.resource_write);
+	return true;
 }
 
 void D3D11Texture2D::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index) {

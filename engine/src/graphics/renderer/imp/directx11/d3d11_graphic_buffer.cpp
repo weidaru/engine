@@ -7,6 +7,7 @@
 #undef ERROR
 
 #include <glog/logging.h>
+#include <cppformat/format.h>
 
 #include "d3d11_graphic_resource_manager.h"
 #include "d3d11_graphic_pipeline.h"
@@ -28,6 +29,10 @@ D3D11GraphicBuffer::D3D11GraphicBuffer(D3D11GraphicResourceManager *_manager)
 }
 
 D3D11GraphicBuffer::~D3D11GraphicBuffer() {
+	Clean();
+}
+
+void D3D11GraphicBuffer::Clean() {
 	delete unordered_access;
 	delete stream_out;
 	delete vertex_buffer;
@@ -42,25 +47,26 @@ void D3D11GraphicBuffer::Check() const {
 	CHECK(buffer) << "Vertex buffer is not initialized.";
 }
 
-void D3D11GraphicBuffer::Initialize(const Option &_option) {
-	option = _option;
-	CHECK(buffer == 0) << "Cannot initialize a buffer twice.";
-	CHECK(option.element_count>0 && option.element_bytewidth>0) << "element count and element bytewidth must not be 0";
+bool D3D11GraphicBuffer::Initialize(const Option &option) {
+	if(buffer != 0) {
+		error = "Cannot initialize a buffer twice.";
+		return false;
+	}
 
 	D3D11_BUFFER_DESC desc;
 	D3D11ResourceHelper::SetBufferDesc(&desc, option.element_count * option.element_bytewidth, option.resource_write);
 	desc.BindFlags = 0;
-	if (option.input_bind == RendererInputBind::VERTEX_BUFFER) {
+	if (option.binding & RendererBinding::VERTEX_BUFFER) {
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	} else if (option.input_bind == RendererInputBind::INDEX_BUFFER) {
+	}
+	if (option.binding & RendererBinding::INDEX_BUFFER)  {
 		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	}
-	if (option.output_bind == RendererOutputBind::STREAM_OUT) {
+	if (option.binding & RendererBinding::STREAM_OUT) {
 		desc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;
-		CHECK(option.resource_write != RendererResourceWrite::IMMUTABLE) << "STREAM_OUT binding cannot be used together with IMMUTABLE.";
-	} else if(option.output_bind == RendererOutputBind::UNORDERED_ACCESS) {
+	}
+	if(option.binding & RendererBinding::UNORDERED_ACCESS) {
 		desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
-		CHECK(option.resource_write != RendererResourceWrite::IMMUTABLE) << "UNORDERED_ACCESS binding cannot be used together with IMMUTABLE.";
 		desc.StructureByteStride = option.element_bytewidth;
 	}
 
@@ -69,24 +75,29 @@ void D3D11GraphicBuffer::Initialize(const Option &_option) {
 		D3D11_SUBRESOURCE_DATA subresource;
 		subresource.pSysMem = option.data;
 		result = manager->GetDevice()->CreateBuffer(&desc, &subresource, &buffer);
-	}
-	else {
+	} else {
 		result = manager->GetDevice()->CreateBuffer(&desc, 0, &buffer);
 	}
 
-	CHECK(!FAILED(result)) << "Cannot create buffer. Error code: " << ::GetLastError();
+	if(FAILED(result)) {
+		error = fmt::format("{}{}", "Cannot create buffer. Error code: ", ::GetLastError()); 
+		Clean();
+		return false;
+	}
 
 	mapped = new D3D11MappedResource(buffer, option.resource_write);
 
 	//Create all the views.
-	if (option.input_bind == RendererInputBind::VERTEX_BUFFER) {
+	if (option.binding & RendererBinding::VERTEX_BUFFER) {
 		vertex_buffer = new D3D11VertexBuffer(this);
-	} else if (option.input_bind == RendererInputBind::INDEX_BUFFER) {
+	}
+	if (option.binding & RendererBinding::INDEX_BUFFER) {
 		index_buffer = new D3D11IndexBuffer(this);
 	} 
-	if (option.output_bind == RendererOutputBind::STREAM_OUT) {
+	if (option.binding & RendererBinding::STREAM_OUT) {
 		stream_out = new D3D11StreamOut(this);
-	} else if(option.output_bind == RendererOutputBind::UNORDERED_ACCESS) {
+	}
+	if(option.binding & RendererBinding::UNORDERED_ACCESS) {
 		//Create the view.
 		D3D11_UNORDERED_ACCESS_VIEW_DESC  uav_desc;
 		uav_desc.Format = DXGI_FORMAT_UNKNOWN;
@@ -97,45 +108,20 @@ void D3D11GraphicBuffer::Initialize(const Option &_option) {
 
 		ID3D11UnorderedAccessView *view = 0;
 		result = manager->GetDevice()->CreateUnorderedAccessView(buffer, &uav_desc, &view);
-		CHECK(!FAILED(result)) << "Cannot create UnorderedAccessView. Error code: " << ::GetLastError();
+		if(FAILED(result)) {
+			error = fmt::format("{}{}",  "Cannot create UnorderedAccessView. Error code: ", ::GetLastError());
+			Clean();
+			return false;
+		}
 
 		unordered_access = new D3D11UnorderedAccess(this, view);
 	}
+	this->option = option;
+	return true;
 }
 
-uint32_t D3D11GraphicBuffer::GetElementCount() const {
-	Check();
-	return option.element_count;
-}
-
-uint32_t D3D11GraphicBuffer::GetElementBytewidth() const {
-	Check();
-	return option.element_bytewidth;
-}
-
-RendererResourceWrite D3D11GraphicBuffer::GetResourceWrite() const {
-	Check();
-	return mapped->GetResourceWrite();
-}
-
-RendererInputBind D3D11GraphicBuffer::GetInputBind() const{
-	Check();
-	return option.input_bind;
-}
-
-RendererOutputBind D3D11GraphicBuffer::GetOutputBind() const{
-	Check();
-	return option.output_bind;
-}
-
-uint32_t D3D11GraphicBuffer::GetElementMemberCount() const {
-	Check();
-	return option.element_member_count;
-}
-
-s2string D3D11GraphicBuffer::GetElementTypeName() const {
-	Check();
-	return option.element_typename;
+const GraphicBuffer::Option & D3D11GraphicBuffer::GetOption() const {
+	return option;
 }
 
 void D3D11GraphicBuffer::WriteMap(GraphicPipeline *_pipeline, bool no_overwrite) {
@@ -155,14 +141,13 @@ void D3D11GraphicBuffer::WriteUnmap() {
 
 void D3D11GraphicBuffer::Write(uint32_t index, const void *data, uint32_t array_size, uint32_t element_bytewidth) {
 	Check();
-	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
 
 	mapped->Write(index*element_bytewidth, data, array_size*element_bytewidth);
 }
 
 const void * D3D11GraphicBuffer::Read(uint32_t index, uint32_t element_bytewidth) const {
 	Check();
-	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
+
 	return (const char *)mapped->Read() + index*element_bytewidth;
 }
 
@@ -204,9 +189,6 @@ void D3D11GraphicBuffer::Update(GraphicPipeline * _pipeline,
 	if(_pipeline) {
 		CHECK(pipeline)<<"Error casting pipeline to D3D11GraphicPipeline";
 	}
-	CHECK(element_bytewidth == GetElementBytewidth()) << "Element size mismatch.";
-	CHECK(mapped->GetResourceWrite() == RendererResourceWrite::CPU_WRITE_OCCASIONAL) <<
-		"Only CPU_WRITE_OCCASIONAL is allowed to update.";
 
 	D3D11_BOX dest;
 	dest.left = index*element_bytewidth;
@@ -235,7 +217,7 @@ StreamOut * D3D11GraphicBuffer::AsStreamOut() const {
 	return stream_out;
 }
 
-UnorderedAccess * D3D11GraphicBuffer::AsUnorderedAccess() const{
+UnorderedAccess * D3D11GraphicBuffer::AsUnorderedAccess() const {
 	CHECK(unordered_access != 0) << "Buffer is not binded as unordered access view";
 	return unordered_access;
 }

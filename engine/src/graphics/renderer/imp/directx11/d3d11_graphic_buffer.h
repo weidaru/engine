@@ -18,15 +18,10 @@ class D3D11GraphicBuffer : public GraphicBuffer {
 public:
 	D3D11GraphicBuffer(D3D11GraphicResourceManager *_manager);
 	virtual ~D3D11GraphicBuffer();
-	virtual void Initialize(const Option &option);
-	virtual uint32_t GetElementCount() const;
-	virtual uint32_t GetElementBytewidth() const;
-	virtual uint32_t GetElementMemberCount() const;
-	virtual s2string GetElementTypeName() const;
+	virtual bool Initialize(const Option &option);
 
-	virtual RendererResourceWrite GetResourceWrite() const;
-	virtual RendererInputBind GetInputBind() const;
-	virtual RendererOutputBind GetOutputBind() const;
+	virtual const GraphicBuffer::Option & GetOption() const;
+
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite);
 	virtual void WriteUnmap();
 	virtual void ReadMap(GraphicPipeline *pipeline, bool wipe_cache) const;
@@ -46,6 +41,7 @@ public:
 
 private:
 	void Check() const;
+	void Clean();
 
 private:
 	D3D11GraphicResourceManager *manager;

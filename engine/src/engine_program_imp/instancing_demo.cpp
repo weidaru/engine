@@ -172,7 +172,7 @@ public:
 		pipeline->SetVertexBuffer(0, color_buffer->AsVertexBuffer());
 		pipeline->SetVertexBuffer(1, instance_buffer->AsVertexBuffer());
 		pipeline->SetIndexBuffer(index_buffer->AsIndexBuffer());
-		pipeline->DrawInstanceIndex(0, index_buffer->GetElementCount(), 0, instance_buffer->GetElementCount());
+		pipeline->DrawInstanceIndex(0, index_buffer->GetOption().element_count, 0, instance_buffer->GetOption().element_count);
 	}
 
 	virtual void OnEnter() override {

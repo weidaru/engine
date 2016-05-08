@@ -20,8 +20,7 @@ public:
 		RendererFormat 	format;
 		uint32_t 	sample_size;
 		RendererResourceWrite resource_write;
-		RendererOutputBind output_bind;
-		RendererInputBind input_bind;
+		uint32_t binding;
 		TextureData data;
 		
 		Option() {
@@ -31,8 +30,7 @@ public:
 			mip_level = 1;
 			array_size = 1;
 			format = RendererFormat::R8G8B8A8_UNORM;
-			output_bind = RendererOutputBind::NOT_OUTPUT;
-			input_bind = RendererInputBind::SHADER_RESOURCE;
+			binding = RendererBinding::SHADER_RESOURCE;
 			sample_size = 1;
 			resource_write = RendererResourceWrite::IMMUTABLE;
 		}
@@ -40,7 +38,7 @@ public:
 
 public:
 	virtual ~Texture3D() {}
-	virtual void Initialize(const Option &option) = 0;
+	virtual bool Initialize(const Option &option) = 0;
 	virtual const Texture3D::Option & GetOption() const = 0;		
 	
 	virtual void WriteMap(GraphicPipeline *pipeline, uint32_t mip_index, uint32_t array_index) = 0;

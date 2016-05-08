@@ -34,8 +34,7 @@ public:
 		Texture2D::Option tex_opt;
 		tex_opt.width = 1024;
 		tex_opt.height = 1024;
-		tex_opt.input_bind = RendererInputBind::SHADER_RESOURCE;
-		tex_opt.output_bind = RendererOutputBind::UNORDERED_ACCESS;
+		tex_opt.binding = RendererBinding::SHADER_RESOURCE | RendererBinding::UNORDERED_ACCESS;
 		tex->Initialize(tex_opt);
 
 		cs_data = manager->CreateShaderData();

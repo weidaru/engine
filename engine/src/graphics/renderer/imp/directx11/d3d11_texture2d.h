@@ -18,7 +18,7 @@ public:
 	D3D11Texture2D(D3D11GraphicResourceManager *_manager);
 
 	virtual ~D3D11Texture2D();
-	virtual void Initialize(const Option &_option);
+	virtual bool Initialize(const Option &_option);
 	virtual const Texture2D::Option & GetOption() const;
 	
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index);
@@ -47,6 +47,7 @@ public:
 	
 private:
 	void Check() const;
+	void Clean();
 
 private:
 	Option option;

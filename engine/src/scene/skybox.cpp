@@ -144,7 +144,7 @@ void Skybox::OneFrame(float delta) {
 	pipeline->SetIndexBuffer(ib->AsIndexBuffer(), 0);
 	pipeline->SetVertexShaderData(vs_data);
 	pipeline->SetPixelShaderData(ps_data);
-	pipeline->DrawIndex(0, ib->GetElementCount());
+	pipeline->DrawIndex(0, ib->GetOption().element_count);
 
 }
 

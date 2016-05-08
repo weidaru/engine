@@ -17,8 +17,7 @@ public:
 		uint32_t mip_level;			//0 is full mipmap.
 		uint32_t array_size;
 		RendererFormat format;
-		RendererOutputBind output_bind;
-		RendererInputBind input_bind;
+		uint32_t binding;
 		RendererResourceWrite resource_write;
 		TextureData data;
 		
@@ -27,15 +26,14 @@ public:
 			mip_level = 1;
 			array_size = 1;
 			format = RendererFormat::R8G8B8A8_UNORM;
-			output_bind = RendererOutputBind::NOT_OUTPUT;
-			input_bind = RendererInputBind::SHADER_RESOURCE;
+			binding = RendererBinding::SHADER_RESOURCE;
 			resource_write = RendererResourceWrite::IMMUTABLE;
 		}
 	};
 
 public:
 	virtual ~Texture1D() {}
-	virtual void Initialize(const Option &option) = 0;
+	virtual bool Initialize(const Option &option) = 0;
 	virtual const Texture1D::Option & GetOption() const = 0;		
 	
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index) = 0;

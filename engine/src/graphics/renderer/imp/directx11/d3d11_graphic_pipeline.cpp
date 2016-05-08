@@ -127,7 +127,7 @@ void D3D11GraphicPipeline::SetVertexBuffer(uint32_t index, VertexBuffer *_buf, u
 	VBInfo &info = vbs[index];
 	info.vb = buffer;
 	if(stride == 0 && buffer != 0) {
-		info.stride = buffer->GetResource()->GetElementBytewidth() ;
+		info.stride = buffer->GetResource()->GetOption().element_bytewidth ;
 	} else {
 		info.stride = stride;
 	}
@@ -145,7 +145,7 @@ void D3D11GraphicPipeline::SetVertexBuffer(uint32_t start_index,
 		VBInfo &info = vbs[start_index+i];
 		info.vb = static_cast<D3D11VertexBuffer *>(item.buffer);
 		if(item.stride == 0 && item.buffer != 0) {
-			info.stride = info.vb->GetResource()->GetElementBytewidth();
+			info.stride = info.vb->GetResource()->GetOption().element_bytewidth;
 		} else {
 			info.stride = item.stride;
 		}

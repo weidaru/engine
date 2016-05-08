@@ -24,8 +24,7 @@ public:
 		RendererFormat format;
 		uint32_t 	sample_size;			//This is only useful for render target
 		RendererResourceWrite resource_write;
-		RendererOutputBind output_bind;
-		RendererInputBind input_bind;
+		uint32_t binding;
 		TextureData data;
 		
 		Option() {
@@ -34,8 +33,7 @@ public:
 			mip_level = 1;
 			array_size = 1;
 			format = RendererFormat::R8G8B8A8_UNORM;
-			output_bind = RendererOutputBind::NOT_OUTPUT;
-			input_bind = RendererInputBind::SHADER_RESOURCE;
+			binding = RendererBinding::SHADER_RESOURCE;
 			sample_size = 1;
 			resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
 		}
@@ -46,8 +44,7 @@ public:
 			option->mip_level = 1;
 			option->array_size = 1;
 			option->format = RendererFormat::D24_UNORM_S8_UINT;
-			option->output_bind = RendererOutputBind::DEPTH_STENCIL;
-			option->input_bind = RendererInputBind::NOT_INPUT;
+			option->binding = RendererBinding::DEPTH_STENCIL;
 			option->sample_size = 1;
 			option->resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
 			option->data.Reset(1, 1);
@@ -56,7 +53,7 @@ public:
 
 public:
 	virtual ~Texture2D() {}
-	virtual void Initialize(const Option &option) = 0;
+	virtual bool Initialize(const Option &option) = 0;
 	virtual const Texture2D::Option & GetOption() const = 0;		
 	
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite, uint32_t mip_index, uint32_t array_index) = 0;

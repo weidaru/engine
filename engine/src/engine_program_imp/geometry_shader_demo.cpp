@@ -51,7 +51,7 @@ public:
 		vb_option.element_member_count = 1;
 		vb_option.element_bytewidth = 12;
 		vb_option.data = vb_data;
-		vb_option.input_bind = RendererInputBind::VERTEX_BUFFER;
+		vb_option.binding = RendererBinding::VERTEX_BUFFER;
 		vb->Initialize(vb_option);
 
 		vs = manager->CreateVertexShader();
@@ -88,7 +88,7 @@ public:
 		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 		pipeline->SetIndexBuffer(0);
 		pipeline->SetRenderTargetAndDepthStencil(0, context->GetBackBuffer()->AsRenderTarget(), 0);
-		pipeline->Draw(0, vb->GetElementCount());
+		pipeline->Draw(0, vb->GetOption().element_count);
 	}
 
 	virtual void OnEnter() override {

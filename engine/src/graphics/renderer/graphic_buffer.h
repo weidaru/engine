@@ -22,8 +22,7 @@ public:
 		void * data;
 		s2string element_typename;
 		RendererResourceWrite resource_write;
-		RendererInputBind input_bind;
-		RendererOutputBind output_bind;
+		uint32_t binding;
 
 		Option() {
 			element_count = 0;
@@ -31,8 +30,7 @@ public:
 			element_bytewidth = 0;
 			data = 0;
 			resource_write = RendererResourceWrite::CPU_WRITE_OCCASIONAL;
-			input_bind = RendererInputBind::VERTEX_BUFFER;
-			output_bind = RendererOutputBind::NOT_OUTPUT;
+			binding = RendererBinding::VERTEX_BUFFER;
 		}
 
 		template<typename T>
@@ -50,8 +48,7 @@ public:
 			element_member_count = 1;
 			element_bytewidth = sizeof(IndexBufferElementType);
 			element_typename = "uint32_t";
-			input_bind = RendererInputBind::INDEX_BUFFER;
-			output_bind = RendererOutputBind::NOT_OUTPUT;
+			binding = RendererBinding::INDEX_BUFFER;
 			data = _data;
 		}
 
@@ -62,22 +59,13 @@ public:
 	};
 
 public:
-	virtual 						~GraphicBuffer() {}
+	virtual ~GraphicBuffer() {}
 	/**
 	 * TODO: Really don't like such long list of parameter, refactor!!!!
 	 */
-	virtual void 				Initialize(const Option &option) = 0;
+	virtual bool Initialize(const Option &option) = 0;
 
-	virtual uint32_t 	GetElementCount() const = 0;
-	virtual uint32_t 	GetElementBytewidth() const = 0;
-	virtual uint32_t 	GetElementMemberCount() const = 0;
-	//VertexBuffer with raw data, not initialized or initialized through 
-	//will return have "" TypeName.
-	virtual s2string 			GetElementTypeName() const { return ""; }
-
-	virtual RendererResourceWrite GetResourceWrite() const = 0;
-	virtual RendererInputBind GetInputBind() const = 0;
-	virtual RendererOutputBind GetOutputBind() const = 0;
+	virtual const GraphicBuffer::Option & GetOption() const = 0;
 
 	virtual void WriteMap(GraphicPipeline *pipeline, bool no_overwrite = false) = 0;
 	virtual void WriteUnmap() = 0;

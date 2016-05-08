@@ -146,7 +146,6 @@ public:
 		normal_state->SetVertexShader(vs);
 		normal_state->SetPixelShader(ps);
 		normal_state->SetInputLayout(input_layout);
-
 	}
 	
 	void CreateTextureProgram() {
@@ -159,7 +158,7 @@ public:
 		Texture2D::Option tex_option;
 		tex_option.format = RendererFormat::R32G32B32A32_FLOAT;
 		texture = manager->CreateTexture2D();
-		tex_option.output_bind = RendererOutputBind::RENDER_TARGET;
+		tex_option.binding = RendererBinding::SHADER_RESOURCE | RendererBinding::RENDER_TARGET;
 		tex_option.width = renderer_setting.window_width;
 		tex_option.height = renderer_setting.window_height;
 		texture->Initialize(tex_option);
@@ -237,7 +236,7 @@ public:
 			1, texture->AsRenderTarget(), ds_buffer->AsDepthStencil());
 		pipeline->SetVertexBuffer(0, vb->AsVertexBuffer());
 		pipeline->SetIndexBuffer(ib->AsIndexBuffer());
-		pipeline->DrawIndex(0, ib->GetElementCount());
+		pipeline->DrawIndex(0, ib->GetOption().element_count);
 	}
 	
 	void DrawTexture(float delta) {
@@ -252,7 +251,7 @@ public:
 			0, Engine::GetSingleton()->GetRendererContext()->GetBackBuffer()->AsRenderTarget(), ds_buffer->AsDepthStencil());
 		pipeline->SetVertexBuffer(0, tex_vb->AsVertexBuffer());
 		pipeline->SetIndexBuffer(tex_ib->AsIndexBuffer());
-		pipeline->DrawIndex(0, tex_ib->GetElementCount());
+		pipeline->DrawIndex(0, tex_ib->GetOption().element_count);
 	}
 	
 	virtual void OneFrame(float delta) override {

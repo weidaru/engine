@@ -177,7 +177,7 @@ void MaterialSystem::OneFrame(float delta) {
 
 		pipeline->SetVertexBuffer(0, mesh_data->GetVertexBuffer()->AsVertexBuffer());
 		pipeline->SetIndexBuffer(mesh_data->GetIndexBuffer()->AsIndexBuffer());
-		pipeline->DrawIndex(0, mesh_data->GetIndexBuffer()->GetElementCount());
+		pipeline->DrawIndex(0, mesh_data->GetIndexBuffer()->GetOption().element_count);
 	}
 }
 

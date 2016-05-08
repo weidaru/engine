@@ -5,19 +5,17 @@
 
 namespace s2 {
 
-enum struct RendererOutputBind {
-	NOT_OUTPUT,
-	RENDER_TARGET,
-	DEPTH_STENCIL,
-	STREAM_OUT,
-	UNORDERED_ACCESS
-};
-
-enum struct RendererInputBind {
-	NOT_INPUT,
-	SHADER_RESOURCE,
-	VERTEX_BUFFER,
-	INDEX_BUFFER
+struct RendererBinding {
+	enum {
+		VERTEX_BUFFER     = 0x1,
+		INDEX_BUFFER      = 0x2,
+		//CONSTANT_BUFFER   = 0x4,
+		SHADER_RESOURCE   = 0x8,
+		STREAM_OUT     = 0x10,
+		RENDER_TARGET     = 0x20,
+		DEPTH_STENCIL     = 0x40,
+		UNORDERED_ACCESS  = 0x80,
+	};
 };
 
 enum struct RendererResourceWrite {

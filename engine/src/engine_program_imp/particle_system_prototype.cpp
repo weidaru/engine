@@ -53,7 +53,7 @@ public:
 			vb_option.element_member_count = 1;
 			vb_option.element_bytewidth = 20;
 			vb_option.data = vb_data;
-			vb_option.input_bind = RendererInputBind::VERTEX_BUFFER;
+			vb_option.binding = RendererBinding::VERTEX_BUFFER;
 			quad_buffer->Initialize(vb_option);
 		}
 		
@@ -160,8 +160,7 @@ public:
 			option.width = 128;
 			option.height = 128;
 			option.format = RendererFormat::R32G32B32A32_FLOAT;
-			option.input_bind = RendererInputBind::SHADER_RESOURCE;
-			option.output_bind = RendererOutputBind::RENDER_TARGET;
+			option.binding = RendererBinding::SHADER_RESOURCE | RendererBinding::RENDER_TARGET;
 			position_tex->Initialize(option);
 
 			std::vector<float> data(width * height*4);
@@ -207,7 +206,7 @@ public:
 			vb_option.element_member_count = 1;
 			vb_option.element_bytewidth = 12;
 			vb_option.data = vb_data;
-			vb_option.input_bind = RendererInputBind::VERTEX_BUFFER;
+			vb_option.binding = RendererBinding::VERTEX_BUFFER;
 			quad_buffer->Initialize(vb_option);
 		}
 
@@ -282,7 +281,7 @@ public:
 		pipeline->SetState(*update_state);
 		pipeline->SetPrimitiveTopology(GraphicPipeline::TRIANGLE_STRIP);
 		pipeline->SetPixelShaderData(update_ps_shader_data);
-		pipeline->Draw(0, quad_buffer->GetElementCount());
+		pipeline->Draw(0, quad_buffer->GetOption().element_count);
 		
 
 		//Render
