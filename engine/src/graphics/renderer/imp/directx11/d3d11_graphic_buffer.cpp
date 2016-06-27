@@ -57,10 +57,10 @@ bool D3D11GraphicBuffer::Initialize(const Option &option) {
 	D3D11ResourceHelper::SetBufferDesc(&desc, option.element_count * option.element_bytewidth, option.resource_write);
 	desc.BindFlags = 0;
 	if (option.binding & RendererBinding::VERTEX_BUFFER) {
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		desc.BindFlags |= D3D11_BIND_VERTEX_BUFFER;
 	}
 	if (option.binding & RendererBinding::INDEX_BUFFER)  {
-		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		desc.BindFlags |= D3D11_BIND_INDEX_BUFFER;
 	}
 	if (option.binding & RendererBinding::STREAM_OUT) {
 		desc.BindFlags |= D3D11_BIND_STREAM_OUTPUT;

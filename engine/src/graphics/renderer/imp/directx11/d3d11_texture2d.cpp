@@ -97,7 +97,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	desc.BindFlags = 0;
 
 	if(_option.binding & RendererBinding::RENDER_TARGET) {
-		desc.BindFlags = D3D11_BIND_RENDER_TARGET;
+		desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 		rtv_desc = new D3D11_RENDER_TARGET_VIEW_DESC;
 		
 		rtv_desc->Format = desc.Format;
@@ -122,7 +122,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		
 	}
 	if(_option.binding & RendererBinding::DEPTH_STENCIL) {
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		desc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
 		dsv_desc = new D3D11_DEPTH_STENCIL_VIEW_DESC;
 		dsv_desc->Format = desc.Format;
 		dsv_desc->Flags = 0;
@@ -147,7 +147,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 		}
 	}
 	if(_option.binding & RendererBinding::UNORDERED_ACCESS) {
-		desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+		desc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 		uav_desc = new D3D11_UNORDERED_ACCESS_VIEW_DESC;
 		uav_desc->Format = desc.Format;
 		if(desc.ArraySize > 1) {
@@ -162,7 +162,7 @@ bool D3D11Texture2D::Initialize(const Texture2D::Option &_option) {
 	}
 		
 	if(_option.binding & RendererBinding::SHADER_RESOURCE) {
-		desc.BindFlags = desc.BindFlags | D3D11_BIND_SHADER_RESOURCE;
+		desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
 		srv_desc = new D3D11_SHADER_RESOURCE_VIEW_DESC;
 		srv_desc->Format = desc.Format;
 		if(desc.ArraySize > 1 && desc.SampleDesc.Count > 1) {
