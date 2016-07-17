@@ -24,38 +24,38 @@ legitimation. Thus typename is loosely matched.
 ]]
 local function parse_type(context, lex)
 	local start_pos = lex.pos
-	
-	local typename = ""
-	assert_help(lex, "Expect a word", lex.expect_word)
-	local end_pos = lex.pos-1
+  
+	local typename = {}
+	table.insert(typename, assert_help(lex, "Expect a word", lex.expect_word))
 
 	while true do
-		lex:ignore_blank()
-		if lex:expect("*") then 
-			typename = "pointer"
-			break
-		elseif lex:expect("&") then
-			typename = "reference"
-			break
-		end
+    lex:checkpoint()
+      lex:ignore_blank()
+      if lex:expect("*") then 
+        table.remove(typename)
+        table.insert(typename, "pointer")
+        lex:pop_checkpoint()
+        break
+      elseif lex:expect("&") then
+        table.remove(typename)
+        table.insert(typename, "reference")
+        lex:pop_checkpoint()
+        break
+      end
 		
-		lex:checkpoint()
-			lex:ignore_blank()
-			assert_help(lex, string.format("Expect either a variable or function name after %s", lex.data:sub(start_pos, lex.pos-1)),
-								lex.expect_word)
+			table.insert(typename, assert_help(lex, "Expect a word", lex.expect_word))
+      lex:ignore_blank()
 			if lex:expect("%[") or lex:expect("%(") or lex:expect(";") then
 				lex:rollback()
-				typename = lex.data:sub(start_pos, end_pos)
+        table.remove(typename)
 				break
 			end
-		lex:rollback()
-	
-		lex:ignore_blank()
-		assert(lex:expect_word(), "logic hole!!!")
+      
+    lex:pop_checkpoint()
 		
 	end
 	
-	return typename
+	return table.concat(typename, " ")
 end
 
 local function parse_function_argument_body(context, lex)
@@ -311,9 +311,10 @@ function m.link(context)
 [[
 Cannot find typeinfo %s (could be array) as a member of %s at 
 %s line %d
+typename: %s
 Dump context: %s
 ]], 
-						typename, typeinfo.typename, typeinfo.file, typeinfo.line, context:dump()))
+						typename, typeinfo.typename, typeinfo.file, typeinfo.line, typename, context:dump()))
 			 end
 		end
 	end

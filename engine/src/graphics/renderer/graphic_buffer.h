@@ -60,9 +60,6 @@ public:
 
 public:
 	virtual ~GraphicBuffer() {}
-	/**
-	 * TODO: Really don't like such long list of parameter, refactor!!!!
-	 */
 	virtual bool Initialize(const Option &option) = 0;
 
 	virtual const GraphicBuffer::Option & GetOption() const = 0;

@@ -55,6 +55,11 @@ function lexer.methods.rollback(self)
 	self.pos = table.remove(self.checkpoints)
 end
 
+function lexer.methods.pop_checkpoint(self)
+  assert(#self.checkpoints ~= 0,	[[checkpoint is not set. Cannot rollback.]])
+  table.remove(self.checkpoints)
+end
+
 --Do some cache if possible in the future. This function should not be used frequently.
 function lexer.methods.linenumber(self)
 	local count = 1

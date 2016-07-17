@@ -61,7 +61,7 @@ bool D3D11InputLayout::InitializeWithElement(const std::vector<ElementDescriptor
 	uint32_t size = reflect.GetInputSize();
 	if(elements.size() != size) {
 		S2StringFormat(&error, "ElementDescriptor size %d does not match input size %d", elements.size(), size);
-		//return false;
+		return false;
 	}
 	D3D11_INPUT_ELEMENT_DESC *descs = new D3D11_INPUT_ELEMENT_DESC[size];
 	for(uint32_t i=0; i<size; i++) {

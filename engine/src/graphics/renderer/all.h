@@ -23,5 +23,4 @@
 #include "vertex_shader.h"
 #include "compute_shader.h"
 
-
 #endif	RENDERER_ALL_H_

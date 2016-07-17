@@ -21,22 +21,13 @@ DXGI_FORMAT D3D11EnumConverter::TextureFormatToDXGIFormat(RendererFormat input) 
 		return DXGI_FORMAT_D24_UNORM_S8_UINT;
 	case RendererFormat::R32G32B32A32_FLOAT:
 		return DXGI_FORMAT_R32G32B32A32_FLOAT;
+	case RendererFormat::R32G32_FLOAT:
+		return DXGI_FORMAT_R32G32_FLOAT;
 	default:
 		CHECK(false)<<"Invalid input "<<static_cast<int>(input);
 		return DXGI_FORMAT_FORCE_UINT;
 	}
 }
-
-RendererFormat D3D11EnumConverter::DXGIFormatToTextureFormat(DXGI_FORMAT input) {
-	switch(input) {
-	case DXGI_FORMAT_R8G8B8A8_UNORM:
-		return RendererFormat::R8G8B8A8_UNORM;
-	default:
-		CHECK(false)<<"Invalid input "<<input;
-		return RendererFormat::R8G8B8A8_UNORM;
-	}
-}
-
 D3D11_COMPARISON_FUNC D3D11EnumConverter::DSCompareToD3D11Compare(DepthStencilOption::ComparisonFunc input) {
 	switch(input) {
 	case DepthStencilOption::NEVER:

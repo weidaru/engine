@@ -61,6 +61,22 @@ bool PixelMap::Initialize(const s2string &_path, ImagePixelFormat _format) {
 		CHECK(false)<<"Unsupported format";
 		break;
 	}
+
+	//Flip ARGB to ABGR
+	unsigned int width = FreeImage_GetWidth(bitmap);
+	unsigned int height = FreeImage_GetHeight(bitmap);
+	uint32_t scanline = FreeImage_GetPitch(bitmap) / 4;
+	uint32_t *raw = (uint32_t *)FreeImage_GetBits(bitmap);
+	for (unsigned int i = 0; i<width; i++) {
+		for (unsigned int j = 0; j<height; j++) {
+			uint32_t *address = raw + scanline*j + i;
+			uint32_t old = *address;
+			uint32_t rep = (old & 0x00FF0000) >> 16;
+			rep |= ((old & 0x000000FF) << 16);
+			*address = (old & 0xFF00FF00) | rep;
+		}
+	}
+
 	return true;
 }
 

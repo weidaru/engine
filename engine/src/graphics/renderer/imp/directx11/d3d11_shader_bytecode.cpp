@@ -67,7 +67,9 @@ bool D3D11ShaderBytecode::Initialize(const s2string &path, const s2string &entry
 			break;
 		}
 
-		result = D3DCompile(buffer, size, path.c_str(), 0, 0, entry_point.c_str(), target.c_str(), flag, 0, &shader_blob, &error_blob);
+		result = D3DCompile(
+			buffer, size, path.c_str(), 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, 
+			entry_point.c_str(), target.c_str(), flag, 0, &shader_blob, &error_blob);
 		delete[] buffer;
 	}
 

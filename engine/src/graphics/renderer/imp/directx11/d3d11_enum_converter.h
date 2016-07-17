@@ -15,13 +15,11 @@ enum D3D11_BLEND;
 enum D3D11_BLEND_OP;
 enum D3D11_FILTER;
 
-
 namespace s2 {
 
 class D3D11EnumConverter {
 public:
 	static DXGI_FORMAT TextureFormatToDXGIFormat(RendererFormat input);
-	static RendererFormat DXGIFormatToTextureFormat(DXGI_FORMAT input);
 	
 	static D3D11_COMPARISON_FUNC DSCompareToD3D11Compare(DepthStencilOption::ComparisonFunc input);
 	static D3D11_STENCIL_OP StencilOpToD3D11StencilOp(DepthStencilOption::StencilOp input);

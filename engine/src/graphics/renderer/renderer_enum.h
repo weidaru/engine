@@ -28,7 +28,8 @@ enum struct RendererFormat {
 	R8G8B8A8_UNORM,
 	D24_UNORM_S8_UINT,
 	R32G32B32A32_FLOAT,
-	R32_UNIT
+	R32_UNIT,
+	R32G32_FLOAT
 	//Add more later.
 };
 
@@ -37,6 +38,8 @@ static uint32_t GetFormatSize(RendererFormat flag) {
 	case RendererFormat::R8G8B8A8_UNORM:
 	case RendererFormat::D24_UNORM_S8_UINT:
 		return 4;
+	case RendererFormat::R32G32_FLOAT:
+		return 8;
 	case RendererFormat::R32G32B32A32_FLOAT:
 		return 16;
 	default:

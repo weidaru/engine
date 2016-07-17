@@ -11,7 +11,6 @@
 
 #include <glog/logging.h>
 
-
 #include "d3d11_shader_data.h"
 
 #include "d3d11_shader_reflection.h"

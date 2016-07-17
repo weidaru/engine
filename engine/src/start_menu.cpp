@@ -113,6 +113,15 @@ void StartMenu::SetSelectedIndex(uint32_t index) {
 	}
 }
 
+void StartMenu::SetSelectedProgram(const s2string &name) {
+	for (uint32_t i = 0; i < programs.size(); i++) {
+		if (name == programs[i].program->GetName()) {
+			SetSelectedIndex(i);
+			break;
+		}
+	}
+}
+
 void StartMenu::OneFrame(float delta) {
 	InputSystem *input_system = Engine::GetSingleton()->GetInputSystem();
 	

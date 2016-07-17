@@ -83,7 +83,7 @@ void Engine::OneFrame(float delta) {
 	GraphicPipeline *pipeline = Engine::GetSingleton()->GetRendererContext()->GetPipeline();
 	Texture2D *bf = renderer_context->GetBackBuffer();
 
-	float black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	float black[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	pipeline->ClearRenderTarget(bf->AsRenderTarget(), black);
 	pipeline->ClearDepthStencil(scene_manager->GetDepthStencilBuffer()->AsDepthStencil(), true, 1.0f, 0.0f, 0);
 
@@ -158,6 +158,7 @@ void Engine::Initialize(const s2string &_window_name, const RendererSetting &ren
 	}
 
 	start_menu = new StartMenu(program_manager);
+	start_menu->SetSelectedProgram("ParticleSystemPrototype1");
 }
 
 void Engine::Shutdown() {

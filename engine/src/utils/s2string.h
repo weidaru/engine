@@ -2,14 +2,18 @@
 #define S2_STRING_H_
 
 #include <string>
+#include <utility>
+#include <cppformat/format.h>
 
 namespace s2 {
 
 typedef std::string s2string;
 typedef std::wstring s2wstring;
 
-//This now uses 1024-byte stack. TODO: Refactor if necessary.
-void S2StringFormat(s2string *str, const char *pattern, ...);
+template<typename... Params>
+void S2StringFormat(s2string *str, const char *pattern, Params&&... parameters) {
+	*str = fmt::sprintf(pattern, std::forward<Params>(parameters)...);
+}
 
 }
 

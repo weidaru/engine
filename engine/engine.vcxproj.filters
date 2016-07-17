@@ -306,9 +306,6 @@
     <ClInclude Include="src\start_menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine_program_imp\particle_system_prototype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\renderer\compute_shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -316,6 +313,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cppformat\format.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine_program_imp\partiel_prototype\particle_system_prototype0.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine_program_imp\partiel_prototype\texture_paint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine_program_imp\partiel_prototype\particle_system_prototype1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\renderer\renderer_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -331,9 +340,6 @@
     </ClCompile>
     <ClCompile Include="src\engine_program.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\s2string.cpp">
-      <Filter>Source Files\utils</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\camera.cpp">
       <Filter>Source Files</Filter>
@@ -497,9 +503,6 @@
     <ClCompile Include="src\start_menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine_program_imp\particle_system_prototype.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphics\renderer\imp\directx11\d3d11_compute_shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -509,9 +512,19 @@
     <ClCompile Include="src\engine_program_imp\compute_shader_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\engine_program_imp\partiel_prototype\particle_system_prototype0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine_program_imp\partiel_prototype\texture_paint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine_program_imp\partiel_prototype\particle_system_prototype1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="test\streamout.gs" />
+    <None Include="test\particle\1\common.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="content\shader\simple_material_vs.hlsl" />
@@ -520,12 +533,20 @@
     <FxCompile Include="content\shader\skybox_vs.hlsl" />
     <FxCompile Include="content\shader\sprite_ps.hlsl" />
     <FxCompile Include="content\shader\sprite_vs.hlsl" />
-    <FxCompile Include="test\particle\update_ps.hlsl" />
-    <FxCompile Include="test\particle\update_vs.hlsl" />
     <FxCompile Include="test\particle\texture_paint_vs.hlsl" />
     <FxCompile Include="test\particle\texture_paint_ps.hlsl" />
-    <FxCompile Include="test\particle\render_vs.hlsl" />
-    <FxCompile Include="test\particle\render_ps.hlsl" />
     <FxCompile Include="test\csdemo_cs.hlsl" />
+    <FxCompile Include="test\particle\0\render_ps.hlsl" />
+    <FxCompile Include="test\particle\0\render_vs.hlsl" />
+    <FxCompile Include="test\particle\0\update_ps.hlsl" />
+    <FxCompile Include="test\particle\0\update_vs.hlsl" />
+    <FxCompile Include="test\particle\1\render_vs.hlsl" />
+    <FxCompile Include="test\particle\1\render_ps.hlsl" />
+    <FxCompile Include="test\particle\1\render_gs.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test\image\particle.jpeg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

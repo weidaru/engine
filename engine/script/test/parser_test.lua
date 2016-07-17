@@ -11,7 +11,7 @@ Messed up with indentation.
 			//[[TypeInfo]]//
   struct Bar		
   {
-	  float* bar_a; int   bar_array[5]; 	char *bar_ptr;
+	  float* bar_a; unsigned int   bar_array[5]; 	char *bar_ptr;
 	  //This will be ignored.
 			double bar_b;};
 
@@ -45,7 +45,7 @@ do
 		"typename":="Bar",
 		"members":=[
 			{"typename":="pointer", "name":="bar_a"},
-			{"typename":="int[5]", "name":="bar_array"},
+			{"typename":="unsigned int[5]", "name":="bar_array"},
 			{"typename":="pointer", "name":="bar_ptr"},
 			{"typename":="double", "name":="bar_b"}
 		],

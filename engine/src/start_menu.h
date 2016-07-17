@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "utils/s2vector4.h"
+#include "utils/s2string.h"
 
 namespace s2 {
 class EngineProgramManager;
@@ -34,9 +35,8 @@ public:
 
 	EngineProgram * GetProgram(uint32_t index) { return programs[index].program; }
 	uint32_t GetSelectedIndex() { return selected_index; }
-
-private:
 	void SetSelectedIndex(uint32_t index);
+	void SetSelectedProgram(const s2string &name);
 
 private:
 	std::vector<ProgramData> programs;
